@@ -25,7 +25,6 @@
 | Nome | Valor |
 |---|---|
 | `NETLIFY_TOKEN` | o token do passo 3 |
-| `SITE_ID` | Site configuration > General > Site ID |
 | `NTFY_TOPIC` | o canal do app ntfy, difícil de adivinhar (ex.: `kiiro-avisos-8x2q7m`) |
 | `ADMIN_KEY` | uma senha longa para o seu painel |
 | `FORM_NAME` | (opcional) `cadastro`, que já é o padrão |

@@ -8,10 +8,12 @@ const CAMPOS = { nome: "nome", categoria: "servico", cidade: "cidade", whatsapp:
 const API = "https://api.netlify.com/api/v1";
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
 
-export default async () => {
-  const { NETLIFY_TOKEN, SITE_ID, APROVADOS } = process.env;
+export default async (req, context) => {
+  const { NETLIFY_TOKEN, APROVADOS } = process.env;
+  // o Netlify já informa o ID do site sozinho
+  const SITE_ID = process.env.KIIRO_SITE_ID || context?.site?.id || process.env.SITE_ID;
   const FORM_NAME = process.env.FORM_NAME || "cadastro";
-  if (!NETLIFY_TOKEN || !SITE_ID) return json(500, { erro: "Faltam as variáveis NETLIFY_TOKEN e SITE_ID" });
+  if (!NETLIFY_TOKEN || !SITE_ID) return json(500, { erro: !NETLIFY_TOKEN ? "Falta a variável NETLIFY_TOKEN" : "Não encontrei o ID do site" });
   const headers = { Authorization: `Bearer ${NETLIFY_TOKEN}` };
 
   try {
