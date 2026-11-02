@@ -11,25 +11,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 <style>
-  .topo-pag{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.6rem 0 2.2rem}
+  .topo-pag{background:var(--sun);padding:1.6rem 0 2.6rem;border-radius:0 0 28px 28px}
   .quem{display:flex;gap:1rem;align-items:center}
-  .quem h1{font-size:clamp(1.5rem,5.5vw,2.2rem);font-weight:800;line-height:1.12}
+  .quem h1{font-size:clamp(1.5rem,5.5vw,2.2rem);font-weight:700;line-height:1.15}
   .quem small{font-weight:600}
   .form-wrap{width:min(520px,100% - 2.5rem);margin:-1.1rem auto 3rem;position:relative}
   .estrelas{display:flex;gap:.3rem}
   .estrelas button{background:none;border:0;cursor:pointer;padding:.2rem;line-height:0;border-radius:10px}
-  .estrelas svg{width:46px;height:46px;fill:#fff;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;transition:transform .12s}
-  .estrelas button.on svg{fill:var(--star)}
+  .estrelas svg{width:46px;height:46px;fill:#fff;stroke:#C9B470;stroke-width:1.4;stroke-linejoin:round;transition:transform .12s}
+  .estrelas button.on svg{fill:var(--sun);stroke:#B08A00}
   .estrelas button:active svg{transform:scale(.88)}
   .rotulo-nota{font-weight:700;margin-top:.3rem;min-height:1.5em}
-  .foto-av{display:flex;align-items:center;gap:.9rem;background:#fff;border:2px dashed var(--ink);border-radius:16px;padding:.7rem;cursor:pointer}
-  .foto-av-prev{width:64px;height:64px;border-radius:12px;background:var(--sun-soft) center/cover;display:grid;place-items:center;font-size:1.6rem;flex:none;border:2px solid var(--ink)}
+  .foto-av{display:flex;align-items:center;gap:.9rem;background:#fff;border:1.5px dashed #D9C88E;border-radius:16px;padding:.7rem;cursor:pointer}
+  .foto-av-prev{width:64px;height:64px;border-radius:12px;background:var(--sun-soft) center/cover;display:grid;place-items:center;font-size:1.6rem;flex:none;border:1px solid var(--line)}
   .foto-av-txt b{display:block;font-size:.95rem}
   .foto-av-txt small{color:var(--muted);font-size:.8rem;line-height:1.35;display:block}
   .foto-av-tirar{background:none;border:0;color:var(--muted);font:600 .82rem Poppins,sans-serif;text-decoration:underline;margin-top:.4rem;cursor:pointer}
   .final{text-align:center;padding:1rem 0}
   .final .ok{width:76px;height:76px;border-radius:50%;background:var(--ink);color:var(--sun);display:grid;place-items:center;margin:0 auto 1rem;font-size:2rem}
-  .final h2{font-size:1.6rem;font-weight:800;line-height:1.15}
+  .final h2{font-size:1.6rem;font-weight:700;line-height:1.15}
   .final p{color:var(--muted);margin:.6rem auto 1.4rem;max-width:24rem}
 </style>
 </head>

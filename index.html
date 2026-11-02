@@ -2,219 +2,251 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kiiro | Profissionais perto de você no Litoral Norte</title>
-<meta name="description" content="Eletricista, diarista, pedreiro, pintor e mais no Litoral Norte do RS. Escolha o profissional e chame direto no WhatsApp.">
-<meta name="theme-color" content="#FFC800">
+<meta name="description" content="Eletricista, diarista, pedreiro, piscineiro e mais no Litoral Norte do RS. Escolha o profissional e chame direto no WhatsApp.">
+<meta name="theme-color" content="#FFFAEA">
 <meta property="og:title" content="Kiiro | Profissionais perto de você">
 <meta property="og:description" content="Escolha um profissional do Litoral Norte e chame direto no WhatsApp.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC800'/%3E%3Cpath d='M18 46C18 46 8 38 8 30a10 10 0 0 1 20 0c0 8-10 16-10 16ZM46 46C46 46 36 38 36 30a10 10 0 0 1 20 0c0 8-10 16-10 16Z' fill='%231A1A1A'/%3E%3Ccircle cx='18' cy='30' r='3.5' fill='%23FFC800'/%3E%3Ccircle cx='46' cy='30' r='3.5' fill='%23FFC800'/%3E%3Cpath d='M26 30h12' stroke='%231A1A1A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@800&text=%E9%BB%84%E8%89%B2&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
 <script src="patrocinios.js"></script>
 <style>
-  /* ===== Primeira tela ===== */
-  .hero{background:var(--sun);padding:1.4rem 0 0;border-bottom:2px solid var(--ink);position:relative;overflow:hidden}
-  .hero .wrap{position:relative}
-  .hero-txt{max-width:44rem;position:relative;z-index:1}
-  .eyebrow{display:inline-flex;align-items:center;gap:.4rem;background:var(--ink);color:var(--sun);border-radius:999px;padding:.25rem .75rem;font-size:.78rem;font-weight:700;letter-spacing:.02em}
-  .eyebrow i{width:7px;height:7px;border-radius:50%;background:#3DDC84;display:inline-block;animation:pisca 1.6s infinite}
-  @keyframes pisca{50%{opacity:.3}}
-  .hero h1{font-size:clamp(2.1rem,8vw,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-.035em;margin-top:.8rem}
-  .hero h1 em{font-style:normal;display:inline-block;background:var(--ink);color:var(--sun);padding:.02em .2em .06em;border-radius:.2em;margin-top:.1em;line-height:1.05;transform:rotate(-1deg);white-space:nowrap}
-  @media (max-width:380px){.hero h1{font-size:1.8rem}}
-  .hero p{margin-top:.7rem;font-size:clamp(1rem,2.4vw,1.15rem);font-weight:500;max-width:28rem}
-  .pins{position:absolute;right:-30px;top:6px;width:170px;opacity:.95;pointer-events:none}
-  @media (max-width:520px){.pins{width:96px;right:-6px;top:-2px}}
-  @media (min-width:900px){.pins{width:300px;right:0;top:10px}}
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  body.em-perfil{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .tela{display:none}
+  .tela.ativa{display:block}
 
-  .busca{position:relative;z-index:2;margin-top:1.3rem;background:#fff;border:2px solid var(--ink);border-radius:20px;display:grid;grid-template-columns:1fr auto;overflow:hidden;box-shadow:5px 5px 0 var(--ink);max-width:640px}
-  .busca label{display:flex;align-items:center;gap:.6rem;padding:0 1rem;min-width:0}
-  .busca label svg{width:22px;height:22px;flex:none}
-  .busca input{border:0;outline:0;font:1rem Poppins,sans-serif;padding:1rem 0;width:100%;min-width:0;background:transparent;color:var(--ink)}
-  .busca select{border:0;border-left:2px solid var(--ink);font:600 .95rem Poppins,sans-serif;padding:0 2.2rem 0 1rem;background:var(--sun-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .7rem center/16px;appearance:none;-webkit-appearance:none;color:var(--ink);cursor:pointer}
-  .busca:focus-within{outline:3px solid var(--ink);outline-offset:3px}
-  @media (max-width:520px){
-    .busca{grid-template-columns:1fr}
-    .busca select{border-left:0;border-top:2px solid var(--ink);padding:.9rem 2.2rem .9rem 1rem}
-  }
+  /* ===== TOPO ===== */
+  .topo{position:sticky;top:0;z-index:30;background:var(--paper);padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
+  .topo-in{max-width:1080px;margin:0 auto}
+  .topo-linha{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.75rem}
+  .link-pro{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;font-size:.85rem;font-weight:600;color:var(--ink);text-decoration:none;background:var(--sun);border-radius:999px;padding:.4rem 1rem}
+  .link-pro small{font-size:.62rem;font-weight:500;opacity:.8}
+  .busca{display:flex;align-items:center;gap:.8rem;background:var(--card);border-radius:999px;box-shadow:0 3px 14px rgba(90,70,0,.12);border:1px solid var(--line);padding:.5rem .5rem .5rem 1.2rem;max-width:640px}
+  .busca .lupa{width:20px;height:20px;flex:none}
+  .busca-txt{flex:1;min-width:0}
+  .busca-txt input{border:0;outline:0;font:600 .95rem Poppins,sans-serif;width:100%;background:transparent;color:var(--text);padding:0}
+  .busca-txt input::placeholder{color:var(--text)}
+  .busca select{border:0;font:.78rem Poppins,sans-serif;color:var(--muted);background:transparent;appearance:none;-webkit-appearance:none;padding:0;width:100%;cursor:pointer}
+  .btn-lupa{width:44px;height:44px;border-radius:50%;border:0;background:var(--sun);display:grid;place-items:center;flex:none;cursor:pointer}
+  .btn-lupa svg{width:20px;height:20px}
+  .cats{display:flex;gap:1.1rem;overflow-x:auto;padding:.8rem .1rem 0;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{flex:none;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding-bottom:.55rem;border-bottom:3px solid transparent;color:var(--muted);font-size:.74rem;font-weight:500;cursor:pointer;min-width:56px}
+  .cat .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;transition:background .15s}
+  .cat svg{width:23px;height:23px}
+  .cat.ativo{color:var(--ink);border-bottom-color:var(--sun);font-weight:600}
+  .cat.ativo .ic{background:var(--sun)}
 
-  /* serviços com ícone (dentro do topo) */
-  .servs{display:flex;gap:.6rem;overflow-x:auto;padding:1.3rem 1.25rem 1.2rem;margin:0 -1.25rem;scrollbar-width:none;scroll-snap-type:x proximity}
-  .servs::-webkit-scrollbar{display:none}
-  .serv{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:.4rem;width:76px;background:none;border:0;cursor:pointer;color:var(--ink);font:600 .76rem/1.2 Poppins,sans-serif;text-align:center}
-  .serv .ic{width:60px;height:60px;border-radius:18px;border:2px solid var(--ink);background:#fff;display:grid;place-items:center;transition:transform .15s,background-color .15s}
-  .serv .ic svg{width:28px;height:28px}
-  .serv:active .ic{transform:scale(.94)}
-  .serv.ativo .ic{background:var(--ink);color:var(--sun);box-shadow:3px 3px 0 rgba(26,26,26,.25)}
-  .serv small{display:block;font-weight:500;opacity:.7;font-size:.7rem}
-
-  /* ===== Lista ===== */
-  .lista-sec{padding:1.4rem 0 3rem}
-  .lista-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
-  .lista-head h2{font-size:1.15rem;font-weight:800;line-height:1.3}
-  .limpar{background:none;border:2px solid var(--ink);border-radius:999px;padding:.3rem .8rem;font-weight:600;font-size:.82rem;cursor:pointer}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem}
-  @media (max-width:360px){.grid{grid-template-columns:1fr}}
-
-  .card{background:#fff;border:2px solid var(--ink);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
-  @media (hover:hover){.card:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}}
-  .card-corpo{padding:1rem 1rem .9rem;display:flex;gap:.9rem;align-items:flex-start}
-  .card .avatar{width:64px;height:64px;border-radius:18px;font-size:1.3rem}
-  .av-1{background:var(--sun)}.av-2{background:var(--sun-soft)}.av-3{background:var(--ink)!important;color:var(--sun)!important}
-  .card .info{min-width:0;flex:1}
-  .linha-cat{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
-  .cat{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .cat svg{width:15px;height:15px;color:var(--ink)}
-  .cat-sep{color:var(--muted);font-weight:700;margin:0 .1rem}
-  .destaque{background:var(--ink);color:var(--sun);border-radius:999px;padding:.08rem .55rem;font-size:.68rem;font-weight:700;letter-spacing:.02em}
-  .card h3{font-size:1.12rem;font-weight:800;line-height:1.25;margin-top:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .nota{font-size:.85rem;color:var(--muted);margin-top:.15rem;display:flex;align-items:center;gap:.35rem}
-  .nota b{color:var(--ink);font-size:.95rem}
-  .estrelas-mini{color:var(--star);letter-spacing:-.05em;font-size:.95rem}
-  .estrelas-mini span{color:#E3DCC3}
-  .novo{display:inline-block;margin-top:.25rem;font-size:.75rem;font-weight:700;background:var(--sun-soft);border:1.5px dashed var(--ink);border-radius:999px;padding:.05rem .55rem}
-  .cidades{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.55rem}
-  .cidades span{font-size:.75rem;font-weight:600;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:.05rem .5rem;color:var(--muted)}
-  .cidades span.match{border-color:var(--ink);color:var(--ink);background:var(--sun-soft)}
-  .card-acao{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;border:0;border-top:2px solid var(--ink);background:var(--zap);color:#fff;font:700 1rem Poppins,sans-serif;padding:.95rem;cursor:pointer;transition:background-color .15s}
-  .card-acao:hover{background:var(--zap-hover)}
-  .card-acao svg{width:21px;height:21px}
-  .card-acao .seta{margin-left:auto;margin-right:-.2rem;opacity:.8}
-
-  .skel{height:168px;border-radius:22px;border:2px solid var(--line);background:linear-gradient(90deg,#fff 0%,var(--sun-soft) 50%,#fff 100%) 0 0/200% 100%;animation:brilho 1.2s infinite linear}
-  @keyframes brilho{to{background-position:-200% 0}}
-  .vazio{grid-column:1/-1;text-align:center;border:2px dashed var(--ink);border-radius:22px;padding:2rem 1.2rem;background:#fff}
-  .vazio .ic{width:60px;height:60px;border-radius:18px;background:var(--sun);border:2px solid var(--ink);display:grid;place-items:center;margin:0 auto .8rem}
-  .vazio .ic svg{width:28px;height:28px}
-  .vazio b{display:block;font-size:1.1rem;margin-bottom:.3rem;line-height:1.3}
-  .vazio p{color:var(--muted);margin-bottom:1rem}
-
-  /* ===== Como funciona ===== */
-  .como{background:var(--ink);color:var(--paper);padding:3rem 0}
-  .como h2{color:var(--sun);font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;line-height:1.1;margin-bottom:1.6rem}
-  .passos{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem}
-  .passos li{display:flex;gap:.9rem}
-  .passos .n{width:44px;height:44px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:800;flex:none}
-  .passos b{display:block;font-size:1.05rem}
-  .passos span{color:#D9D3BC;font-size:.93rem}
-
-  /* ===== Chamada para profissional ===== */
-  .pro{background:var(--sun);padding:3rem 0;border-top:2px solid var(--ink)}
-  .pro .wrap{display:grid;grid-template-columns:1.3fr auto;gap:1.5rem;align-items:center}
-  .pro h2{font-size:clamp(1.7rem,4.5vw,2.6rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
-  .pro p{margin-top:.6rem;max-width:30rem;font-weight:500}
-  .pro ul{list-style:none;margin-top:1rem;display:grid;gap:.4rem;font-weight:600;font-size:.95rem}
-  .pro li{display:flex;gap:.5rem;align-items:center}
-  .pro li svg{width:20px;height:20px;flex:none}
-  @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
-
-  /* boas-vindas */
-  .bv{max-height:92vh;overflow-y:auto;padding-top:.6rem;touch-action:pan-y}
-  .bv-topo{position:sticky;top:-.6rem;z-index:2;display:flex;justify-content:flex-end;align-items:center;margin:-.6rem -1.25rem .4rem;padding:.6rem 1rem .4rem;background:var(--paper)}
-  .bv-alca{position:absolute;left:50%;top:.55rem;transform:translateX(-50%);width:44px;height:5px;border-radius:5px;background:#CFC8B0}
-  .bv-x{display:inline-flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:.35rem .5rem .35rem .85rem;font:700 .85rem Poppins,sans-serif;color:var(--ink);cursor:pointer;min-height:40px}
-  .bv-x svg{width:16px;height:16px}
-  .bv-nome{background:var(--sun);border:2px solid var(--ink);border-radius:20px;padding:.9rem 1rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
-  .bv-kanji{font-family:"Noto Sans JP",Poppins,sans-serif;font-weight:800;font-size:2.6rem;line-height:1;white-space:nowrap;flex:none}
-  .bv-le{font-weight:700;font-size:.95rem;line-height:1.3}
-  .bv h3{font-size:1.45rem}
-  .bv-historia{display:grid;gap:.6rem;margin:.6rem 0 1rem;color:var(--muted);font-size:.95rem;line-height:1.55}
-  .bv-historia b{color:var(--ink)}
-  .bv-marca{display:flex;gap:.8rem;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:.8rem;margin-bottom:1.2rem;font-size:.85rem;line-height:1.45;color:var(--muted)}
-  .bv-marca svg{width:62px;flex:none;margin-top:.2rem}
-  .bv-marca b{color:var(--ink)}
-  .bv-pro{display:block;text-align:center;margin-top:.9rem;font-weight:700;font-size:.9rem;color:var(--ink)}
-
-  /* lembrete de avaliação */
-  .lembrete{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
-  .lembrete .wrap{display:flex;align-items:center;gap:.7rem;padding:.7rem 0}
-  .lembrete-ic{font-size:1.4rem}
+  /* ===== LISTA ===== */
+  .conteudo{max-width:1080px;margin:0 auto;padding:1.3rem 1.25rem 2rem}
+  .lembrete{display:flex;align-items:center;gap:.8rem;background:var(--ink);color:#fff;border-radius:16px;padding:.8rem .9rem;margin-bottom:1.2rem}
+  .lembrete-ic{font-size:1.3rem}
   .lembrete-txt{flex:1;min-width:0;line-height:1.25}
-  .lembrete-txt b{display:block;color:var(--sun);font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lembrete-txt b{display:block;color:var(--sun);font-size:.95rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lembrete-txt span{font-size:.78rem;opacity:.8}
-  .lembrete .btn{background:var(--sun);color:var(--ink);border-color:var(--sun);flex:none}
-  .lembrete-x{background:none;border:0;color:var(--paper);opacity:.6;font-size:1rem;cursor:pointer;padding:.4rem;flex:none}
+  .lembrete a{background:var(--sun);color:var(--ink);font-weight:600;font-size:.85rem;border-radius:10px;padding:.45rem .8rem;text-decoration:none;flex:none}
+  .lembrete-x{background:none;border:0;color:#fff;opacity:.6;font-size:1rem;cursor:pointer;padding:.3rem;flex:none}
+  .lista-head{display:flex;justify-content:space-between;align-items:flex-end;gap:.8rem;flex-wrap:wrap;margin-bottom:1.3rem}
+  .lista-head h1{font-size:1.3rem;font-weight:600;line-height:1.25}
+  .lista-head h1 em{font-style:normal;background:linear-gradient(transparent 60%,var(--sun) 60%);padding:0 .1em}
+  .lista-head small{display:block;font-size:.85rem;color:var(--muted);margin-top:.2rem;font-weight:400}
+  .filtros{display:flex;gap:.5rem;flex-wrap:wrap}
+  .filtro{display:inline-flex;align-items:center;gap:.35rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.35rem .85rem;font:500 .82rem Poppins,sans-serif;cursor:pointer;color:var(--text)}
+  .filtro.ativo{background:var(--ink);border-color:var(--ink);color:var(--sun)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem 1.4rem}
 
-  /* botão "Sou profissional" com legenda */
-  .btn-pro{flex-direction:column;gap:0;line-height:1.1;padding:.4rem 1.1rem;min-height:46px}
-  .btn-pro small{font-size:.66rem;font-weight:600;color:#fff;opacity:.85;letter-spacing:.01em}
+  .item{cursor:pointer;min-width:0}
+  .foto-box{position:relative;aspect-ratio:1/1;border-radius:var(--radius);overflow:hidden;background:var(--sun-soft)}
+  .foto-box img{width:100%;height:100%;object-fit:cover}
+  .foto-ini{width:100%;height:100%;display:grid;place-items:center;font-size:4.2rem;font-weight:700;color:var(--ink);background:linear-gradient(135deg,var(--sun) 0%,#FFE27A 100%)}
+  .foto-ini.c2{background:linear-gradient(135deg,#FFE9A8,#FFD35C)}
+  .foto-ini.c3{background:linear-gradient(135deg,#2B2B2B,#4A4A4A);color:var(--sun)}
+  .selo-img{position:absolute;top:.75rem;left:.75rem;background:var(--sun);border-radius:999px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:.3rem;color:var(--ink)}
+  .selo-img.esc{background:var(--ink);color:var(--sun)}
+  .fav{position:absolute;top:.6rem;right:.6rem;width:36px;height:36px;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+  .fav svg{width:26px;height:26px;stroke:#fff;stroke-width:2;fill:rgba(0,0,0,.35)}
+  .fav.on svg{fill:var(--sun)}
+  .info{padding-top:.65rem;display:grid;grid-template-columns:1fr auto;gap:.1rem .6rem}
+  .info h3{font-size:1rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nota{font-size:.9rem;display:flex;align-items:center;gap:.2rem;white-space:nowrap}
+  .nota svg{width:14px;height:14px;color:var(--sun);filter:drop-shadow(0 0 .4px #8a6a00)}
+  .novo{font-size:.78rem;font-weight:600;background:var(--sun-soft);border-radius:999px;padding:.05rem .55rem;align-self:center}
+  .info p{grid-column:1/-1;font-size:.9rem;color:var(--muted);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .info .dest{grid-column:1/-1;font-size:.88rem;color:var(--text);white-space:normal}
+  .info .dest b{font-weight:600}
+  .vazio{grid-column:1/-1;text-align:center;background:var(--card);border:1.5px dashed #E1CF8C;border-radius:20px;padding:2rem 1.2rem}
+  .vazio b{display:block;font-size:1.05rem;margin-bottom:.3rem}
+  .vazio p{color:var(--muted);margin-bottom:1rem}
+  .skel{aspect-ratio:1/1;border-radius:var(--radius);background:linear-gradient(90deg,#fff 0%,var(--sun-soft) 50%,#fff 100%) 0 0/200% 100%;animation:brilho 1.2s infinite linear}
+  @keyframes brilho{to{background-position:-200% 0}}
 
   /* patrocínio */
-  .patro{grid-column:1/-1;display:flex;gap:.9rem;align-items:center;background:#fff;border:2px solid var(--ink);border-radius:22px;padding:1rem;text-decoration:none;color:var(--ink);box-shadow:4px 4px 0 var(--sun)}
-  .patro-logo{width:60px;height:60px;border-radius:16px;background:var(--sun) center/cover;color:var(--ink);display:grid;place-items:center;flex:none;border:2px solid var(--ink);font-weight:800;font-size:1.3rem;overflow:hidden}
-  .patro-txt{min-width:0;flex:1}
-  .patro-tag{display:inline-block;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--paper);border:1.5px solid var(--line);color:var(--muted);border-radius:999px;padding:.05rem .5rem}
-  .patro b{display:block;font-size:1.02rem;margin-top:.25rem;line-height:1.25}
-  .patro p{font-size:.84rem;color:var(--muted);line-height:1.4;margin-top:.15rem}
-  .patro-cta{display:inline-block;margin-top:.45rem;font-weight:700;font-size:.82rem;background:var(--sun);border:2px solid var(--ink);border-radius:999px;padding:.22rem .8rem}
-  .patro.livre{border-style:dashed;box-shadow:none;background:var(--paper)}
-  .patro.livre .patro-logo{background:#fff;border-style:dashed;font-size:1.5rem}
+  .patro{grid-column:1/-1;display:flex;gap:1rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;text-decoration:none;color:var(--text);box-shadow:0 2px 10px rgba(90,70,0,.06)}
+  .patro-logo{width:64px;height:64px;border-radius:14px;background:var(--sun) center/cover;display:grid;place-items:center;flex:none;font-weight:700;font-size:1.4rem;color:var(--ink);overflow:hidden}
+  .patro-txt{flex:1;min-width:0}
+  .patro-tag{font-size:.7rem;color:var(--muted);font-weight:500}
+  .patro b{display:block;font-weight:600;font-size:.98rem;margin-top:.1rem}
+  .patro p{font-size:.86rem;color:var(--muted);line-height:1.4;margin-top:.15rem}
+  .patro-cta{display:inline-block;margin-top:.5rem;font-weight:600;font-size:.85rem;text-decoration:underline}
+  .patro.livre{background:transparent;border:1.5px dashed #D9C88E;box-shadow:none}
+  .patro.livre .patro-logo{background:var(--sun-soft);font-size:1.6rem;border:1.5px dashed #D9C88E}
+  .patro.livre .patro-cta{background:var(--sun);text-decoration:none;border-radius:10px;padding:.4rem .9rem;color:var(--ink)}
 
-  /* selos */
-  .selos-pro{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
-  .selo{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;font-weight:700;border-radius:999px;padding:.12rem .55rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink)}
-  .selo.urg{background:var(--ink);color:var(--sun)}
-  .selo.exp{background:var(--sun)}
-  .filtro-urg{display:inline-flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:.3rem .8rem;font:700 .82rem Poppins,sans-serif;cursor:pointer;color:var(--ink)}
-  .filtro-urg.ativo{background:var(--ink);color:var(--sun)}
-  .galeria{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.2rem}
-  .galeria button,.rv-foto{flex:none;border:2px solid var(--ink);border-radius:12px;padding:0;overflow:hidden;cursor:pointer;background:#fff}
-  .galeria img{width:96px;height:96px;object-fit:cover;display:block}
-  .rv-foto{margin-top:.5rem}
-  .rv-foto img{width:120px;height:90px;object-fit:cover;display:block}
-  .pf-lista{list-style:none;display:grid;gap:.45rem}
-  .pf-lista li{display:flex;gap:.6rem;align-items:flex-start;font-size:.93rem}
-  .pf-lista li span{width:1.4rem;text-align:center;flex:none}
+  /* como funciona + rodapé da home */
+  .como{margin-top:3rem;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:1.5rem}
+  .como h2{font-size:1.15rem;font-weight:600;margin-bottom:1rem}
+  .passos{list-style:none;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .passos li{display:flex;gap:.9rem;align-items:flex-start}
+  .passos .n{width:36px;height:36px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-weight:700;flex:none}
+  .passos b{display:block;font-weight:600}
+  .passos span{color:var(--muted);font-size:.9rem}
+  .rodape{max-width:1080px;margin:0 auto;padding:1rem 1.25rem 2rem;color:var(--muted);font-size:.82rem;line-height:1.6}
+  .rodape a{color:var(--ink);font-weight:600}
 
-  /* nome clicável */
-  .abre{background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;font:inherit;display:block;max-width:100%}
-  .abre h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--sun)}
-  .abre:hover h3{text-decoration-color:var(--ink)}
-  .ver-perfil{font-size:.8rem;font-weight:700;margin-top:.5rem;display:inline-flex;align-items:center;gap:.2rem;background:none;border:0;padding:0;cursor:pointer;color:var(--ink)}
-  .ver-perfil svg{width:14px;height:14px}
-
-  /* ===== Perfil ===== */
-  .perfil{max-height:92vh;overflow-y:auto;padding:0;position:relative}
-  .perfil .fechar{position:sticky;top:0;float:right;margin:.8rem .8rem 0 0;width:40px;height:40px;border-radius:50%;border:2px solid var(--ink);background:#fff;cursor:pointer;display:grid;place-items:center;z-index:2}
-  .perfil .fechar svg{width:18px;height:18px}
-  .pf-topo{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.4rem 1.25rem 1.2rem;border-radius:24px 24px 0 0}
-  .pf-topo .avatar{width:88px;height:88px;border-radius:24px;font-size:1.8rem}
-  .pf-topo h3{font-size:1.5rem;margin-top:.7rem}
-  .pf-topo .cat{color:var(--ink);margin-top:.2rem}
-  .pf-resumo{display:flex;align-items:center;gap:.6rem;margin-top:.6rem;flex-wrap:wrap}
-  .pf-resumo .grande{font-size:1.6rem;font-weight:800;line-height:1}
-  .pf-topo .estrelas-mini{color:var(--ink)}
-  .pf-topo .estrelas-mini span{color:rgba(26,26,26,.25)}
-  .pf-corpo{padding:1.2rem 1.25rem 1.4rem}
-  .pf-bloco{margin-bottom:1.3rem}
-  .pf-bloco h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.45rem}
-  .pf-bloco p{line-height:1.55}
-  .barras{display:grid;gap:.3rem;font-size:.82rem;font-weight:600}
+  /* ===== PERFIL (tela cheia) ===== */
+  .pf-foto{position:relative;height:46vh;min-height:300px;max-height:520px;background:var(--sun-soft);overflow:hidden}
+  .pf-foto img{width:100%;height:100%;object-fit:cover}
+  .pf-foto .foto-ini{font-size:6rem}
+  .pf-bts{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1rem;right:1rem;display:flex;justify-content:space-between}
+  .pf-bts div{display:flex;gap:.6rem}
+  .bt-redondo{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.95);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.18);cursor:pointer}
+  .bt-redondo svg{width:18px;height:18px}
+  .bt-redondo.on svg{fill:var(--sun)}
+  .pf-folha{position:relative;margin-top:-1.6rem;background:var(--paper);border-radius:24px 24px 0 0;padding:1.8rem 1.5rem 1rem;max-width:760px;margin-inline:auto}
+  .pf-folha h1{font-size:1.6rem;font-weight:600;text-align:center;line-height:1.2}
+  .pf-sub{text-align:center;color:var(--muted);font-size:.92rem;margin-top:.5rem;line-height:1.5}
+  .pf-novo{display:flex;justify-content:center;margin-top:.8rem}
+  .pf-premio{margin:1.3rem 0 0;background:var(--card);border:1.5px solid var(--sun);border-radius:16px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;text-align:center;padding:.9rem .5rem}
+  .pf-premio .sep{width:1px;height:32px;background:var(--line)}
+  .pf-premio b{display:block;font-size:1.1rem;font-weight:600}
+  .pf-premio span{font-size:.72rem;color:var(--muted)}
+  .pf-premio .est{color:var(--sun);letter-spacing:-.05em;font-size:.8rem}
+  .pf-premio .ouro{background:var(--sun);border-radius:12px;padding:.45rem .5rem;margin:0 .4rem;font-weight:600;font-size:.8rem;line-height:1.2;color:var(--ink)}
+  .pf-folha hr{border:0;border-top:1px solid var(--line);margin:1.5rem 0}
+  .linha-host{display:flex;gap:1rem;align-items:center}
+  .linha-host .avatar{width:56px;height:56px;border-radius:50%;font-size:1.2rem;box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--sun)}
+  .linha-host b{display:block;font-weight:600}
+  .linha-host span{color:var(--muted);font-size:.88rem}
+  .recursos{display:grid;gap:1.2rem}
+  .recurso{display:flex;gap:1rem;align-items:flex-start}
+  .recurso .ri{width:44px;height:44px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;flex:none;font-size:1.25rem}
+  .recurso b{display:block;font-weight:600;font-size:.98rem}
+  .recurso span{color:var(--muted);font-size:.9rem;line-height:1.45}
+  .pf-folha h2{font-size:1.15rem;font-weight:600;margin-bottom:.8rem}
+  .sobre{line-height:1.6}
+  .pf-cidades{display:flex;flex-wrap:wrap;gap:.5rem}
+  .pf-cidades span{background:var(--sun-soft);border:1px solid #F0DC92;border-radius:999px;padding:.35rem .85rem;font-size:.85rem}
+  .galeria{display:flex;gap:.6rem;overflow-x:auto;padding-bottom:.2rem;scrollbar-width:none}
+  .galeria button{flex:none;border:0;border-radius:12px;padding:0;overflow:hidden;cursor:pointer}
+  .galeria img{width:110px;height:110px;object-fit:cover}
+  .barras{display:grid;gap:.3rem;font-size:.82rem;margin-bottom:1rem}
   .barra{display:grid;grid-template-columns:2.2rem 1fr 1.6rem;align-items:center;gap:.5rem}
-  .barra i{display:block;height:9px;border-radius:9px;background:var(--line);overflow:hidden}
-  .barra i b{display:block;height:100%;background:var(--star);border-radius:9px}
-  .review{border-top:1.5px solid var(--line);padding:.8rem 0}
-  .review:first-of-type{border-top:0;padding-top:.2rem}
-  .review .l1{display:flex;justify-content:space-between;gap:.5rem;font-size:.9rem}
-  .review .l1 span{color:var(--muted);font-size:.8rem}
-  .review p{margin-top:.25rem;font-size:.93rem}
-  .sem-reviews{background:var(--sun-soft);border:1.5px dashed var(--ink);border-radius:16px;padding:.9rem;font-size:.9rem}
-  .pf-acoes{position:sticky;bottom:0;background:var(--paper);border-top:2px solid var(--ink);padding:.9rem 1.25rem 1.1rem;display:grid;gap:.5rem}
-  .compartilhar{background:none;border:0;font-weight:600;color:var(--muted);cursor:pointer;padding:.4rem;font-size:.88rem}
-  .carregando{color:var(--muted);font-size:.9rem}
+  .barra i{display:block;height:7px;border-radius:7px;background:var(--line);overflow:hidden}
+  .barra i b{display:block;height:100%;background:var(--sun);border-radius:7px}
+  .reviews{display:flex;gap:.9rem;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -1.5rem;padding:0 1.5rem .3rem;scrollbar-width:none}
+  .reviews::-webkit-scrollbar,.galeria::-webkit-scrollbar{display:none}
+  .review{flex:none;width:80%;max-width:300px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.1rem}
+  .review .est{color:var(--sun);font-size:.85rem;letter-spacing:-.05em}
+  .review .est span{color:#E8DFC0}
+  .review p{font-size:.92rem;line-height:1.5;margin-top:.3rem}
+  .review .ft{margin-top:.7rem;border:0;padding:0;border-radius:10px;overflow:hidden;cursor:pointer;display:block;width:100%}
+  .review .ft img{width:100%;height:120px;object-fit:cover}
+  .review .quem{display:flex;gap:.6rem;align-items:center;margin-top:.9rem}
+  .review .quem .avatar{width:34px;height:34px;border-radius:50%;font-size:.8rem}
+  .review .quem b{display:block;font-size:.86rem;font-weight:600}
+  .review .quem span{font-size:.76rem;color:var(--muted)}
+  .sem-av{background:var(--card);border:1px dashed #E1CF8C;border-radius:14px;padding:.9rem;color:var(--muted);font-size:.9rem}
+  .rodape-pf{position:fixed;left:0;right:0;bottom:0;z-index:35;background:var(--paper);border-top:1px solid var(--line);padding:.8rem 1.5rem calc(.8rem + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .rodape-pf > div{min-width:0}
+  .rodape-pf b{display:block;font-weight:600;font-size:.98rem;white-space:nowrap}
+  .rodape-pf span{font-size:.78rem;color:var(--muted);white-space:nowrap}
+  .bt-chamar{display:flex;align-items:center;gap:.5rem;border:0;background:var(--sun);color:var(--ink);border-radius:12px;padding:.85rem 1.3rem;font:600 1rem Poppins,sans-serif;white-space:nowrap;cursor:pointer}
+  .bt-chamar svg{width:20px;height:20px}
+
+  /* ===== ANUNCIE ===== */
+  .an-topo{background:var(--sun);padding:calc(1.2rem + env(safe-area-inset-top)) 1.5rem 2.2rem;border-radius:0 0 28px 28px}
+  .an-topo .in{max-width:760px;margin:0 auto}
+  .an-topo .logo{--hole:var(--sun);margin-bottom:1.4rem}
+  .an-topo small{display:inline-block;background:var(--ink);color:var(--sun);border-radius:999px;font-size:.72rem;font-weight:600;padding:.2rem .7rem}
+  .an-topo h1{font-size:1.8rem;line-height:1.12;font-weight:700;margin-top:.7rem;letter-spacing:-.02em}
+  .an-topo p{margin-top:.6rem;font-size:.95rem;line-height:1.5;max-width:30rem}
+  .an-corpo{padding:1.5rem;max-width:760px;margin:0 auto}
+  .an-corpo h2{font-size:1.15rem;font-weight:600;margin:1.8rem 0 .8rem}
+  .an-corpo h2:first-child{margin-top:0}
+  .porque{display:grid;gap:.8rem}
+  .porque > div{display:flex;gap:.9rem;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:.9rem}
+  .porque span{font-size:1.4rem;line-height:1;background:var(--sun-soft);border-radius:12px;width:44px;height:44px;display:grid;place-items:center;flex:none}
+  .porque b{display:block;font-weight:600}
+  .porque p{font-size:.88rem;color:var(--muted);line-height:1.45}
+  .formatos{display:grid;gap:.9rem}
+  .formato{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:1.1rem}
+  .formato.top{border-color:var(--sun);box-shadow:0 0 0 3px var(--sun-soft)}
+  .formato .tg{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--sun);border-radius:999px;padding:.1rem .6rem}
+  .formato b{display:block;font-size:1.05rem;font-weight:600;margin-top:.5rem}
+  .formato p{font-size:.88rem;color:var(--muted);line-height:1.45;margin-top:.2rem}
+  .formato ul{list-style:none;margin-top:.6rem;display:grid;gap:.3rem;font-size:.86rem}
+  .formato li::before{content:"✓";color:var(--sun-deep);font-weight:700;margin-right:.45rem}
+  .formato .preco{margin-top:.8rem;display:flex;justify-content:space-between;align-items:center;gap:.8rem}
+  .formato .preco span{font-size:.85rem;color:var(--muted)}
+  .formato .preco span b{display:inline;font-size:.95rem;color:var(--text)}
+  .bt-quero{border:0;background:var(--ink);color:var(--sun);border-radius:12px;padding:.65rem 1rem;font:600 .88rem Poppins,sans-serif;white-space:nowrap;cursor:pointer}
+  .vagas{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .vaga{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border-top:1px solid var(--line)}
+  .vaga:first-child{border-top:0}
+  .vaga .ic{width:36px;height:36px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;flex:none}
+  .vaga .ic svg{width:18px;height:18px}
+  .vaga .nm{flex:1;min-width:0;font-weight:500;font-size:.93rem}
+  .vaga .nm small{display:block;color:var(--muted);font-size:.75rem;font-weight:400}
+  .st{font-size:.72rem;font-weight:700;border-radius:999px;padding:.15rem .6rem;white-space:nowrap}
+  .st.livre{background:#E3F4E6;color:#17663A}
+  .st.ocup{background:#EEE;color:#777}
+  .vaga button{border:1px solid var(--ink);background:transparent;border-radius:10px;padding:.35rem .7rem;font:600 .78rem Poppins,sans-serif;cursor:pointer}
+  .vaga button:disabled{opacity:.35;cursor:default}
+  .an-rodape{margin-top:1.8rem;text-align:center;background:var(--ink);color:#fff;border-radius:20px;padding:1.4rem 1.2rem}
+  .an-rodape b{display:block;color:var(--sun);font-size:1.15rem}
+  .an-rodape p{font-size:.88rem;opacity:.85;margin:.3rem 0 1rem}
+  .an-rodape .bt-chamar{margin:0 auto}
+
+  /* ===== ABAS ===== */
+  .abas{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--paper);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:.45rem 0 calc(.45rem + env(safe-area-inset-bottom))}
+  .aba{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-size:.66rem;color:var(--muted);font-weight:500;min-width:58px;cursor:pointer;text-decoration:none}
+  .aba svg{width:24px;height:24px}
+  .aba .pin{color:var(--sun)}
+  .aba.ativa{color:var(--ink);font-weight:600}
+  .aba.ativa::after{content:"";position:absolute;top:-.46rem;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:3px;background:var(--sun)}
+  body.em-perfil .abas{display:none}
+
+  /* ===== JANELAS ===== */
+  .sheet.alta{max-height:92vh;overflow-y:auto}
+  .sheet-topo{position:sticky;top:-1.4rem;z-index:2;display:flex;justify-content:flex-end;align-items:center;margin:-1.4rem -1.25rem .6rem;padding:1rem 1rem .4rem;background:var(--paper)}
+  .alca{position:absolute;left:50%;top:.55rem;transform:translateX(-50%);width:44px;height:5px;border-radius:5px;background:#DCD2B0}
+  .bt-fechar{display:inline-flex;align-items:center;gap:.35rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.35rem .5rem .35rem .85rem;font:600 .85rem Poppins,sans-serif;color:var(--ink);cursor:pointer;min-height:38px}
+  .bt-fechar svg{width:15px;height:15px}
   .mt-grupo{margin-bottom:1.1rem}
-  .mt-grupo h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.5rem}
+  .mt-grupo h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.5rem}
   .mt-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-  .mt-item{display:flex;align-items:center;gap:.55rem;text-align:left;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:.6rem .7rem;font:600 .86rem/1.25 Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .mt-item{display:flex;align-items:center;gap:.55rem;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.6rem .7rem;font:500 .85rem/1.25 Poppins,sans-serif;color:var(--text);cursor:pointer}
   .mt-item svg{width:20px;height:20px;flex:none}
-  .mt-item small{display:block;font-weight:500;color:var(--muted);font-size:.72rem}
-  .mt-item.tem{background:var(--sun-soft)}
+  .mt-item small{display:block;font-weight:400;color:var(--muted);font-size:.72rem}
+  .mt-item.tem{border-color:var(--sun);background:var(--sun-soft)}
+  .bv-nome{background:var(--sun);border-radius:20px;padding:.9rem 1rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
+  .bv-kanji{font-family:"Noto Sans JP",Poppins,sans-serif;font-weight:800;font-size:2.6rem;line-height:1;white-space:nowrap;flex:none}
+  .bv-le{font-weight:600;font-size:.95rem;line-height:1.3}
+  .bv-historia{display:grid;gap:.6rem;margin:.6rem 0 1rem;color:var(--muted);font-size:.95rem;line-height:1.55}
+  .bv-historia b{color:var(--text)}
+  .bv-marca{display:flex;gap:.8rem;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:.8rem;margin-bottom:1.2rem;font-size:.86rem;line-height:1.45;color:var(--muted)}
+  .bv-marca svg{width:62px;flex:none;margin-top:.2rem}
+  .bv-marca b{color:var(--text)}
+  .link-sub{display:block;text-align:center;margin-top:.9rem;font-weight:600;font-size:.9rem;color:var(--ink)}
+  .foto-grande{max-width:94vw;max-height:84vh;border-radius:16px}
 </style>
 </head>
 <body>
@@ -236,113 +268,99 @@
   </symbol>
 </svg>
 
-<header class="top">
-  <div class="wrap">
-    <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
-    <a class="btn btn-ink btn-sm btn-pro" href="cadastro.html"><span>Sou profissional</span><small>Cadastre-se aqui</small></a>
-  </div>
-</header>
+<!-- ================= INÍCIO / SALVOS ================= -->
+<section class="tela ativa" id="tela-inicio">
+  <header class="topo">
+    <div class="topo-in">
+      <div class="topo-linha">
+        <a class="logo" href="./" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
+        <a class="link-pro" href="cadastro.html">Sou profissional<small>Cadastre-se aqui</small></a>
+      </div>
+      <div class="busca" role="search">
+        <svg class="lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <div class="busca-txt">
+          <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
+          <select id="cidade" aria-label="Cidade"><option value="">Qualquer cidade · Litoral Norte</option></select>
+        </div>
+        <button class="btn-lupa" type="button" id="btn-lupa" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      </div>
+      <nav class="cats" id="cats" aria-label="Serviços"></nav>
+    </div>
+  </header>
 
-<main>
-  <div class="lembrete escondido" id="lembrete" role="region" aria-label="Avaliar atendimento">
-    <div class="wrap">
+  <main class="conteudo">
+    <div class="lembrete escondido" id="lembrete" role="region" aria-label="Avaliar atendimento">
       <span class="lembrete-ic" aria-hidden="true">⭐</span>
       <div class="lembrete-txt"><b id="lembrete-titulo">Como foi?</b><span>Sua nota ajuda quem vem depois.</span></div>
-      <a class="btn btn-ink btn-sm" id="lembrete-link" href="#">Avaliar</a>
+      <a id="lembrete-link" href="#">Avaliar</a>
       <button class="lembrete-x" type="button" id="lembrete-x" aria-label="Agora não">✕</button>
     </div>
-  </div>
-  <section class="hero">
-    <div class="wrap">
-      <svg class="pins" viewBox="0 0 300 200" aria-hidden="true">
-        <g style="--hole:#FFC800;color:#1A1A1A">
-          <path d="M70 150C70 150 30 116 30 88a40 40 0 0 1 80 0c0 28-40 62-40 62Z" fill="#1A1A1A"/><circle cx="70" cy="88" r="14" fill="#FFC800"/>
-          <path d="M230 150C230 150 190 116 190 88a40 40 0 0 1 80 0c0 28-40 62-40 62Z" fill="#1A1A1A"/><circle cx="230" cy="88" r="14" fill="#FFC800"/>
-          <path d="M118 88H182" stroke="#1A1A1A" stroke-width="10" stroke-linecap="round"/>
-          <circle cx="150" cy="88" r="10" fill="#1A1A1A"/><circle cx="150" cy="88" r="4" fill="#FFC800"/>
-        </g>
-      </svg>
-      <div class="hero-txt">
-        <span class="eyebrow"><i></i> Litoral Norte do RS</span>
-        <h1>Tem quem faz.<br><em>Tem quem precisa.</em></h1>
-        <p>Escolha um profissional da sua cidade e chame direto no WhatsApp.</p>
-      </div>
 
-      <div class="busca" role="search">
-        <label>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
-        </label>
-        <select id="cidade" aria-label="Cidade">
-          <option value="">Todas as cidades</option>
-        </select>
-      </div>
-
-      <div class="servs" id="cats" role="toolbar" aria-label="Filtrar por serviço"></div>
-    </div>
-  </section>
-
-  <section class="lista-sec">
-    <div class="wrap">
-      <div class="lista-head">
-        <h2 id="contagem" aria-live="polite">Carregando…</h2>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <button class="filtro-urg" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
-          <button class="limpar escondido" id="limpar" type="button">Limpar filtros</button>
-        </div>
-      </div>
-      <div class="grid" id="lista">
-        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    <div class="lista-head">
+      <h1 id="titulo">Profissionais <em>perto de você</em><small id="contagem">Carregando…</small></h1>
+      <div class="filtros">
+        <button class="filtro" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
+        <button class="filtro escondido" id="limpar" type="button">Limpar filtros</button>
       </div>
     </div>
-  </section>
+    <div class="grid" id="lista"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 
-  <section class="como">
-    <div class="wrap">
+    <section class="como" id="como">
       <h2>Como funciona</h2>
       <ol class="passos">
         <li><span class="n">1</span><div><b>Escolha quem chamar</b><span>Veja o serviço, a cidade e a nota de quem já contratou.</span></div></li>
         <li><span class="n">2</span><div><b>Chame no WhatsApp</b><span>Combine visita, valor e prazo direto com o profissional.</span></div></li>
         <li><span class="n">3</span><div><b>Conte como foi</b><span>Depois a Kiiro pergunta como foi. Sua nota ajuda quem vem depois.</span></div></li>
       </ol>
-    </div>
-  </section>
+    </section>
+  </main>
+  <p class="rodape">A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional. · Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></p>
+</section>
 
-  <section class="pro">
-    <div class="wrap">
-      <div>
-        <h2>Sabe fazer?<br>Apareça aqui.</h2>
-        <p>Clientes da sua cidade chamam você direto no WhatsApp.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cadastro grátis em 1 minuto</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sem mensalidade e sem comissão</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Boas notas colocam você no topo</li>
-        </ul>
-      </div>
-      <a class="btn btn-ink" href="cadastro.html">Cadastrar meu serviço</a>
-    </div>
-  </section>
-</main>
+<!-- ================= PERFIL ================= -->
+<section class="tela" id="tela-perfil" aria-label="Perfil do profissional"></section>
 
-<footer>
-  <div class="wrap">
-    <span class="logo"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></span>
-    <p>A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional.</p>
-    <p>Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a> · <a href="#" id="abrir-sobre">Sobre a Kiiro</a></p>
+<!-- ================= ANUNCIE ================= -->
+<section class="tela" id="tela-anuncie" aria-label="Anuncie na Kiiro"></section>
+
+<!-- abas -->
+<nav class="abas" aria-label="Menu">
+  <button class="aba ativa" type="button" data-tela="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Explorar</button>
+  <button class="aba" type="button" data-tela="salvos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Salvos</button>
+  <button class="aba" type="button" data-tela="sobre"><svg class="pin" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="10" r="2.6" fill="#fff"/></svg>Sobre</button>
+  <button class="aba" type="button" data-tela="anuncie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 9a3 3 0 0 1 0 6M18 6a7 7 0 0 1 0 12"/></svg>Anuncie</button>
+  <a class="aba" href="cadastro.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Sou pro</a>
+</nav>
+
+<!-- Janela: antes de chamar -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-titulo">
+  <form class="sheet" id="form-chamar" novalidate>
+    <h3 id="m-titulo">Falta pouco!</h3>
+    <p class="sub" id="m-sub"></p>
+    <div class="campo"><label for="c-nome">Seu nome</label><input class="input" id="c-nome" autocomplete="given-name"></div>
+    <div class="campo"><label for="c-whats">Seu WhatsApp</label><input class="input" id="c-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999"></div>
+    <p class="erro" id="c-erro" role="alert"></p>
+    <button class="btn btn-sun btn-full" type="submit" id="c-ok"></button>
+    <button class="cancelar" type="button" id="c-cancelar">Cancelar</button>
+    <p class="fine">A Kiiro usa seu contato só para saber se deu tudo certo com o atendimento.</p>
+  </form>
+</div>
+
+<!-- Janela: todos os serviços -->
+<div class="modal" id="modal-todos" role="dialog" aria-modal="true" aria-labelledby="mt-titulo">
+  <div class="sheet alta" id="todos">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="mt-fechar">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <h3 id="mt-titulo">Todos os serviços</h3>
+    <input class="input" type="search" id="mt-busca" placeholder="Procurar… ex.: piscina" style="margin:.8rem 0 1rem" autocomplete="off">
+    <div id="mt-lista"></div>
   </div>
-</footer>
+</div>
 
-<!-- Boas-vindas: quem é a Kiiro (só na primeira visita) -->
+<!-- Janela: quem é a Kiiro -->
 <div class="modal" id="modal-bv" role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
-  <div class="sheet bv">
-    <div class="bv-topo">
-      <span class="bv-alca" aria-hidden="true"></span>
-      <button class="bv-x" type="button" id="bv-x" aria-label="Fechar">Pular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    </div>
-    <div class="bv-nome">
-      <span class="bv-kanji" lang="ja" aria-hidden="true">黄色</span>
-      <span class="bv-le">Kiiro, “amarelo” em japonês</span>
-    </div>
+  <div class="sheet alta" id="bv">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="bv-x">Pular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="bv-nome"><span class="bv-kanji" lang="ja" aria-hidden="true">黄色</span><span class="bv-le">Kiiro, “amarelo” em japonês</span></div>
     <h3 id="bv-titulo">Prazer, somos a Kiiro 👋</h3>
     <div class="bv-historia">
       <p>Aqui no litoral, achar alguém para cortar a grama, consertar o chuveiro ou limpar a casa ainda depende de indicação ou de sorte em grupo de WhatsApp.</p>
@@ -354,119 +372,28 @@
       <p>O amarelo vem das antigas <b>listas amarelas de telefone</b>, onde todo mundo procurava um profissional. No nosso logo, os dois pins são <b>quem precisa</b> e <b>quem faz</b>, e o traço no meio é a Kiiro ligando os dois.</p>
     </div>
     <button class="btn btn-ink btn-full" type="button" id="bv-ok">Conhecer os profissionais</button>
-    <a class="bv-pro" href="cadastro.html">Sou profissional, quero fazer parte →</a>
-  </div>
-</div>
-
-<!-- Todos os serviços -->
-<div class="modal" id="modal-todos" role="dialog" aria-modal="true" aria-labelledby="mt-titulo">
-  <div class="sheet perfil" id="todos">
-    <button class="fechar" type="button" id="mt-fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div style="padding:1.3rem 1.25rem 1.5rem">
-      <h3 id="mt-titulo">Todos os serviços</h3>
-      <input class="input" type="search" id="mt-busca" placeholder="Procurar… ex.: piscina" style="margin:.8rem 0 1rem" autocomplete="off">
-      <div id="mt-lista"></div>
-    </div>
+    <a class="link-sub" href="cadastro.html">Sou profissional, quero fazer parte →</a>
   </div>
 </div>
 
 <!-- Foto ampliada -->
-<div class="modal" id="modal-foto-av" role="dialog" aria-modal="true" aria-label="Foto do serviço" style="align-items:center;z-index:140">
-  <img id="foto-ampliada" alt="Foto do serviço" style="max-width:94vw;max-height:84vh;border-radius:16px;border:3px solid #fff">
-</div>
-
-<!-- Perfil do profissional -->
-<div class="modal" id="modal-perfil" role="dialog" aria-modal="true" aria-label="Perfil do profissional">
-  <div class="sheet perfil" id="perfil"></div>
-</div>
-
-<!-- Janela antes de chamar -->
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-titulo">
-  <form class="sheet" id="form-chamar" novalidate>
-    <h3 id="m-titulo">Falta pouco!</h3>
-    <p class="sub" id="m-sub"></p>
-    <div class="campo">
-      <label for="c-nome">Seu nome</label>
-      <input class="input" id="c-nome" autocomplete="given-name">
-    </div>
-    <div class="campo">
-      <label for="c-whats">Seu WhatsApp</label>
-      <input class="input" id="c-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
-    </div>
-    <p class="erro" id="c-erro" role="alert"></p>
-    <button class="btn btn-zap btn-full" type="submit" id="c-ok"></button>
-    <button class="cancelar" type="button" id="c-cancelar">Cancelar</button>
-    <p class="fine">A Kiiro usa seu contato só para saber se deu tudo certo com o atendimento.</p>
-  </form>
+<div class="modal" id="modal-foto-av" role="dialog" aria-modal="true" aria-label="Foto" style="align-items:center;z-index:140">
+  <img id="foto-ampliada" class="foto-grande" alt="Foto do serviço">
 </div>
 
 <script>
-/* ============================================================
-   CONFIGURAÇÃO
-   ============================================================ */
-const KIIRO_WHATS = "5551991855760";   // WhatsApp da Kiiro (DDI + DDD + número)
+/* ============================================================ CONFIGURAÇÃO */
+const KIIRO_WHATS = "5551991855760";   // WhatsApp da Kiiro
 const DEMO = !!window.KIIRO_DEMO;       // prévia com dados de exemplo
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const semAcento = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const icoZap = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3c.2-.4.2-.8.1-.9l-.4-.2z"/></svg>`;
-const icoPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
+const icoEstrela = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>`;
+const icoCoracao = `<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`;
 
-const EXEMPLOS = [
-  {id:"d1",experiencia:"3 a 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Não",nome:"Talita Rosa",categoria:"Diarista",cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
-  {id:"d2",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Sim",mei:"Sim",nome:"João Pereira",categoria:"Eletricista",cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
-  {id:"d3",experiencia:"1 a 3 anos",dedicacao:"Uma renda extra",urgencia:"Não",dias:"Fins de semana",orcamento:"Sim",mei:"Não",nome:"Marcos Lima",categoria:"Pintor",categorias:["Pintor","Pedreiro"],cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
-  {id:"d4",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Não",mei:"Não",nome:"Ana Souza",categoria:"Diarista",cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",descricao:"Limpeza do dia a dia e passadoria."},
-  {id:"d5",experiencia:"Menos de 1 ano",dedicacao:"Uma renda extra",urgencia:"Sim",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Sim",nome:"Rafael Costa",categoria:"Encanador",categorias:["Encanador","Eletricista"],cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
-  {id:"d6",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Sim",mei:"Sim",nome:"Jardins do Litoral",categoria:"Jardineiro",cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",descricao:"Corte de grama, poda e manutenção mensal de pátios."},
-  {id:"d7",experiencia:"1 a 3 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Não",mei:"Sim",nome:"Diego Entregas",categoria:"Motoboy",cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
-];
-const EXEMPLOS_REVIEWS = {
-  total: 12, distribuicao: [0, 0, 1, 1, 10],
-  avaliacoes: [
-    { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30", foto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23D9E4EA'/%3E%3Cg fill='%23fff' stroke='%23B7C7D1'%3E%3Crect x='0' y='0' width='30' height='30'/%3E%3Crect x='30' y='0' width='30' height='30'/%3E%3Crect x='60' y='0' width='30' height='30'/%3E%3Crect x='90' y='0' width='30' height='30'/%3E%3Crect x='0' y='30' width='30' height='30'/%3E%3Crect x='30' y='30' width='30' height='30'/%3E%3Crect x='60' y='30' width='30' height='30'/%3E%3Crect x='90' y='30' width='30' height='30'/%3E%3C/g%3E%3Crect y='60' width='120' height='30' fill='%23C9A77C'/%3E%3Ctext x='60' y='80' font-family='sans-serif' font-size='9' text-anchor='middle' fill='%23533'%3EFoto do servi%C3%A7o%3C/text%3E%3C/svg%3E" },
-    { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21", foto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23F4EEDC'/%3E%3Crect x='20' y='15' width='80' height='55' rx='4' fill='%239CB98A'/%3E%3Crect x='28' y='22' width='64' height='41' fill='%23CFE3C0'/%3E%3Ctext x='60' y='82' font-family='sans-serif' font-size='9' text-anchor='middle' fill='%23553'%3EFoto do servi%C3%A7o%3C/text%3E%3C/svg%3E" },
-    { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12" },
-    { nome: "Paulo", nota: 5, comentario: "", data: "2026-10-03" }
-  ]
-};
-
-let profissionais = [];
-let catAtiva = "";
-let soUrgencia = false;
-
-/* ===== Carregar ===== */
-async function carregar() {
-  if (DEMO) { profissionais = EXEMPLOS; return montar(); }
-  try {
-    const r = await fetch("/.netlify/functions/profissionais");
-    const txt = await r.text();
-    let d; try { d = JSON.parse(txt); } catch { throw new Error(`HTTP ${r.status}: ${txt.slice(0, 80)}`); }
-    if (!r.ok) throw new Error(`HTTP ${r.status}: ${d && d.erro || txt.slice(0, 80)}`);
-    profissionais = Array.isArray(d) ? d : [];
-    montar();
-  } catch (err) {
-    $("contagem").textContent = "Não deu para carregar agora";
-    $("lista").innerHTML = `<div class="vazio"><b>Ops, algo falhou.</b><p>Tente de novo em instantes ou chame a Kiiro.</p>${btnKiiro("Olá, Kiiro! Preciso de um profissional.")}<p style="margin-top:1rem;font-size:.75rem;opacity:.6">Detalhe: ${esc(err && err.message || "sem resposta")}</p></div>`;
-  }
-}
-
-function montar() {
-  const antigos = window.KIIRO_SERVICOS_ANTIGOS || {};
-  profissionais.forEach(p => {
-    if (!Array.isArray(p.categorias) || !p.categorias.length) p.categorias = [p.categoria].filter(Boolean);
-    p.categorias = p.categorias.map(c => antigos[c] || c);
-    p.categoria = p.categorias[0] || p.categoria;
-  });
-  // ordem: quem tem nota primeiro; nota "pesada" pela quantidade (5,0 com 3 avaliações não passa 4,9 com 27)
-  const peso = p => p.avaliacoes >= 3 ? (p.nota * p.avaliacoes + 4.5 * 5) / (p.avaliacoes + 5) : 0;
-  profissionais.sort((a, b) => peso(b) - peso(a) || b.avaliacoes - a.avaliacoes);
-  montarCats();
-  render();
-}
-
-const ICONES_BASE_LIMPEZA = '<path d="M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8z"/><path d="M19 16v4M17 18h4"/>';
+/* ===== Ícones dos serviços ===== */
 const ICONES = {
   "Eletricista": '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
   "Encanador": '<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>',
@@ -477,71 +404,137 @@ const ICONES = {
   "Marceneiro": '<path d="M14.5 4.5l5 5-3 3-5-5z"/><path d="M11.5 7.5L4 15l5 5 7.5-7.5"/>',
   "Técnico de ar-condicionado": '<rect x="3" y="5" width="18" height="8" rx="2"/><path d="M7 17v2M12 17v3M17 17v2"/>',
   "Motoboy": '<circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M8.5 17h6l-2-6H9M14 6h2.5l2 11M11 11l1.5-3"/>',
-  "_todos": '<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/>',
+  "Piscineiro": '<path d="M3 17c2 0 2 1.5 4.5 1.5S10 17 12 17s2.5 1.5 4.5 1.5S19 17 21 17M7 14V5a2 2 0 0 1 4 0M13 14V5a2 2 0 0 1 4 0M7 9h6"/>',
+  "_todos": '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  "_mais": '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
   "_outro": '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.6-.6-2.3z"/>'
 };
 const GRUPO_ICONE = {
   casa: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
   clima: '<path d="M12 3v18M4.5 7.5l15 9M19.5 7.5l-15 9"/>',
-  limpeza: ICONES_BASE_LIMPEZA,
-  jardim: '<path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/><path d="M5 19c3-5 6-8 10-10"/>',
+  limpeza: ICONES["Diarista"],
+  jardim: ICONES["Jardineiro"],
   transporte: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
   beleza: '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/>',
   festa: '<path d="M4 20l5-14 9 9z"/><path d="M14 4l1 2M18 6l2-1M19 10h2"/>',
   cuidado: '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
-  outro: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.6-.6-2.3z"/>'
+  outro: ICONES["_outro"]
 };
 const GRUPO_DE = {};
 (window.KIIRO_SERVICOS || []).forEach(g => g.itens.forEach(i => GRUPO_DE[i] = g.icone));
-const ico = c => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[c] || GRUPO_ICONE[GRUPO_DE[c]] || ICONES._outro}</svg>`;
+const ico = (c, w = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[c] || GRUPO_ICONE[GRUPO_DE[c]] || ICONES._outro}</svg>`;
 
+/* ===== Dados de exemplo (só na prévia) ===== */
+const EXEMPLOS = [
+  {id:"d1",nome:"Talita Rosa",categorias:["Diarista"],cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",experiencia:"3 a 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Não",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
+  {id:"d2",nome:"João Pereira",categorias:["Eletricista"],cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Sim",mei:"Sim",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
+  {id:"d3",nome:"Marcos Lima",categorias:["Pintor","Pedreiro"],cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",experiencia:"1 a 3 anos",dedicacao:"Uma renda extra",urgencia:"Não",dias:"Fins de semana",orcamento:"Sim",mei:"Não",descricao:"Pintura de paredes, fachadas e portões. Pequenos reparos de alvenaria."},
+  {id:"d4",nome:"Ana Souza",categorias:["Diarista"],cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Não",mei:"Não",descricao:"Limpeza do dia a dia e passadoria, com muito capricho."},
+  {id:"d5",nome:"Rafael Costa",categorias:["Encanador","Eletricista"],cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",experiencia:"Menos de 1 ano",dedicacao:"Uma renda extra",urgencia:"Sim",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Sim",descricao:"Vazamentos, caixa d'água, desentupimento e pequenos reparos elétricos."},
+  {id:"d6",nome:"Jardins do Litoral",categorias:["Jardineiro","Piscineiro"],cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Sim",mei:"Sim",descricao:"Corte de grama, poda e manutenção mensal de pátios e piscinas de casa de praia."},
+  {id:"d7",nome:"Diego Entregas",categorias:["Motoboy"],cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",experiencia:"1 a 3 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Não",mei:"Sim",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
+];
+const EXEMPLO_FOTO = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="#E3ECEF"/><g fill="#fff" stroke="#C6D4DA"><rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/><rect x="0" y="30" width="30" height="30"/><rect x="30" y="30" width="30" height="30"/><rect x="60" y="30" width="30" height="30"/><rect x="90" y="30" width="30" height="30"/></g><rect y="60" width="120" height="30" fill="#D2B48C"/><text x="60" y="80" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#543">foto do serviço</text></svg>');
+const EXEMPLOS_REVIEWS = { total: 12, distribuicao: [0, 0, 1, 1, 10], avaliacoes: [
+  { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30", foto: EXEMPLO_FOTO },
+  { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21", foto: "" },
+  { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12", foto: "" }
+]};
+
+/* ===== Estado ===== */
+let profissionais = [];
+let catAtiva = "";
+let soUrgencia = false;
+let modo = "inicio"; // inicio | salvos
+const lerJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
+const salvarJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+let favs = new Set(lerJSON("kiiro-salvos", []));
+
+/* ===== Carregar ===== */
+async function carregar() {
+  if (DEMO) { profissionais = EXEMPLOS.map(p => ({ ...p })); return montar(); }
+  try {
+    const r = await fetch("/.netlify/functions/profissionais");
+    const txt = await r.text();
+    let d; try { d = JSON.parse(txt); } catch { throw new Error(`HTTP ${r.status}: ${txt.slice(0, 80)}`); }
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${d && d.erro || txt.slice(0, 80)}`);
+    profissionais = Array.isArray(d) ? d : [];
+    montar();
+  } catch (err) {
+    $("contagem").textContent = "Não deu para carregar agora";
+    $("lista").innerHTML = `<div class="vazio"><b>Ops, algo falhou.</b><p>Tente de novo em instantes ou chame a Kiiro.</p>${btnKiiro("Olá, Kiiro! Preciso de um profissional.")}<p style="margin-top:1rem;font-size:.72rem;opacity:.6">Detalhe: ${esc(err && err.message || "sem resposta")}</p></div>`;
+  }
+}
+
+function montar() {
+  const antigos = window.KIIRO_SERVICOS_ANTIGOS || {};
+  profissionais.forEach(p => {
+    if (!Array.isArray(p.categorias) || !p.categorias.length) p.categorias = [p.categoria].filter(Boolean);
+    p.categorias = p.categorias.map(c => antigos[c] || c);
+    p.categoria = p.categorias[0] || p.categoria;
+  });
+  // quem tem nota primeiro; nota "pesada" pela quantidade
+  const peso = p => p.avaliacoes >= 3 ? (p.nota * p.avaliacoes + 4.5 * 5) / (p.avaliacoes + 5) : 0;
+  profissionais.sort((a, b) => peso(b) - peso(a) || b.avaliacoes - a.avaliacoes);
+  montarCats();
+  render();
+}
+
+/* ===== Categorias ===== */
 function montarCats() {
   const conta = {};
   profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
   const cats = Object.keys(conta).sort((a, b) => conta[b] - conta[a]);
   if (catAtiva && !cats.includes(catAtiva)) cats.unshift(catAtiva);
-  const item = (c, nome) => `<button class="serv ${c === catAtiva ? "ativo" : ""}" data-c="${esc(c)}" aria-pressed="${c === catAtiva}"><span class="ic">${ico(c || "_todos")}</span>${esc(nome)}</button>`;
+  const item = (c, nome) => `<button class="cat ${c === catAtiva ? "ativo" : ""}" type="button" data-c="${esc(c)}" aria-pressed="${c === catAtiva}"><span class="ic">${ico(c || "_todos")}</span>${esc(nome)}</button>`;
   $("cats").innerHTML = item("", "Todos") + cats.map(c => item(c, c)).join("") +
-    `<button class="serv" type="button" id="ver-todos"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></span>Ver todos</button>`;
+    `<button class="cat" type="button" id="ver-todos"><span class="ic">${ico("_mais", 2.4)}</span>Ver todos</button>`;
 }
 $("cats").addEventListener("click", e => {
   if (e.target.closest("#ver-todos")) return abrirTodos();
-  const b = e.target.closest(".serv"); if (!b) return;
+  const b = e.target.closest(".cat"); if (!b) return;
   catAtiva = b.dataset.c;
-  $("cats").querySelectorAll(".serv").forEach(x => { x.classList.toggle("ativo", x === b); x.setAttribute("aria-pressed", String(x === b)); });
-  render();
-  if (window.scrollY < 200) document.querySelector(".lista-sec").scrollIntoView({ behavior: "smooth", block: "start" });
+  montarCats(); render();
 });
 
+/* ===== Lista ===== */
+function atende(p, cidade) {
+  const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
+  return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
+}
 function render() {
   const termo = semAcento($("busca").value.trim());
   const cidade = $("cidade").value;
-  const lista = profissionais.filter(p =>
+  const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
+  const lista = base.filter(p =>
     (!catAtiva || p.categorias.includes(catAtiva)) &&
     (!soUrgencia || p.urgencia === "Sim") &&
     (!cidade || atende(p, cidade)) &&
     (!termo || semAcento(p.categorias.join(" ") + " " + p.nome).includes(termo))
   );
-  const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
-  const onde = cidade ? ` em ${cidade}` : "";
   const filtrando = !!(catAtiva || termo || cidade || soUrgencia);
   $("limpar").classList.toggle("escondido", !filtrando);
   const n = lista.length;
-  $("contagem").textContent = !n ? "Nenhum profissional encontrado"
-    : `${n} ${n > 1 ? "profissionais" : "profissional"}${oque ? " · " + oque : ""}${onde || (filtrando ? "" : " no litoral")}${soUrgencia ? " · urgência" : ""}`;
-
+  if (modo === "salvos") {
+    $("titulo").innerHTML = `Seus <em>salvos</em><small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"}` : "Toque no ♡ de um profissional para guardar aqui"}</small>`;
+  } else {
+    const oque = catAtiva ? `${esc(catAtiva)}` : "Profissionais";
+    const onde = cidade ? `em <em>${esc(cidade)}</em>` : catAtiva ? "no <em>Litoral Norte</em>" : "<em>perto de você</em>";
+    $("titulo").innerHTML = `${oque} ${onde}<small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"} · chame direto no WhatsApp` : "Nenhum profissional encontrado"}</small>`;
+  }
   const cards = lista.map(p => card(p, cidade));
-  if (cards.length) cards.splice(Math.min(3, cards.length), 0, cardPatrocinio());
-  $("lista").innerHTML = lista.length ? cards.join("") : `
+  if (cards.length && modo !== "salvos") cards.splice(Math.min(3, cards.length), 0, cardPatrocinio());
+  const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
+  $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
     <div class="vazio">
-      <div class="ic">${ico(catAtiva || "_outro")}</div>
-      <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${esc(onde)}.</b>
+      <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${cidade ? " em " + esc(cidade) : ""}.</b>
       <p>Chame a Kiiro que a gente procura alguém para você.</p>
-      ${btnKiiro(`Olá, Kiiro! Preciso de ${oque || "um profissional"}${onde}.`)}
+      ${btnKiiro(`Olá, Kiiro! Preciso de ${oque || "um profissional"}${cidade ? " em " + cidade : ""}.`)}
     </div>`;
 }
 $("busca").addEventListener("input", render);
 $("cidade").addEventListener("change", render);
+$("btn-lupa").addEventListener("click", () => { render(); $("lista").scrollIntoView({ behavior: "smooth", block: "start" }); });
 $("filtro-urg").addEventListener("click", () => {
   soUrgencia = !soUrgencia;
   $("filtro-urg").classList.toggle("ativo", soUrgencia);
@@ -554,75 +547,33 @@ $("limpar").addEventListener("click", () => {
   montarCats(); render();
 });
 
-function atende(p, cidade) {
-  const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
-  return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
-}
-// patrocínio: card depois do 3º profissional (patrocinador da categoria ou "espaço disponível")
-function patrocinioDe(c) {
-  const hoje = new Date().toISOString().slice(0, 10);
-  const lista = (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje);
-  return lista.find(x => x.categoria === (c || "Todos"));
-}
-function cardPatrocinio() {
-  const pt = patrocinioDe(catAtiva);
-  if (pt) {
-    const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
-    return `<a class="patro" href="${esc(pt.link)}" target="_blank" rel="noopener sponsored">
-      <div class="patro-logo" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
-      <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
-    </a>`;
-  }
-  if (!window.KIIRO_ANUNCIE) return "";
-  const onde = catAtiva ? `a categoria ${catAtiva}` : "a página inicial";
-  const msg = `Olá, Kiiro! Quero patrocinar ${onde} da Kiiro. Como funciona?`;
-  return `<a class="patro livre" href="https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">
-    <div class="patro-logo">📣</div>
-    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? catAtiva.toLowerCase() : "serviços")} no Litoral Norte. Ideal para lojas e empresas da região.</p><span class="patro-cta">Quero patrocinar →</span></div>
-  </a>`;
-}
-
-// selos do card: experiência + urgência + orçamento grátis
-const EXP_CURTA = { "Menos de 1 ano": "Menos de 1 ano", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
-function selosCard(p) {
-  const out = [];
-  if (p.experiencia) out.push(`<span class="selo exp">🏅 ${esc(EXP_CURTA[p.experiencia] || p.experiencia)}</span>`);
-  if (p.urgencia === "Sim") out.push(`<span class="selo urg">⚡ Urgência</span>`);
-  if (p.orcamento === "Sim") out.push(`<span class="selo">✓ Orçamento grátis</span>`);
-  return out.length ? `<div class="selos-pro">${out.join("")}</div>` : "";
-}
-
-// categorias do profissional, com a do filtro ativo primeiro
-function catsDe(p) { return catAtiva && p.categorias.includes(catAtiva) ? [catAtiva, ...p.categorias.filter(c => c !== catAtiva)] : p.categorias; }
 function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
-function corAvatar(nome) { let h = 0; for (const c of String(nome)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return "av-" + (h % 3 + 1); }
-function estrelasMini(n) { const cheias = Math.round(n); return "★".repeat(cheias) + `<span>${"★".repeat(5 - cheias)}</span>`; }
+function corIni(nome) { let h = 0; for (const c of String(nome)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return ["", "c2", "c3"][h % 3]; }
+function fotoDe(p) {
+  const ini = `<div class="foto-ini ${corIni(p.nome)}" aria-hidden="true">${esc(iniciais(p.nome))}</div>`;
+  return p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy" onerror="this.outerHTML='${ini.replace(/'/g, "&#39;").replace(/"/g, "&quot;")}'">` : ini;
+}
+function catsDe(p) { return catAtiva && p.categorias.includes(catAtiva) ? [catAtiva, ...p.categorias.filter(c => c !== catAtiva)] : p.categorias; }
+const EXP_CURTA = { "Menos de 1 ano": "Começando na área", "1 a 3 anos": "1–3 anos de experiência", "3 a 5 anos": "3–5 anos de experiência", "Mais de 5 anos": "+5 anos de experiência" };
+const notaTxt = n => Number(n).toFixed(1).replace(".", ",");
 
-function card(p, cidadeFiltro) {
+function card(p) {
   const temNota = p.avaliacoes >= 3;
-  const nota = temNota
-    ? `<p class="nota"><span class="estrelas-mini" aria-hidden="true">${estrelasMini(p.nota)}</span><b>${Number(p.nota).toFixed(1).replace(".", ",")}</b>(${p.avaliacoes})</p>`
-    : `<span class="novo">Novo na Kiiro</span>`;
-  const destaque = temNota && p.nota >= 4.7 && p.avaliacoes >= 5 ? `<span class="destaque">★ Destaque</span>` : "";
-  const foto = p.foto
-    ? `<div class="avatar"><img src="${esc(p.foto)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc(iniciais(p.nome))}'"></div>`
-    : `<div class="avatar ${corAvatar(p.nome)}" aria-hidden="true">${esc(iniciais(p.nome))}</div>`;
-  const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean)
-    .map(c => `<span class="${cidadeFiltro && semAcento(c) === semAcento(cidadeFiltro) ? "match" : ""}">${esc(c)}</span>`).join("");
+  const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span style="color:var(--muted)">(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
+  const selo = temNota && p.nota >= 4.7 && p.avaliacoes >= 5 ? `<span class="selo-img">★ Destaque Kiiro</span>` : p.urgencia === "Sim" ? `<span class="selo-img esc">⚡ Atende urgência</span>` : "";
+  const dest = [EXP_CURTA[p.experiencia] ? `<b>${esc(EXP_CURTA[p.experiencia])}</b>` : "", p.orcamento === "Sim" ? "orçamento grátis" : ""].filter(Boolean).join(" · ");
   return `
-  <article class="card">
-    <div class="card-corpo">
-      <button class="abre" type="button" data-perfil="${esc(p.id)}" aria-label="Ver perfil de ${esc(p.nome)}">${foto}</button>
-      <div class="info">
-        <div class="linha-cat">${catsDe(p).map(c => `<span class="cat">${ico(c)}${esc(c)}</span>`).join('<span class="cat-sep">·</span>')}${destaque}</div>
-        <button class="abre" type="button" data-perfil="${esc(p.id)}"><h3>${esc(p.nome)}</h3></button>
-        ${nota}
-        <div class="cidades" aria-label="Atende em">${cidades}</div>
-        ${selosCard(p)}
-        <button class="ver-perfil" type="button" data-perfil="${esc(p.id)}">Ver perfil${p.avaliacoes ? " e avaliações" : ""} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
+  <article class="item" data-perfil="${esc(p.id)}">
+    <div class="foto-box">
+      ${fotoDe(p)}
+      ${selo}
+      <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
     </div>
-    <button class="card-acao" type="button" data-chamar="${esc(p.id)}" aria-label="Chamar ${esc(p.nome)} no WhatsApp">${icoZap} Chamar no WhatsApp <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="info">
+      <h3>${esc(p.nome)}</h3>${nota}
+      <p>${esc(catsDe(p).join(" · "))} · ${esc(p.cidade)}</p>
+      ${dest ? `<p class="dest">${dest}</p>` : ""}
+    </div>
   </article>`;
 }
 
@@ -630,57 +581,163 @@ function btnKiiro(texto) {
   return `<a class="btn btn-ink" href="https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">${icoZap} Falar com a Kiiro</a>`;
 }
 
-/* ===== Chamar: pede nome e WhatsApp, avisa a Kiiro e abre o WhatsApp do profissional ===== */
-const modal = $("modal");
-let escolhido = null;
-$("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
-try { const c = JSON.parse(localStorage.getItem("kiiro-cliente") || "{}"); $("c-nome").value = c.nome || ""; $("c-whats").value = c.whats || ""; } catch {}
-
-document.addEventListener("click", e => {
-  const b = e.target.closest("[data-chamar]"); if (!b) return;
-  if (mPerfil.classList.contains("aberto")) fecharPerfil();
-  escolhido = profissionais.find(p => String(p.id) === b.dataset.chamar);
-  if (!escolhido) return;
-  $("m-sub").textContent = `Para falar com ${escolhido.nome}, informe seu nome e WhatsApp.`;
-  $("c-erro").textContent = "";
-  modal.classList.add("aberto");
-  ($("c-nome").value ? $("c-whats") : $("c-nome")).focus();
-});
-const fechar = () => modal.classList.remove("aberto");
-$("c-cancelar").onclick = fechar;
-modal.addEventListener("click", e => { if (e.target === modal) fechar(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") fechar(); });
-
-$("form-chamar").addEventListener("submit", e => {
-  e.preventDefault();
-  const nome = $("c-nome").value.trim();
-  const whats = $("c-whats").value.replace(/\D/g, "");
-  if (!nome) { $("c-erro").textContent = "Informe seu nome."; return $("c-nome").focus(); }
-  if (whats.length < 10 || whats.length > 13) { $("c-erro").textContent = "Confira seu WhatsApp com DDD."; return $("c-whats").focus(); }
-  try { localStorage.setItem("kiiro-cliente", JSON.stringify({ nome, whats: $("c-whats").value })); } catch {}
-
-  const p = escolhido;
-  fechar();
-  if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
-
-  const servico = catsDe(p)[0];
-  const codigo = novoCodigo();
-  guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
-  const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
-  const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
-  if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
-
-  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`;
-  window.location.href = `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(msg)}`;
-});
-
-function toast(t) {
-  const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status");
-  document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
+/* ===== Salvos ===== */
+function alternarFav(id) {
+  id = String(id);
+  favs.has(id) ? favs.delete(id) : favs.add(id);
+  salvarJSON("kiiro-salvos", [...favs]);
+  document.querySelectorAll(`[data-fav="${CSS.escape(id)}"]`).forEach(b => { b.classList.toggle("on", favs.has(id)); b.setAttribute("aria-pressed", String(favs.has(id))); });
+  if (modo === "salvos") render();
 }
 
-/* ===== Cidades no seletor ===== */
-$("cidade").insertAdjacentHTML("beforeend", window.KIIRO_CIDADES.map(c => `<option>${esc(c)}</option>`).join(""));
+/* ===== Patrocínio ===== */
+function patrocinioDe(c) {
+  const hoje = new Date().toISOString().slice(0, 10);
+  return (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje).find(x => x.categoria === (c || "Todos"));
+}
+function cardPatroDe(pt) {
+  const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
+  return `<a class="patro" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+    <div class="patro-logo" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
+    <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
+  </a>`;
+}
+function cardPatrocinio() {
+  const pt = patrocinioDe(catAtiva);
+  if (pt) return cardPatroDe(pt);
+  if (!window.KIIRO_ANUNCIE) return "";
+  return `<a class="patro livre" href="#anuncie" data-ir="anuncie">
+    <div class="patro-logo">📣</div>
+    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? catAtiva.toLowerCase() : "serviços")} no Litoral Norte.</p><span class="patro-cta">Quero patrocinar →</span></div>
+  </a>`;
+}
+
+/* ===== Cliques na lista ===== */
+$("lista").addEventListener("click", e => {
+  const f = e.target.closest("[data-fav]");
+  if (f) { e.stopPropagation(); return alternarFav(f.dataset.fav); }
+  const it = e.target.closest("[data-perfil]");
+  if (it) abrirPerfil(it.dataset.perfil);
+});
+document.addEventListener("click", e => {
+  const ir = e.target.closest("[data-ir]");
+  if (ir) { e.preventDefault(); irPara(ir.dataset.ir); }
+});
+
+/* ===== Navegação ===== */
+function irPara(t) {
+  if (t === "sobre") return abrirBv();
+  document.body.classList.remove("em-perfil");
+  document.querySelectorAll(".tela").forEach(x => x.classList.remove("ativa"));
+  if (t === "inicio" || t === "salvos") {
+    modo = t; $("tela-inicio").classList.add("ativa"); render();
+  } else if (t === "anuncie") {
+    telaAnuncie(); $("tela-anuncie").classList.add("ativa");
+  }
+  document.querySelectorAll(".aba[data-tela]").forEach(a => a.classList.toggle("ativa", a.dataset.tela === t));
+  try { history.replaceState(null, "", t === "anuncie" ? "#anuncie" : location.pathname + location.search); } catch {}
+  window.scrollTo(0, 0);
+}
+document.querySelector(".abas").addEventListener("click", e => { const a = e.target.closest("button[data-tela]"); if (a) irPara(a.dataset.tela); });
+
+/* ===== Perfil (tela cheia) ===== */
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const mesAno = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${MESES[d.getMonth()]}/${d.getFullYear()}`; };
+const quando = iso => { const dias = Math.floor((Date.now() - new Date(iso)) / 864e5); return dias < 1 ? "hoje" : dias < 2 ? "ontem" : dias < 30 ? `há ${dias} dias` : mesAno(iso); };
+const estrelasTxt = n => { const c = Math.round(n); return "★".repeat(c) + `<span>${"★".repeat(5 - c)}</span>`; };
+let telaAntes = "inicio";
+
+async function abrirPerfil(id) {
+  const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
+  telaAntes = modo;
+  const temNota = p.avaliacoes >= 3;
+  const nome1 = p.nome.split(" ")[0];
+  const exp = p.experiencia ? (p.experiencia === "Menos de 1 ano" ? "Começando na área" : `${p.experiencia} de experiência`) : "";
+  const recursos = [
+    p.urgencia === "Sim" && ["⚡", "Atende urgência", "Pode ir no mesmo dia, quando tem agenda."],
+    p.dias && ["📅", "Quando atende", p.dias.charAt(0) + p.dias.slice(1).toLowerCase() + "."],
+    p.orcamento && ["📝", p.orcamento === "Sim" ? "Orçamento grátis" : "Orçamento cobrado", p.orcamento === "Sim" ? "Peça a visita e o valor antes de fechar." : "Combine o valor da visita antes."],
+    p.dedicacao && ["💼", p.dedicacao === "Uma renda extra" ? "Faz como renda extra" : "É a profissão principal", exp ? exp + "." : ""],
+    p.mei === "Sim" && ["📄", "Tem CNPJ / MEI", "Pode emitir nota para empresas e condomínios."],
+  ].filter(Boolean);
+  const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join("");
+  $("tela-perfil").innerHTML = `
+    <div class="pf-foto">
+      ${fotoDe(p)}
+      <div class="pf-bts">
+        <button class="bt-redondo" type="button" id="pf-voltar" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+        <div>
+          <button class="bt-redondo" type="button" id="pf-share" aria-label="Copiar link do perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></button>
+          <button class="bt-redondo ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <div class="pf-folha">
+      <h1>${esc(p.nome)}</h1>
+      <p class="pf-sub">${esc(catsDe(p).join(" · "))}<br>${esc(exp)}${p.orcamento === "Sim" ? `${exp ? " · " : ""}orçamento grátis` : ""}</p>
+      ${temNota
+        ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
+        : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
+      <hr>
+      <div class="linha-host">
+        <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
+        <div><b>${esc(p.nome)}</b><span>${p.desde ? `Na Kiiro desde ${mesAno(p.desde)} · ` : ""}combina tudo direto com você</span></div>
+      </div>
+      ${recursos.length ? `<hr><div class="recursos">${recursos.map(([i, t, d]) => `<div class="recurso"><span class="ri">${i}</span><div><b>${esc(t)}</b>${d ? `<span>${esc(d)}</span>` : ""}</div></div>`).join("")}</div>` : ""}
+      ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
+      <hr><h2>Atende em</h2><div class="pf-cidades">${cidades}</div>
+      <hr><div id="pf-avals"><h2>Avaliações</h2><p class="sem-av">Carregando…</p></div>
+      <div style="height:1rem"></div>
+    </div>
+    <div class="rodape-pf">
+      <div><b>${p.orcamento === "Sim" ? "Orçamento grátis" : "Combine o valor"}</b><span>Direto no WhatsApp</span></div>
+      <button class="bt-chamar" type="button" data-chamar="${esc(p.id)}">${icoZap} Chamar ${esc(nome1)}</button>
+    </div>`;
+  document.querySelectorAll(".tela").forEach(t => t.classList.remove("ativa"));
+  $("tela-perfil").classList.add("ativa");
+  document.body.classList.add("em-perfil");
+  window.scrollTo(0, 0);
+  $("pf-voltar").onclick = fecharPerfil;
+  $("pf-share").onclick = async () => {
+    const link = location.origin + location.pathname + "#p-" + p.id;
+    try { await navigator.clipboard.writeText(link); toast("Link do perfil copiado! Mande para quem precisar."); } catch { toast(link); }
+  };
+  $("tela-perfil").querySelector("[data-fav]").onclick = e => { alternarFav(p.id); e.currentTarget.classList.toggle("on", favs.has(String(p.id))); };
+  try { history.replaceState(null, "", "#p-" + p.id); } catch {}
+
+  // avaliações
+  let dados = { total: 0, distribuicao: [0, 0, 0, 0, 0], avaliacoes: [] };
+  if (DEMO) { if (p.avaliacoes) dados = p.id === "d1" ? EXEMPLOS_REVIEWS : { total: p.avaliacoes, distribuicao: [0, 0, 0, 1, p.avaliacoes - 1], avaliacoes: EXEMPLOS_REVIEWS.avaliacoes.slice(1, 1 + Math.min(2, p.avaliacoes)) }; }
+  else {
+    try {
+      const q = "?id=" + encodeURIComponent(p.id) + "&w=" + encodeURIComponent(p.whatsapp) + "&ids=" + encodeURIComponent((p.ids || [p.id]).join(","));
+      const r = await fetch("/.netlify/functions/perfil" + q); if (r.ok) dados = await r.json();
+    } catch {}
+  }
+  const box = $("pf-avals"); if (!box) return;
+  if (!dados.total) { box.innerHTML = `<h2>Avaliações</h2><p class="sem-av">${esc(nome1)} ainda não tem avaliações. Depois que você chamar, a Kiiro pergunta como foi.</p>`; return; }
+  const fotos = dados.avaliacoes.filter(a => a.foto);
+  const max = Math.max(...dados.distribuicao, 1);
+  box.innerHTML = `
+    ${fotos.length ? `<h2>Fotos de serviços feitos</h2><div class="galeria">${fotos.slice(0, 10).map(a => `<button type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="" loading="lazy"></button>`).join("")}</div><hr>` : ""}
+    <h2>★ ${dados.total >= 3 ? notaTxt(p.nota) + " · " : ""}${dados.total} ${dados.total === 1 ? "avaliação" : "avaliações"}</h2>
+    ${dados.total >= 3 ? `<div class="barras">${[5, 4, 3, 2, 1].map(n => `<div class="barra"><span>${n} ★</span><i><b style="width:${(dados.distribuicao[n - 1] / max) * 100}%"></b></i><span>${dados.distribuicao[n - 1]}</span></div>`).join("")}</div>` : `<p class="sem-av" style="margin-bottom:.8rem">A nota aparece no card a partir de 3 avaliações.</p>`}
+    <div class="reviews">${dados.avaliacoes.map(a => `
+      <div class="review">
+        <div class="est">${estrelasTxt(a.nota)}</div>
+        ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ""}
+        ${a.foto ? `<button class="ft" type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="Foto do serviço" loading="lazy"></button>` : ""}
+        <div class="quem"><div class="avatar">${esc((a.nome || "?")[0])}</div><div><b>${esc(a.nome)}</b><span>${quando(a.data)}</span></div></div>
+      </div>`).join("")}</div>`;
+}
+function fecharPerfil() {
+  irPara(telaAntes || "inicio");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-ampliar]"); if (!b) return;
+  $("foto-ampliada").src = b.dataset.ampliar; $("modal-foto-av").classList.add("aberto");
+});
+$("modal-foto-av").addEventListener("click", () => $("modal-foto-av").classList.remove("aberto"));
 
 /* ===== Todos os serviços ===== */
 function abrirTodos() {
@@ -691,13 +748,11 @@ function abrirTodos() {
   const extras = Object.keys(conta).filter(c => !conhecidos.has(c));
   if (extras.length) grupos.push({ grupo: "Mais serviços", icone: "outro", itens: extras });
   $("mt-lista").innerHTML = grupos.map(g => `
-    <div class="mt-grupo" data-g>
-      <h4>${esc(g.grupo)}</h4>
+    <div class="mt-grupo" data-g><h4>${esc(g.grupo)}</h4>
       <div class="mt-grid">${g.itens.map(i => `<button class="mt-item ${conta[i] ? "tem" : ""}" type="button" data-s="${esc(i)}">${ico(i)}<span>${esc(i)}${conta[i] ? `<small>${conta[i]} profissiona${conta[i] > 1 ? "is" : "l"}</small>` : ""}</span></button>`).join("")}</div>
     </div>`).join("");
   $("mt-busca").value = "";
-  $("modal-todos").classList.add("aberto");
-  $("todos").scrollTop = 0;
+  $("modal-todos").classList.add("aberto"); $("todos").scrollTop = 0;
 }
 const fecharTodos = () => $("modal-todos").classList.remove("aberto");
 $("mt-fechar").onclick = fecharTodos;
@@ -705,8 +760,8 @@ $("modal-todos").addEventListener("click", e => {
   if (e.target.id === "modal-todos") return fecharTodos();
   const b = e.target.closest(".mt-item"); if (!b) return;
   catAtiva = b.dataset.s; $("busca").value = "";
-  fecharTodos(); montarCats(); render();
-  document.querySelector(".lista-sec").scrollIntoView({ behavior: "smooth", block: "start" });
+  fecharTodos(); if (modo !== "inicio") irPara("inicio"); montarCats(); render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 $("mt-busca").addEventListener("input", () => {
   const t = semAcento($("mt-busca").value.trim());
@@ -716,176 +771,148 @@ $("mt-busca").addEventListener("input", () => {
     g.style.display = n ? "" : "none";
   });
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape") fecharTodos(); });
 
-/* ===== Perfil ===== */
-const mPerfil = $("modal-perfil");
-const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-const mesAno = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${MESES[d.getMonth()]}/${d.getFullYear()}`; };
-const quando = iso => {
-  const dias = Math.floor((Date.now() - new Date(iso)) / 864e5);
-  return dias < 1 ? "hoje" : dias < 2 ? "ontem" : dias < 30 ? `há ${dias} dias` : mesAno(iso);
-};
-const icoX = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
-
+/* ===== Chamar ===== */
+const modal = $("modal");
+let escolhido = null;
+$("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
+(() => { const c = lerJSON("kiiro-cliente", {}); $("c-nome").value = c.nome || ""; $("c-whats").value = c.whats || ""; })();
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-perfil]"); if (!b) return;
-  abrirPerfil(b.dataset.perfil);
+  const b = e.target.closest("[data-chamar]"); if (!b) return;
+  escolhido = profissionais.find(p => String(p.id) === b.dataset.chamar); if (!escolhido) return;
+  $("m-sub").textContent = `Para falar com ${escolhido.nome}, informe seu nome e WhatsApp.`;
+  $("c-erro").textContent = "";
+  modal.classList.add("aberto");
+  ($("c-nome").value ? $("c-whats") : $("c-nome")).focus();
 });
-
-async function abrirPerfil(id) {
-  const p = profissionais.find(x => String(x.id) === String(id));
-  if (!p) return;
-  const temNota = p.avaliacoes >= 3;
-  const foto = p.foto
-    ? `<div class="avatar"><img src="${esc(p.foto)}" alt="" onerror="this.parentNode.textContent='${esc(iniciais(p.nome))}'"></div>`
-    : `<div class="avatar ${corAvatar(p.nome)}" aria-hidden="true">${esc(iniciais(p.nome))}</div>`;
-  const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join("");
-  $("perfil").innerHTML = `
-    <button class="fechar" type="button" id="pf-fechar" aria-label="Fechar">${icoX}</button>
-    <div class="pf-topo">
-      ${foto}
-      <h3>${esc(p.nome)}</h3>
-      <div class="linha-cat">${catsDe(p).map(c => `<span class="cat">${ico(c)}${esc(c)}</span>`).join('<span class="cat-sep">·</span>')}</div>
-      <div class="pf-resumo">
-        ${temNota
-          ? `<span class="grande">${Number(p.nota).toFixed(1).replace(".", ",")}</span><span class="estrelas-mini" style="font-size:1.2rem">${estrelasMini(p.nota)}</span><span>${p.avaliacoes} avaliações</span>`
-          : `<span class="novo">Novo na Kiiro</span>`}
-      </div>
-    </div>
-    <div class="pf-corpo">
-      ${p.descricao ? `<div class="pf-bloco"><h4>Sobre</h4><p>${esc(p.descricao)}</p></div>` : ""}
-      <div class="pf-bloco"><h4>Atende em</h4><div class="cidades">${cidades}</div></div>
-      ${comoAtende(p)}
-      ${p.desde ? `<div class="pf-bloco"><h4>Na Kiiro desde</h4><p>${mesAno(p.desde)}</p></div>` : ""}
-      <div class="pf-bloco" id="pf-reviews"><h4>Avaliações</h4><p class="carregando">Carregando…</p></div>
-    </div>
-    <div class="pf-acoes">
-      <button class="btn btn-zap btn-full" type="button" data-chamar="${esc(p.id)}">${icoZap} Chamar ${esc(p.nome.split(" ")[0])} no WhatsApp</button>
-      <button class="compartilhar" type="button" id="pf-share">Copiar link do perfil</button>
-    </div>`;
-  mPerfil.classList.add("aberto");
-  $("perfil").scrollTop = 0;
-  $("pf-fechar").onclick = fecharPerfil;
-  $("pf-fechar").focus();
-  $("pf-share").onclick = async () => {
-    const link = location.origin + location.pathname + "#p-" + p.id;
-    try { await navigator.clipboard.writeText(link); toast("Link copiado! Mande para quem precisar."); }
-    catch { toast(link); }
-  };
-  try { history.replaceState(null, "", "#p-" + p.id); } catch {}
-
-  // avaliações
-  let dados = { total: 0, distribuicao: [0, 0, 0, 0, 0], avaliacoes: [] };
-  if (DEMO) { if (p.avaliacoes) dados = p.id === "d1" ? EXEMPLOS_REVIEWS : { total: p.avaliacoes, distribuicao: [0,0,0,1,p.avaliacoes-1], avaliacoes: EXEMPLOS_REVIEWS.avaliacoes.slice(0, Math.min(2, p.avaliacoes)) }; }
-  else {
-    try {
-      const q = "?id=" + encodeURIComponent(p.id) + "&w=" + encodeURIComponent(p.whatsapp) + "&ids=" + encodeURIComponent((p.ids || [p.id]).join(","));
-      const r = await fetch("/.netlify/functions/perfil" + q); if (r.ok) dados = await r.json();
-    } catch {}
-  }
-  const box = $("pf-reviews"); if (!box) return;
-  if (!dados.total) {
-    box.innerHTML = `<h4>Avaliações</h4><div class="sem-reviews">${esc(p.nome.split(" ")[0])} ainda não tem avaliações. Depois que você chamar, a Kiiro pergunta como foi.</div>`;
-    return;
-  }
-  const max = Math.max(...dados.distribuicao, 1);
-  const barras = [5, 4, 3, 2, 1].map(n => `<div class="barra"><span>${n} ★</span><i><b style="width:${(dados.distribuicao[n - 1] / max) * 100}%"></b></i><span>${dados.distribuicao[n - 1]}</span></div>`).join("");
-  const lista = dados.avaliacoes.map(a => `
-    <div class="review">
-      <div class="l1"><b>${esc(a.nome)} <span class="estrelas-mini">${estrelasMini(a.nota)}</span></b><span>${quando(a.data)}</span></div>
-      ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ""}
-      ${a.foto ? `<button class="rv-foto" type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto do serviço"><img src="${esc(a.foto)}" alt="Foto do serviço" loading="lazy"></button>` : ""}
-    </div>`).join("");
-  const fotos = dados.avaliacoes.filter(a => a.foto);
-  const galeria = fotos.length ? `<div class="galeria">${fotos.slice(0, 8).map(a => `<button type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="" loading="lazy"></button>`).join("")}</div>` : "";
-  box.insertAdjacentHTML("beforebegin", galeria ? `<div class="pf-bloco"><h4>Fotos de serviços feitos (${fotos.length})</h4>${galeria}</div>` : "");
-  box.innerHTML = `<h4>Avaliações (${dados.total})</h4>
-    ${dados.total >= 3 ? `<div class="barras" style="margin-bottom:1rem">${barras}</div>` : `<p class="carregando" style="margin-bottom:.6rem">A nota aparece no card a partir de 3 avaliações.</p>`}
-    ${lista}`;
-}
-function comoAtende(p) {
-  const it = [];
-  if (p.experiencia) it.push(["🏅", `${p.experiencia === "Menos de 1 ano" ? "Menos de 1 ano" : p.experiencia} de experiência`]);
-  if (p.dedicacao) it.push(["💼", p.dedicacao === "Uma renda extra" ? "Faz como renda extra" : "É a profissão principal"]);
-  if (p.urgencia) it.push(["⚡", p.urgencia === "Sim" ? "Atende urgência no mesmo dia" : "Não atende urgência"]);
-  if (p.dias) it.push(["📅", "Atende: " + p.dias.toLowerCase()]);
-  if (p.orcamento) it.push(["📝", p.orcamento === "Sim" ? "Orçamento grátis" : "Orçamento cobrado"]);
-  if (p.mei === "Sim") it.push(["📄", "Tem CNPJ/MEI"]);
-  if (!it.length) return "";
-  return `<div class="pf-bloco"><h4>Como trabalha</h4><ul class="pf-lista">${it.map(([i, t]) => `<li><span>${i}</span>${esc(t)}</li>`).join("")}</ul></div>`;
-}
-document.addEventListener("click", e => {
-  const b = e.target.closest("[data-ampliar]"); if (!b) return;
-  $("foto-ampliada").src = b.dataset.ampliar; $("modal-foto-av").classList.add("aberto");
+const fecharChamar = () => modal.classList.remove("aberto");
+$("c-cancelar").onclick = fecharChamar;
+modal.addEventListener("click", e => { if (e.target === modal) fecharChamar(); });
+$("form-chamar").addEventListener("submit", e => {
+  e.preventDefault();
+  const nome = $("c-nome").value.trim();
+  const whats = $("c-whats").value.replace(/\D/g, "");
+  if (!nome) { $("c-erro").textContent = "Informe seu nome."; return $("c-nome").focus(); }
+  if (whats.length < 10 || whats.length > 13) { $("c-erro").textContent = "Confira seu WhatsApp com DDD."; return $("c-whats").focus(); }
+  salvarJSON("kiiro-cliente", { nome, whats: $("c-whats").value });
+  const p = escolhido;
+  fecharChamar();
+  const servico = catsDe(p)[0];
+  const codigo = novoCodigo();
+  guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
+  if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
+  const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
+  const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
+  if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
+  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`;
+  window.location.href = `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(msg)}`;
 });
-$("modal-foto-av").addEventListener("click", () => $("modal-foto-av").classList.remove("aberto"));
-function fecharPerfil() {
-  mPerfil.classList.remove("aberto");
-  try { history.replaceState(null, "", location.pathname + location.search); } catch {}
-}
-mPerfil.addEventListener("click", e => { if (e.target === mPerfil) fecharPerfil(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && mPerfil.classList.contains("aberto")) fecharPerfil(); });
 
 /* ===== Lembrete de avaliação (fica só neste celular) ===== */
 function novoCodigo() {
   const rnd = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(16).slice(2) + Date.now().toString(16) + "000000000000").replace(/-/g, "").slice(0, 12);
   return new Date().toISOString().replace(/[:.]/g, "-") + "_" + rnd;
 }
-function lerChamadas() { try { return JSON.parse(localStorage.getItem("kiiro-chamadas") || "[]"); } catch { return []; } }
-function salvarChamadas(l) { try { localStorage.setItem("kiiro-chamadas", JSON.stringify(l.slice(-10))); } catch {} }
-function guardarChamada(item) { salvarChamadas([...lerChamadas(), item]); }
+const lerChamadas = () => lerJSON("kiiro-chamadas", []);
+const salvarChamadas = l => salvarJSON("kiiro-chamadas", l.slice(-10));
+const guardarChamada = item => salvarChamadas([...lerChamadas(), item]);
 function mostrarLembrete() {
   const agora = Date.now(), H = 3600e3;
   const lista = lerChamadas().filter(x => agora - x.t < 30 * 24 * H);
   salvarChamadas(lista);
-  // a mais recente que já tem algumas horas, não avaliada e não dispensada
   const alvo = [...lista].reverse().find(x => !x.ok && !x.fora && agora - x.t > (DEMO ? 0 : 3 * H));
   if (!alvo) return;
   $("lembrete-titulo").textContent = `Como foi com ${String(alvo.nome).split(" ")[0]}?`;
   $("lembrete-link").href = "avaliar.html?c=" + encodeURIComponent(alvo.c);
   $("lembrete").classList.remove("escondido");
-  $("lembrete-x").onclick = () => {
-    salvarChamadas(lerChamadas().map(x => x.c === alvo.c ? { ...x, fora: true } : x));
-    $("lembrete").classList.add("escondido");
-  };
+  $("lembrete-x").onclick = () => { salvarChamadas(lerChamadas().map(x => x.c === alvo.c ? { ...x, fora: true } : x)); $("lembrete").classList.add("escondido"); };
 }
+
+/* ===== Quem é a Kiiro (abre sozinha só na 1ª visita) ===== */
+const mBv = $("modal-bv");
+const fecharBv = () => { mBv.classList.remove("aberto"); salvarJSON("kiiro-bv", 1); };
+function abrirBv() { mBv.classList.add("aberto"); $("bv").scrollTop = 0; }
+$("bv-ok").onclick = fecharBv; $("bv-x").onclick = fecharBv;
+mBv.addEventListener("click", e => { if (e.target === mBv) fecharBv(); });
+(function () { // arrastar para baixo fecha
+  const sh = $("bv"); let y0 = null, dy = 0;
+  sh.addEventListener("touchstart", e => { y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+  sh.addEventListener("touchmove", e => { if (y0 === null) return; dy = e.touches[0].clientY - y0; if (dy > 0) { sh.style.transform = `translateY(${dy}px)`; sh.style.transition = "none"; } }, { passive: true });
+  sh.addEventListener("touchend", () => { sh.style.transition = "transform .2s"; sh.style.transform = ""; if (y0 !== null && dy > 90) fecharBv(); y0 = null; });
+})();
+
+/* ===== Anuncie ===== */
+function telaAnuncie() {
+  const conta = {};
+  profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
+  const base = ["Eletricista", "Encanador", "Pedreiro", "Pintor", "Diarista", "Jardineiro", "Piscineiro", "Técnico de ar-condicionado", "Motoboy", "Frete"];
+  const cats = ["Página inicial", ...new Set([...Object.keys(conta).sort((a, b) => conta[b] - conta[a]), ...base])].slice(0, 16);
+  const exemplo = (window.KIIRO_PATROCINIOS || [])[0] || { nome: "Sua loja", cidade: "Osório", texto: "Sua oferta aqui, com botão direto para o seu WhatsApp.", botao: "Ver ofertas no WhatsApp" };
+  $("tela-anuncie").innerHTML = `
+    <div class="an-topo"><div class="in">
+      <a class="logo" href="./" aria-label="Kiiro"><svg viewBox="0 0 340 150"><use href="#wordmark"/></svg></a>
+      <small>📣 Anuncie na Kiiro</small>
+      <h1>Sua marca na frente de quem está precisando de serviço.</h1>
+      <p>Lojas, depósitos e empresas do Litoral Norte aparecem para moradores e veranistas no momento em que eles procuram um profissional.</p>
+    </div></div>
+    <div class="an-corpo">
+      <h2>Por que anunciar</h2>
+      <div class="porque">
+        <div><span>🎯</span><div><b>Público certo, na hora certa</b><p>Quem procura eletricista precisa de material elétrico. Sua loja aparece exatamente aí.</p></div></div>
+        <div><span>📍</span><div><b>100% local</b><p>Gente do Litoral Norte, de Torres a Balneário Pinhal.</p></div></div>
+        <div><span>💬</span><div><b>Contato direto no seu WhatsApp</b><p>O cliente chega dizendo “vi vocês na Kiiro”. Você sabe de onde veio cada venda.</p></div></div>
+        <div><span>🏖️</span><div><b>Temporada de verão</b><p>Casas de praia sendo preparadas: a procura por serviços cresce no verão.</p></div></div>
+      </div>
+      <h2>Formatos</h2>
+      <div class="formatos">
+        <div class="formato top"><span class="tg">Mais procurado</span><b>Patrocínio de categoria</b><p>Sua marca dentro de um serviço, como “Eletricista” ou “Piscineiro”.</p>
+          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece logo depois dos primeiros profissionais</li><li>Só um patrocinador por categoria</li></ul>
+          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="uma categoria">Quero</button></div></div>
+        <div class="formato"><b>Página inicial</b><p>Aparece para todo mundo que abre a Kiiro.</p>
+          <ul><li>Maior visibilidade</li><li>Card logo depois dos primeiros profissionais</li></ul>
+          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
+        <div class="formato"><b>Pacote Temporada</b><p>Dezembro a março, quando o litoral enche.</p>
+          <ul><li>Categoria + página inicial</li><li>Destaque nas redes da Kiiro</li></ul>
+          <div class="preco"><span>Valor: <b>sob consulta</b></span><button class="bt-quero" type="button" data-quero="o pacote temporada">Quero</button></div></div>
+      </div>
+      <h2>Como o anúncio aparece</h2>
+      ${cardPatroDe({ ...exemplo, link: "#" }).replace('target="_blank"', 'onclick="return false"')}
+      <h2>Espaços disponíveis</h2>
+      <div class="vagas">${cats.map(c => {
+        const o = patrocinioDe(c === "Página inicial" ? "" : c);
+        const alvo = c === "Página inicial" ? "a página inicial" : "a categoria " + c;
+        return `<div class="vaga"><span class="ic">${ico(c === "Página inicial" ? "_todos" : c)}</span><span class="nm">${esc(c)}${o ? `<small>${esc(o.nome)}</small>` : ""}</span><span class="st ${o ? "ocup" : "livre"}">${o ? "Ocupado" : "Disponível"}</span><button type="button" data-quero="${esc(alvo)}" ${o ? "disabled" : ""}>Quero</button></div>`;
+      }).join("")}</div>
+      <div class="an-rodape"><b>Vamos conversar?</b><p>Conte o que você vende e a cidade. A gente monta a proposta.</p><button class="bt-chamar" type="button" data-quero="um espaço">${icoZap} Falar com a Kiiro</button></div>
+      <div style="height:1.5rem"></div>
+    </div>`;
+}
+document.addEventListener("click", e => {
+  const q = e.target.closest("[data-quero]"); if (!q || q.disabled) return;
+  const msg = `Olá, Kiiro! Quero anunciar n${q.dataset.quero.startsWith("a ") ? "" : "o "}${q.dataset.quero.replace(/^a /, "a ")} da Kiiro. Como funciona?`.replace("no um espaço", "num espaço");
+  window.open(`https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+});
+
+/* ===== Geral ===== */
+function toast(t) {
+  const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status");
+  document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
+}
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  ["modal", "modal-todos", "modal-foto-av"].forEach(id => $(id).classList.remove("aberto"));
+  if (mBv.classList.contains("aberto")) fecharBv();
+});
+$("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${esc(c)}</option>`).join(""));
+
 if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
 mostrarLembrete();
 
-/* ===== Boas-vindas: quem é a Kiiro. Abre sozinha só na primeira visita; o rodapé tem "Sobre a Kiiro" ===== */
-const mBv = $("modal-bv");
-const fecharBv = () => { mBv.classList.remove("aberto"); try { localStorage.setItem("kiiro-bv", "1"); } catch {} };
-const abrirBv = () => { mBv.classList.add("aberto"); mBv.querySelector(".bv").scrollTop = 0; };
-$("bv-ok").onclick = fecharBv;
-$("bv-x").onclick = fecharBv;
-// arrastar para baixo também fecha
-(function () {
-  const sh = mBv.querySelector(".bv"); let y0 = null, dy = 0;
-  sh.addEventListener("touchstart", e => { y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
-  sh.addEventListener("touchmove", e => {
-    if (y0 === null) return; dy = e.touches[0].clientY - y0;
-    if (dy > 0) { sh.style.transform = `translateY(${dy}px)`; sh.style.transition = "none"; }
-  }, { passive: true });
-  sh.addEventListener("touchend", () => {
-    sh.style.transition = "transform .2s"; sh.style.transform = "";
-    if (y0 !== null && dy > 90) fecharBv();
-    y0 = null;
-  });
-})();
-mBv.addEventListener("click", e => { if (e.target === mBv) fecharBv(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && mBv.classList.contains("aberto")) fecharBv(); });
-$("abrir-sobre").addEventListener("click", e => { e.preventDefault(); abrirBv(); });
-(function () {
-  let viu = false;
-  try { viu = !!localStorage.getItem("kiiro-bv"); } catch {}
-  if ((viu && !DEMO) || location.hash.startsWith("#p-")) return;
-  abrirBv();
-})();
-
 carregar().then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
-  if (m) abrirPerfil(m[1]);
+  if (m) return abrirPerfil(m[1]);
+  if (location.hash === "#anuncie") return irPara("anuncie");
+  if (!lerJSON("kiiro-bv", 0) || DEMO) abrirBv();
 });
 </script>
 </body>
