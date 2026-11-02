@@ -458,6 +458,17 @@ const EXEMPLOS_REVIEWS = { total: 12, distribuicao: [0, 0, 1, 1, 10], avaliacoes
   { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12", foto: "" }
 ]};
 
+/* ===== Contador de uso (só números, sem dados pessoais) ===== */
+function contar(t, k) {
+  if (DEMO) return;
+  try {
+    const corpo = JSON.stringify(k ? { t, k: String(k).slice(0, 40) } : { t });
+    if (!(navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/evento", new Blob([corpo], { type: "text/plain" }))))
+      fetch("/.netlify/functions/evento", { method: "POST", body: corpo, keepalive: true }).catch(() => {});
+  } catch {}
+}
+try { if (!sessionStorage.getItem("kiiro-v")) { sessionStorage.setItem("kiiro-v", "1"); contar("visita"); } } catch { contar("visita"); }
+
 /* ===== Estado ===== */
 let profissionais = [];
 let catAtiva = "";
@@ -511,6 +522,7 @@ $("cats").addEventListener("click", e => {
   if (e.target.closest("#ver-todos")) return abrirTodos();
   const b = e.target.closest(".cat"); if (!b) return;
   catAtiva = b.dataset.c;
+  if (catAtiva) contar("cat", catAtiva);
   montarCats(); render();
 });
 
@@ -549,7 +561,17 @@ function render() {
       ${btnKiiro(`Olá, Kiiro! Preciso de ${oque || "um profissional"}${cidade ? " em " + cidade : ""}.`)}
     </div>`;
 }
-$("busca").addEventListener("input", render);
+let buscaTimer;
+$("busca").addEventListener("input", () => {
+  render();
+  clearTimeout(buscaTimer);
+  buscaTimer = setTimeout(() => {
+    const t = $("busca").value.trim();
+    if (t.length < 3) return;
+    contar("busca", t);
+    if (!$("lista").querySelector(".item")) contar("busca_vazia", t);
+  }, 1500);
+});
 $("cidade").addEventListener("change", render);
 $("btn-lupa").addEventListener("click", () => { render(); $("lista").scrollIntoView({ behavior: "smooth", block: "start" }); });
 $("filtro-urg").addEventListener("click", () => {
@@ -650,7 +672,8 @@ document.addEventListener("click", e => {
 
 /* ===== Navegação ===== */
 function irPara(t) {
-  if (t === "sobre") return abrirBv();
+  if (t === "sobre") { contar("sobre"); return abrirBv(); }
+  if (t === "anuncie") contar("anuncie_ver");
   document.body.classList.remove("em-perfil");
   $("balao").classList.add("escondido");
   document.querySelectorAll(".tela").forEach(x => x.classList.remove("ativa"));
@@ -674,6 +697,7 @@ let telaAntes = "inicio";
 
 async function abrirPerfil(id) {
   const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
+  contar("perfil", catsDe(p)[0]);
   telaAntes = modo;
   const temNota = p.avaliacoes >= 3;
   const nome1 = p.nome.split(" ")[0];
@@ -785,7 +809,7 @@ $("mt-fechar").onclick = fecharTodos;
 $("modal-todos").addEventListener("click", e => {
   if (e.target.id === "modal-todos") return fecharTodos();
   const b = e.target.closest(".mt-item"); if (!b) return;
-  catAtiva = b.dataset.s; $("busca").value = "";
+  catAtiva = b.dataset.s; $("busca").value = ""; contar("cat", catAtiva);
   fecharTodos(); if (modo !== "inicio") irPara("inicio"); montarCats(); render();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
@@ -826,6 +850,7 @@ $("form-chamar").addEventListener("submit", e => {
   const servico = catsDe(p)[0];
   const codigo = novoCodigo();
   guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
+  contar("chamar", servico);
   if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
   const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
@@ -922,6 +947,7 @@ function telaAnuncie() {
 }
 document.addEventListener("click", e => {
   const q = e.target.closest("[data-quero]"); if (!q || q.disabled) return;
+  contar("anuncie_quero", q.dataset.quero);
   const msg = `Olá, Kiiro! Quero anunciar na Kiiro (${q.dataset.quero}). Como funciona?`;
   window.open(`https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
 });

@@ -303,6 +303,15 @@ $("foto").addEventListener("change", async () => {
   $("foto-txt").textContent = "Trocar foto";
 });
 
+// contador de uso (só números)
+function contar(t) {
+  if (DEMO) return;
+  try { const c = JSON.stringify({ t }); if (!(navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/evento", new Blob([c], { type: "text/plain" })))) fetch("/.netlify/functions/evento", { method: "POST", body: c, keepalive: true }).catch(() => {}); } catch {}
+}
+let comecou = false;
+$("form").addEventListener("input", () => { if (comecou) return; comecou = true; try { if (sessionStorage.getItem("kiiro-ci")) return; sessionStorage.setItem("kiiro-ci", "1"); } catch {} contar("cad_inicio"); }, true);
+$("form").addEventListener("change", () => { if (comecou) return; comecou = true; try { if (sessionStorage.getItem("kiiro-ci")) return; sessionStorage.setItem("kiiro-ci", "1"); } catch {} contar("cad_inicio"); }, true);
+
 // fotos de trabalhos (até 3, opcionais): reduz cada uma e coloca nos campos trabalho1..3
 const trabInputs = [...document.querySelectorAll('input[name^="trabalho"]')];
 let trabalhos = [];
@@ -358,6 +367,7 @@ $("form").addEventListener("submit", e => {
   $("cidade").value = cidades.join(", ");
   $("dias").value = dias.join(", ");
   $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
+  contar("cad_envio");
   $("enviar").disabled = true;
   $("enviar").textContent = "Enviando…";
   if (DEMO) { e.preventDefault(); location.href = "cadastro-ok.html"; }

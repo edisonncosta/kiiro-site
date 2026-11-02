@@ -65,3 +65,14 @@ Na lista de profissionais, no topo (antes dos nomes), aparece um espaço de patr
 Para colocar um patrocinador, edite `patrocinios.js` (tem um exemplo dentro). Use `"Todos"` para a página inicial
 ou o nome exato do grupo (ex.: `"Casa e reforma"`), que vale para todos os serviços dele.
 Para vender exclusividade de um serviço só, use o nome do serviço (ex.: `"Eletricista"`). Depois da data `ate`, o espaço volta a ficar disponível sozinho.
+
+
+## Painel
+
+Abra `/painel?chave=SUA_ADMIN_KEY`. Tem três abas:
+- **Resumo:** visitas, perfis abertos, chamadas, cadastros começados e enviados, cliques em anunciar (hoje, 7 e 30 dias),
+  funis e o que as pessoas mais buscam — inclusive o que buscaram e não acharam.
+  Os números vêm de `netlify/functions/evento.mjs` (store "metricas"), sem dados pessoais.
+- **Profissionais:** ocultar do site (volta quando quiser), excluir o cadastro, pedir atualização pelo WhatsApp.
+  Quem está oculto fica na store "admin", chave "ocultos".
+- **Chamadas:** quem chamou quem, pedir avaliação, avaliações ruins.

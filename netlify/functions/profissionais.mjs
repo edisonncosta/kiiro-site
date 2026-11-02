@@ -11,7 +11,9 @@ const soDigitos = (s) => String(s || "").replace(/\D/g, "");
 const curto = (s, max = 40) => String(s || "").trim().slice(0, max);
 
 export default async (req, context) => {
-  const { NETLIFY_TOKEN, APROVADOS } = process.env;
+  const { NETLIFY_TOKEN, APROVADOS, ADMIN_KEY } = process.env;
+  // modo do painel: /.netlify/functions/profissionais?admin=CHAVE → inclui ocultos, ids dos cadastros e sem cache
+  const admin = !!ADMIN_KEY && new URL(req.url).searchParams.get("admin") === ADMIN_KEY;
   // o Netlify já informa o ID do site sozinho
   const SITE_ID = process.env.KIIRO_SITE_ID || context?.site?.id || process.env.SITE_ID;
   const FORM_NAME = process.env.FORM_NAME || "cadastro";
@@ -58,6 +60,9 @@ export default async (req, context) => {
     }
 
     const aprovados = (APROVADOS || "").split(",").map(soDigitos).filter(Boolean);
+    let ocultos = [];
+    try { ocultos = (await getStore("admin").get("ocultos", { type: "json" })) || []; } catch {}
+    const ocultosSet = new Set(ocultos);
     const vistos = new Set();
     const lista = envios
       .map((s) => {
@@ -93,7 +98,8 @@ export default async (req, context) => {
       // se a mesma pessoa (mesmo WhatsApp) se cadastrou mais de uma vez, fica só o cadastro mais recente
       .filter((p) => { if (vistos.has(p.whatsapp)) return false; vistos.add(p.whatsapp); return true; });
 
-    return json(200, lista, { "Cache-Control": "public, max-age=120" });
+    if (admin) return json(200, lista.map((p) => ({ ...p, oculto: ocultosSet.has(p.whatsapp) })), { "Cache-Control": "no-store" });
+    return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp)), { "Cache-Control": "public, max-age=60" });
   } catch (e) {
     return json(500, { erro: "Falha ao ler cadastros: " + String(e && e.message || e).slice(0, 120) });
   }
