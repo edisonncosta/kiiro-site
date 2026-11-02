@@ -114,7 +114,11 @@
   @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
 
   /* boas-vindas */
-  .bv{max-height:92vh;overflow-y:auto}
+  .bv{max-height:92vh;overflow-y:auto;padding-top:.6rem;touch-action:pan-y}
+  .bv-topo{position:sticky;top:-.6rem;z-index:2;display:flex;justify-content:flex-end;align-items:center;margin:-.6rem -1.25rem .4rem;padding:.6rem 1rem .4rem;background:var(--paper)}
+  .bv-alca{position:absolute;left:50%;top:.55rem;transform:translateX(-50%);width:44px;height:5px;border-radius:5px;background:#CFC8B0}
+  .bv-x{display:inline-flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:.35rem .5rem .35rem .85rem;font:700 .85rem Poppins,sans-serif;color:var(--ink);cursor:pointer;min-height:40px}
+  .bv-x svg{width:16px;height:16px}
   .bv-nome{background:var(--sun);border:2px solid var(--ink);border-radius:20px;padding:.9rem 1rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
   .bv-kanji{font-family:"Noto Sans JP",Poppins,sans-serif;font-weight:800;font-size:2.6rem;line-height:1;white-space:nowrap;flex:none}
   .bv-le{font-weight:700;font-size:.95rem;line-height:1.3}
@@ -300,6 +304,10 @@
 <!-- Boas-vindas: quem é a Kiiro (só na primeira visita) -->
 <div class="modal" id="modal-bv" role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
   <div class="sheet bv">
+    <div class="bv-topo">
+      <span class="bv-alca" aria-hidden="true"></span>
+      <button class="bv-x" type="button" id="bv-x" aria-label="Fechar">Pular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
     <div class="bv-nome">
       <span class="bv-kanji" lang="ja" aria-hidden="true">黄色</span>
       <span class="bv-le">Kiiro, “amarelo” em japonês</span>
@@ -747,6 +755,21 @@ const mBv = $("modal-bv");
 const fecharBv = () => { mBv.classList.remove("aberto"); try { localStorage.setItem("kiiro-bv", "1"); } catch {} };
 const abrirBv = () => { mBv.classList.add("aberto"); mBv.querySelector(".bv").scrollTop = 0; };
 $("bv-ok").onclick = fecharBv;
+$("bv-x").onclick = fecharBv;
+// arrastar para baixo também fecha
+(function () {
+  const sh = mBv.querySelector(".bv"); let y0 = null, dy = 0;
+  sh.addEventListener("touchstart", e => { y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+  sh.addEventListener("touchmove", e => {
+    if (y0 === null) return; dy = e.touches[0].clientY - y0;
+    if (dy > 0) { sh.style.transform = `translateY(${dy}px)`; sh.style.transition = "none"; }
+  }, { passive: true });
+  sh.addEventListener("touchend", () => {
+    sh.style.transition = "transform .2s"; sh.style.transform = "";
+    if (y0 !== null && dy > 90) fecharBv();
+    y0 = null;
+  });
+})();
 mBv.addEventListener("click", e => { if (e.target === mBv) fecharBv(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && mBv.classList.contains("aberto")) fecharBv(); });
 $("abrir-sobre").addEventListener("click", e => { e.preventDefault(); abrirBv(); });
