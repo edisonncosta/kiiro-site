@@ -112,6 +112,15 @@
   .pro li svg{width:20px;height:20px;flex:none}
   @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
 
+  /* boas-vindas */
+  .bv{text-align:center}
+  .bv-logo{width:96px;margin:0 auto .6rem;color:var(--ink);--hole:var(--paper)}
+  .bv-passos{list-style:none;text-align:left;display:grid;gap:.8rem;margin:0 0 1.3rem}
+  .bv-passos li{display:flex;gap:.8rem;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:.7rem .8rem;font-size:.88rem;line-height:1.4;color:var(--muted)}
+  .bv-passos li span{font-size:1.4rem;line-height:1}
+  .bv-passos b{display:block;color:var(--ink);font-size:.98rem}
+  .bv-pro{display:block;margin-top:.9rem;font-weight:700;font-size:.9rem;color:var(--ink)}
+
   /* lembrete de avaliação */
   .lembrete{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
   .lembrete .wrap{display:flex;align-items:center;gap:.7rem;padding:.7rem 0}
@@ -278,6 +287,22 @@
     <p>Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></p>
   </div>
 </footer>
+
+<!-- Boas-vindas (só na primeira visita) -->
+<div class="modal" id="modal-bv" role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
+  <div class="sheet bv">
+    <div class="bv-logo"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></div>
+    <h3 id="bv-titulo">Bem-vindo à Kiiro! 👋</h3>
+    <p class="sub">Profissionais do Litoral Norte, direto no seu WhatsApp.</p>
+    <ol class="bv-passos">
+      <li><span>🔍</span><div><b>Escolha um profissional</b>Veja serviço, cidade e nota de quem já contratou.</div></li>
+      <li><span>💬</span><div><b>Chame no WhatsApp</b>Combine direto com ele. É grátis para quem contrata.</div></li>
+      <li><span>⭐</span><div><b>Conte como foi</b>Sua nota ajuda a próxima pessoa a escolher bem.</div></li>
+    </ol>
+    <button class="btn btn-ink btn-full" type="button" id="bv-ok">Entendi, ver profissionais</button>
+    <a class="bv-pro" href="cadastro.html">Sou profissional, quero me cadastrar →</a>
+  </div>
+</div>
 
 <!-- Todos os serviços -->
 <div class="modal" id="modal-todos" role="dialog" aria-modal="true" aria-labelledby="mt-titulo">
@@ -701,6 +726,19 @@ function mostrarLembrete() {
 }
 if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
 mostrarLembrete();
+
+/* ===== Boas-vindas: só na primeira visita e não para quem chega por link de perfil ===== */
+(function () {
+  let viu = false;
+  try { viu = !!localStorage.getItem("kiiro-bv"); } catch {}
+  if ((viu && !DEMO) || location.hash.startsWith("#p-")) return;
+  const m = $("modal-bv");
+  const fechar = () => { m.classList.remove("aberto"); try { localStorage.setItem("kiiro-bv", "1"); } catch {} };
+  m.classList.add("aberto");
+  $("bv-ok").onclick = fechar;
+  m.addEventListener("click", e => { if (e.target === m) fechar(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && m.classList.contains("aberto")) fechar(); });
+})();
 
 carregar().then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
