@@ -137,7 +137,10 @@
 
   /* ===== PERFIL (tela cheia) ===== */
   .pf-foto{position:relative;height:46vh;min-height:300px;max-height:520px;background:var(--sun-soft);overflow:hidden}
-  .pf-foto img{width:100%;height:100%;object-fit:cover}
+  .pf-foto .pf-fundo{position:absolute;inset:-30px;background:center/cover no-repeat;filter:blur(24px) brightness(.85);transform:scale(1.1)}
+  .pf-foto .pf-img{position:relative;display:block;width:100%;height:calc(100% - 1.6rem);border:0;padding:0;background:none;cursor:zoom-in}
+  .pf-foto .pf-img img{width:100%;height:100%;object-fit:contain}
+  .pf-foto .pf-zoom{position:absolute;right:1rem;bottom:2.4rem;background:rgba(26,26,26,.75);color:#fff;border-radius:999px;padding:.3rem .75rem;font-size:.75rem;font-weight:600;pointer-events:none}
   .pf-foto .foto-ini{font-size:6rem}
   .pf-bts{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1rem;right:1rem;display:flex;justify-content:space-between}
   .pf-bts div{display:flex;gap:.6rem}
@@ -416,8 +419,9 @@
 </div>
 
 <!-- Foto ampliada -->
-<div class="modal" id="modal-foto-av" role="dialog" aria-modal="true" aria-label="Foto" style="align-items:center;z-index:140">
-  <img id="foto-ampliada" class="foto-grande" alt="Foto do serviço">
+<div class="modal" id="modal-foto-av" role="dialog" aria-modal="true" aria-label="Foto" style="align-items:center;z-index:140;background:rgba(0,0,0,.92)">
+  <button class="bt-fechar" type="button" style="position:absolute;top:calc(1rem + env(safe-area-inset-top));right:1rem" aria-label="Fechar foto">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <img id="foto-ampliada" class="foto-grande" alt="Foto ampliada">
 </div>
 
 <script>
@@ -752,7 +756,9 @@ async function abrirPerfil(id) {
   const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join("");
   $("tela-perfil").innerHTML = `
     <div class="pf-foto">
-      ${fotoDe(p)}
+      ${p.foto
+        ? `<div class="pf-fundo" style="background-image:url('${esc(p.foto)}')" aria-hidden="true"></div><button class="pf-img" type="button" data-ampliar="${esc(p.foto)}" aria-label="Ver foto inteira"><img src="${esc(p.foto)}" alt="Foto de ${esc(p.nome)}"></button><span class="pf-zoom">Toque para ampliar</span>`
+        : fotoDe(p)}
       <div class="pf-bts">
         <button class="bt-redondo" type="button" id="pf-voltar" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
         <div>
