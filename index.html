@@ -103,7 +103,8 @@
   .info .pe{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:auto;padding-top:.3rem}
   .bt-zap-mini{display:inline-flex;align-items:center;gap:.35rem;border:0;background:var(--sun);color:var(--ink);border-radius:10px;padding:.35rem .7rem;font:600 .78rem Poppins,sans-serif;cursor:pointer;min-height:34px}
   .bt-zap-mini svg{width:16px;height:16px}
-  .ver{font-size:.78rem;font-weight:600;color:var(--ink);text-decoration:underline}
+  .ver-bt{display:inline-flex;align-items:center;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;color:var(--ink);background:var(--sun-soft);min-height:34px}
+  .item:hover .ver-bt{background:var(--sun)}
   .vazio{grid-column:1/-1;text-align:center;background:var(--card);border:1.5px dashed #E1CF8C;border-radius:20px;padding:2rem 1.2rem}
   .vazio b{display:block;font-size:1.05rem;margin-bottom:.3rem}
   .vazio p{color:var(--muted);margin-bottom:1rem}
@@ -637,7 +638,6 @@ function card(p) {
     EXP_CARD[p.experiencia] && `<span class="tag">${EXP_CARD[p.experiencia]}</span>`,
     p.mei === "Sim" && `<span class="tag">MEI</span>`,
   ].filter(Boolean).slice(0, 3).join("");
-  const nome1 = String(p.nome).split(" ")[0];
   return `
   <article class="item" data-perfil="${esc(p.id)}">
     <div class="foto-box">
@@ -650,7 +650,7 @@ function card(p) {
       <p class="cid">📍 ${esc(p.cidade)}</p>
       ${tags ? `<div class="tags">${tags}</div>` : ""}
       ${p.descricao ? `<p class="desc">${esc(p.descricao)}</p>` : ""}
-      <div class="pe"><button class="bt-zap-mini" type="button" data-chamar="${esc(p.id)}" aria-label="Chamar ${esc(p.nome)} no WhatsApp">${icoZap} Chamar ${esc(nome1)}</button><span class="ver">Ver perfil</span></div>
+      <div class="pe"><span class="ver-bt">Ver perfil e avaliações →</span></div>
     </div>
   </article>`;
 }
