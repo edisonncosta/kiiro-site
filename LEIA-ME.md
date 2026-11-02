@@ -58,7 +58,7 @@ Em `index.html` e `avaliar.html`, procure `KIIRO_WHATS`.
 
 ## Patrocínio
 
-Na lista de profissionais, depois do 3º card, aparece um espaço de patrocínio:
+Na lista de profissionais, no topo (antes dos nomes), aparece um espaço de patrocínio:
 - Se a categoria tem patrocinador, aparece o card dele (com a etiqueta "Patrocinado").
 - Se não tem, aparece "Este espaço pode ser seu", com botão para a empresa chamar a Kiiro no WhatsApp.
 

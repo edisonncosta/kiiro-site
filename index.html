@@ -523,7 +523,7 @@ function render() {
     $("titulo").innerHTML = `${oque} ${onde}<small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"} · chame direto no WhatsApp` : "Nenhum profissional encontrado"}</small>`;
   }
   const cards = lista.map(p => card(p, cidade));
-  if (cards.length && modo !== "salvos") cards.splice(Math.min(3, cards.length), 0, cardPatrocinio());
+  if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
     <div class="vazio">
@@ -866,10 +866,10 @@ function telaAnuncie() {
       <h2>Formatos</h2>
       <div class="formatos">
         <div class="formato top"><span class="tg">Mais procurado</span><b>Patrocínio de categoria</b><p>Sua marca dentro de um serviço, como “Eletricista” ou “Piscineiro”.</p>
-          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece logo depois dos primeiros profissionais</li><li>Só um patrocinador por categoria</li></ul>
+          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece no topo, antes dos profissionais</li><li>Só um patrocinador por categoria</li></ul>
           <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="uma categoria">Quero</button></div></div>
         <div class="formato"><b>Página inicial</b><p>Aparece para todo mundo que abre a Kiiro.</p>
-          <ul><li>Maior visibilidade</li><li>Card logo depois dos primeiros profissionais</li></ul>
+          <ul><li>Maior visibilidade</li><li>Card no topo da lista, antes dos profissionais</li></ul>
           <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
         <div class="formato"><b>Pacote Temporada</b><p>Dezembro a março, quando o litoral enche.</p>
           <ul><li>Categoria + página inicial</li><li>Destaque nas redes da Kiiro</li></ul>
