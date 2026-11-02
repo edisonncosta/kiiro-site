@@ -640,7 +640,8 @@ function render() {
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
-  const ptVazio = !n && modo !== "salvos" && catAtiva && patrociniosDe(catAtiva, cidade).length;
+  // sem ninguém nesse serviço: o patrocinador (ou o espaço livre) aparece em cima do aviso
+  const ptVazio = !n && modo !== "salvos" && (catAtiva || cidade);
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
     ${ptVazio ? cardPatrocinio() : ""}
     <div class="vazio">
