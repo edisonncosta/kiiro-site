@@ -10,12 +10,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
+<script src="servicos.js"></script>
 <style>
   .topo-pag{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.6rem 0 2rem}
   .topo-pag h1{font-size:clamp(1.8rem,6vw,2.8rem);font-weight:800;line-height:1.08;letter-spacing:-.02em}
   .topo-pag p{margin-top:.6rem;font-weight:500;max-width:30rem}
   .form-wrap{width:min(560px,100% - 2.5rem);margin:-1rem auto 3rem;position:relative}
   #outro{margin-top:.6rem}
+  .grupo-serv{margin-bottom:.9rem}
+  .grupo-serv h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+  .grupo-serv .chips label{font-size:.85rem;padding:.4rem .85rem}
+  #servicos-vazio{font-size:.9rem;color:var(--muted);margin-bottom:.6rem}
   .editar-aviso{margin-top:1rem!important;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:.7rem .9rem;font-size:.9rem;font-weight:500;line-height:1.45}
   .foto-btn{display:flex;align-items:center;gap:1rem;cursor:pointer}
   .foto-btn .avatar{font-size:1.8rem;background:var(--sun-soft)}
@@ -69,20 +74,10 @@
     <div class="campo">
       <span class="legenda"><span class="n">2</span>O que você faz?</span>
       <input type="hidden" name="servico" id="servico">
-      <div class="chips" id="servicos">
-        <input type="checkbox" id="s1" value="Eletricista"><label for="s1">Eletricista</label>
-        <input type="checkbox" id="s2" value="Encanador"><label for="s2">Encanador</label>
-        <input type="checkbox" id="s3" value="Pedreiro"><label for="s3">Pedreiro</label>
-        <input type="checkbox" id="s4" value="Pintor"><label for="s4">Pintor</label>
-        <input type="checkbox" id="s5" value="Diarista"><label for="s5">Diarista</label>
-        <input type="checkbox" id="s6" value="Jardineiro"><label for="s6">Jardineiro</label>
-        <input type="checkbox" id="s7" value="Marceneiro"><label for="s7">Marceneiro</label>
-        <input type="checkbox" id="s8" value="Ar-condicionado"><label for="s8">Ar-condicionado</label>
-        <input type="checkbox" id="s9" value="Motoboy"><label for="s9">Motoboy</label>
-        <input type="checkbox" id="s-outro" value="outro"><label for="s-outro">Outro</label>
-      </div>
-      <p class="opc" style="margin-top:.5rem" id="servicos-dica">Marque até 3 serviços.</p>
-      <input class="input escondido" type="text" id="outro" placeholder="Qual serviço?">
+      <p class="opc" style="margin:-.2rem 0 .6rem" id="servicos-dica">Marque até 3 serviços.</p>
+      <input class="input" type="search" id="busca-servico" placeholder="Procurar serviço… ex.: piscina" style="margin-bottom:.8rem" autocomplete="off">
+      <div id="servicos"></div>
+      <input class="input escondido" type="text" id="outro" placeholder="Qual é o outro serviço?">
     </div>
 
     <div class="campo">
@@ -151,6 +146,35 @@ $("cidades").addEventListener("change", e => {
   });
 });
 
+// monta a lista de serviços por grupo
+const semAcento = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+$("servicos").innerHTML = window.KIIRO_SERVICOS.map((g, gi) => `
+  <div class="grupo-serv" data-grupo>
+    <h4>${g.grupo}</h4>
+    <div class="chips">${g.itens.map((v, i) => `<input type="checkbox" id="s${gi}-${i}" value="${v}"><label for="s${gi}-${i}">${v}</label>`).join("")}</div>
+  </div>`).join("") + `
+  <div class="grupo-serv" data-grupo>
+    <h4>Não achou?</h4>
+    <div class="chips"><input type="checkbox" id="s-outro" value="outro"><label for="s-outro">Outro serviço</label></div>
+  </div>
+  <p id="servicos-vazio" class="escondido">Nenhum serviço com esse nome. Marque <b>Outro serviço</b> e escreva o seu.</p>`;
+$("busca-servico").addEventListener("input", () => {
+  const t = semAcento($("busca-servico").value.trim());
+  let algum = false;
+  $("servicos").querySelectorAll("[data-grupo]").forEach(g => {
+    let visiveis = 0;
+    g.querySelectorAll("input").forEach(i => {
+      const mostra = !t || i.value === "outro" || i.checked || semAcento(i.value).includes(t);
+      i.nextElementSibling.style.display = mostra ? "" : "none";
+      if (mostra && i.value !== "outro") visiveis++;
+    });
+    const ehOutro = !!g.querySelector("#s-outro");
+    g.style.display = (visiveis || ehOutro) ? "" : "none";
+    if (visiveis) algum = true;
+  });
+  $("servicos-vazio").classList.toggle("escondido", algum || !t);
+});
+
 // serviços: até 3
 const MAX_SERVICOS = 3;
 $("servicos").addEventListener("change", e => {
@@ -160,7 +184,8 @@ $("servicos").addEventListener("change", e => {
     $("servicos-dica").textContent = `Máximo de ${MAX_SERVICOS} serviços. Desmarque um para trocar.`;
     $("servicos-dica").style.color = "var(--danger)";
   } else {
-    $("servicos-dica").textContent = "Marque até 3 serviços.";
+    const n = marcados.length;
+    $("servicos-dica").innerHTML = n ? `Marque até 3 serviços · <b>${n} marcado${n > 1 ? "s" : ""}:</b> ${[...marcados].map(i => i.value === "outro" ? "Outro" : i.value).join(", ")}` : "Marque até 3 serviços.";
     $("servicos-dica").style.color = "";
   }
   const outro = $("s-outro").checked;
