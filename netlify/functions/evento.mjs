@@ -4,8 +4,8 @@
 // Endereço: POST /.netlify/functions/evento   corpo: {"t":"visita"} ou {"t":"busca","k":"piscina"}
 import { getStore } from "@netlify/blobs";
 
-const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre"]);
-const COM_PALAVRA = { busca: "buscas", busca_vazia: "vazias", cat: "cats", perfil: "perfis", chamar: "chamados" };
+const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre", "patro_ver", "patro_clique"]);
+const COM_PALAVRA = { busca: "buscas", busca_vazia: "vazias", cat: "cats", perfil: "perfis", chamar: "chamados", patro_ver: "patro_ver", patro_clique: "patro_clique" };
 const MAX_PALAVRAS = 300;
 
 export const hojeSP = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // AAAA-MM-DD
@@ -19,7 +19,8 @@ export default async (req) => {
   try { d = JSON.parse(await req.text()); } catch { return new Response("", { status: 400 }); }
   const t = String(d && d.t || "");
   if (!TIPOS.has(t)) return new Response("", { status: 400 });
-  const k = String(d.k || "").normalize("NFC").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 40);
+  let k = String(d.k || "").normalize("NFC").replace(/\s+/g, " ").trim().slice(0, 40);
+  if (!t.startsWith("patro")) k = k.toLowerCase();
 
   // 4 "gavetas" por dia, para dois eventos ao mesmo tempo quase nunca se atropelarem
   const store = getStore({ name: "metricas", consistency: "strong" });

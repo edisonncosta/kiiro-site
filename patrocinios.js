@@ -12,6 +12,10 @@
 //   botao: "Ver ofertas no WhatsApp", link: "https://wa.me/5551999999999?text=Vi%20voc%C3%AAs%20na%20Kiiro",
 //   logo: "", ate: "2026-12-31" },
 window.KIIRO_PATROCINIOS = [
+  { categoria: "Transporte e mudança", nome: "Borracharia N.S. Aparecida", cidade: "",
+    texto: "Borracharia em geral, auto elétrica, auto peças e acessórios. Socorro: (51) 98138‑6653.",
+    botao: "Chamar no WhatsApp", link: "https://wa.me/5551980425261?text=Ol%C3%A1!%20Vi%20voc%C3%AAs%20na%20Kiiro.",
+    logo: "img/patrocinadores/ns-aparecida.jpg", ate: "" },
 ];
 
 // Mostrar "Este espaço pode ser seu" onde não tem patrocinador?

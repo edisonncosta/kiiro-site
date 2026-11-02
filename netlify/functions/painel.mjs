@@ -126,7 +126,14 @@ export default async (req) => {
         ${lista("Buscaram e não acharam ninguém", top("vazias"), "Nenhuma busca sem resultado. Ótimo!")}
         ${lista("Serviços mais chamados", top("chamados"), "Nenhuma chamada ainda.")}
       </div>
-      <p class="obs" style="padding:0 4px">“Buscaram e não acharam” mostra que tipo de profissional falta cadastrar.</p>`;
+      <p class="obs" style="padding:0 4px">“Buscaram e não acharam” mostra que tipo de profissional falta cadastrar.</p>
+      ${(() => {
+        const vis = Object.fromEntries(top("patro_ver")), cli = Object.fromEntries(top("patro_clique"));
+        const nomes = [...new Set([...Object.keys(vis), ...Object.keys(cli)])];
+        return `<section class="cx" style="margin-top:12px"><h3>Patrocinadores · 30 dias</h3>${nomes.length
+          ? `<table><thead><tr><th></th><th>Vezes que apareceu</th><th>Cliques</th></tr></thead><tbody>${nomes.map((n) => `<tr><td>${esc(n)}</td><td>${num(vis[n])}</td><td>${num(cli[n])}</td></tr>`).join("")}</tbody></table><p class="obs">Mande esses números para o patrocinador todo mês: mostra o retorno do anúncio.</p>`
+          : `<p class="vz">Nenhum patrocinador apareceu ainda.</p>`}</section>`;
+      })()}`;
   }
 
   if (aba === "profissionais") {

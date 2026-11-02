@@ -645,14 +645,15 @@ const patrocinioDoGrupo = g => {
 };
 function cardPatroDe(pt) {
   const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
-  return `<a class="patro" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+  return `<a class="patro" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
     <div class="patro-logo${pt.logo ? " img" : ""}" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
     <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
   </a>`;
 }
+let patroVisto = "";
 function cardPatrocinio() {
   const pt = patrocinioDe(catAtiva);
-  if (pt) return cardPatroDe(pt);
+  if (pt) { if (patroVisto !== pt.nome + catAtiva) { patroVisto = pt.nome + catAtiva; contar("patro_ver", pt.nome); } return cardPatroDe(pt); }
   if (!window.KIIRO_ANUNCIE) return "";
   return `<a class="patro livre" href="#anuncie" data-ir="anuncie">
     <div class="patro-logo">📣</div>
@@ -662,6 +663,8 @@ function cardPatrocinio() {
 
 /* ===== Cliques na lista ===== */
 $("lista").addEventListener("click", e => {
+  const pc = e.target.closest("a.patro:not(.livre)");
+  if (pc) contar("patro_clique", pc.dataset.nome);
   const f = e.target.closest("[data-fav]");
   if (f) { e.stopPropagation(); return alternarFav(f.dataset.fav); }
   const it = e.target.closest("[data-perfil]");
