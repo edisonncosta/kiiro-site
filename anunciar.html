@@ -238,6 +238,8 @@ $("form").addEventListener("submit", e => {
   $("erro").textContent = msg;
   if (msg) { e.preventDefault(); return; }
   if (!$("botao").value.trim()) $("botao").value = ACOES[acao()].bt;
+  const v = P[chaveP[f]], m = +$("meses").value;
+  if (typeof v === "number") $("form").action = "anuncio-ok.html?total=" + (v * m);
   $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
   if (DEMO) { e.preventDefault(); location.href = "anuncio-ok.html"; }
 });
