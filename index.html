@@ -105,6 +105,23 @@
   .bt-zap-mini svg{width:16px;height:16px}
   .ver-bt{display:inline-flex;align-items:center;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;color:var(--ink);background:var(--sun-soft);min-height:34px}
   .item:hover .ver-bt{background:var(--sun)}
+  /* escolher visualização */
+  .vis{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;width:100%}
+  .vis button{flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;border:0;background:none;border-radius:9px;padding:.45rem .5rem;font:500 .78rem Poppins,sans-serif;color:var(--muted);cursor:pointer;min-height:38px}
+  .vis button svg{width:18px;height:18px;flex:none}
+  .vis button.on{background:var(--sun-soft);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px #F0DC92}
+  .vis button.on svg{color:#B08A00}
+  @media (min-width:700px){.vis{width:auto}}
+  /* card com foto grande */
+  .grid.grande{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.6rem 1.2rem}
+  .cg{cursor:pointer;min-width:0}
+  .cg-foto{position:relative;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:var(--sun-soft)}
+  .cg-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+  .cg-foto .foto-ini{font-size:3.4rem}
+  .cg .l1{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;margin-top:.6rem}
+  .cg h3{font-size:1rem;font-weight:600;line-height:1.25}
+  .cg p{font-size:.88rem;color:var(--muted);margin-top:.1rem}
+  .cg .tags{margin-top:.35rem}
   /* vitrine */
   .fileira{grid-column:1/-1;min-width:0;margin-bottom:.4rem}
   .fil-topo{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.7rem}
@@ -359,6 +376,11 @@
         <button class="filtro" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
         <button class="filtro escondido" id="limpar" type="button">Limpar filtros</button>
       </div>
+      <div class="vis" role="group" aria-label="Como ver os profissionais">
+        <button type="button" data-vis="areas" aria-label="Por serviço" title="Por serviço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><path d="M3 16h18M3 20h12"/></svg><span>Por serviço</span></button>
+        <button type="button" data-vis="lista" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><path d="M12 6h9M12 9h6M12 16h9M12 19h6"/></svg><span>Lista</span></button>
+        <button type="button" data-vis="grande" aria-label="Foto grande" title="Foto grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M3 20h12"/></svg><span>Grande</span></button>
+      </div>
     </div>
     <div class="grid" id="lista"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 
@@ -525,6 +547,7 @@ let modo = "inicio"; // inicio | salvos
 const lerJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
 const salvarJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 let favs = new Set(lerJSON("kiiro-salvos", []));
+let visual = ["areas", "lista", "grande"].includes(lerJSON("kiiro-vis", "areas")) ? lerJSON("kiiro-vis", "areas") : "areas";
 
 /* ===== Carregar ===== */
 async function carregar() {
@@ -600,11 +623,13 @@ function render() {
     $("titulo").innerHTML = `${oque} ${onde}<small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"} · chame direto no WhatsApp` : "Nenhum profissional encontrado"}</small>`;
   }
   // Página inicial sem filtro: vitrine com uma fileira por serviço (desliza para o lado)
-  if (modo === "inicio" && !filtrando && n) {
+  document.querySelectorAll(".vis button").forEach(b => { b.classList.toggle("on", b.dataset.vis === visual); b.setAttribute("aria-pressed", String(b.dataset.vis === visual)); });
+  $("lista").classList.toggle("grande", visual === "grande");
+  if (visual === "areas" && modo === "inicio" && !filtrando && n) {
     $("lista").innerHTML = cardPatrocinio() + vitrine(lista);
     return;
   }
-  const cards = lista.map(p => card(p, cidade));
+  const cards = lista.map(p => visual === "grande" ? cardGrande(p) : card(p));
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
@@ -678,6 +703,32 @@ function card(p) {
   </article>`;
 }
 const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
+
+/* ===== Card com foto grande ===== */
+function cardGrande(p) {
+  const temNota = p.avaliacoes >= 3;
+  const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
+  const tags = [
+    temNota && p.nota >= 4.7 && p.avaliacoes >= 5 && `<span class="tag ouro">★ Destaque</span>`,
+    p.urgencia === "Sim" && `<span class="tag esc">⚡ Urgência</span>`,
+    p.orcamento === "Sim" && `<span class="tag">Orçamento grátis</span>`,
+    EXP_CARD[p.experiencia] && `<span class="tag">${EXP_CARD[p.experiencia]}</span>`,
+  ].filter(Boolean).slice(0, 3).join("");
+  return `
+  <article class="cg" data-perfil="${esc(p.id)}">
+    <div class="cg-foto">
+      ${fotoDe(p)}
+      <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
+    </div>
+    <div class="l1"><h3>${esc(p.nome)}</h3>${nota}</div>
+    <p>${esc(catsDe(p).join(" · "))} · ${esc(p.cidade)}</p>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}
+  </article>`;
+}
+document.querySelector(".vis").addEventListener("click", e => {
+  const b = e.target.closest("[data-vis]"); if (!b) return;
+  visual = b.dataset.vis; salvarJSON("kiiro-vis", visual); render();
+});
 
 /* ===== Vitrine (fileiras por serviço) ===== */
 function cardMini(p) {
