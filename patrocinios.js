@@ -29,4 +29,4 @@ window.KIIRO_PATROCINIOS = [
 window.KIIRO_ANUNCIE = true;
 
 // Preços que aparecem na página Anuncie (por mês). Apague um para mostrar "sob consulta".
-window.KIIRO_PRECOS = { servicoCidade: 39, cidade: 79, servico: 99, inicio: 149, temporada: "449 (dez–mar)" };
+window.KIIRO_PRECOS = { servicoCidade: 10, cidade: 15, servico: 15, inicio: 20, temporada: "60 (dez–mar)" };
