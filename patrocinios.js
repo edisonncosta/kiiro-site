@@ -1,4 +1,10 @@
 // Patrocínios da Kiiro.
+// Onde aparece (do mais específico para o mais amplo):
+//   1. Serviço na cidade:  categoria = grupo ou serviço, alvoCidade: "Osório"
+//   2. Cidade inteira:     categoria = "Todos",          alvoCidade: "Osório"
+//   3. Serviço no litoral: categoria = grupo ou serviço, sem alvoCidade
+//   4. Página inicial:     categoria = "Todos",          sem alvoCidade (até 5, em rodízio)
+// Quando mais de um cabe no mesmo lugar, eles ficam girando.
 // categoria: "Todos" (página inicial) ou o nome exato do GRUPO, como está em servicos.js:
 //   "Casa e reforma", "Climatização e segurança", "Limpeza", "Casa de praia e jardim",
 //   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Cuidados e aulas".
@@ -20,3 +26,6 @@ window.KIIRO_PATROCINIOS = [
 
 // Mostrar "Este espaço pode ser seu" onde não tem patrocinador?
 window.KIIRO_ANUNCIE = true;
+
+// Preços que aparecem na página Anuncie (por mês). Apague um para mostrar "sob consulta".
+window.KIIRO_PRECOS = { servicoCidade: 39, cidade: 79, servico: 99, inicio: 149, temporada: "449 (dez–mar)" };

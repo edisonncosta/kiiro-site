@@ -156,6 +156,13 @@
   .patro-cta{display:inline-block;margin-top:.5rem;font-weight:600;font-size:.85rem;text-decoration:underline}
   .patro:not(.livre) .patro-cta{background:var(--ink);color:var(--sun);text-decoration:none;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;margin-top:.35rem}
   .patro-logo.img{background-color:#fff;background-size:contain;background-repeat:no-repeat;border:1px solid var(--line);width:84px;height:84px}
+  .patro-roda{grid-column:1/-1;min-width:0}
+  .pr-trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.8rem;scrollbar-width:none}
+  .pr-trilho::-webkit-scrollbar{display:none}
+  .pr-trilho .patro{flex:none;width:100%;scroll-snap-align:start}
+  .pr-dots{display:flex;justify-content:center;gap:6px;margin-top:.5rem}
+  .pr-dots button{width:7px;height:7px;border-radius:50%;border:0;padding:0;background:#E1D5AE;cursor:pointer}
+  .pr-dots button.on{background:var(--ink);width:18px;border-radius:7px}
   .patro.livre{background:transparent;border:1.5px dashed #D9C88E;box-shadow:none}
   .patro.livre .patro-logo{background:var(--sun-soft);font-size:1.6rem;border:1.5px dashed #D9C88E}
   .patro.livre .patro-cta{background:var(--sun);text-decoration:none;border-radius:10px;padding:.4rem .9rem;color:var(--ink)}
@@ -250,6 +257,7 @@
   .porque b{display:block;font-weight:600}
   .porque p{font-size:.88rem;color:var(--muted);line-height:1.45}
   .formatos{display:grid;gap:.9rem}
+  .an-intro{font-size:.9rem;color:var(--muted);margin:-.3rem 0 .9rem}
   .formato{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:1.1rem}
   .formato.top{border-color:var(--sun);box-shadow:0 0 0 3px var(--sun-soft)}
   .formato .tg{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--sun);border-radius:999px;padding:.1rem .6rem}
@@ -632,7 +640,7 @@ function render() {
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
-  const ptVazio = !n && modo !== "salvos" && catAtiva && patrocinioDe(catAtiva);
+  const ptVazio = !n && modo !== "salvos" && catAtiva && patrociniosDe(catAtiva, cidade).length;
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
     ${ptVazio ? cardPatrocinio() : ""}
     <div class="vazio">
@@ -783,16 +791,28 @@ function alternarFav(id) {
 
 /* ===== Patrocínio ===== */
 // c = serviço escolhido ("" = página inicial). Vale o patrocínio do serviço (exclusividade) ou, senão, o do grupo dele.
-function patrocinioDe(c) {
-  const hoje = new Date().toISOString().slice(0, 10);
-  const ativos = (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje);
-  if (!c) return ativos.find(x => x.categoria === "Todos" || x.categoria === "Página inicial");
-  return ativos.find(x => x.categoria === c) || ativos.find(x => x.categoria === GRUPO_NOME[c]);
+/* Patrocínio em 4 níveis (do mais específico para o mais amplo):
+   1. Serviço na cidade  → categoria = serviço ou grupo, alvoCidade = "Osório"   (mais barato)
+   2. Cidade             → categoria = "Todos",          alvoCidade = "Osório"   (aparece em tudo naquela cidade)
+   3. Serviço no litoral → categoria = serviço ou grupo, sem alvoCidade
+   4. Página inicial     → categoria = "Todos",          sem alvoCidade         (vários, em rodízio)
+   Quando mais de um patrocinador cabe no mesmo lugar, eles ficam girando. */
+const MAX_INICIO = 5;
+const patroAtivos = () => { const hoje = new Date().toISOString().slice(0, 10); return (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje); };
+const ehInicio = x => x.categoria === "Todos" || x.categoria === "Página inicial";
+const daCidade = (x, cidade) => !!x.alvoCidade && !!cidade && semAcento(x.alvoCidade) === semAcento(cidade);
+const doServico = (x, c) => !!c && (x.categoria === c || x.categoria === GRUPO_NOME[c]);
+function patrociniosDe(c, cidade) {
+  const a = patroAtivos();
+  const niveis = [];
+  if (cidade && c) niveis.push(a.filter(x => doServico(x, c) && daCidade(x, cidade)));
+  if (cidade) niveis.push(a.filter(x => ehInicio(x) && daCidade(x, cidade)).slice(0, 3));
+  if (c) niveis.push(a.filter(x => doServico(x, c) && !x.alvoCidade));
+  if (!c) niveis.push(a.filter(x => ehInicio(x) && !x.alvoCidade).slice(0, MAX_INICIO));
+  return niveis.find(n => n.length) || [];
 }
-const patrocinioDoGrupo = g => {
-  const hoje = new Date().toISOString().slice(0, 10);
-  return (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje).find(x => x.categoria === g);
-};
+function patrocinioDe(c) { return patrociniosDe(c, "")[0]; }
+const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.alvoCidade);
 function cardPatroDe(pt) {
   const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
   return `<a class="patro" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
@@ -800,16 +820,43 @@ function cardPatroDe(pt) {
     <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
   </a>`;
 }
-let patroVisto = "";
+const patroVistos = new Set();
 function cardPatrocinio() {
-  const pt = patrocinioDe(catAtiva);
-  if (pt) { if (patroVisto !== pt.nome + catAtiva) { patroVisto = pt.nome + catAtiva; contar("patro_ver", pt.nome); } return cardPatroDe(pt); }
+  const cidade = $("cidade").value;
+  const lista = patrociniosDe(catAtiva, cidade);
+  lista.forEach(pt => { const k = pt.nome + "|" + catAtiva + "|" + cidade; if (!patroVistos.has(k)) { patroVistos.add(k); contar("patro_ver", pt.nome); } });
+  if (lista.length === 1) return cardPatroDe(lista[0]);
+  if (lista.length > 1) return `
+    <div class="patro-roda" aria-label="Patrocinadores" aria-roledescription="carrossel">
+      <div class="pr-trilho">${lista.map(cardPatroDe).join("")}</div>
+      <div class="pr-dots">${lista.map((_, i) => `<button type="button" data-pr="${i}" class="${i ? "" : "on"}" aria-label="Patrocinador ${i + 1}"></button>`).join("")}</div>
+    </div>`;
   if (!window.KIIRO_ANUNCIE) return "";
+  const onde = cidade ? ` em ${cidade}` : " no Litoral Norte";
   return `<a class="patro livre" href="#anuncie" data-ir="anuncie">
     <div class="patro-logo">📣</div>
-    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")} no Litoral Norte.</p><span class="patro-cta">Quero patrocinar →</span></div>
+    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")}${esc(onde)}.</p><span class="patro-cta">Quero patrocinar →</span></div>
   </a>`;
 }
+// rodízio: troca de patrocinador a cada 4,5 s (para quando a pessoa encosta o dedo)
+let prParado = 0;
+document.addEventListener("touchstart", e => { if (e.target.closest(".patro-roda")) prParado = Date.now(); }, { passive: true });
+function prIr(roda, i) {
+  const t = roda.querySelector(".pr-trilho"), n = t.children.length;
+  i = (i + n) % n; t.scrollTo({ left: t.children[i].offsetLeft - t.offsetLeft, behavior: "smooth" });
+  roda.querySelectorAll(".pr-dots button").forEach((d, k) => d.classList.toggle("on", k === i));
+  roda.dataset.i = i;
+}
+setInterval(() => {
+  if (Date.now() - prParado < 8000 || document.hidden) return;
+  document.querySelectorAll(".patro-roda").forEach(r => prIr(r, (+r.dataset.i || 0) + 1));
+}, 4500);
+document.addEventListener("click", e => { const d = e.target.closest("[data-pr]"); if (d) { prParado = Date.now(); prIr(d.closest(".patro-roda"), +d.dataset.pr); } });
+document.addEventListener("scroll", e => {
+  const t = e.target; if (!(t instanceof Element) || !t.classList.contains("pr-trilho")) return;
+  const i = Math.round(t.scrollLeft / (t.children[0]?.offsetWidth || 1));
+  const r = t.closest(".patro-roda"); r.dataset.i = i; r.querySelectorAll(".pr-dots button").forEach((d, k) => d.classList.toggle("on", k === i));
+}, true);
 
 /* ===== Cliques na lista ===== */
 $("lista").addEventListener("click", e => {
@@ -1064,8 +1111,14 @@ function mostrarBalao() {
 document.querySelector('.aba[data-tela="sobre"]').addEventListener("click", () => $("balao").classList.add("escondido"));
 
 /* ===== Anuncie ===== */
+function precoTxt(k) {
+  const v = (window.KIIRO_PRECOS || {})[k];
+  if (!v) return `Valor: <b>sob consulta</b>`;
+  return typeof v === "number" ? `<b>R$ ${v}</b> /mês` : `<b>R$ ${esc(v)}</b>`;
+}
 function telaAnuncie() {
-  const espacos = [{ nome: "Página inicial", sub: "Quem abre a Kiiro, sem escolher serviço", icone: "_todos", o: patrocinioDe(""), alvo: "a página inicial" },
+  const naInicio = patroAtivos().filter(x => ehInicio(x) && !x.alvoCidade).length;
+  const espacos = [{ nome: "Página inicial", sub: `${naInicio} de ${MAX_INICIO} vagas ocupadas · rodízio`, icone: "_todos", o: naInicio >= MAX_INICIO ? { nome: "lotado" } : null, alvo: "a página inicial" },
     ...GRUPOS_ANUNCIO.map(g => ({ nome: g.grupo, sub: g.itens.slice(0, 3).join(", ") + (g.itens.length > 3 ? "…" : ""), icone: g.itens[0], o: patrocinioDoGrupo(g.grupo), alvo: "o grupo " + g.grupo }))];
   const exemplo = (window.KIIRO_PATROCINIOS || [])[0] || { nome: "Sua loja", cidade: "Osório", texto: "Sua oferta aqui, com botão direto para o seu WhatsApp.", botao: "Ver ofertas no WhatsApp" };
   $("tela-anuncie").innerHTML = `
@@ -1084,21 +1137,29 @@ function telaAnuncie() {
         <div><span>🏖️</span><div><b>Temporada de verão</b><p>Casas de praia sendo preparadas: a procura por serviços cresce no verão.</p></div></div>
       </div>
       <h2>Formatos</h2>
+      <p class="an-intro">Escolha onde sua marca aparece. Quanto mais perto do seu cliente, mais barato.</p>
       <div class="formatos">
-        <div class="formato top"><span class="tg">Mais procurado</span><b>Patrocínio de grupo</b><p>Sua marca em um grupo inteiro de serviços, como “Casa e reforma” (eletricista, encanador, pedreiro, pintor e mais).</p>
-          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece no topo, antes dos profissionais, em todos os serviços do grupo</li><li>Só um patrocinador por grupo</li></ul>
-          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="um grupo de serviços">Quero</button></div></div>
-        <div class="formato"><b>Página inicial</b><p>Aparece para todo mundo que abre a Kiiro.</p>
-          <ul><li>Maior visibilidade</li><li>Card no topo da lista, antes dos profissionais</li></ul>
-          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
+        <div class="formato"><span class="tg">Mais barato</span><b>Serviço na sua cidade</b><p>Ex.: “Casa e reforma em Osório”. Aparece para quem escolhe a cidade e procura um serviço do grupo.</p>
+          <ul><li>Ideal para loja de bairro</li><li>Card no topo, antes dos profissionais</li></ul>
+          <div class="preco"><span>${precoTxt("servicoCidade")}</span><button class="bt-quero" type="button" data-quero="serviço na minha cidade">Quero</button></div></div>
+        <div class="formato"><b>Sua cidade inteira</b><p>Ex.: “Osório”. Aparece em todos os serviços quando a pessoa escolhe a sua cidade.</p>
+          <ul><li>Bom para supermercado, imobiliária, farmácia</li><li>Até 3 marcas por cidade, em rodízio</li></ul>
+          <div class="preco"><span>${precoTxt("cidade")}</span><button class="bt-quero" type="button" data-quero="minha cidade inteira">Quero</button></div></div>
+        <div class="formato top"><span class="tg">Mais procurado</span><b>Serviço em todo o litoral</b><p>Ex.: “Casa e reforma”. Aparece para quem procura eletricista, encanador, pedreiro, pintor e mais, em todas as cidades.</p>
+          <ul><li>Só uma marca por grupo</li><li>Card no topo, em todos os serviços do grupo</li></ul>
+          <div class="preco"><span>${precoTxt("servico")}</span><button class="bt-quero" type="button" data-quero="um grupo de serviços em todo o litoral">Quero</button></div></div>
+        <div class="formato"><b>Página inicial</b><p>Para todo mundo que abre a Kiiro. Até ${MAX_INICIO} marcas girando no topo.</p>
+          <ul><li>Maior visibilidade</li><li>Rodízio automático entre os patrocinadores</li></ul>
+          <div class="preco"><span>${precoTxt("inicio")}</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
         <div class="formato"><b>Pacote Temporada</b><p>Dezembro a março, quando o litoral enche.</p>
-          <ul><li>Grupo + página inicial</li><li>Destaque nas redes da Kiiro</li></ul>
-          <div class="preco"><span>Valor: <b>sob consulta</b></span><button class="bt-quero" type="button" data-quero="o pacote temporada">Quero</button></div></div>
+          <ul><li>Página inicial + grupo de serviços</li><li>Destaque nas redes da Kiiro</li></ul>
+          <div class="preco"><span>${precoTxt("temporada")}</span><button class="bt-quero" type="button" data-quero="o pacote temporada">Quero</button></div></div>
       </div>
       <h2>Como o anúncio aparece</h2>
       ${cardPatroDe({ ...exemplo, link: "#" }).replace('target="_blank"', 'onclick="return false"')}
-      <h2>Espaços disponíveis</h2>
-      <div class="vagas">${espacos.map(e => `<div class="vaga"><span class="ic">${ico(e.icone)}</span><span class="nm"><b>${esc(e.nome)}</b><small>${esc(e.o ? "Patrocinado por " + e.o.nome : e.sub)}</small><span class="st ${e.o ? "ocup" : "livre"}">${e.o ? "Ocupado" : "Disponível"}</span></span><button type="button" data-quero="${esc(e.alvo)}" ${e.o ? "disabled" : ""}>Quero</button></div>`).join("")}</div>
+      <h2>Espaços em todo o litoral</h2>
+      <p class="an-intro">Por cidade e por serviço na cidade tem vaga em todas as cidades do Litoral Norte. É só chamar.</p>
+      <div class="vagas">${espacos.map(e => `<div class="vaga"><span class="ic">${ico(e.icone)}</span><span class="nm"><b>${esc(e.nome)}</b><small>${esc(e.o && e.o.nome !== "lotado" ? "Patrocinado por " + e.o.nome : e.sub)}</small><span class="st ${e.o ? "ocup" : "livre"}">${e.o ? "Ocupado" : "Disponível"}</span></span><button type="button" data-quero="${esc(e.alvo)}" ${e.o ? "disabled" : ""}>Quero</button></div>`).join("")}</div>
       <div class="an-rodape"><b>Vamos conversar?</b><p>Conte o que você vende e a cidade. A gente monta a proposta.</p><button class="bt-chamar" type="button" data-quero="um espaço">${icoZap} Falar com a Kiiro</button></div>
       <div style="height:1.5rem"></div>
     </div>`;
