@@ -105,13 +105,12 @@
   .bt-zap-mini svg{width:16px;height:16px}
   .ver-bt{display:inline-flex;align-items:center;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;color:var(--ink);background:var(--sun-soft);min-height:34px}
   .item:hover .ver-bt{background:var(--sun)}
-  /* escolher visualização */
-  .vis{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;width:100%}
-  .vis button{flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;border:0;background:none;border-radius:9px;padding:.45rem .5rem;font:500 .78rem Poppins,sans-serif;color:var(--muted);cursor:pointer;min-height:38px}
-  .vis button svg{width:18px;height:18px;flex:none}
-  .vis button.on{background:var(--sun-soft);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px #F0DC92}
-  .vis button.on svg{color:#B08A00}
-  @media (min-width:700px){.vis{width:auto}}
+  /* escolher visualização (como em loja de roupa: só ícones, à direita) */
+  .filtros{width:100%;align-items:center}
+  .vis{margin-left:auto;display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+  .vis button{display:grid;place-items:center;width:40px;height:36px;border:0;background:none;border-radius:9px;color:var(--muted);cursor:pointer;padding:0}
+  .vis button svg{width:20px;height:20px}
+  .vis button.on{background:var(--sun-soft);color:var(--ink);box-shadow:inset 0 0 0 1px #F0DC92}
   /* card com foto grande */
   .grid.grande{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.6rem 1.2rem}
   .cg{cursor:pointer;min-width:0}
@@ -375,11 +374,11 @@
       <div class="filtros">
         <button class="filtro" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
         <button class="filtro escondido" id="limpar" type="button">Limpar filtros</button>
-      </div>
-      <div class="vis" role="group" aria-label="Como ver os profissionais">
-        <button type="button" data-vis="areas" aria-label="Por serviço" title="Por serviço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><path d="M3 16h18M3 20h12"/></svg><span>Por serviço</span></button>
-        <button type="button" data-vis="lista" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><path d="M12 6h9M12 9h6M12 16h9M12 19h6"/></svg><span>Lista</span></button>
-        <button type="button" data-vis="grande" aria-label="Foto grande" title="Foto grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M3 20h12"/></svg><span>Grande</span></button>
+        <div class="vis" role="group" aria-label="Como ver os profissionais">
+          <button type="button" data-vis="areas" aria-label="Por serviço" title="Por serviço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><path d="M3 16h18M3 20h12"/></svg></button>
+          <button type="button" data-vis="lista" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><path d="M12 6h9M12 9h6M12 16h9M12 19h6"/></svg></button>
+          <button type="button" data-vis="grande" aria-label="Foto grande" title="Foto grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M3 20h12"/></svg></button>
+        </div>
       </div>
     </div>
     <div class="grid" id="lista"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
