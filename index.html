@@ -313,13 +313,14 @@ async function carregar() {
   if (DEMO) { profissionais = EXEMPLOS; return montar(); }
   try {
     const r = await fetch("/.netlify/functions/profissionais");
-    if (!r.ok) throw 0;
-    const d = await r.json();
+    const txt = await r.text();
+    let d; try { d = JSON.parse(txt); } catch { throw new Error(`HTTP ${r.status}: ${txt.slice(0, 80)}`); }
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${d && d.erro || txt.slice(0, 80)}`);
     profissionais = Array.isArray(d) ? d : [];
     montar();
-  } catch {
+  } catch (err) {
     $("contagem").textContent = "Não deu para carregar agora";
-    $("lista").innerHTML = `<div class="vazio"><b>Ops, algo falhou.</b><p>Tente de novo em instantes ou chame a Kiiro.</p>${btnKiiro("Olá, Kiiro! Preciso de um profissional.")}</div>`;
+    $("lista").innerHTML = `<div class="vazio"><b>Ops, algo falhou.</b><p>Tente de novo em instantes ou chame a Kiiro.</p>${btnKiiro("Olá, Kiiro! Preciso de um profissional.")}<p style="margin-top:1rem;font-size:.75rem;opacity:.6">Detalhe: ${esc(err && err.message || "sem resposta")}</p></div>`;
   }
 }
 

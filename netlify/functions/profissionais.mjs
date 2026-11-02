@@ -17,7 +17,10 @@ export default async (req, context) => {
   const headers = { Authorization: `Bearer ${NETLIFY_TOKEN}` };
 
   try {
-    const forms = await (await fetch(`${API}/sites/${SITE_ID}/forms`, { headers })).json();
+    const rf = await fetch(`${API}/sites/${SITE_ID}/forms`, { headers });
+    if (rf.status === 401) return json(500, { erro: "Token do Netlify inválido (NETLIFY_TOKEN)" });
+    if (!rf.ok) return json(500, { erro: `API do Netlify respondeu ${rf.status} ao buscar formulários` });
+    const forms = await rf.json();
     const form = Array.isArray(forms) && forms.find((f) => f.name === FORM_NAME);
     if (!form) return json(200, []); // ainda não chegou nenhum cadastro
 
@@ -68,8 +71,8 @@ export default async (req, context) => {
       .filter((p) => { const k = p.whatsapp + "|" + p.categoria; if (vistos.has(k)) return false; vistos.add(k); return true; });
 
     return json(200, lista, { "Cache-Control": "public, max-age=120" });
-  } catch {
-    return json(500, { erro: "Falha ao ler cadastros" });
+  } catch (e) {
+    return json(500, { erro: "Falha ao ler cadastros: " + String(e && e.message || e).slice(0, 120) });
   }
 };
 
