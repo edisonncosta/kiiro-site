@@ -34,7 +34,7 @@ export default async () => {
     const cliente = String(ch.clienteNome || "").split(" ")[0];
     const prof = String(ch.profissionalNome || "").split(" ")[0];
     const link = `${site}/avaliar?c=${encodeURIComponent(k)}`;
-    const msg = `Oi, ${cliente}! Aqui é da Kiiro 💛 Deu certo com ${prof}? Leva 10 segundos para avaliar: ${link}`;
+    const msg = `Oi, ${cliente}! Tudo bem? Aqui é da Kiiro 💛\n\nVocê chamou ${prof} pela Kiiro. Como foi o atendimento?\n\nSua avaliação leva 10 segundos e ajuda muito quem vem depois a escolher bem:\n👉 ${link}\n\nObrigado! 🙌`;
     const quando = new Date(ch.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "short", hour: "2-digit", minute: "2-digit" });
 
     try {

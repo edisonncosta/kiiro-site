@@ -375,7 +375,7 @@ export default async (req) => {
         const primeiro = String(ch.clienteNome).split(" ")[0];
         const profPrimeiro = String(ch.profissionalNome).split(" ")[0];
         const link = `${base}/avaliar?c=${encodeURIComponent(k)}`;
-        const msg = `Oi, ${primeiro}! Aqui é da Kiiro 💛 Deu certo com ${profPrimeiro}? Leva 10 segundos para avaliar: ${link}`;
+        const msg = `Oi, ${primeiro}! Tudo bem? Aqui é da Kiiro 💛\n\nVocê chamou ${profPrimeiro} pela Kiiro. Como foi o atendimento?\n\nSua avaliação leva 10 segundos e ajuda muito quem vem depois a escolher bem:\n👉 ${link}\n\nObrigado! 🙌`;
         let status;
         if (!av) status = `<span class="st pend">Aguardando avaliação</span>`;
         else if (av.feito === "nao") status = `<span class="st ruim">Não fechou · ${esc(av.motivo)}</span>`;
