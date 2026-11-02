@@ -68,7 +68,7 @@ export default async (req) => {
     if (acao === "editar" && w) {
       const edicoes = (await admin.get("editsPro", { type: "json" })) || {};
       const txt = (n, max = 60) => String(f.get(n) || "").replace(/\s+/g, " ").trim().slice(0, max);
-      const categorias = [f.get("servico1"), f.get("servico2"), f.get("servico3")].map((x) => String(x || "").replace(/,/g, " ").trim().slice(0, 50)).filter(Boolean);
+      const categorias = [...f.getAll("servico"), f.get("servico_outro")].map((x) => String(x || "").replace(/,/g, " ").trim().slice(0, 50)).filter(Boolean).slice(0, 3);
       const ed = {
         nome: txt("nome", 60),
         categorias: [...new Set(categorias)],
@@ -210,8 +210,10 @@ export default async (req) => {
       return `<form class="ed" method="post" action="/painel">
         <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="editar"><input type="hidden" name="w" value="${esc(p.whatsapp)}">
         <label class="ed-l">Nome<input name="nome" value="${esc(p.nome)}" maxlength="60" required></label>
-        <div class="ed-l">Serviços (até 3)
-          ${[0, 1, 2].map((i) => `<input name="servico${i + 1}" list="lista-servicos" value="${esc(cats[i] || "")}" placeholder="${i ? "opcional" : "ex.: Pedreiro"}" ${i ? "" : "required"}>`).join("")}
+        <div class="ed-l">Serviços <small class="ed-conta">marque até 3</small>
+          <input type="search" class="ed-busca" placeholder="Procurar serviço… ex.: piscina" autocomplete="off">
+          <div class="ed-servs" data-atual="${esc(cats.join("|"))}"></div>
+          <input name="servico_outro" class="ed-outro" placeholder="Outro serviço (se não estiver na lista)" maxlength="50">
         </div>
         <div class="ed-l">Cidades<div class="ed-cids" data-atual="${esc(p.cidade)}"></div><input type="hidden" name="cidade" value="${esc(p.cidade)}"></div>
         <label class="ed-l">Descrição<textarea name="descricao" maxlength="400" rows="4">${esc(p.descricao || "")}</textarea></label>
@@ -268,13 +270,44 @@ export default async (req) => {
         </article>`;
       }).join("") || '<p class="vazio">Nenhum profissional cadastrado ainda.</p>'}
       <p class="obs">Ocultar tira do site na hora e dá para voltar. Excluir apaga o cadastro (e os cadastros antigos com o mesmo WhatsApp). As avaliações ficam guardadas: se a pessoa se cadastrar de novo, elas voltam.</p>
-      <datalist id="lista-servicos"></datalist>
       <script src="/servicos.js"></script>
       <script src="/cidades.js"></script>
       <script>
         (function () {
-          const dl = document.getElementById("lista-servicos");
-          (window.KIIRO_SERVICOS || []).forEach(g => g.itens.forEach(i => { const o = document.createElement("option"); o.value = i; dl.appendChild(o); }));
+          // serviços: caixinhas por grupo, como no cadastro (máx. 3)
+          const grupos = window.KIIRO_SERVICOS || [];
+          const conhecidos = new Set(grupos.flatMap(g => g.itens));
+          document.querySelectorAll(".ed-servs").forEach(box => {
+            const atual = box.dataset.atual.split("|").filter(Boolean);
+            const fora = atual.filter(c => !conhecidos.has(c));
+            const todosGrupos = fora.length ? [...grupos, { grupo: "Do cadastro", itens: fora }] : grupos;
+            todosGrupos.forEach(g => {
+              const sec = document.createElement("div"); sec.className = "ed-grupo";
+              const h = document.createElement("span"); h.className = "ed-gt"; h.textContent = g.grupo; sec.appendChild(h);
+              const w = document.createElement("div"); w.className = "ed-chips";
+              g.itens.forEach(i => {
+                const l = document.createElement("label"); const c = document.createElement("input");
+                c.type = "checkbox"; c.name = "servico"; c.value = i; c.checked = atual.includes(i);
+                l.appendChild(c); l.appendChild(document.createTextNode(" " + i)); w.appendChild(l);
+              });
+              sec.appendChild(w); box.appendChild(sec);
+            });
+            const fm = box.closest("form"), conta = fm.querySelector(".ed-conta"), outro = fm.querySelector(".ed-outro");
+            const atualiza = () => {
+              const n = box.querySelectorAll("input:checked").length + (outro.value.trim() ? 1 : 0);
+              conta.textContent = n ? n + " de 3 marcados" : "marque até 3";
+              box.querySelectorAll("input:not(:checked)").forEach(i => i.disabled = n >= 3);
+            };
+            box.addEventListener("change", atualiza); outro.addEventListener("input", atualiza); atualiza();
+            fm.querySelector(".ed-busca").addEventListener("input", e => {
+              const t = e.target.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+              box.querySelectorAll(".ed-grupo").forEach(sec => {
+                let vis = 0;
+                sec.querySelectorAll("label").forEach(l => { const ok = !t || l.textContent.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(t); l.style.display = ok ? "" : "none"; if (ok) vis++; });
+                sec.style.display = vis ? "" : "none";
+              });
+            });
+          });
           const todas = window.KIIRO_TODAS || "Todo o Litoral Norte";
           const N = s => String(s).normalize("NFC").trim();
           const lista = [todas, ...(window.KIIRO_CIDADES || [])].map(N);
@@ -290,6 +323,7 @@ export default async (req) => {
             box.addEventListener("change", () => { hidden.value = [...box.querySelectorAll("input:checked")].map(i => i.value).join(", "); });
           });
           document.querySelectorAll("form.ed").forEach(fm => fm.addEventListener("submit", e => {
+            if (!fm.querySelector(".ed-servs input:checked") && !fm.querySelector(".ed-outro").value.trim()) { e.preventDefault(); alert("Marque pelo menos um serviço."); return; }
             if (!fm.elements.cidade.value) { e.preventDefault(); alert("Marque pelo menos uma cidade."); }
           }));
         })();
@@ -419,8 +453,13 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 .ed-l{display:grid;gap:4px;font-size:12px;font-weight:600;color:#5E574A}
 .ed input:not([type=checkbox]),.ed textarea,.ed select{width:100%;border:1px solid #E1D5AE;border-radius:10px;padding:9px 10px;font:14px Poppins,sans-serif;color:#1A1A1A;background:#fff}
 .ed-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ed-cids,.ed-dias{display:flex;flex-wrap:wrap;gap:6px}
-.ed-cids label,.ed-dias label{font-size:13px;font-weight:500;color:#1A1A1A;background:#fff;border:1px solid #EFE6C8;border-radius:999px;padding:4px 10px;display:flex;align-items:center;gap:4px}
+.ed-cids,.ed-dias,.ed-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ed-servs{max-height:300px;overflow-y:auto;display:grid;gap:8px;border:1px solid #EFE6C8;border-radius:10px;padding:8px;background:#fff}
+.ed-gt{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6B6455;margin-bottom:4px}
+.ed-conta{font-weight:500;color:#6B6455}
+.ed-servs label:has(input:checked),.ed-cids label:has(input:checked),.ed-dias label:has(input:checked){background:#FFC800;border-color:#FFC800}
+.ed-servs label:has(input:disabled){opacity:.45}
+.ed-cids label,.ed-dias label,.ed-chips label{font-size:13px;font-weight:500;color:#1A1A1A;background:#fff;border:1px solid #EFE6C8;border-radius:999px;padding:4px 10px;display:flex;align-items:center;gap:4px}
 .fotos-acoes label.b{cursor:pointer}
 .mini-trab{display:flex;gap:4px;margin:2px 0 6px}.mini-trab img{width:40px;height:40px;object-fit:cover;border-radius:8px}
 </style></head><body>
