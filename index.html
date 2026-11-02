@@ -556,7 +556,10 @@ function render() {
   const cards = lista.map(p => card(p, cidade));
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
+  // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
+  const ptVazio = !n && modo !== "salvos" && catAtiva && patrocinioDe(catAtiva);
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
+    ${ptVazio ? cardPatrocinio() : ""}
     <div class="vazio">
       <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${cidade ? " em " + esc(cidade) : ""}.</b>
       <p>Chame a Kiiro que a gente procura alguém para você.</p>
