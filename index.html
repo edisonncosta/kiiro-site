@@ -247,6 +247,14 @@
   .bv-marca b{color:var(--text)}
   .link-sub{display:block;text-align:center;margin-top:.9rem;font-weight:600;font-size:.9rem;color:var(--ink)}
   .foto-grande{max-width:94vw;max-height:84vh;border-radius:16px}
+  /* balãozinho apontando para o Sobre */
+  .balao{position:fixed;z-index:26;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:.3rem;background:var(--ink);color:#fff;border-radius:14px;padding:.35rem .35rem .35rem .9rem;box-shadow:0 6px 20px rgba(0,0,0,.25);white-space:nowrap;animation:balao .35s ease-out}
+  .balao::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:var(--ink);border-radius:2px}
+  .balao button{background:none;border:0;color:inherit;font:500 .86rem Poppins,sans-serif;cursor:pointer;padding:.35rem 0}
+  .balao button b{color:var(--sun);font-weight:600}
+  .balao .bx{opacity:.6;font-size:.85rem;padding:.35rem .55rem}
+  body.em-perfil .balao{display:none}
+  @keyframes balao{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
 </style>
 </head>
 <body>
@@ -332,6 +340,11 @@
   <a class="aba" href="cadastro.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Sou pro</a>
 </nav>
 
+<div class="balao escondido" id="balao" role="status">
+  <button type="button" id="balao-ir">Novo por aqui? <b>Conheça a Kiiro</b> 👋</button>
+  <button class="bx" type="button" id="balao-x" aria-label="Fechar">✕</button>
+</div>
+
 <!-- Janela: antes de chamar -->
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-titulo">
   <form class="sheet" id="form-chamar" novalidate>
@@ -359,7 +372,7 @@
 <!-- Janela: quem é a Kiiro -->
 <div class="modal" id="modal-bv" role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
   <div class="sheet alta" id="bv">
-    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="bv-x">Pular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="bv-x">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="bv-nome"><span class="bv-kanji" lang="ja" aria-hidden="true">黄色</span><span class="bv-le">Kiiro, “amarelo” em japonês</span></div>
     <h3 id="bv-titulo">Prazer, somos a Kiiro 👋</h3>
     <div class="bv-historia">
@@ -841,6 +854,19 @@ mBv.addEventListener("click", e => { if (e.target === mBv) fecharBv(); });
   sh.addEventListener("touchend", () => { sh.style.transition = "transform .2s"; sh.style.transform = ""; if (y0 !== null && dy > 90) fecharBv(); y0 = null; });
 })();
 
+/* ===== Balãozinho "Conheça a Kiiro" (só para quem nunca abriu o Sobre) ===== */
+function mostrarBalao() {
+  const vezes = Number(lerJSON("kiiro-balao", 0)) || 0;
+  if (!DEMO && (lerJSON("kiiro-bv", 0) || vezes >= 3)) return;
+  salvarJSON("kiiro-balao", vezes + 1);
+  const b = $("balao"); b.classList.remove("escondido");
+  const some = () => b.classList.add("escondido");
+  $("balao-ir").onclick = () => { some(); abrirBv(); };
+  $("balao-x").onclick = () => { some(); salvarJSON("kiiro-bv", 1); };
+  setTimeout(some, 12000);
+}
+document.querySelector('.aba[data-tela="sobre"]').addEventListener("click", () => $("balao").classList.add("escondido"));
+
 /* ===== Anuncie ===== */
 function telaAnuncie() {
   const conta = {};
@@ -912,7 +938,7 @@ carregar().then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
   if (m) return abrirPerfil(m[1]);
   if (location.hash === "#anuncie") return irPara("anuncie");
-  if (!lerJSON("kiiro-bv", 0) || DEMO) abrirBv();
+  mostrarBalao();
 });
 </script>
 </body>
