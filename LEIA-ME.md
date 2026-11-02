@@ -55,3 +55,12 @@ No Netlify: Forms > cadastro > abra o cadastro > Mark as spam (ou Delete). Some 
 ## Trocar o WhatsApp da Kiiro
 
 Em `index.html` e `avaliar.html`, procure `KIIRO_WHATS`.
+
+## Patrocínio
+
+Na lista de profissionais, depois do 3º card, aparece um espaço de patrocínio:
+- Se a categoria tem patrocinador, aparece o card dele (com a etiqueta "Patrocinado").
+- Se não tem, aparece "Este espaço pode ser seu", com botão para a empresa chamar a Kiiro no WhatsApp.
+
+Para colocar um patrocinador, edite `patrocinios.js` (tem um exemplo dentro). Use `"Todos"` para a página inicial
+ou o nome exato do serviço (ex.: `"Eletricista"`). Depois da data `ate`, o espaço volta a ficar disponível sozinho.

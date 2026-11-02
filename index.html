@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
+<script src="patrocinios.js"></script>
 <style>
   /* ===== Primeira tela ===== */
   .hero{background:var(--sun);padding:1.4rem 0 0;border-bottom:2px solid var(--ink);position:relative;overflow:hidden}
@@ -143,6 +144,17 @@
   /* botão "Sou profissional" com legenda */
   .btn-pro{flex-direction:column;gap:0;line-height:1.1;padding:.4rem 1.1rem;min-height:46px}
   .btn-pro small{font-size:.66rem;font-weight:600;color:#fff;opacity:.85;letter-spacing:.01em}
+
+  /* patrocínio */
+  .patro{grid-column:1/-1;display:flex;gap:.9rem;align-items:center;background:#fff;border:2px solid var(--ink);border-radius:22px;padding:1rem;text-decoration:none;color:var(--ink);box-shadow:4px 4px 0 var(--sun)}
+  .patro-logo{width:60px;height:60px;border-radius:16px;background:var(--sun) center/cover;color:var(--ink);display:grid;place-items:center;flex:none;border:2px solid var(--ink);font-weight:800;font-size:1.3rem;overflow:hidden}
+  .patro-txt{min-width:0;flex:1}
+  .patro-tag{display:inline-block;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--paper);border:1.5px solid var(--line);color:var(--muted);border-radius:999px;padding:.05rem .5rem}
+  .patro b{display:block;font-size:1.02rem;margin-top:.25rem;line-height:1.25}
+  .patro p{font-size:.84rem;color:var(--muted);line-height:1.4;margin-top:.15rem}
+  .patro-cta{display:inline-block;margin-top:.45rem;font-weight:700;font-size:.82rem;background:var(--sun);border:2px solid var(--ink);border-radius:999px;padding:.22rem .8rem}
+  .patro.livre{border-style:dashed;box-shadow:none;background:var(--paper)}
+  .patro.livre .patro-logo{background:#fff;border-style:dashed;font-size:1.5rem}
 
   /* selos */
   .selos-pro{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
@@ -518,7 +530,9 @@ function render() {
   $("contagem").textContent = !n ? "Nenhum profissional encontrado"
     : `${n} ${n > 1 ? "profissionais" : "profissional"}${oque ? " · " + oque : ""}${onde || (filtrando ? "" : " no litoral")}${soUrgencia ? " · urgência" : ""}`;
 
-  $("lista").innerHTML = lista.length ? lista.map(p => card(p, cidade)).join("") : `
+  const cards = lista.map(p => card(p, cidade));
+  if (cards.length) cards.splice(Math.min(3, cards.length), 0, cardPatrocinio());
+  $("lista").innerHTML = lista.length ? cards.join("") : `
     <div class="vazio">
       <div class="ic">${ico(catAtiva || "_outro")}</div>
       <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${esc(onde)}.</b>
@@ -544,6 +558,30 @@ function atende(p, cidade) {
   const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
   return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
 }
+// patrocínio: card depois do 3º profissional (patrocinador da categoria ou "espaço disponível")
+function patrocinioDe(c) {
+  const hoje = new Date().toISOString().slice(0, 10);
+  const lista = (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje);
+  return lista.find(x => x.categoria === (c || "Todos"));
+}
+function cardPatrocinio() {
+  const pt = patrocinioDe(catAtiva);
+  if (pt) {
+    const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
+    return `<a class="patro" href="${esc(pt.link)}" target="_blank" rel="noopener sponsored">
+      <div class="patro-logo" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
+      <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
+    </a>`;
+  }
+  if (!window.KIIRO_ANUNCIE) return "";
+  const onde = catAtiva ? `a categoria ${catAtiva}` : "a página inicial";
+  const msg = `Olá, Kiiro! Quero patrocinar ${onde} da Kiiro. Como funciona?`;
+  return `<a class="patro livre" href="https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">
+    <div class="patro-logo">📣</div>
+    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? catAtiva.toLowerCase() : "serviços")} no Litoral Norte. Ideal para lojas e empresas da região.</p><span class="patro-cta">Quero patrocinar →</span></div>
+  </a>`;
+}
+
 // selos do card: experiência + urgência + orçamento grátis
 const EXP_CURTA = { "Menos de 1 ano": "Menos de 1 ano", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
 function selosCard(p) {
