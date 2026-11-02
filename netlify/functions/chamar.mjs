@@ -40,11 +40,22 @@ export default async (req) => {
   await store.setJSON(chave, chamada);
 
   const tel = clienteWhats.replace(/^55(\d{2})(\d+)/, "($1) $2");
+  // ao tocar no aviso, abre o WhatsApp do cliente com a mensagem pronta (contato + link de avaliação)
+  const site = process.env.URL || new URL(req.url).origin;
+  const link = `${site}/avaliar?c=${encodeURIComponent(chave)}`;
+  const cliente1 = chamada.clienteNome.split(" ")[0];
+  const prof1 = chamada.profissionalNome.split(" ")[0];
+  const texto = `Oi, ${cliente1}! Aqui é da Kiiro 💛 Vi que você chamou ${prof1} pela Kiiro. Conseguiu falar com ${/a$/i.test(prof1) ? "ela" : "ele"}? Depois que o serviço for feito, conta pra gente como foi, leva 10 segundos: ${link}`;
+  const zapComTexto = `https://wa.me/${clienteWhats}?text=${encodeURIComponent(texto)}`;
   await avisar({
     title: `${chamada.clienteNome} chamou ${chamada.profissionalNome}`,
-    message: `${chamada.categoria} · ${chamada.cidade}\nCliente: ${tel}`,
+    message: `${chamada.categoria} · ${chamada.cidade}\nCliente: ${tel}\nToque para mandar a mensagem com o link de avaliação.`,
     tags: ["bell"],
-    click: `https://wa.me/${clienteWhats}`,
+    click: zapComTexto,
+    actions: [
+      { action: "view", label: "Pedir avaliação", url: zapComTexto, clear: true },
+      { action: "view", label: "Só abrir conversa", url: `https://wa.me/${clienteWhats}` },
+    ],
   });
 
   return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
