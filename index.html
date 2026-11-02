@@ -96,6 +96,8 @@
   .patro b{display:block;font-weight:600;font-size:.98rem;margin-top:.1rem}
   .patro p{font-size:.86rem;color:var(--muted);line-height:1.4;margin-top:.15rem}
   .patro-cta{display:inline-block;margin-top:.5rem;font-weight:600;font-size:.85rem;text-decoration:underline}
+  .patro:not(.livre) .patro-cta{background:var(--ink);color:var(--sun);text-decoration:none;border-radius:10px;padding:.45rem .9rem}
+  .patro-logo.img{background-color:#fff;background-size:contain;background-repeat:no-repeat;border:1px solid var(--line);width:76px;height:76px}
   .patro.livre{background:transparent;border:1.5px dashed #D9C88E;box-shadow:none}
   .patro.livre .patro-logo{background:var(--sun-soft);font-size:1.6rem;border:1.5px dashed #D9C88E}
   .patro.livre .patro-cta{background:var(--sun);text-decoration:none;border-radius:10px;padding:.4rem .9rem;color:var(--ink)}
@@ -644,7 +646,7 @@ const patrocinioDoGrupo = g => {
 function cardPatroDe(pt) {
   const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
   return `<a class="patro" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
-    <div class="patro-logo" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
+    <div class="patro-logo${pt.logo ? " img" : ""}" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
     <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
   </a>`;
 }
