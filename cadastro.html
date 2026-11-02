@@ -17,6 +17,9 @@
   .topo-pag p{margin-top:.6rem;font-weight:500;max-width:30rem}
   .form-wrap{width:min(560px,100% - 2.5rem);margin:-1rem auto 3rem;position:relative}
   #outro{margin-top:.6rem}
+  .sub-q{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:.7rem .8rem;margin-bottom:.6rem}
+  .sub-q p{font-weight:600;font-size:.92rem;margin-bottom:.5rem}
+  .sub-q .chips label{font-size:.88rem;padding:.4rem .9rem}
   .grupo-serv{margin-bottom:.9rem}
   .grupo-serv h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
   .grupo-serv .chips label{font-size:.85rem;padding:.4rem .85rem}
@@ -86,13 +89,49 @@
       <p class="opc" style="margin-top:.5rem">Toque em todas as cidades onde você atende.</p>
     </div>
 
+
     <div class="campo">
-      <label for="whatsapp"><span class="n">4</span>Seu WhatsApp</label>
+      <span class="legenda"><span class="n">4</span>Há quanto tempo trabalha na área?</span>
+      <div class="chips"><input type="radio" name="experiencia" id="experiencia0" value="Menos de 1 ano"><label for="experiencia0">Menos de 1 ano</label><input type="radio" name="experiencia" id="experiencia1" value="1 a 3 anos"><label for="experiencia1">1 a 3 anos</label><input type="radio" name="experiencia" id="experiencia2" value="3 a 5 anos"><label for="experiencia2">3 a 5 anos</label><input type="radio" name="experiencia" id="experiencia3" value="Mais de 5 anos"><label for="experiencia3">Mais de 5 anos</label></div>
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">5</span>Esse trabalho é:</span>
+      <div class="chips"><input type="radio" name="dedicacao" id="dedicacao0" value="Minha profissão principal"><label for="dedicacao0">Minha profissão principal</label><input type="radio" name="dedicacao" id="dedicacao1" value="Uma renda extra"><label for="dedicacao1">Uma renda extra</label></div>
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">6</span>Como você atende?</span>
+      <input type="hidden" name="dias" id="dias">
+      <div class="sub-q">
+        <p>Atende urgência (no mesmo dia)?</p>
+        <div class="chips"><input type="radio" name="urgencia" id="urgencia0" value="Sim"><label for="urgencia0">Sim</label><input type="radio" name="urgencia" id="urgencia1" value="Não"><label for="urgencia1">Não</label></div>
+      </div>
+      <div class="sub-q">
+        <p>Quando você atende? <span class="opc">(pode marcar mais de um)</span></p>
+        <div class="chips" id="dias-op">
+          <input type="checkbox" id="d0" value="Dias de semana"><label for="d0">Dias de semana</label>
+          <input type="checkbox" id="d1" value="Fins de semana"><label for="d1">Fins de semana</label>
+          <input type="checkbox" id="d2" value="Feriados"><label for="d2">Feriados</label>
+        </div>
+      </div>
+      <div class="sub-q">
+        <p>Faz orçamento grátis?</p>
+        <div class="chips"><input type="radio" name="orcamento" id="orcamento0" value="Sim"><label for="orcamento0">Sim</label><input type="radio" name="orcamento" id="orcamento1" value="Não"><label for="orcamento1">Não</label></div>
+      </div>
+      <div class="sub-q">
+        <p>Tem CNPJ ou MEI?</p>
+        <div class="chips"><input type="radio" name="mei" id="mei0" value="Sim"><label for="mei0">Sim</label><input type="radio" name="mei" id="mei1" value="Não"><label for="mei1">Não</label></div>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="whatsapp"><span class="n">7</span>Seu WhatsApp</label>
       <input class="input" type="tel" id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
     </div>
 
     <div class="campo">
-      <span class="legenda"><span class="n">5</span>Sua foto ou o logo da sua empresa</span>
+      <span class="legenda"><span class="n">8</span>Sua foto ou o logo da sua empresa</span>
       <p class="opc" style="margin:-.2rem 0 .7rem">📸 Pode ser uma selfie com o uniforme, você trabalhando ou o logo da empresa.</p>
       <label class="foto-btn" for="foto">
         <div class="avatar" id="prev" aria-hidden="true">+</div>
@@ -102,7 +141,7 @@
     </div>
 
     <div class="campo">
-      <label for="descricao"><span class="n">6</span>Conte sobre seu trabalho</label>
+      <label for="descricao"><span class="n">9</span>Conte sobre seu trabalho</label>
       <textarea class="input" id="descricao" name="descricao" maxlength="400" placeholder="Ex.: 10 anos de experiência, faço instalação e manutenção. Atendo também fim de semana."></textarea>
       <p class="opc" style="margin-top:.4rem;display:flex;justify-content:space-between;gap:1rem"><span>Aparece no seu perfil. Conte há quanto tempo trabalha, o que faz e quando atende.</span><span id="desc-conta" style="flex:none">0/400</span></p>
     </div>
@@ -253,11 +292,19 @@ $("form").addEventListener("submit", e => {
   const cidades = [...document.querySelectorAll("#cidades input:checked")].map(i => i.value);
   if (cidades.length === window.KIIRO_CIDADES.length) { cidades.length = 0; cidades.push(todas); }
   const whats = $("whatsapp").value.replace(/\D/g, "");
+  const marcado = n => document.querySelector(`input[name=${n}]:checked`);
+  const dias = [...document.querySelectorAll("#dias-op input:checked")].map(i => i.value);
   let msg = "";
   if (!$("nome").value.trim()) msg = "Informe seu nome.";
   else if (!servicos.length) msg = "Escolha o que você faz.";
   else if (servicos.includes("")) msg = "Diga qual é o outro serviço.";
   else if (!cidades.length) msg = "Marque pelo menos uma cidade.";
+  else if (!marcado("experiencia")) msg = "Diga há quanto tempo trabalha na área.";
+  else if (!marcado("dedicacao")) msg = "Diga se é sua profissão principal ou renda extra.";
+  else if (!marcado("urgencia")) msg = "Diga se atende urgência.";
+  else if (!dias.length) msg = "Marque quando você atende.";
+  else if (!marcado("orcamento")) msg = "Diga se faz orçamento grátis.";
+  else if (!marcado("mei")) msg = "Diga se tem CNPJ ou MEI.";
   else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
   else if ($("descricao").value.trim().length < MIN_DESC) msg = `Conte um pouco mais sobre o seu trabalho (pelo menos ${MIN_DESC} letras).`;
   $("erro").textContent = msg;
@@ -269,6 +316,7 @@ $("form").addEventListener("submit", e => {
   if (!$("foto").files.length) { e.preventDefault(); pedirFoto(); return; }
 
   $("cidade").value = cidades.join(", ");
+  $("dias").value = dias.join(", ");
   $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
   $("enviar").disabled = true;
   $("enviar").textContent = "Enviando…";

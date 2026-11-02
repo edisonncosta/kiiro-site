@@ -144,6 +144,17 @@
   .btn-pro{flex-direction:column;gap:0;line-height:1.1;padding:.4rem 1.1rem;min-height:46px}
   .btn-pro small{font-size:.66rem;font-weight:600;color:#fff;opacity:.85;letter-spacing:.01em}
 
+  /* selos */
+  .selos-pro{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+  .selo{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;font-weight:700;border-radius:999px;padding:.12rem .55rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink)}
+  .selo.urg{background:var(--ink);color:var(--sun)}
+  .selo.exp{background:var(--sun)}
+  .filtro-urg{display:inline-flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:.3rem .8rem;font:700 .82rem Poppins,sans-serif;cursor:pointer;color:var(--ink)}
+  .filtro-urg.ativo{background:var(--ink);color:var(--sun)}
+  .pf-lista{list-style:none;display:grid;gap:.45rem}
+  .pf-lista li{display:flex;gap:.6rem;align-items:flex-start;font-size:.93rem}
+  .pf-lista li span{width:1.4rem;text-align:center;flex:none}
+
   /* nome clicável */
   .abre{background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;font:inherit;display:block;max-width:100%}
   .abre h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--sun)}
@@ -258,7 +269,10 @@
     <div class="wrap">
       <div class="lista-head">
         <h2 id="contagem" aria-live="polite">Carregando…</h2>
-        <button class="limpar escondido" id="limpar" type="button">Limpar filtros</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="filtro-urg" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
+          <button class="limpar escondido" id="limpar" type="button">Limpar filtros</button>
+        </div>
       </div>
       <div class="grid" id="lista">
         <div class="skel"></div><div class="skel"></div><div class="skel"></div>
@@ -378,13 +392,13 @@ const icoZap = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 const icoPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
 
 const EXEMPLOS = [
-  {id:"d1",nome:"Talita Rosa",categoria:"Diarista",cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
-  {id:"d2",nome:"João Pereira",categoria:"Eletricista",cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
-  {id:"d3",nome:"Marcos Lima",categoria:"Pintor",categorias:["Pintor","Pedreiro"],cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
-  {id:"d4",nome:"Ana Souza",categoria:"Diarista",cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",descricao:"Limpeza do dia a dia e passadoria."},
-  {id:"d5",nome:"Rafael Costa",categoria:"Encanador",categorias:["Encanador","Eletricista"],cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
-  {id:"d6",nome:"Jardins do Litoral",categoria:"Jardineiro",cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",descricao:"Corte de grama, poda e manutenção mensal de pátios."},
-  {id:"d7",nome:"Diego Entregas",categoria:"Motoboy",cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
+  {id:"d1",experiencia:"3 a 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Não",nome:"Talita Rosa",categoria:"Diarista",cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
+  {id:"d2",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Sim",mei:"Sim",nome:"João Pereira",categoria:"Eletricista",cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
+  {id:"d3",experiencia:"1 a 3 anos",dedicacao:"Uma renda extra",urgencia:"Não",dias:"Fins de semana",orcamento:"Sim",mei:"Não",nome:"Marcos Lima",categoria:"Pintor",categorias:["Pintor","Pedreiro"],cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
+  {id:"d4",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Não",mei:"Não",nome:"Ana Souza",categoria:"Diarista",cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",descricao:"Limpeza do dia a dia e passadoria."},
+  {id:"d5",experiencia:"Menos de 1 ano",dedicacao:"Uma renda extra",urgencia:"Sim",dias:"Dias de semana, Fins de semana",orcamento:"Sim",mei:"Sim",nome:"Rafael Costa",categoria:"Encanador",categorias:["Encanador","Eletricista"],cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
+  {id:"d6",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Sim",mei:"Sim",nome:"Jardins do Litoral",categoria:"Jardineiro",cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",descricao:"Corte de grama, poda e manutenção mensal de pátios."},
+  {id:"d7",experiencia:"1 a 3 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Não",mei:"Sim",nome:"Diego Entregas",categoria:"Motoboy",cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
 ];
 const EXEMPLOS_REVIEWS = {
   total: 12, distribuicao: [0, 0, 1, 1, 10],
@@ -398,6 +412,7 @@ const EXEMPLOS_REVIEWS = {
 
 let profissionais = [];
 let catAtiva = "";
+let soUrgencia = false;
 
 /* ===== Carregar ===== */
 async function carregar() {
@@ -481,16 +496,17 @@ function render() {
   const cidade = $("cidade").value;
   const lista = profissionais.filter(p =>
     (!catAtiva || p.categorias.includes(catAtiva)) &&
+    (!soUrgencia || p.urgencia === "Sim") &&
     (!cidade || atende(p, cidade)) &&
     (!termo || semAcento(p.categorias.join(" ") + " " + p.nome).includes(termo))
   );
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   const onde = cidade ? ` em ${cidade}` : "";
-  const filtrando = !!(catAtiva || termo || cidade);
+  const filtrando = !!(catAtiva || termo || cidade || soUrgencia);
   $("limpar").classList.toggle("escondido", !filtrando);
   const n = lista.length;
   $("contagem").textContent = !n ? "Nenhum profissional encontrado"
-    : `${n} ${n > 1 ? "profissionais" : "profissional"}${oque ? " · " + oque : ""}${onde || (filtrando ? "" : " no litoral")}`;
+    : `${n} ${n > 1 ? "profissionais" : "profissional"}${oque ? " · " + oque : ""}${onde || (filtrando ? "" : " no litoral")}${soUrgencia ? " · urgência" : ""}`;
 
   $("lista").innerHTML = lista.length ? lista.map(p => card(p, cidade)).join("") : `
     <div class="vazio">
@@ -502,8 +518,15 @@ function render() {
 }
 $("busca").addEventListener("input", render);
 $("cidade").addEventListener("change", render);
+$("filtro-urg").addEventListener("click", () => {
+  soUrgencia = !soUrgencia;
+  $("filtro-urg").classList.toggle("ativo", soUrgencia);
+  $("filtro-urg").setAttribute("aria-pressed", String(soUrgencia));
+  render();
+});
 $("limpar").addEventListener("click", () => {
   catAtiva = ""; $("busca").value = ""; $("cidade").value = "";
+  soUrgencia = false; $("filtro-urg").classList.remove("ativo"); $("filtro-urg").setAttribute("aria-pressed", "false");
   montarCats(); render();
 });
 
@@ -511,6 +534,16 @@ function atende(p, cidade) {
   const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
   return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
 }
+// selos do card: experiência + urgência + orçamento grátis
+const EXP_CURTA = { "Menos de 1 ano": "Menos de 1 ano", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
+function selosCard(p) {
+  const out = [];
+  if (p.experiencia) out.push(`<span class="selo exp">🏅 ${esc(EXP_CURTA[p.experiencia] || p.experiencia)}</span>`);
+  if (p.urgencia === "Sim") out.push(`<span class="selo urg">⚡ Urgência</span>`);
+  if (p.orcamento === "Sim") out.push(`<span class="selo">✓ Orçamento grátis</span>`);
+  return out.length ? `<div class="selos-pro">${out.join("")}</div>` : "";
+}
+
 // categorias do profissional, com a do filtro ativo primeiro
 function catsDe(p) { return catAtiva && p.categorias.includes(catAtiva) ? [catAtiva, ...p.categorias.filter(c => c !== catAtiva)] : p.categorias; }
 function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
@@ -537,6 +570,7 @@ function card(p, cidadeFiltro) {
         <button class="abre" type="button" data-perfil="${esc(p.id)}"><h3>${esc(p.nome)}</h3></button>
         ${nota}
         <div class="cidades" aria-label="Atende em">${cidades}</div>
+        ${selosCard(p)}
         <button class="ver-perfil" type="button" data-perfil="${esc(p.id)}">Ver perfil${p.avaliacoes ? " e avaliações" : ""} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
     </div>
@@ -674,6 +708,7 @@ async function abrirPerfil(id) {
     <div class="pf-corpo">
       ${p.descricao ? `<div class="pf-bloco"><h4>Sobre</h4><p>${esc(p.descricao)}</p></div>` : ""}
       <div class="pf-bloco"><h4>Atende em</h4><div class="cidades">${cidades}</div></div>
+      ${comoAtende(p)}
       ${p.desde ? `<div class="pf-bloco"><h4>Na Kiiro desde</h4><p>${mesAno(p.desde)}</p></div>` : ""}
       <div class="pf-bloco" id="pf-reviews"><h4>Avaliações</h4><p class="carregando">Carregando…</p></div>
     </div>
@@ -716,6 +751,17 @@ async function abrirPerfil(id) {
   box.innerHTML = `<h4>Avaliações (${dados.total})</h4>
     ${dados.total >= 3 ? `<div class="barras" style="margin-bottom:1rem">${barras}</div>` : `<p class="carregando" style="margin-bottom:.6rem">A nota aparece no card a partir de 3 avaliações.</p>`}
     ${lista}`;
+}
+function comoAtende(p) {
+  const it = [];
+  if (p.experiencia) it.push(["🏅", `${p.experiencia === "Menos de 1 ano" ? "Menos de 1 ano" : p.experiencia} de experiência`]);
+  if (p.dedicacao) it.push(["💼", p.dedicacao === "Uma renda extra" ? "Faz como renda extra" : "É a profissão principal"]);
+  if (p.urgencia) it.push(["⚡", p.urgencia === "Sim" ? "Atende urgência no mesmo dia" : "Não atende urgência"]);
+  if (p.dias) it.push(["📅", "Atende: " + p.dias.toLowerCase()]);
+  if (p.orcamento) it.push(["📝", p.orcamento === "Sim" ? "Orçamento grátis" : "Orçamento cobrado"]);
+  if (p.mei === "Sim") it.push(["📄", "Tem CNPJ/MEI"]);
+  if (!it.length) return "";
+  return `<div class="pf-bloco"><h4>Como trabalha</h4><ul class="pf-lista">${it.map(([i, t]) => `<li><span>${i}</span>${esc(t)}</li>`).join("")}</ul></div>`;
 }
 function fecharPerfil() {
   mPerfil.classList.remove("aberto");

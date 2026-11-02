@@ -7,6 +7,7 @@ import { getStore } from "@netlify/blobs";
 const CAMPOS = { nome: "nome", categoria: "servico", cidade: "cidade", whatsapp: "whatsapp", foto: "foto", descricao: "descricao" };
 const API = "https://api.netlify.com/api/v1";
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
+const curto = (s, max = 40) => String(s || "").trim().slice(0, max);
 
 export default async (req, context) => {
   const { NETLIFY_TOKEN, APROVADOS } = process.env;
@@ -73,6 +74,12 @@ export default async (req, context) => {
           ids: (idsDoWhats[whats] || [s.id]).slice(0, 10),
           foto: (foto && (foto.url || (typeof foto === "string" ? foto : ""))) || "",
           descricao: String(d[CAMPOS.descricao] || "").trim().slice(0, 400),
+          experiencia: curto(d.experiencia),
+          dedicacao: curto(d.dedicacao),
+          urgencia: curto(d.urgencia),
+          dias: curto(d.dias, 80),
+          orcamento: curto(d.orcamento),
+          mei: curto(d.mei),
           desde: s.created_at || "",
           nota: n ? Math.round((n.soma / n.qtd) * 10) / 10 : 0,
           avaliacoes: n ? n.qtd : 0,
