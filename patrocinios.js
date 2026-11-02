@@ -5,6 +5,7 @@
 //   3. Serviço no litoral: categoria = grupo ou serviço, sem alvoCidade
 //   4. Página inicial:     categoria = "Todos",          sem alvoCidade (até 5, em rodízio)
 // Quando mais de um cabe no mesmo lugar, eles ficam girando.
+// O anúncio aparece como banner: "banner" (imagem larga, ex. 1200x500) ou "logo" + "cor" de fundo.
 // categoria: "Todos" (página inicial) ou o nome exato do GRUPO, como está em servicos.js:
 //   "Casa e reforma", "Climatização e segurança", "Limpeza", "Casa de praia e jardim",
 //   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Cuidados e aulas".
@@ -21,7 +22,7 @@ window.KIIRO_PATROCINIOS = [
   { categoria: "Transporte e mudança", nome: "Borracharia N.S. Aparecida", cidade: "",
     texto: "Borracharia em geral, auto elétrica, auto peças e acessórios. Socorro: (51) 98138‑6653.",
     botao: "Chamar no WhatsApp", link: "https://wa.me/5551980425261?text=Ol%C3%A1!%20Vi%20voc%C3%AAs%20na%20Kiiro.",
-    logo: "img/patrocinadores/ns-aparecida.jpg", ate: "" },
+    logo: "img/patrocinadores/ns-aparecida.jpg", banner: "img/patrocinadores/ns-aparecida-banner.jpg", cor: "#ffffff", ate: "" },
 ];
 
 // Mostrar "Este espaço pode ser seu" onde não tem patrocinador?

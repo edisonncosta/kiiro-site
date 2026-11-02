@@ -156,6 +156,20 @@
   .patro-cta{display:inline-block;margin-top:.5rem;font-weight:600;font-size:.85rem;text-decoration:underline}
   .patro:not(.livre) .patro-cta{background:var(--ink);color:var(--sun);text-decoration:none;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;margin-top:.35rem}
   .patro-logo.img{background-color:#fff;background-size:contain;background-repeat:no-repeat;border:1px solid var(--line);width:84px;height:84px}
+  /* banner de patrocínio */
+  .patro.ban{padding:0;gap:0;align-items:stretch;overflow:hidden;min-height:112px}
+  .ban-img{flex:0 0 52%;background:center/contain no-repeat;display:grid;place-items:center;padding:.6rem;border-right:1px solid var(--line)}
+  .ban-img.cheio{background-size:contain;padding:0}
+  .ban-img span{font-weight:800;font-size:1.05rem;line-height:1.15;text-align:center;color:var(--ink)}
+  .ban-dir{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.15rem;padding:.6rem .75rem;background:#F7F3E6}
+  .ban-dir b{font-size:.85rem;font-weight:600;margin:0;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .ban-dir p{font-size:.72rem;-webkit-line-clamp:2;margin:0}
+  .ban-bt{margin-top:.35rem;display:block;text-align:center;background:var(--ink);color:#fff;border-radius:10px;padding:.45rem .5rem;font-weight:600;font-size:.78rem;line-height:1.2}
+  .patro.ban.livre{border:1.5px dashed #D9C88E;background:transparent;box-shadow:none}
+  .patro.ban.livre .ban-img{background:var(--sun-soft);border-right:1.5px dashed #D9C88E}
+  .patro.ban.livre .ban-dir{background:transparent}
+  .patro.ban.livre .ban-bt{background:var(--sun);color:var(--ink)}
+  @media (min-width:700px){.patro.ban{min-height:130px}.ban-img{flex-basis:60%}}
   .patro-roda{grid-column:1/-1;min-width:0}
   .pr-trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.8rem;scrollbar-width:none}
   .pr-trilho::-webkit-scrollbar{display:none}
@@ -814,11 +828,20 @@ function patrociniosDe(c, cidade) {
 }
 function patrocinioDe(c) { return patrociniosDe(c, "")[0]; }
 const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.alvoCidade);
+// Anúncio em formato de banner: imagem/logo da marca à esquerda, botão à direita
+// Campos: banner (imagem larga, opcional), logo, cor (fundo da imagem), nome, cidade, texto, botao, link
+const corEscura = (c) => { const m = /^#([0-9a-f]{6})$/i.exec(c || ""); if (!m) return false; const n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) < 140; };
 function cardPatroDe(pt) {
-  const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
-  return `<a class="patro" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
-    <div class="patro-logo${pt.logo ? " img" : ""}" ${logo}>${pt.logo ? "" : esc(String(pt.nome).trim()[0] || "")}</div>
-    <div class="patro-txt"><span class="patro-tag">Patrocinado</span><b>${esc(pt.nome)}${pt.cidade ? " · " + esc(pt.cidade) : ""}</b><p>${esc(pt.texto)}</p><span class="patro-cta">${esc(pt.botao || "Saiba mais")} →</span></div>
+  const img = pt.banner || pt.logo;
+  const fundo = `background-color:${/^#[0-9a-f]{3,8}$/i.test(pt.cor || "") ? pt.cor : img ? "#fff" : "var(--sun)"};${img ? `background-image:url('${esc(img)}');` : ""}`;
+  return `<a class="patro ban" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+    <div class="ban-img${pt.banner ? " cheio" : ""}" style="${fundo}" role="img" aria-label="${esc(pt.nome)}">${img ? "" : `<span style="color:${corEscura(pt.cor) ? "#fff" : "var(--ink)"}">${esc(pt.nome)}</span>`}</div>
+    <div class="ban-dir">
+      <span class="patro-tag">Patrocinado</span>
+      <b>${esc(pt.nome)}</b>
+      <p>${esc(pt.texto || pt.cidade || "")}</p>
+      <span class="ban-bt">${esc(pt.botao || "Saber mais")}</span>
+    </div>
   </a>`;
 }
 const patroVistos = new Set();
@@ -834,9 +857,14 @@ function cardPatrocinio() {
     </div>`;
   if (!window.KIIRO_ANUNCIE) return "";
   const onde = cidade ? ` em ${cidade}` : " no Litoral Norte";
-  return `<a class="patro livre" href="#anuncie" data-ir="anuncie">
-    <div class="patro-logo">📣</div>
-    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")}${esc(onde)}.</p><span class="patro-cta">Quero patrocinar →</span></div>
+  return `<a class="patro ban livre" href="#anuncie" data-ir="anuncie">
+    <div class="ban-img"><span>📣 Sua marca aqui</span></div>
+    <div class="ban-dir">
+      <span class="patro-tag">Espaço para patrocínio</span>
+      <b>Este espaço pode ser seu</b>
+      <p>Para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")}${esc(onde)}.</p>
+      <span class="ban-bt">Quero anunciar</span>
+    </div>
   </a>`;
 }
 // rodízio: troca de patrocinador a cada 4,5 s (para quando a pessoa encosta o dedo)
