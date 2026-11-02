@@ -222,6 +222,16 @@ export default async (req, context) => {
     const lista = (titulo, itens, vazio) => `<div class="cx"><h3>${titulo}</h3>${itens.length ? `<ol>${itens.map(([k, v]) => `<li><span>${esc(k)}</span><b>${num(v)}</b></li>`).join("")}</ol>` : `<p class="vz">${vazio}</p>`}</div>`;
 
     html = `
+      <section class="cx eu"><div class="eu-l"><b>Este aparelho</b><span id="eu-st">…</span></div><button class="b" type="button" id="eu-bt">…</button></section>
+      <script>
+        (function () {
+          const st = document.getElementById("eu-st"), bt = document.getElementById("eu-bt");
+          const ler = () => { try { return localStorage.getItem("kiiro-nao-contar") === "1"; } catch { return false; } };
+          const mostra = () => { const fora = ler(); st.textContent = fora ? "Não entra nas estatísticas (visitas, cadastros e cliques)." : "Suas visitas e testes estão sendo contados."; bt.textContent = fora ? "Voltar a contar" : "Não contar este celular"; bt.classList.toggle("zap", !fora); };
+          bt.onclick = () => { try { ler() ? localStorage.removeItem("kiiro-nao-contar") : localStorage.setItem("kiiro-nao-contar", "1"); } catch {} mostra(); };
+          mostra();
+        })();
+      </script>
       <section class="cx"><h3>Números</h3>${tabela}<p class="obs">Visitas contam uma vez por pessoa a cada vez que ela abre o site. A contagem começou no dia em que essa versão subiu.</p></section>
       <section class="cx"><h3>Funil de clientes · 30 dias</h3>
         ${barra("Visitaram o site", v30, v30)}
@@ -570,6 +580,8 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .an-bt{flex:1;display:flex;align-items:center;justify-content:center;background:#ECE7D8;padding:8px}
 .an-bt span{width:100%;text-align:center;background:#1A1A1A;color:#fff;border-radius:4px;padding:10px 6px;font-weight:700;font-size:13px}
 .cx h3 small{color:#6B6455;font-weight:500}
+.eu{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.eu-l b{display:block;font-size:14px}.eu-l span{font-size:12px;color:#6B6455}
 .fotos-acoes{border-top:1px solid #F3ECD4;padding-top:10px}
 details.editar{margin-top:10px}details.editar summary{list-style:none;display:inline-block}details.editar summary::-webkit-details-marker{display:none}
 details.editar[open] summary{background:#1A1A1A;color:#FFC800}

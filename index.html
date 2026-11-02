@@ -556,6 +556,7 @@ const EXEMPLOS_REVIEWS = { total: 12, distribuicao: [0, 0, 1, 1, 10], avaliacoes
 /* ===== Contador de uso (só números, sem dados pessoais) ===== */
 function contar(t, k) {
   if (DEMO) return;
+  try { if (localStorage.getItem("kiiro-nao-contar") === "1") return; } catch {} // aparelho do dono (painel)
   try {
     const corpo = JSON.stringify(k ? { t, k: String(k).slice(0, 40) } : { t });
     if (!(navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/evento", new Blob([corpo], { type: "text/plain" }))))

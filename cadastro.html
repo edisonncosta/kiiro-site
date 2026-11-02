@@ -319,6 +319,7 @@ $("foto").addEventListener("change", async () => {
 // contador de uso (só números)
 function contar(t) {
   if (DEMO) return;
+  try { if (localStorage.getItem("kiiro-nao-contar") === "1") return; } catch {}
   try { const c = JSON.stringify({ t }); if (!(navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/evento", new Blob([c], { type: "text/plain" })))) fetch("/.netlify/functions/evento", { method: "POST", body: c, keepalive: true }).catch(() => {}); } catch {}
 }
 let comecou = false;
