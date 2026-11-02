@@ -97,7 +97,8 @@
     </div>
 
     <div class="campo">
-      <span class="legenda"><span class="n">5</span>Uma foto sua ou do seu logo <span class="opc">(opcional)</span></span>
+      <span class="legenda"><span class="n">5</span>Sua foto ou o logo da sua empresa</span>
+      <p class="opc" style="margin:-.2rem 0 .7rem">📸 Pode ser uma selfie com o uniforme, você trabalhando ou o logo da empresa.</p>
       <label class="foto-btn" for="foto">
         <div class="avatar" id="prev" aria-hidden="true">+</div>
         <span id="foto-txt">Escolher foto</span>
@@ -115,6 +116,17 @@
     <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar cadastro</button>
     <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviços, cidades, foto, descrição e WhatsApp no site.</p>
   </form>
+</div>
+
+<!-- Janela: falta a foto -->
+<div class="modal" id="modal-foto" role="dialog" aria-modal="true" aria-labelledby="mf-titulo">
+  <div class="sheet" style="text-align:center">
+    <div style="font-size:2.6rem;line-height:1">📸</div>
+    <h3 id="mf-titulo" style="margin-top:.6rem">Falta só a sua foto!</h3>
+    <p class="sub" id="mf-texto">Clientes confiam mais em quem mostra o rosto ou a marca. Um perfil com foto passa mais segurança e tende a receber mais chamadas.</p>
+    <button class="btn btn-ink btn-full" type="button" id="mf-add">Adicionar foto agora</button>
+    <button class="cancelar" type="button" id="mf-fechar">Voltar ao cadastro</button>
+  </div>
 </div>
 
 <footer>
@@ -155,6 +167,21 @@ $("servicos").addEventListener("change", e => {
   $("outro").classList.toggle("escondido", !outro);
   if (outro && e.target.id === "s-outro") $("outro").focus();
 });
+
+// foto obrigatória
+let tentativasSemFoto = 0;
+function pedirFoto() {
+  tentativasSemFoto++;
+  $("mf-texto").textContent = tentativasSemFoto === 1
+    ? "Clientes confiam mais em quem mostra o rosto ou a marca. Um perfil com foto passa mais segurança e tende a receber mais chamadas."
+    : "Para aparecer na Kiiro, a foto é obrigatória. Vale selfie, foto trabalhando ou o logo da empresa. Leva 10 segundos!";
+  $("modal-foto").classList.add("aberto");
+  $("mf-add").focus();
+}
+const fecharFoto = () => $("modal-foto").classList.remove("aberto");
+$("mf-add").onclick = () => { fecharFoto(); $("foto").click(); };
+$("mf-fechar").onclick = () => { fecharFoto(); document.querySelector(".foto-btn").scrollIntoView({ behavior: "smooth", block: "center" }); };
+$("modal-foto").addEventListener("click", e => { if (e.target.id === "modal-foto") fecharFoto(); });
 
 // foto: reduz para no máximo 800px antes de enviar (foto de celular tem vários MB)
 async function reduzirFoto(arquivo) {
@@ -201,6 +228,7 @@ $("form").addEventListener("submit", e => {
   else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
   $("erro").textContent = msg;
   if (msg) { e.preventDefault(); return; }
+  if (!$("foto").files.length) { e.preventDefault(); pedirFoto(); return; }
 
   $("cidade").value = cidades.join(", ");
   $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
