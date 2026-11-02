@@ -55,7 +55,7 @@ export default async (req, context) => {
         return {
           id: s.id,
           nome: String(d[CAMPOS.nome] || "").trim(),
-          categoria: String(d[CAMPOS.categoria] || "").trim(),
+          categorias: String(d[CAMPOS.categoria] || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 3),
           cidade: String(d[CAMPOS.cidade] || "").trim(),
           whatsapp: whats,
           foto: (foto && (foto.url || (typeof foto === "string" ? foto : ""))) || "",
@@ -65,10 +65,11 @@ export default async (req, context) => {
           avaliacoes: n ? n.qtd : 0,
         };
       })
+      .map((p) => ({ ...p, categoria: p.categorias[0] || "" }))
       .filter((p) => p.nome && p.categoria && p.whatsapp.length >= 12)
       .filter((p) => !aprovados.length || aprovados.some((a) => p.whatsapp.endsWith(a)))
-      // se a mesma pessoa se cadastrou 2x no mesmo serviço, fica só o mais recente
-      .filter((p) => { const k = p.whatsapp + "|" + p.categoria; if (vistos.has(k)) return false; vistos.add(k); return true; });
+      // se a mesma pessoa (mesmo WhatsApp) se cadastrou mais de uma vez, fica só o cadastro mais recente
+      .filter((p) => { if (vistos.has(p.whatsapp)) return false; vistos.add(p.whatsapp); return true; });
 
     return json(200, lista, { "Cache-Control": "public, max-age=120" });
   } catch (e) {

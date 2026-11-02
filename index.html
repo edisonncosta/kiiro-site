@@ -68,6 +68,7 @@
   .linha-cat{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
   .cat{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
   .cat svg{width:15px;height:15px;color:var(--ink)}
+  .cat-sep{color:var(--muted);font-weight:700;margin:0 .1rem}
   .destaque{background:var(--ink);color:var(--sun);border-radius:999px;padding:.08rem .55rem;font-size:.68rem;font-weight:700;letter-spacing:.02em}
   .card h3{font-size:1.12rem;font-weight:800;line-height:1.25;margin-top:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .nota{font-size:.85rem;color:var(--muted);margin-top:.15rem;display:flex;align-items:center;gap:.35rem}
@@ -289,9 +290,9 @@ const icoPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const EXEMPLOS = [
   {id:"d1",nome:"Talita Rosa",categoria:"Diarista",cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
   {id:"d2",nome:"João Pereira",categoria:"Eletricista",cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
-  {id:"d3",nome:"Marcos Lima",categoria:"Pintor",cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
+  {id:"d3",nome:"Marcos Lima",categoria:"Pintor",categorias:["Pintor","Pedreiro"],cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
   {id:"d4",nome:"Ana Souza",categoria:"Diarista",cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",descricao:"Limpeza do dia a dia e passadoria."},
-  {id:"d5",nome:"Rafael Costa",categoria:"Encanador",cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
+  {id:"d5",nome:"Rafael Costa",categoria:"Encanador",categorias:["Encanador","Eletricista"],cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
   {id:"d6",nome:"Jardins do Litoral",categoria:"Jardineiro",cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",descricao:"Corte de grama, poda e manutenção mensal de pátios."},
   {id:"d7",nome:"Diego Entregas",categoria:"Motoboy",cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
 ];
@@ -325,6 +326,7 @@ async function carregar() {
 }
 
 function montar() {
+  profissionais.forEach(p => { if (!Array.isArray(p.categorias) || !p.categorias.length) p.categorias = [p.categoria].filter(Boolean); p.categoria = p.categorias[0] || p.categoria; });
   // ordem: quem tem nota primeiro; nota "pesada" pela quantidade (5,0 com 3 avaliações não passa 4,9 com 27)
   const peso = p => p.avaliacoes >= 3 ? (p.nota * p.avaliacoes + 4.5 * 5) / (p.avaliacoes + 5) : 0;
   profissionais.sort((a, b) => peso(b) - peso(a) || b.avaliacoes - a.avaliacoes);
@@ -349,7 +351,7 @@ const ico = c => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
 function montarCats() {
   const conta = {};
-  profissionais.forEach(p => conta[p.categoria] = (conta[p.categoria] || 0) + 1);
+  profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
   const cats = Object.keys(conta).sort((a, b) => conta[b] - conta[a]);
   const item = (c, nome, n) => `<button class="serv ${c === catAtiva ? "ativo" : ""}" data-c="${esc(c)}" aria-pressed="${c === catAtiva}"><span class="ic">${ico(c || "_todos")}</span>${esc(nome)}</button>`;
   $("cats").innerHTML = item("", "Todos") + cats.map(c => item(c, c)).join("");
@@ -366,9 +368,9 @@ function render() {
   const termo = semAcento($("busca").value.trim());
   const cidade = $("cidade").value;
   const lista = profissionais.filter(p =>
-    (!catAtiva || p.categoria === catAtiva) &&
+    (!catAtiva || p.categorias.includes(catAtiva)) &&
     (!cidade || atende(p, cidade)) &&
-    (!termo || semAcento(p.categoria + " " + p.nome).includes(termo))
+    (!termo || semAcento(p.categorias.join(" ") + " " + p.nome).includes(termo))
   );
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
   const onde = cidade ? ` em ${cidade}` : "";
@@ -397,6 +399,8 @@ function atende(p, cidade) {
   const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
   return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
 }
+// categorias do profissional, com a do filtro ativo primeiro
+function catsDe(p) { return catAtiva && p.categorias.includes(catAtiva) ? [catAtiva, ...p.categorias.filter(c => c !== catAtiva)] : p.categorias; }
 function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
 function corAvatar(nome) { let h = 0; for (const c of String(nome)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return "av-" + (h % 3 + 1); }
 function estrelasMini(n) { const cheias = Math.round(n); return "★".repeat(cheias) + `<span>${"★".repeat(5 - cheias)}</span>`; }
@@ -417,7 +421,7 @@ function card(p, cidadeFiltro) {
     <div class="card-corpo">
       <button class="abre" type="button" data-perfil="${esc(p.id)}" aria-label="Ver perfil de ${esc(p.nome)}">${foto}</button>
       <div class="info">
-        <div class="linha-cat"><span class="cat">${ico(p.categoria)}${esc(p.categoria)}</span>${destaque}</div>
+        <div class="linha-cat">${catsDe(p).map(c => `<span class="cat">${ico(c)}${esc(c)}</span>`).join('<span class="cat-sep">·</span>')}${destaque}</div>
         <button class="abre" type="button" data-perfil="${esc(p.id)}"><h3>${esc(p.nome)}</h3></button>
         ${nota}
         <div class="cidades" aria-label="Atende em">${cidades}</div>
@@ -465,11 +469,12 @@ $("form-chamar").addEventListener("submit", e => {
   fechar();
   if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
 
-  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalNome: p.nome, categoria: p.categoria, cidade: p.cidade });
+  const servico = catsDe(p)[0];
+  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
 
-  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${p.categoria.toLowerCase()}.`;
+  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`;
   window.location.href = `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(msg)}`;
 });
 
@@ -509,7 +514,7 @@ async function abrirPerfil(id) {
     <div class="pf-topo">
       ${foto}
       <h3>${esc(p.nome)}</h3>
-      <span class="cat">${ico(p.categoria)}${esc(p.categoria)}</span>
+      <div class="linha-cat">${catsDe(p).map(c => `<span class="cat">${ico(c)}${esc(c)}</span>`).join('<span class="cat-sep">·</span>')}</div>
       <div class="pf-resumo">
         ${temNota
           ? `<span class="grande">${Number(p.nota).toFixed(1).replace(".", ",")}</span><span class="estrelas-mini" style="font-size:1.2rem">${estrelasMini(p.nota)}</span><span>${p.avaliacoes} avaliações</span>`

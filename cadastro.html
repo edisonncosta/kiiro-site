@@ -66,18 +66,20 @@
 
     <div class="campo">
       <span class="legenda"><span class="n">2</span>O que você faz?</span>
+      <input type="hidden" name="servico" id="servico">
       <div class="chips" id="servicos">
-        <input type="radio" name="servico" id="s1" value="Eletricista"><label for="s1">Eletricista</label>
-        <input type="radio" name="servico" id="s2" value="Encanador"><label for="s2">Encanador</label>
-        <input type="radio" name="servico" id="s3" value="Pedreiro"><label for="s3">Pedreiro</label>
-        <input type="radio" name="servico" id="s4" value="Pintor"><label for="s4">Pintor</label>
-        <input type="radio" name="servico" id="s5" value="Diarista"><label for="s5">Diarista</label>
-        <input type="radio" name="servico" id="s6" value="Jardineiro"><label for="s6">Jardineiro</label>
-        <input type="radio" name="servico" id="s7" value="Marceneiro"><label for="s7">Marceneiro</label>
-        <input type="radio" name="servico" id="s8" value="Ar-condicionado"><label for="s8">Ar-condicionado</label>
-        <input type="radio" name="servico" id="s10" value="Motoboy"><label for="s10">Motoboy</label>
-        <input type="radio" name="servico" id="s9" value="outro"><label for="s9">Outro</label>
+        <input type="checkbox" id="s1" value="Eletricista"><label for="s1">Eletricista</label>
+        <input type="checkbox" id="s2" value="Encanador"><label for="s2">Encanador</label>
+        <input type="checkbox" id="s3" value="Pedreiro"><label for="s3">Pedreiro</label>
+        <input type="checkbox" id="s4" value="Pintor"><label for="s4">Pintor</label>
+        <input type="checkbox" id="s5" value="Diarista"><label for="s5">Diarista</label>
+        <input type="checkbox" id="s6" value="Jardineiro"><label for="s6">Jardineiro</label>
+        <input type="checkbox" id="s7" value="Marceneiro"><label for="s7">Marceneiro</label>
+        <input type="checkbox" id="s8" value="Ar-condicionado"><label for="s8">Ar-condicionado</label>
+        <input type="checkbox" id="s9" value="Motoboy"><label for="s9">Motoboy</label>
+        <input type="checkbox" id="s-outro" value="outro"><label for="s-outro">Outro</label>
       </div>
+      <p class="opc" style="margin-top:.5rem" id="servicos-dica">Marque até 3 serviços.</p>
       <input class="input escondido" type="text" id="outro" placeholder="Qual serviço?">
     </div>
 
@@ -109,7 +111,7 @@
 
     <p class="erro" id="erro" role="alert"></p>
     <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar cadastro</button>
-    <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviço, cidades, foto, descrição e WhatsApp no site.</p>
+    <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviços, cidades, foto, descrição e WhatsApp no site.</p>
   </form>
 </div>
 
@@ -135,11 +137,22 @@ $("cidades").addEventListener("change", e => {
   });
 });
 
-document.querySelectorAll('input[name=servico]').forEach(r => r.addEventListener("change", () => {
-  const outro = $("s9").checked;
+// serviços: até 3
+const MAX_SERVICOS = 3;
+$("servicos").addEventListener("change", e => {
+  const marcados = $("servicos").querySelectorAll("input:checked");
+  if (marcados.length > MAX_SERVICOS) {
+    e.target.checked = false;
+    $("servicos-dica").textContent = `Máximo de ${MAX_SERVICOS} serviços. Desmarque um para trocar.`;
+    $("servicos-dica").style.color = "var(--danger)";
+  } else {
+    $("servicos-dica").textContent = "Marque até 3 serviços.";
+    $("servicos-dica").style.color = "";
+  }
+  const outro = $("s-outro").checked;
   $("outro").classList.toggle("escondido", !outro);
-  if (outro) $("outro").focus();
-}));
+  if (outro && e.target.id === "s-outro") $("outro").focus();
+});
 
 $("foto").addEventListener("change", () => {
   const f = $("foto").files[0];
@@ -152,21 +165,21 @@ $("foto").addEventListener("change", () => {
 });
 
 $("form").addEventListener("submit", e => {
-  const marcado = document.querySelector('input[name=servico]:checked');
+  const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);
   const cidades = [...document.querySelectorAll("#cidades input:checked")].map(i => i.value);
   if (cidades.length === window.KIIRO_CIDADES.length) { cidades.length = 0; cidades.push(todas); }
   const whats = $("whatsapp").value.replace(/\D/g, "");
   let msg = "";
   if (!$("nome").value.trim()) msg = "Informe seu nome.";
-  else if (!marcado) msg = "Escolha o que você faz.";
-  else if (marcado.value === "outro" && !$("outro").value.trim()) msg = "Diga qual serviço você faz.";
+  else if (!servicos.length) msg = "Escolha o que você faz.";
+  else if (servicos.includes("")) msg = "Diga qual é o outro serviço.";
   else if (!cidades.length) msg = "Marque pelo menos uma cidade.";
   else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
   $("erro").textContent = msg;
   if (msg) { e.preventDefault(); return; }
 
   $("cidade").value = cidades.join(", ");
-  if (marcado.value === "outro") marcado.value = $("outro").value.trim();
+  $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
   $("enviar").disabled = true;
   $("enviar").textContent = "Enviando…";
   if (DEMO) { e.preventDefault(); location.href = "cadastro-ok.html"; }
