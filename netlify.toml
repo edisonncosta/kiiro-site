@@ -14,6 +14,11 @@
   status = 200
 
 [[redirects]]
+  from = "/anunciar"
+  to = "/anunciar.html"
+  status = 200
+
+[[redirects]]
   from = "/painel"
   to = "/.netlify/functions/painel"
   status = 200

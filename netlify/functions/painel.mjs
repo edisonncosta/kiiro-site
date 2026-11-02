@@ -14,7 +14,7 @@ const num = (n) => Number(n || 0).toLocaleString("pt-BR");
 // chave de chamada = "2026-11-02T05-10-00-000Z_abc123" → data
 const dataDaChave = (k) => { const m = String(k).match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z/); return m ? new Date(`${m[1]}T${m[2]}:${m[3]}:${m[4]}.${m[5]}Z`) : null; };
 
-export default async (req) => {
+export default async (req, context) => {
   const url = new URL(req.url);
   const KEY = process.env.ADMIN_KEY;
   const formPost = req.method === "POST" ? await req.formData().catch(() => null) : null;
@@ -29,6 +29,66 @@ export default async (req) => {
   if (req.method === "POST") {
     const f = formPost || new FormData();
     const acao = f.get("acao");
+    // ----- anúncios enviados pelas empresas (form "anuncio")
+    if (String(acao || "").startsWith("an_")) {
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      const admin = getStore("admin");
+      const lista = (await admin.get("anuncios", { type: "json" })) || {};
+      const recusados = new Set((await admin.get("anunciosRecusados", { type: "json" })) || []);
+      let aviso = "";
+      if (acao === "an_aprovar" && id) {
+        const r = await fetch(`${API}/submissions/${id}`, { headers: { Authorization: `Bearer ${process.env.NETLIFY_TOKEN}` } });
+        const sub = r.ok ? await r.json() : null;
+        const d = (sub && sub.data) || {};
+        if (!sub) aviso = "Não achei esse pedido no Netlify.";
+        else {
+          // copia a arte para o site (o link do Netlify Forms pode expirar)
+          let banner = "";
+          const arte = d.banner && (d.banner.url || (typeof d.banner === "string" ? d.banner : ""));
+          if (arte) {
+            try {
+              const img = await fetch(arte);
+              if (img.ok) { const fid = randomUUID(); await getStore("fotos").set(fid, await img.arrayBuffer()); banner = `/.netlify/functions/foto?id=${fid}`; }
+            } catch {}
+          }
+          const formato = String(d.formato || "");
+          const naCidade = formato === "servico_cidade" || formato === "cidade";
+          const porGrupo = formato === "servico_cidade" || formato === "servico";
+          const acaoBt = String(d.acao || "whatsapp");
+          const destino = String(d.destino || "").trim();
+          let link = "#";
+          if (acaoBt === "whatsapp") { let n = destino.replace(/\D/g, ""); if (n.length === 10 || n.length === 11) n = "55" + n; link = `https://wa.me/${n}?text=${encodeURIComponent("Olá! Vi vocês na Kiiro.")}`; }
+          else if (acaoBt === "localizacao") link = /^https?:\/\//i.test(destino) ? destino : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)}`;
+          else link = /^https?:\/\//i.test(destino) ? destino : `https://${destino.replace(/^\/+/, "")}`;
+          const ate = String(f.get("ate") || "").match(/^\d{4}-\d{2}-\d{2}$/) ? f.get("ate") : "";
+          const base1 = {
+            id, nome: String(d.empresa || "").slice(0, 60), cidade: naCidade ? String(d.cidade || "") : "",
+            texto: String(d.texto || "").slice(0, 90), botao: String(d.botao || "Saber mais").slice(0, 28), link,
+            banner, cor: /^#[0-9a-f]{6}$/i.test(d.cor || "") ? d.cor : "#ffffff", ate, contato: String(d.contato || ""),
+            formato, meses: String(d.meses || ""), aprovadoEm: new Date().toISOString(), pausado: false,
+          };
+          if (formato === "temporada") {
+            lista[id] = { ...base1, categoria: "Todos", alvoCidade: "" };
+            if (d.grupo) lista[id + "-g"] = { ...base1, id: id + "-g", categoria: String(d.grupo), alvoCidade: "" };
+          } else {
+            lista[id] = { ...base1, categoria: porGrupo ? String(d.grupo || "Todos") : "Todos", alvoCidade: naCidade ? String(d.cidade || "") : "" };
+          }
+          recusados.delete(id);
+          aviso = `Anúncio da ${base1.nome} aprovado! Já aparece no site.`;
+        }
+      }
+      if (acao === "an_pausar" && lista[id]) { lista[id].pausado = true; if (lista[id + "-g"]) lista[id + "-g"].pausado = true; aviso = "Anúncio pausado."; }
+      if (acao === "an_retomar" && lista[id]) { lista[id].pausado = false; if (lista[id + "-g"]) lista[id + "-g"].pausado = false; aviso = "Anúncio no ar de novo."; }
+      if (acao === "an_prazo" && lista[id]) { const ate = String(f.get("ate") || ""); if (/^\d{4}-\d{2}-\d{2}$/.test(ate)) { lista[id].ate = ate; if (lista[id + "-g"]) lista[id + "-g"].ate = ate; aviso = "Prazo atualizado."; } }
+      if (acao === "an_remover") {
+        for (const k of [id, id + "-g"]) { const b = lista[k] && lista[k].banner; if (b) { const fid = b.split("id=")[1]; if (fid) await getStore("fotos").delete(fid); } delete lista[k]; }
+        aviso = "Anúncio removido do site.";
+      }
+      if (acao === "an_recusar") { recusados.add(id); aviso = "Pedido recusado (não aparece mais na lista)."; }
+      await admin.setJSON("anuncios", lista);
+      await admin.setJSON("anunciosRecusados", [...recusados]);
+      return Response.redirect(`${base}/painel${q({ aba: "anuncios", aviso })}`, 303);
+    }
     const w = String(f.get("w") || "").replace(/\D/g, "");
     const admin = getStore("admin");
     const ocultos = new Set((await admin.get("ocultos", { type: "json" })) || []);
@@ -357,6 +417,65 @@ export default async (req) => {
       </script>`;
   }
 
+  if (aba === "anuncios") {
+    const admin = getStore("admin");
+    const lista = (await admin.get("anuncios", { type: "json" })) || {};
+    const recusados = new Set((await admin.get("anunciosRecusados", { type: "json" })) || []);
+    let pedidos = [], erro = "";
+    try {
+      const H = { Authorization: `Bearer ${process.env.NETLIFY_TOKEN}` };
+      const SITE = process.env.KIIRO_SITE_ID || context?.site?.id || process.env.SITE_ID;
+      const forms = await (await fetch(`${API}/sites/${SITE}/forms`, { headers: H })).json();
+      const form = Array.isArray(forms) && forms.find((x) => x.name === "anuncio");
+      if (form) pedidos = await (await fetch(`${API}/forms/${form.id}/submissions?per_page=100`, { headers: H })).json();
+      if (!Array.isArray(pedidos)) pedidos = [];
+    } catch { erro = "Não deu para buscar os pedidos no Netlify."; }
+    const hoje = diaSP(Date.now());
+    const mais = (m) => { const d = new Date(); d.setMonth(d.getMonth() + (+m || 1)); return diaSP(d); };
+    const NOMES = { servico_cidade: "Serviço na cidade", cidade: "Cidade inteira", servico: "Serviço no litoral", inicio: "Página inicial", temporada: "Pacote Temporada" };
+    const urlArq = (x) => (x && (x.url || (typeof x === "string" ? x : ""))) || "";
+    const novos = pedidos.filter((p) => !lista[p.id] && !recusados.has(p.id));
+    const fm = (acao, id, rot, cls = "", extra = "", conf = "") => `<form method="post" action="/painel"${conf ? ` onsubmit="return confirm('${conf}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="id" value="${esc(id)}">${extra}<button class="b ${cls}" type="submit">${rot}</button></form>`;
+    const aviso = url.searchParams.get("aviso");
+    const cardPedido = (p) => {
+      const d = p.data || {};
+      const w = String(d.contato || "").replace(/\D/g, "");
+      const zap = `https://wa.me/${w.length === 10 || w.length === 11 ? "55" + w : w}?text=${encodeURIComponent(`Olá! Aqui é da Kiiro 💛 Recebemos o pedido de anúncio da ${d.empresa || ""}. Vamos combinar o pagamento para colocar no ar?`)}`;
+      return `<article>
+        <div class="an-prev"><div class="an-img" style="background-color:${esc(d.cor || "#fff")};background-image:url('${esc(urlArq(d.banner))}')"></div><div class="an-bt"><span>${esc(d.botao || "Saber mais")}</span></div></div>
+        <div class="l1" style="margin-top:10px"><b>${esc(d.empresa)}</b><span>${fmt(p.created_at)}</span></div>
+        <p><b>${esc(NOMES[d.formato] || d.formato)}</b>${d.cidade && /cidade/.test(d.formato) ? " · " + esc(d.cidade) : ""}${d.grupo && d.formato !== "cidade" && d.formato !== "inicio" ? " · " + esc(d.grupo) : ""} · ${esc(d.meses || 1)} mês(es)<br>Botão “${esc(d.botao || "")}”: ${esc({ whatsapp: "abre o WhatsApp", localizacao: "mostra a localização", site: "abre o site" }[d.acao] || d.acao)} → ${esc(d.destino)}${d.texto ? `<br>“${esc(d.texto)}”` : ""}</p>
+        <div class="acoes">
+          <a class="b zap" href="${zap}" target="_blank" rel="noopener">Combinar no WhatsApp</a>
+          ${fm("an_aprovar", p.id, "✅ Aprovar e pôr no ar", "", `<label class="mini" style="display:inline-flex;gap:6px;align-items:center;margin-right:6px">até <input type="date" name="ate" value="${mais(d.meses)}" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:5px"></label>`)}
+          ${fm("an_recusar", p.id, "Recusar", "perigo", "", "Recusar este pedido?")}
+        </div>
+      </article>`;
+    };
+    const ativos = Object.values(lista).filter((a) => !String(a.id).endsWith("-g"));
+    const cardAtivo = (a) => {
+      const venceu = a.ate && a.ate < hoje;
+      const st = a.pausado ? `<span class="st pend">Pausado</span>` : venceu ? `<span class="st ruim">Venceu em ${esc(a.ate.split("-").reverse().join("/"))}</span>` : `<span class="st bom">No ar${a.ate ? " até " + esc(a.ate.split("-").reverse().join("/")) : ""}</span>`;
+      return `<article>
+        <div class="an-prev"><div class="an-img" style="background-color:${esc(a.cor || "#fff")};background-image:url('${esc(a.banner)}')"></div><div class="an-bt"><span>${esc(a.botao)}</span></div></div>
+        <div class="l1" style="margin-top:10px"><b>${esc(a.nome)}</b>${st}</div>
+        <p>${esc(NOMES[a.formato] || "")}${a.alvoCidade ? " · " + esc(a.alvoCidade) : ""}${a.categoria && a.categoria !== "Todos" ? " · " + esc(a.categoria) : ""}</p>
+        <div class="acoes">
+          ${a.pausado ? fm("an_retomar", a.id, "Pôr no ar de novo", "zap") : fm("an_pausar", a.id, "Pausar")}
+          ${fm("an_prazo", a.id, "Mudar prazo", "", `<input type="date" name="ate" value="${esc(a.ate || mais(1))}" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:5px;margin-right:6px">`)}
+          ${a.contato ? `<a class="b" href="https://wa.me/${esc(String(a.contato).replace(/\D/g, "").replace(/^(\d{10,11})$/, "55$1"))}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+          ${fm("an_remover", a.id, "Remover", "perigo", "", "Tirar este anúncio do site?")}
+        </div>
+      </article>`;
+    };
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}${erro ? `<p class="aviso ruim">${esc(erro)}</p>` : ""}
+      <section class="cx"><h3>Novos pedidos <small>${novos.length}</small></h3><p class="obs">Combine o pagamento no WhatsApp e só depois aprove. Ao aprovar, o anúncio entra no site em até 1 minuto e sai sozinho na data final.</p></section>
+      ${novos.map(cardPedido).join("") || '<p class="vazio">Nenhum pedido novo.</p>'}
+      <section class="cx"><h3>Anúncios aprovados <small>${ativos.length}</small></h3><p class="obs">Os anúncios que você coloca à mão em patrocinios.js (como o da borracharia) não aparecem aqui.</p></section>
+      ${ativos.map(cardAtivo).join("") || '<p class="vazio">Nenhum anúncio aprovado ainda.</p>'}
+      <p class="obs">Link para mandar às empresas: <b>${esc(base)}/anunciar</b></p>`;
+  }
+
   if (aba === "chamadas") {
     const chaves = todasChaves.slice(0, 300);
     const itens = (await Promise.all(chaves.map(async (k) => {
@@ -446,6 +565,11 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .pro-l img,.pro-l .ini{width:64px;height:64px;border-radius:14px;object-fit:cover;flex:none;background:#FFC800;display:grid;place-items:center;font-weight:700;font-size:24px}
 .pro .mini{font-size:12px;color:#5E574A;margin:0}
 .pro.oculto{opacity:.65}
+.an-prev{display:flex;min-height:110px;border:1.5px solid #E6DAB0}
+.an-img{flex:0 0 58%;background:#fff center/contain no-repeat}
+.an-bt{flex:1;display:flex;align-items:center;justify-content:center;background:#ECE7D8;padding:8px}
+.an-bt span{width:100%;text-align:center;background:#1A1A1A;color:#fff;border-radius:4px;padding:10px 6px;font-weight:700;font-size:13px}
+.cx h3 small{color:#6B6455;font-weight:500}
 .fotos-acoes{border-top:1px solid #F3ECD4;padding-top:10px}
 details.editar{margin-top:10px}details.editar summary{list-style:none;display:inline-block}details.editar summary::-webkit-details-marker{display:none}
 details.editar[open] summary{background:#1A1A1A;color:#FFC800}
@@ -465,7 +589,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("chamadas", "Chamadas")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("chamadas", "Chamadas")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anuncie na Kiiro | Kiiro</title>
+<meta name="theme-color" content="#FFC800">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta property="og:title" content="Anuncie na Kiiro">
+<meta property="og:description" content="Sua marca na frente de quem procura serviço no Litoral Norte. Monte seu anúncio em 2 minutos.">
+<meta property="og:image" content="https://chamakiiro.netlify.app/img/og-kiiro.jpg">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="estilo.css">
+<script src="cidades.js"></script>
+<script src="servicos.js"></script>
+<script src="patrocinios.js"></script>
+<style>
+  .topo-pag{background:var(--ink);color:#fff;padding:1.6rem 0 2.4rem;border-radius:0 0 28px 28px}
+  .topo-pag h1{font-size:clamp(1.8rem,6vw,2.6rem);font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--sun)}
+  .topo-pag p{margin-top:.6rem;font-weight:500;max-width:32rem;color:#E8E2CC}
+  .form-wrap{width:min(600px,100% - 2.5rem);margin:-1rem auto 3rem;position:relative}
+  .fmts{display:grid;gap:.6rem}
+  .fmts input{position:absolute;opacity:0;pointer-events:none}
+  .fmts label{display:flex;justify-content:space-between;align-items:center;gap:.8rem;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:.75rem .9rem;cursor:pointer}
+  .fmts label b{display:block;font-weight:600}
+  .fmts label small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35}
+  .fmts label .pr{font-weight:700;white-space:nowrap}
+  .fmts input:checked + label{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun-soft)}
+  .fmts input:focus-visible + label{outline:3px solid var(--sun-deep)}
+  select.input{appearance:auto}
+  .campo > label.ban-up,.ban-up{display:block;font-weight:400;border:1.5px dashed #D9C88E;border-radius:4px;background:#fff;cursor:pointer;overflow:hidden}
+  .ban-up input{position:absolute;opacity:0;width:1px;height:1px}
+  .previa{display:flex;min-height:130px;border:1.5px solid #E6DAB0;box-shadow:0 6px 22px rgba(90,70,0,.12);position:relative;background:#fff}
+  .previa .pi{flex:0 0 58%;background:#fff center/contain no-repeat;display:grid;place-items:center;text-align:center;font-weight:700;color:var(--muted);font-size:.85rem;padding:.6rem}
+  .previa .pd{flex:1;display:flex;align-items:center;justify-content:center;padding:.7rem;background:#ECE7D8}
+  .previa .pb{width:100%;text-align:center;background:var(--ink);color:#fff;border-radius:4px;padding:.8rem .4rem;font-weight:700;font-size:.88rem}
+  .previa .pt{position:absolute;right:0;top:0;background:rgba(255,255,255,.92);color:#5E574A;border-radius:0 0 0 6px;padding:.08rem .5rem;font-size:.62rem;font-weight:600}
+  .ban-dica{display:block;text-align:center;font-size:.8rem;color:var(--muted);padding:.5rem}
+  .linha{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .total{background:var(--sun-soft);border:1px solid #F0DC92;border-radius:14px;padding:.8rem 1rem;font-weight:600;display:flex;justify-content:space-between;gap:1rem}
+  .escondido-bot{position:absolute;left:-9999px}
+  .some{display:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wordmark" viewBox="0 0 340 150">
+    <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+      <circle cx="282" cy="90" r="28"/>
+      <path d="M137 24H147" stroke-width="6"/>
+    </g>
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--hole)"/>
+    <circle cx="166" cy="24" r="5" fill="var(--hole)"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
+    <a class="btn btn-line btn-sm" href="./#anuncie">Ver formatos</a>
+  </div>
+</header>
+
+<section class="topo-pag">
+  <div class="wrap">
+    <h1>Monte seu anúncio</h1>
+    <p>Escolha onde aparecer, envie a arte e o contato. A Kiiro confere, combina o pagamento com você e coloca no ar.</p>
+  </div>
+</section>
+
+<div class="form-wrap">
+  <!-- O Netlify salva cada envio em Forms > anuncio. Você aprova pelo painel, aba Anúncios. -->
+  <form class="caixa" name="anuncio" method="POST" action="anuncio-ok.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="form" novalidate>
+    <input type="hidden" name="form-name" value="anuncio">
+    <p class="escondido-bot"><label>Não preencha: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+    <div class="campo">
+      <label for="empresa"><span class="n">1</span>Nome da empresa</label>
+      <input class="input" id="empresa" name="empresa" maxlength="60" placeholder="Ex.: Material de Construção Silva" autocomplete="organization">
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">2</span>Onde você quer aparecer?</span>
+      <div class="fmts" id="fmts">
+        <input type="radio" name="formato" id="f1" value="servico_cidade"><label for="f1"><span><b>Serviço na sua cidade</b><small>Ex.: quem procura “Casa e reforma” em Osório</small></span><span class="pr" data-p="servicoCidade"></span></label>
+        <input type="radio" name="formato" id="f2" value="cidade"><label for="f2"><span><b>Sua cidade inteira</b><small>Todos os serviços, para quem escolhe a sua cidade</small></span><span class="pr" data-p="cidade"></span></label>
+        <input type="radio" name="formato" id="f3" value="servico"><label for="f3"><span><b>Serviço em todo o litoral</b><small>Um grupo de serviços, em todas as cidades</small></span><span class="pr" data-p="servico"></span></label>
+        <input type="radio" name="formato" id="f4" value="inicio"><label for="f4"><span><b>Página inicial</b><small>Para todo mundo que abre a Kiiro, em rodízio</small></span><span class="pr" data-p="inicio"></span></label>
+        <input type="radio" name="formato" id="f5" value="temporada"><label for="f5"><span><b>Pacote Temporada</b><small>Dezembro a março, página inicial + grupo</small></span><span class="pr" data-p="temporada"></span></label>
+      </div>
+    </div>
+
+    <div class="campo some" id="q-cidade">
+      <label for="cidade"><span class="n">📍</span>Qual cidade?</label>
+      <select class="input" id="cidade" name="cidade"><option value="">Escolha a cidade</option></select>
+    </div>
+
+    <div class="campo some" id="q-grupo">
+      <label for="grupo"><span class="n">🛠</span>Qual grupo de serviços?</label>
+      <select class="input" id="grupo" name="grupo"><option value="">Escolha o grupo</option></select>
+      <p class="opc" id="grupo-dica" style="margin-top:.4rem"></p>
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">3</span>Sua arte do anúncio</span>
+      <p class="opc" style="margin:-.2rem 0 .7rem">Uma imagem <b>deitada</b> (mais larga que alta), com logo, oferta e telefone, se quiser. Se não tiver arte, mande o logo e escolha a cor de fundo.</p>
+      <label class="ban-up" for="banner">
+        <div class="previa">
+          <div class="pi" id="pv-img">Toque para escolher a imagem</div>
+          <div class="pd"><span class="pb" id="pv-bt">Chamar no WhatsApp</span></div>
+          <span class="pt">Patrocinado</span>
+        </div>
+        <span class="ban-dica" id="pv-dica">Assim seu anúncio vai aparecer no site</span>
+        <input type="file" id="banner" name="banner" accept="image/*">
+      </label>
+      <div class="linha" style="margin-top:.7rem">
+        <label class="opc" style="display:flex;align-items:center;gap:.5rem">Cor de fundo <input type="color" id="cor" name="cor" value="#ffffff" style="width:44px;height:34px;border:1px solid var(--line);border-radius:8px;padding:0;background:none"></label>
+      </div>
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">4</span>O que acontece ao tocar no botão?</span>
+      <div class="chips" id="acoes">
+        <input type="radio" name="acao" id="a1" value="whatsapp" checked><label for="a1">Abrir meu WhatsApp</label>
+        <input type="radio" name="acao" id="a2" value="localizacao"><label for="a2">Mostrar a localização</label>
+        <input type="radio" name="acao" id="a3" value="site"><label for="a3">Abrir site ou Instagram</label>
+      </div>
+      <input class="input" id="destino" name="destino" style="margin-top:.7rem" maxlength="200">
+      <p class="opc" id="destino-dica" style="margin-top:.4rem"></p>
+      <label class="opc" for="botao" style="display:block;margin-top:.8rem">Texto do botão</label>
+      <input class="input" id="botao" name="botao" maxlength="28" placeholder="Chamar no WhatsApp">
+    </div>
+
+    <div class="campo">
+      <label for="texto"><span class="n">5</span>Uma frase sobre a empresa <span class="opc">(opcional)</span></label>
+      <input class="input" id="texto" name="texto" maxlength="90" placeholder="Ex.: Tudo para sua obra, com entrega no mesmo dia.">
+    </div>
+
+    <div class="campo">
+      <label for="meses"><span class="n">6</span>Por quanto tempo?</label>
+      <select class="input" id="meses" name="meses">
+        <option value="1">1 mês</option><option value="3" selected>3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="contato"><span class="n">7</span>Seu WhatsApp para a Kiiro falar com você</label>
+      <input class="input" type="tel" id="contato" name="contato" inputmode="tel" placeholder="(51) 99999-9999" autocomplete="tel">
+    </div>
+
+    <div class="total" id="total"><span>Total estimado</span><span id="total-v">Escolha onde aparecer</span></div>
+
+    <p class="erro" id="erro" role="alert"></p>
+    <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar para aprovação</button>
+    <p class="fine">Nada é cobrado agora. A Kiiro confere o anúncio, fala com você no WhatsApp para combinar o pagamento e só então coloca no ar.</p>
+  </form>
+</div>
+
+<script>
+const DEMO = !!window.KIIRO_DEMO;
+const $ = id => document.getElementById(id);
+const P = window.KIIRO_PRECOS || {};
+const precoTxt = v => !v ? "sob consulta" : typeof v === "number" ? `R$ ${v}/mês` : `R$ ${v}`;
+document.querySelectorAll(".pr").forEach(el => el.textContent = precoTxt(P[el.dataset.p]));
+$("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${c}</option>`).join(""));
+const grupos = (window.KIIRO_SERVICOS || []).filter(g => g.icone !== "outro");
+$("grupo").insertAdjacentHTML("beforeend", grupos.map(g => `<option>${g.grupo}</option>`).join(""));
+$("grupo").addEventListener("change", () => { const g = grupos.find(x => x.grupo === $("grupo").value); $("grupo-dica").textContent = g ? "Aparece em: " + g.itens.join(", ") + "." : ""; });
+
+// formato escolhido pela página Anuncie (?formato=...)
+const pedido = new URLSearchParams(location.search).get("formato");
+if (pedido && document.querySelector(`input[name=formato][value="${pedido}"]`)) document.querySelector(`input[name=formato][value="${pedido}"]`).checked = true;
+
+const formato = () => (document.querySelector("input[name=formato]:checked") || {}).value || "";
+const chaveP = { servico_cidade: "servicoCidade", cidade: "cidade", servico: "servico", inicio: "inicio", temporada: "temporada" };
+function atualiza() {
+  const f = formato();
+  $("q-cidade").classList.toggle("some", !["servico_cidade", "cidade"].includes(f));
+  $("q-grupo").classList.toggle("some", !["servico_cidade", "servico", "temporada"].includes(f));
+  const v = P[chaveP[f]], m = +$("meses").value;
+  $("total-v").textContent = !f ? "Escolha onde aparecer" : typeof v === "number" ? `R$ ${v * m} (${m} ${m > 1 ? "meses" : "mês"})` : precoTxt(v);
+}
+document.querySelectorAll("input[name=formato]").forEach(i => i.addEventListener("change", atualiza));
+$("meses").addEventListener("change", atualiza);
+atualiza();
+
+// botão: o que acontece
+const ACOES = {
+  whatsapp: { ph: "WhatsApp da empresa: (51) 99999-9999", dica: "O cliente abre uma conversa já dizendo que viu vocês na Kiiro.", bt: "Chamar no WhatsApp", tipo: "tel" },
+  localizacao: { ph: "Endereço ou link do Google Maps", dica: "Ex.: Av. Jorge Dariva, 1000, Osório. Ou cole o link do Google Maps.", bt: "Ver localização", tipo: "text" },
+  site: { ph: "Site ou Instagram: instagram.com/sualoja", dica: "Pode ser o site, o Instagram ou o catálogo.", bt: "Visitar", tipo: "url" },
+};
+const acao = () => (document.querySelector("input[name=acao]:checked") || {}).value || "whatsapp";
+function atualizaAcao() {
+  const a = ACOES[acao()];
+  $("destino").placeholder = a.ph; $("destino").type = a.tipo === "url" ? "text" : a.tipo; $("destino-dica").textContent = a.dica;
+  $("botao").placeholder = a.bt; $("pv-bt").textContent = $("botao").value.trim() || a.bt;
+}
+document.querySelectorAll("input[name=acao]").forEach(i => i.addEventListener("change", atualizaAcao));
+$("botao").addEventListener("input", atualizaAcao);
+atualizaAcao();
+
+// arte: reduz para no máximo 1200px e mostra a prévia
+async function reduzir(arq) {
+  const url = URL.createObjectURL(arq);
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = url; });
+    const e = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * e); c.height = Math.round(img.naturalHeight * e);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.86));
+    return blob ? new File([blob], "anuncio.jpg", { type: "image/jpeg" }) : arq;
+  } finally { URL.revokeObjectURL(url); }
+}
+$("banner").addEventListener("change", async () => {
+  let f = $("banner").files[0]; if (!f) return;
+  try { const m = await reduzir(f); if (window.DataTransfer) { const dt = new DataTransfer(); dt.items.add(m); $("banner").files = dt.files; f = m; } } catch {}
+  $("pv-img").style.backgroundImage = `url(${URL.createObjectURL(f)})`; $("pv-img").textContent = "";
+  $("pv-dica").textContent = "Toque de novo para trocar a imagem";
+});
+$("cor").addEventListener("input", () => $("pv-img").style.backgroundColor = $("cor").value);
+
+$("form").addEventListener("submit", e => {
+  const f = formato(), d = $("destino").value.trim(), w = $("contato").value.replace(/\D/g, "");
+  let msg = "";
+  if (!$("empresa").value.trim()) msg = "Informe o nome da empresa.";
+  else if (!f) msg = "Escolha onde você quer aparecer.";
+  else if (["servico_cidade", "cidade"].includes(f) && !$("cidade").value) msg = "Escolha a cidade.";
+  else if (["servico_cidade", "servico", "temporada"].includes(f) && !$("grupo").value) msg = "Escolha o grupo de serviços.";
+  else if (!$("banner").files.length) msg = "Envie a arte ou o logo do anúncio.";
+  else if (!d) msg = acao() === "whatsapp" ? "Informe o WhatsApp da empresa." : acao() === "localizacao" ? "Informe o endereço ou o link do mapa." : "Informe o site ou Instagram.";
+  else if (acao() === "whatsapp" && d.replace(/\D/g, "").length < 10) msg = "Confira o WhatsApp da empresa, com DDD.";
+  else if (w.length < 10 || w.length > 11) msg = "Confira o seu WhatsApp, com DDD.";
+  $("erro").textContent = msg;
+  if (msg) { e.preventDefault(); return; }
+  if (!$("botao").value.trim()) $("botao").value = ACOES[acao()].bt;
+  $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
+  if (DEMO) { e.preventDefault(); location.href = "anuncio-ok.html"; }
+});
+</script>
+</body>
+</html>

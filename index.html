@@ -296,6 +296,8 @@
   .st.ocup{background:#EEE;color:#777}
   .vaga button{border:1px solid var(--ink);background:transparent;border-radius:10px;padding:.35rem .7rem;font:600 .78rem Poppins,sans-serif;cursor:pointer}
   .vaga button:disabled{opacity:.35;cursor:default}
+  .vaga-bt{border:1px solid var(--ink);border-radius:10px;padding:.35rem .7rem;font:600 .78rem Poppins,sans-serif;color:var(--ink);text-decoration:none}
+  a.bt-quero{text-decoration:none;display:inline-block}
   .an-rodape{margin-top:1.8rem;text-align:center;background:var(--ink);color:#fff;border-radius:20px;padding:1.4rem 1.2rem}
   .an-rodape b{display:block;color:var(--sun);font-size:1.15rem}
   .an-rodape p{font-size:.88rem;opacity:.85;margin:.3rem 0 1rem}
@@ -854,7 +856,7 @@ function cardPatrocinio() {
     </div>`;
   if (!window.KIIRO_ANUNCIE) return "";
   const onde = cidade ? ` em ${cidade}` : " no Litoral Norte";
-  return `<a class="patro ban livre" href="#anuncie" data-ir="anuncie">
+  return `<a class="patro ban livre" href="anunciar.html?formato=${cidade ? (catAtiva ? "servico_cidade" : "cidade") : (catAtiva ? "servico" : "inicio")}" data-anunciar="livre">
     <div class="ban-img"><span>📣 Sua marca aqui</span></div>
     <div class="ban-dir" aria-label="Este espaço pode ser seu: para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")}${esc(onde)}">
       <span class="ban-bt">Quero anunciar</span>
@@ -1165,29 +1167,30 @@ function telaAnuncie() {
       <div class="formatos">
         <div class="formato"><span class="tg">Mais barato</span><b>Serviço na sua cidade</b><p>Ex.: “Casa e reforma em Osório”. Aparece para quem escolhe a cidade e procura um serviço do grupo.</p>
           <ul><li>Ideal para loja de bairro</li><li>Card no topo, antes dos profissionais</li></ul>
-          <div class="preco"><span>${precoTxt("servicoCidade")}</span><button class="bt-quero" type="button" data-quero="serviço na minha cidade">Quero</button></div></div>
+          <div class="preco"><span>${precoTxt("servicoCidade")}</span><a class="bt-quero" href="anunciar.html?formato=servico_cidade" data-anunciar="servico_cidade">Quero</a></div></div>
         <div class="formato"><b>Sua cidade inteira</b><p>Ex.: “Osório”. Aparece em todos os serviços quando a pessoa escolhe a sua cidade.</p>
           <ul><li>Bom para supermercado, imobiliária, farmácia</li><li>Até 3 marcas por cidade, em rodízio</li></ul>
-          <div class="preco"><span>${precoTxt("cidade")}</span><button class="bt-quero" type="button" data-quero="minha cidade inteira">Quero</button></div></div>
+          <div class="preco"><span>${precoTxt("cidade")}</span><a class="bt-quero" href="anunciar.html?formato=cidade" data-anunciar="cidade">Quero</a></div></div>
         <div class="formato top"><span class="tg">Mais procurado</span><b>Serviço em todo o litoral</b><p>Ex.: “Casa e reforma”. Aparece para quem procura eletricista, encanador, pedreiro, pintor e mais, em todas as cidades.</p>
           <ul><li>Só uma marca por grupo</li><li>Card no topo, em todos os serviços do grupo</li></ul>
-          <div class="preco"><span>${precoTxt("servico")}</span><button class="bt-quero" type="button" data-quero="um grupo de serviços em todo o litoral">Quero</button></div></div>
+          <div class="preco"><span>${precoTxt("servico")}</span><a class="bt-quero" href="anunciar.html?formato=servico" data-anunciar="servico">Quero</a></div></div>
         <div class="formato"><b>Página inicial</b><p>Para todo mundo que abre a Kiiro. Até ${MAX_INICIO} marcas girando no topo.</p>
           <ul><li>Maior visibilidade</li><li>Rodízio automático entre os patrocinadores</li></ul>
-          <div class="preco"><span>${precoTxt("inicio")}</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
+          <div class="preco"><span>${precoTxt("inicio")}</span><a class="bt-quero" href="anunciar.html?formato=inicio" data-anunciar="inicio">Quero</a></div></div>
         <div class="formato"><b>Pacote Temporada</b><p>Dezembro a março, quando o litoral enche.</p>
           <ul><li>Página inicial + grupo de serviços</li><li>Destaque nas redes da Kiiro</li></ul>
-          <div class="preco"><span>${precoTxt("temporada")}</span><button class="bt-quero" type="button" data-quero="o pacote temporada">Quero</button></div></div>
+          <div class="preco"><span>${precoTxt("temporada")}</span><a class="bt-quero" href="anunciar.html?formato=temporada" data-anunciar="temporada">Quero</a></div></div>
       </div>
       <h2>Como o anúncio aparece</h2>
       ${cardPatroDe({ ...exemplo, link: "#" }).replace('target="_blank"', 'onclick="return false"')}
       <h2>Espaços em todo o litoral</h2>
       <p class="an-intro">Por cidade e por serviço na cidade tem vaga em todas as cidades do Litoral Norte. É só chamar.</p>
-      <div class="vagas">${espacos.map(e => `<div class="vaga"><span class="ic">${ico(e.icone)}</span><span class="nm"><b>${esc(e.nome)}</b><small>${esc(e.o && e.o.nome !== "lotado" ? "Patrocinado por " + e.o.nome : e.sub)}</small><span class="st ${e.o ? "ocup" : "livre"}">${e.o ? "Ocupado" : "Disponível"}</span></span><button type="button" data-quero="${esc(e.alvo)}" ${e.o ? "disabled" : ""}>Quero</button></div>`).join("")}</div>
-      <div class="an-rodape"><b>Vamos conversar?</b><p>Conte o que você vende e a cidade. A gente monta a proposta.</p><button class="bt-chamar" type="button" data-quero="um espaço">${icoZap} Falar com a Kiiro</button></div>
+      <div class="vagas">${espacos.map(e => `<div class="vaga"><span class="ic">${ico(e.icone)}</span><span class="nm"><b>${esc(e.nome)}</b><small>${esc(e.o && e.o.nome !== "lotado" ? "Patrocinado por " + e.o.nome : e.sub)}</small><span class="st ${e.o ? "ocup" : "livre"}">${e.o ? "Ocupado" : "Disponível"}</span></span>${e.o ? `<button type="button" disabled>Quero</button>` : `<a class="vaga-bt" href="anunciar.html?formato=${e.icone === "_todos" ? "inicio" : "servico"}" data-anunciar="${e.icone === "_todos" ? "inicio" : "servico"}">Quero</a>`}</div>`).join("")}</div>
+      <div class="an-rodape"><b>Monte seu anúncio agora</b><p>Escolha onde aparecer, envie a arte e o contato. A Kiiro confere e coloca no ar.</p><a class="bt-chamar" href="anunciar.html" data-anunciar="geral" style="text-decoration:none">📣 Criar meu anúncio</a><button class="link-sub" type="button" data-quero="um espaço" style="background:none;border:0;color:#fff;margin-top:.8rem;cursor:pointer;text-decoration:underline">Prefiro falar no WhatsApp</button></div>
       <div style="height:1.5rem"></div>
     </div>`;
 }
+document.addEventListener("click", e => { const a = e.target.closest("[data-anunciar]"); if (a) contar("anuncie_quero", a.dataset.anunciar); });
 document.addEventListener("click", e => {
   const q = e.target.closest("[data-quero]"); if (!q || q.disabled) return;
   contar("anuncie_quero", q.dataset.quero);
@@ -1210,7 +1213,17 @@ $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c =
 if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
 mostrarLembrete();
 
-carregar().then(() => {
+// anúncios aprovados pelo painel entram junto com os de patrocinios.js
+async function carregarAnuncios() {
+  if (DEMO) return;
+  try {
+    const r = await fetch("/.netlify/functions/patrocinios");
+    if (!r.ok) return;
+    const extras = await r.json();
+    if (Array.isArray(extras) && extras.length) { window.KIIRO_PATROCINIOS = [...(window.KIIRO_PATROCINIOS || []), ...extras]; if (profissionais.length) render(); }
+  } catch {}
+}
+Promise.all([carregar(), carregarAnuncios()]).then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
   if (m) return abrirPerfil(m[1]);
   if (location.hash === "#anuncie") return irPara("anuncie");
