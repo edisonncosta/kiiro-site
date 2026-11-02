@@ -38,6 +38,7 @@ export default async (req) => {
   const av = {
     data: new Date().toISOString(),
     profissionalId: ch.profissionalId,
+    profissionalWhatsapp: ch.profissionalWhatsapp || "",
     profissionalNome: ch.profissionalNome,
     clienteNome: ch.clienteNome,
     clienteWhatsapp: ch.clienteWhatsapp,

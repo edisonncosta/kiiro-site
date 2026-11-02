@@ -3,15 +3,18 @@
 import { getStore } from "@netlify/blobs";
 
 export default async (req) => {
-  const id = new URL(req.url).searchParams.get("id") || "";
-  if (!id) return json(400, { erro: "Falta o id" });
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id") || "";
+  const w = (url.searchParams.get("w") || "").replace(/\D/g, "");
+  const ids = new Set((url.searchParams.get("ids") || id).split(",").filter(Boolean));
+  if (!id && !w) return json(400, { erro: "Falta o id" });
 
   const store = getStore("avaliacoes");
   const { blobs } = await store.list();
   const todas = (await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" })))).filter(Boolean);
 
   const dele = todas
-    .filter((a) => a.profissionalId === id && a.feito === "sim" && a.nota >= 1)
+    .filter((a) => (ids.has(a.profissionalId) || (w && a.profissionalWhatsapp === w)) && a.feito === "sim" && a.nota >= 1)
     .sort((a, b) => (a.data < b.data ? 1 : -1));
 
   const distribuicao = [0, 0, 0, 0, 0];

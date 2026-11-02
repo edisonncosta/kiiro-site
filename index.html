@@ -470,7 +470,7 @@ $("form-chamar").addEventListener("submit", e => {
   if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
 
   const servico = catsDe(p)[0];
-  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
+  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
 
@@ -546,7 +546,10 @@ async function abrirPerfil(id) {
   let dados = { total: 0, distribuicao: [0, 0, 0, 0, 0], avaliacoes: [] };
   if (DEMO) { if (p.avaliacoes) dados = p.id === "d1" ? EXEMPLOS_REVIEWS : { total: p.avaliacoes, distribuicao: [0,0,0,1,p.avaliacoes-1], avaliacoes: EXEMPLOS_REVIEWS.avaliacoes.slice(0, Math.min(2, p.avaliacoes)) }; }
   else {
-    try { const r = await fetch("/.netlify/functions/perfil?id=" + encodeURIComponent(p.id)); if (r.ok) dados = await r.json(); } catch {}
+    try {
+      const q = "?id=" + encodeURIComponent(p.id) + "&w=" + encodeURIComponent(p.whatsapp) + "&ids=" + encodeURIComponent((p.ids || [p.id]).join(","));
+      const r = await fetch("/.netlify/functions/perfil" + q); if (r.ok) dados = await r.json();
+    } catch {}
   }
   const box = $("pf-reviews"); if (!box) return;
   if (!dados.total) {

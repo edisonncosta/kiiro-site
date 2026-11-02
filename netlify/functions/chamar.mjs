@@ -20,6 +20,8 @@ export default async (req) => {
     clienteNome: limpa(d.clienteNome, 60),
     clienteWhatsapp: clienteWhats,
     profissionalId: limpa(d.profissionalId, 40),
+    // o WhatsApp identifica o profissional mesmo se ele refizer o cadastro
+    profissionalWhatsapp: soDigitos(d.profissionalWhatsapp).slice(0, 13),
     profissionalNome: limpa(d.profissionalNome),
     categoria: limpa(d.categoria),
     cidade: limpa(d.cidade),

@@ -32,14 +32,26 @@ export default async (req, context) => {
       if (lote.length < 100) break;
     }
 
-    // notas: soma e quantidade por profissional (só serviços feitos)
+    // WhatsApp de cada cadastro (inclusive os antigos), para ligar avaliações à pessoa e não ao cadastro
+    const whatsDoId = {};
+    const idsDoWhats = {};
+    for (const e of envios) {
+      let w = soDigitos((e.data || {})[CAMPOS.whatsapp]);
+      if (w && !w.startsWith("55")) w = "55" + w;
+      whatsDoId[e.id] = w;
+      (idsDoWhats[w] ||= []).push(e.id);
+    }
+
+    // notas: soma e quantidade por WhatsApp do profissional (só serviços feitos)
     const notas = {};
     const store = getStore("avaliacoes");
     const { blobs } = await store.list();
     const avals = await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" })));
     for (const a of avals) {
       if (!a || a.feito !== "sim" || !a.nota) continue;
-      const n = (notas[a.profissionalId] ||= { soma: 0, qtd: 0 });
+      const w = a.profissionalWhatsapp || whatsDoId[a.profissionalId];
+      if (!w) continue;
+      const n = (notas[w] ||= { soma: 0, qtd: 0 });
       n.soma += a.nota; n.qtd++;
     }
 
@@ -51,13 +63,14 @@ export default async (req, context) => {
         let whats = soDigitos(d[CAMPOS.whatsapp]);
         if (whats && !whats.startsWith("55")) whats = "55" + whats;
         const foto = d[CAMPOS.foto];
-        const n = notas[s.id];
+        const n = notas[whats];
         return {
           id: s.id,
           nome: String(d[CAMPOS.nome] || "").trim(),
           categorias: String(d[CAMPOS.categoria] || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 3),
           cidade: String(d[CAMPOS.cidade] || "").trim(),
           whatsapp: whats,
+          ids: (idsDoWhats[whats] || [s.id]).slice(0, 10),
           foto: (foto && (foto.url || (typeof foto === "string" ? foto : ""))) || "",
           descricao: String(d[CAMPOS.descricao] || "").trim().slice(0, 400),
           desde: s.created_at || "",
