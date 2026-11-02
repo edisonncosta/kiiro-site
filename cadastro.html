@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastre seu serviço | Kiiro</title>
+<meta name="theme-color" content="#FFC800">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<script src="cidades.js"></script>
+<style>
+  .topo-pag{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.6rem 0 2rem}
+  .topo-pag h1{font-size:clamp(1.8rem,6vw,2.8rem);font-weight:800;line-height:1.08;letter-spacing:-.02em}
+  .topo-pag p{margin-top:.6rem;font-weight:500;max-width:30rem}
+  .form-wrap{width:min(560px,100% - 2.5rem);margin:-1rem auto 3rem;position:relative}
+  #outro{margin-top:.6rem}
+  .foto-btn{display:flex;align-items:center;gap:1rem;cursor:pointer}
+  .foto-btn .avatar{font-size:1.8rem;background:var(--sun-soft)}
+  .foto-btn span{font-weight:700;border:2px solid var(--ink);border-radius:999px;padding:.55rem 1.1rem;font-size:.92rem}
+  #foto{position:absolute;opacity:0;width:1px;height:1px}
+  .escondido-bot{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wordmark" viewBox="0 0 340 150">
+    <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+      <circle cx="282" cy="90" r="28"/>
+      <path d="M137 24H147" stroke-width="6"/>
+    </g>
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--hole)"/>
+    <circle cx="166" cy="24" r="5" fill="var(--hole)"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
+    <a class="btn btn-line btn-sm" href="./">Ver profissionais</a>
+  </div>
+</header>
+
+<section class="topo-pag">
+  <div class="wrap">
+    <h1>Cadastre seu serviço</h1>
+    <p>É grátis e leva 1 minuto. Clientes da sua cidade vão chamar você direto no WhatsApp.</p>
+  </div>
+</section>
+
+<div class="form-wrap">
+  <!-- O Netlify lê este formulário no deploy e salva cada envio em Forms > cadastro -->
+  <form class="caixa" name="cadastro" method="POST" action="cadastro-ok.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="form" novalidate>
+    <input type="hidden" name="form-name" value="cadastro">
+    <input type="hidden" name="cidade" id="cidade">
+    <p class="escondido-bot"><label>Não preencha: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+    <div class="campo">
+      <label for="nome"><span class="n">1</span>Qual é o seu nome?</label>
+      <input class="input" type="text" id="nome" name="nome" autocomplete="name" placeholder="Seu nome ou da empresa">
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">2</span>O que você faz?</span>
+      <div class="chips" id="servicos">
+        <input type="radio" name="servico" id="s1" value="Eletricista"><label for="s1">Eletricista</label>
+        <input type="radio" name="servico" id="s2" value="Encanador"><label for="s2">Encanador</label>
+        <input type="radio" name="servico" id="s3" value="Pedreiro"><label for="s3">Pedreiro</label>
+        <input type="radio" name="servico" id="s4" value="Pintor"><label for="s4">Pintor</label>
+        <input type="radio" name="servico" id="s5" value="Diarista"><label for="s5">Diarista</label>
+        <input type="radio" name="servico" id="s6" value="Jardineiro"><label for="s6">Jardineiro</label>
+        <input type="radio" name="servico" id="s7" value="Marceneiro"><label for="s7">Marceneiro</label>
+        <input type="radio" name="servico" id="s8" value="Ar-condicionado"><label for="s8">Ar-condicionado</label>
+        <input type="radio" name="servico" id="s10" value="Motoboy"><label for="s10">Motoboy</label>
+        <input type="radio" name="servico" id="s9" value="outro"><label for="s9">Outro</label>
+      </div>
+      <input class="input escondido" type="text" id="outro" placeholder="Qual serviço?">
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">3</span>Onde você atende?</span>
+      <div class="chips" id="cidades"></div>
+      <p class="opc" style="margin-top:.5rem">Toque em todas as cidades onde você atende.</p>
+    </div>
+
+    <div class="campo">
+      <label for="whatsapp"><span class="n">4</span>Seu WhatsApp</label>
+      <input class="input" type="tel" id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
+    </div>
+
+    <div class="campo">
+      <span class="legenda"><span class="n">5</span>Uma foto sua ou do seu logo <span class="opc">(opcional)</span></span>
+      <label class="foto-btn" for="foto">
+        <div class="avatar" id="prev" aria-hidden="true">+</div>
+        <span id="foto-txt">Escolher foto</span>
+      </label>
+      <input type="file" id="foto" name="foto" accept="image/*">
+    </div>
+
+    <div class="campo">
+      <label for="descricao"><span class="n">6</span>Conte sobre seu trabalho <span class="opc">(opcional)</span></label>
+      <textarea class="input" id="descricao" name="descricao" maxlength="400" placeholder="Ex.: 10 anos de experiência, faço instalação e manutenção. Atendo também fim de semana."></textarea>
+      <p class="opc" style="margin-top:.4rem">Aparece no seu perfil. Quem conta mais, recebe mais chamadas.</p>
+    </div>
+
+    <p class="erro" id="erro" role="alert"></p>
+    <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar cadastro</button>
+    <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviço, cidades, foto, descrição e WhatsApp no site.</p>
+  </form>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>A Kiiro conecta clientes e profissionais do Litoral Norte do RS.</p>
+  </div>
+</footer>
+
+<script>
+const DEMO = !!window.KIIRO_DEMO;
+const $ = id => document.getElementById(id);
+
+// cidades
+const todas = window.KIIRO_TODAS;
+$("cidades").innerHTML = [todas, ...window.KIIRO_CIDADES].map((c, i) =>
+  `<input type="checkbox" id="c${i}" value="${c}"><label for="c${i}">${c}</label>`).join("");
+$("cidades").addEventListener("change", e => {
+  const marcouTodas = e.target.value === todas && e.target.checked;
+  $("cidades").querySelectorAll("input").forEach(i => {
+    if (marcouTodas && i.value !== todas) i.checked = false;
+    if (!marcouTodas && e.target.checked && i.value === todas) i.checked = false;
+  });
+});
+
+document.querySelectorAll('input[name=servico]').forEach(r => r.addEventListener("change", () => {
+  const outro = $("s9").checked;
+  $("outro").classList.toggle("escondido", !outro);
+  if (outro) $("outro").focus();
+}));
+
+$("foto").addEventListener("change", () => {
+  const f = $("foto").files[0];
+  if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { $("erro").textContent = "A foto passa de 5 MB. Escolha uma menor."; $("foto").value = ""; return; }
+  $("erro").textContent = "";
+  $("prev").style.backgroundImage = `url(${URL.createObjectURL(f)})`;
+  $("prev").textContent = "";
+  $("foto-txt").textContent = "Trocar foto";
+});
+
+$("form").addEventListener("submit", e => {
+  const marcado = document.querySelector('input[name=servico]:checked');
+  const cidades = [...document.querySelectorAll("#cidades input:checked")].map(i => i.value);
+  if (cidades.length === window.KIIRO_CIDADES.length) { cidades.length = 0; cidades.push(todas); }
+  const whats = $("whatsapp").value.replace(/\D/g, "");
+  let msg = "";
+  if (!$("nome").value.trim()) msg = "Informe seu nome.";
+  else if (!marcado) msg = "Escolha o que você faz.";
+  else if (marcado.value === "outro" && !$("outro").value.trim()) msg = "Diga qual serviço você faz.";
+  else if (!cidades.length) msg = "Marque pelo menos uma cidade.";
+  else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
+  $("erro").textContent = msg;
+  if (msg) { e.preventDefault(); return; }
+
+  $("cidade").value = cidades.join(", ");
+  if (marcado.value === "outro") marcado.value = $("outro").value.trim();
+  $("enviar").disabled = true;
+  $("enviar").textContent = "Enviando…";
+  if (DEMO) { e.preventDefault(); location.href = "cadastro-ok.html"; }
+});
+</script>
+</body>
+</html>

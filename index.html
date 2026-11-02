@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiiro | Profissionais perto de você no Litoral Norte</title>
+<meta name="description" content="Eletricista, diarista, pedreiro, pintor e mais no Litoral Norte do RS. Escolha o profissional e chame direto no WhatsApp.">
+<meta name="theme-color" content="#FFC800">
+<meta property="og:title" content="Kiiro | Profissionais perto de você">
+<meta property="og:description" content="Escolha um profissional do Litoral Norte e chame direto no WhatsApp.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC800'/%3E%3Cpath d='M18 46C18 46 8 38 8 30a10 10 0 0 1 20 0c0 8-10 16-10 16ZM46 46C46 46 36 38 36 30a10 10 0 0 1 20 0c0 8-10 16-10 16Z' fill='%231A1A1A'/%3E%3Ccircle cx='18' cy='30' r='3.5' fill='%23FFC800'/%3E%3Ccircle cx='46' cy='30' r='3.5' fill='%23FFC800'/%3E%3Cpath d='M26 30h12' stroke='%231A1A1A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<script src="cidades.js"></script>
+<style>
+  /* ===== Primeira tela ===== */
+  .hero{background:var(--sun);padding:1.4rem 0 0;border-bottom:2px solid var(--ink);position:relative;overflow:hidden}
+  .hero .wrap{position:relative}
+  .hero-txt{max-width:44rem;position:relative;z-index:1}
+  .eyebrow{display:inline-flex;align-items:center;gap:.4rem;background:var(--ink);color:var(--sun);border-radius:999px;padding:.25rem .75rem;font-size:.78rem;font-weight:700;letter-spacing:.02em}
+  .eyebrow i{width:7px;height:7px;border-radius:50%;background:#3DDC84;display:inline-block;animation:pisca 1.6s infinite}
+  @keyframes pisca{50%{opacity:.3}}
+  .hero h1{font-size:clamp(2.1rem,8vw,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-.035em;margin-top:.8rem}
+  .hero h1 em{font-style:normal;display:inline-block;background:var(--ink);color:var(--sun);padding:.02em .2em .06em;border-radius:.2em;margin-top:.1em;line-height:1.05;transform:rotate(-1deg);white-space:nowrap}
+  @media (max-width:380px){.hero h1{font-size:1.8rem}}
+  .hero p{margin-top:.7rem;font-size:clamp(1rem,2.4vw,1.15rem);font-weight:500;max-width:28rem}
+  .pins{position:absolute;right:-30px;top:6px;width:170px;opacity:.95;pointer-events:none}
+  @media (max-width:520px){.pins{width:96px;right:-6px;top:-2px}}
+  @media (min-width:900px){.pins{width:300px;right:0;top:10px}}
+
+  .busca{position:relative;z-index:2;margin-top:1.3rem;background:#fff;border:2px solid var(--ink);border-radius:20px;display:grid;grid-template-columns:1fr auto;overflow:hidden;box-shadow:5px 5px 0 var(--ink);max-width:640px}
+  .busca label{display:flex;align-items:center;gap:.6rem;padding:0 1rem;min-width:0}
+  .busca label svg{width:22px;height:22px;flex:none}
+  .busca input{border:0;outline:0;font:1rem Poppins,sans-serif;padding:1rem 0;width:100%;min-width:0;background:transparent;color:var(--ink)}
+  .busca select{border:0;border-left:2px solid var(--ink);font:600 .95rem Poppins,sans-serif;padding:0 2.2rem 0 1rem;background:var(--sun-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .7rem center/16px;appearance:none;-webkit-appearance:none;color:var(--ink);cursor:pointer}
+  .busca:focus-within{outline:3px solid var(--ink);outline-offset:3px}
+  @media (max-width:520px){
+    .busca{grid-template-columns:1fr}
+    .busca select{border-left:0;border-top:2px solid var(--ink);padding:.9rem 2.2rem .9rem 1rem}
+  }
+
+  /* serviços com ícone (dentro do topo) */
+  .servs{display:flex;gap:.6rem;overflow-x:auto;padding:1.3rem 1.25rem 1.2rem;margin:0 -1.25rem;scrollbar-width:none;scroll-snap-type:x proximity}
+  .servs::-webkit-scrollbar{display:none}
+  .serv{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:.4rem;width:76px;background:none;border:0;cursor:pointer;color:var(--ink);font:600 .76rem/1.2 Poppins,sans-serif;text-align:center}
+  .serv .ic{width:60px;height:60px;border-radius:18px;border:2px solid var(--ink);background:#fff;display:grid;place-items:center;transition:transform .15s,background-color .15s}
+  .serv .ic svg{width:28px;height:28px}
+  .serv:active .ic{transform:scale(.94)}
+  .serv.ativo .ic{background:var(--ink);color:var(--sun);box-shadow:3px 3px 0 rgba(26,26,26,.25)}
+  .serv small{display:block;font-weight:500;opacity:.7;font-size:.7rem}
+
+  /* ===== Lista ===== */
+  .lista-sec{padding:1.4rem 0 3rem}
+  .lista-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+  .lista-head h2{font-size:1.15rem;font-weight:800;line-height:1.3}
+  .limpar{background:none;border:2px solid var(--ink);border-radius:999px;padding:.3rem .8rem;font-weight:600;font-size:.82rem;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem}
+  @media (max-width:360px){.grid{grid-template-columns:1fr}}
+
+  .card{background:#fff;border:2px solid var(--ink);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+  @media (hover:hover){.card:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}}
+  .card-corpo{padding:1rem 1rem .9rem;display:flex;gap:.9rem;align-items:flex-start}
+  .card .avatar{width:64px;height:64px;border-radius:18px;font-size:1.3rem}
+  .av-1{background:var(--sun)}.av-2{background:var(--sun-soft)}.av-3{background:var(--ink)!important;color:var(--sun)!important}
+  .card .info{min-width:0;flex:1}
+  .linha-cat{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .cat{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .cat svg{width:15px;height:15px;color:var(--ink)}
+  .destaque{background:var(--ink);color:var(--sun);border-radius:999px;padding:.08rem .55rem;font-size:.68rem;font-weight:700;letter-spacing:.02em}
+  .card h3{font-size:1.12rem;font-weight:800;line-height:1.25;margin-top:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nota{font-size:.85rem;color:var(--muted);margin-top:.15rem;display:flex;align-items:center;gap:.35rem}
+  .nota b{color:var(--ink);font-size:.95rem}
+  .estrelas-mini{color:var(--star);letter-spacing:-.05em;font-size:.95rem}
+  .estrelas-mini span{color:#E3DCC3}
+  .novo{display:inline-block;margin-top:.25rem;font-size:.75rem;font-weight:700;background:var(--sun-soft);border:1.5px dashed var(--ink);border-radius:999px;padding:.05rem .55rem}
+  .cidades{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.55rem}
+  .cidades span{font-size:.75rem;font-weight:600;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:.05rem .5rem;color:var(--muted)}
+  .cidades span.match{border-color:var(--ink);color:var(--ink);background:var(--sun-soft)}
+  .card-acao{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;border:0;border-top:2px solid var(--ink);background:var(--zap);color:#fff;font:700 1rem Poppins,sans-serif;padding:.95rem;cursor:pointer;transition:background-color .15s}
+  .card-acao:hover{background:var(--zap-hover)}
+  .card-acao svg{width:21px;height:21px}
+  .card-acao .seta{margin-left:auto;margin-right:-.2rem;opacity:.8}
+
+  .skel{height:168px;border-radius:22px;border:2px solid var(--line);background:linear-gradient(90deg,#fff 0%,var(--sun-soft) 50%,#fff 100%) 0 0/200% 100%;animation:brilho 1.2s infinite linear}
+  @keyframes brilho{to{background-position:-200% 0}}
+  .vazio{grid-column:1/-1;text-align:center;border:2px dashed var(--ink);border-radius:22px;padding:2rem 1.2rem;background:#fff}
+  .vazio .ic{width:60px;height:60px;border-radius:18px;background:var(--sun);border:2px solid var(--ink);display:grid;place-items:center;margin:0 auto .8rem}
+  .vazio .ic svg{width:28px;height:28px}
+  .vazio b{display:block;font-size:1.1rem;margin-bottom:.3rem;line-height:1.3}
+  .vazio p{color:var(--muted);margin-bottom:1rem}
+
+  /* ===== Como funciona ===== */
+  .como{background:var(--ink);color:var(--paper);padding:3rem 0}
+  .como h2{color:var(--sun);font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;line-height:1.1;margin-bottom:1.6rem}
+  .passos{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem}
+  .passos li{display:flex;gap:.9rem}
+  .passos .n{width:44px;height:44px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:800;flex:none}
+  .passos b{display:block;font-size:1.05rem}
+  .passos span{color:#D9D3BC;font-size:.93rem}
+
+  /* ===== Chamada para profissional ===== */
+  .pro{background:var(--sun);padding:3rem 0;border-top:2px solid var(--ink)}
+  .pro .wrap{display:grid;grid-template-columns:1.3fr auto;gap:1.5rem;align-items:center}
+  .pro h2{font-size:clamp(1.7rem,4.5vw,2.6rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  .pro p{margin-top:.6rem;max-width:30rem;font-weight:500}
+  .pro ul{list-style:none;margin-top:1rem;display:grid;gap:.4rem;font-weight:600;font-size:.95rem}
+  .pro li{display:flex;gap:.5rem;align-items:center}
+  .pro li svg{width:20px;height:20px;flex:none}
+  @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
+
+  /* nome clicável */
+  .abre{background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;font:inherit;display:block;max-width:100%}
+  .abre h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--sun)}
+  .abre:hover h3{text-decoration-color:var(--ink)}
+  .ver-perfil{font-size:.8rem;font-weight:700;margin-top:.5rem;display:inline-flex;align-items:center;gap:.2rem;background:none;border:0;padding:0;cursor:pointer;color:var(--ink)}
+  .ver-perfil svg{width:14px;height:14px}
+
+  /* ===== Perfil ===== */
+  .perfil{max-height:92vh;overflow-y:auto;padding:0;position:relative}
+  .perfil .fechar{position:sticky;top:0;float:right;margin:.8rem .8rem 0 0;width:40px;height:40px;border-radius:50%;border:2px solid var(--ink);background:#fff;cursor:pointer;display:grid;place-items:center;z-index:2}
+  .perfil .fechar svg{width:18px;height:18px}
+  .pf-topo{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.4rem 1.25rem 1.2rem;border-radius:24px 24px 0 0}
+  .pf-topo .avatar{width:88px;height:88px;border-radius:24px;font-size:1.8rem}
+  .pf-topo h3{font-size:1.5rem;margin-top:.7rem}
+  .pf-topo .cat{color:var(--ink);margin-top:.2rem}
+  .pf-resumo{display:flex;align-items:center;gap:.6rem;margin-top:.6rem;flex-wrap:wrap}
+  .pf-resumo .grande{font-size:1.6rem;font-weight:800;line-height:1}
+  .pf-topo .estrelas-mini{color:var(--ink)}
+  .pf-topo .estrelas-mini span{color:rgba(26,26,26,.25)}
+  .pf-corpo{padding:1.2rem 1.25rem 1.4rem}
+  .pf-bloco{margin-bottom:1.3rem}
+  .pf-bloco h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.45rem}
+  .pf-bloco p{line-height:1.55}
+  .barras{display:grid;gap:.3rem;font-size:.82rem;font-weight:600}
+  .barra{display:grid;grid-template-columns:2.2rem 1fr 1.6rem;align-items:center;gap:.5rem}
+  .barra i{display:block;height:9px;border-radius:9px;background:var(--line);overflow:hidden}
+  .barra i b{display:block;height:100%;background:var(--star);border-radius:9px}
+  .review{border-top:1.5px solid var(--line);padding:.8rem 0}
+  .review:first-of-type{border-top:0;padding-top:.2rem}
+  .review .l1{display:flex;justify-content:space-between;gap:.5rem;font-size:.9rem}
+  .review .l1 span{color:var(--muted);font-size:.8rem}
+  .review p{margin-top:.25rem;font-size:.93rem}
+  .sem-reviews{background:var(--sun-soft);border:1.5px dashed var(--ink);border-radius:16px;padding:.9rem;font-size:.9rem}
+  .pf-acoes{position:sticky;bottom:0;background:var(--paper);border-top:2px solid var(--ink);padding:.9rem 1.25rem 1.1rem;display:grid;gap:.5rem}
+  .compartilhar{background:none;border:0;font-weight:600;color:var(--muted);cursor:pointer;padding:.4rem;font-size:.88rem}
+  .carregando{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wordmark" viewBox="0 0 340 150">
+    <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+      <circle cx="282" cy="90" r="28"/>
+      <path d="M137 24H147" stroke-width="6"/>
+    </g>
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--hole)"/>
+    <circle cx="166" cy="24" r="5" fill="var(--hole)"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
+    <a class="btn btn-ink btn-sm" href="cadastro.html">Sou profissional</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <svg class="pins" viewBox="0 0 300 200" aria-hidden="true">
+        <g style="--hole:#FFC800;color:#1A1A1A">
+          <path d="M70 150C70 150 30 116 30 88a40 40 0 0 1 80 0c0 28-40 62-40 62Z" fill="#1A1A1A"/><circle cx="70" cy="88" r="14" fill="#FFC800"/>
+          <path d="M230 150C230 150 190 116 190 88a40 40 0 0 1 80 0c0 28-40 62-40 62Z" fill="#1A1A1A"/><circle cx="230" cy="88" r="14" fill="#FFC800"/>
+          <path d="M118 88H182" stroke="#1A1A1A" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="150" cy="88" r="10" fill="#1A1A1A"/><circle cx="150" cy="88" r="4" fill="#FFC800"/>
+        </g>
+      </svg>
+      <div class="hero-txt">
+        <span class="eyebrow"><i></i> Litoral Norte do RS</span>
+        <h1>Tem quem faz.<br><em>Tem quem precisa.</em></h1>
+        <p>Escolha um profissional da sua cidade e chame direto no WhatsApp.</p>
+      </div>
+
+      <div class="busca" role="search">
+        <label>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
+        </label>
+        <select id="cidade" aria-label="Cidade">
+          <option value="">Todas as cidades</option>
+        </select>
+      </div>
+
+      <div class="servs" id="cats" role="toolbar" aria-label="Filtrar por serviço"></div>
+    </div>
+  </section>
+
+  <section class="lista-sec">
+    <div class="wrap">
+      <div class="lista-head">
+        <h2 id="contagem" aria-live="polite">Carregando…</h2>
+        <button class="limpar escondido" id="limpar" type="button">Limpar filtros</button>
+      </div>
+      <div class="grid" id="lista">
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="como">
+    <div class="wrap">
+      <h2>Como funciona</h2>
+      <ol class="passos">
+        <li><span class="n">1</span><div><b>Escolha quem chamar</b><span>Veja o serviço, a cidade e a nota de quem já contratou.</span></div></li>
+        <li><span class="n">2</span><div><b>Chame no WhatsApp</b><span>Combine visita, valor e prazo direto com o profissional.</span></div></li>
+        <li><span class="n">3</span><div><b>Conte como foi</b><span>Depois a Kiiro pergunta como foi. Sua nota ajuda quem vem depois.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="pro">
+    <div class="wrap">
+      <div>
+        <h2>Sabe fazer?<br>Apareça aqui.</h2>
+        <p>Clientes da sua cidade chamam você direto no WhatsApp.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cadastro grátis em 1 minuto</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sem mensalidade e sem comissão</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Boas notas colocam você no topo</li>
+        </ul>
+      </div>
+      <a class="btn btn-ink" href="cadastro.html">Cadastrar meu serviço</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></span>
+    <p>A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional.</p>
+    <p>Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></p>
+  </div>
+</footer>
+
+<!-- Perfil do profissional -->
+<div class="modal" id="modal-perfil" role="dialog" aria-modal="true" aria-label="Perfil do profissional">
+  <div class="sheet perfil" id="perfil"></div>
+</div>
+
+<!-- Janela antes de chamar -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-titulo">
+  <form class="sheet" id="form-chamar" novalidate>
+    <h3 id="m-titulo">Falta pouco!</h3>
+    <p class="sub" id="m-sub"></p>
+    <div class="campo">
+      <label for="c-nome">Seu nome</label>
+      <input class="input" id="c-nome" autocomplete="given-name">
+    </div>
+    <div class="campo">
+      <label for="c-whats">Seu WhatsApp</label>
+      <input class="input" id="c-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
+    </div>
+    <p class="erro" id="c-erro" role="alert"></p>
+    <button class="btn btn-zap btn-full" type="submit" id="c-ok"></button>
+    <button class="cancelar" type="button" id="c-cancelar">Cancelar</button>
+    <p class="fine">A Kiiro usa seu contato só para saber se deu tudo certo com o atendimento.</p>
+  </form>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO
+   ============================================================ */
+const KIIRO_WHATS = "5551991855760";   // WhatsApp da Kiiro (DDI + DDD + número)
+const DEMO = !!window.KIIRO_DEMO;       // prévia com dados de exemplo
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const semAcento = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const icoZap = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3c.2-.4.2-.8.1-.9l-.4-.2z"/></svg>`;
+const icoPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
+
+const EXEMPLOS = [
+  {id:"d1",nome:"Talita Rosa",categoria:"Diarista",cidade:"Imbé, Tramandaí",whatsapp:"5551999990001",foto:"",nota:4.8,avaliacoes:12,desde:"2026-08-10",descricao:"Faço faxina residencial, pós-obra e limpeza de casa de veraneio antes e depois da temporada. Levo meus produtos."},
+  {id:"d2",nome:"João Pereira",categoria:"Eletricista",cidade:"Capão da Canoa, Xangri-Lá",whatsapp:"5551999990002",foto:"",nota:4.9,avaliacoes:27,desde:"2026-07-02",descricao:"Eletricista há 15 anos. Instalação de chuveiro, tomadas, quadro de luz e iluminação. Atendo urgência no mesmo dia."},
+  {id:"d3",nome:"Marcos Lima",categoria:"Pintor",cidade:"Torres, Arroio do Sal",whatsapp:"5551999990003",foto:"",nota:0,avaliacoes:0,desde:"2026-10-28",descricao:""},
+  {id:"d4",nome:"Ana Souza",categoria:"Diarista",cidade:"Capão da Canoa",whatsapp:"5551999990004",foto:"",nota:4.6,avaliacoes:5,desde:"2026-09-15",descricao:"Limpeza do dia a dia e passadoria."},
+  {id:"d5",nome:"Rafael Costa",categoria:"Encanador",cidade:"Osório, Tramandaí, Cidreira",whatsapp:"5551999990005",foto:"",nota:0,avaliacoes:1,desde:"2026-10-20",descricao:"Vazamentos, caixa d'água, desentupimento."},
+  {id:"d6",nome:"Jardins do Litoral",categoria:"Jardineiro",cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",descricao:"Corte de grama, poda e manutenção mensal de pátios."},
+  {id:"d7",nome:"Diego Entregas",categoria:"Motoboy",cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
+];
+const EXEMPLOS_REVIEWS = {
+  total: 12, distribuicao: [0, 0, 1, 1, 10],
+  avaliacoes: [
+    { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30" },
+    { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21" },
+    { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12" },
+    { nome: "Paulo", nota: 5, comentario: "", data: "2026-10-03" }
+  ]
+};
+
+let profissionais = [];
+let catAtiva = "";
+
+/* ===== Carregar ===== */
+async function carregar() {
+  if (DEMO) { profissionais = EXEMPLOS; return montar(); }
+  try {
+    const r = await fetch("/.netlify/functions/profissionais");
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    profissionais = Array.isArray(d) ? d : [];
+    montar();
+  } catch {
+    $("contagem").textContent = "Não deu para carregar agora";
+    $("lista").innerHTML = `<div class="vazio"><b>Ops, algo falhou.</b><p>Tente de novo em instantes ou chame a Kiiro.</p>${btnKiiro("Olá, Kiiro! Preciso de um profissional.")}</div>`;
+  }
+}
+
+function montar() {
+  // ordem: quem tem nota primeiro; nota "pesada" pela quantidade (5,0 com 3 avaliações não passa 4,9 com 27)
+  const peso = p => p.avaliacoes >= 3 ? (p.nota * p.avaliacoes + 4.5 * 5) / (p.avaliacoes + 5) : 0;
+  profissionais.sort((a, b) => peso(b) - peso(a) || b.avaliacoes - a.avaliacoes);
+  montarCats();
+  render();
+}
+
+const ICONES = {
+  "Eletricista": '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  "Encanador": '<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>',
+  "Pedreiro": '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 12h18M9 5v7M15 12v7"/>',
+  "Pintor": '<rect x="4" y="3" width="14" height="6" rx="1"/><path d="M18 6h2v5h-8v3"/><rect x="10" y="14" width="4" height="7" rx="1"/>',
+  "Diarista": '<path d="M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8z"/><path d="M19 16v4M17 18h4"/>',
+  "Jardineiro": '<path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/><path d="M5 19c3-5 6-8 10-10"/>',
+  "Marceneiro": '<path d="M14.5 4.5l5 5-3 3-5-5z"/><path d="M11.5 7.5L4 15l5 5 7.5-7.5"/>',
+  "Ar-condicionado": '<rect x="3" y="5" width="18" height="8" rx="2"/><path d="M7 17v2M12 17v3M17 17v2"/>',
+  "Motoboy": '<circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M8.5 17h6l-2-6H9M14 6h2.5l2 11M11 11l1.5-3"/>',
+  "_todos": '<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/>',
+  "_outro": '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.6-.6-2.3z"/>'
+};
+const ico = c => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[c] || ICONES._outro}</svg>`;
+
+function montarCats() {
+  const conta = {};
+  profissionais.forEach(p => conta[p.categoria] = (conta[p.categoria] || 0) + 1);
+  const cats = Object.keys(conta).sort((a, b) => conta[b] - conta[a]);
+  const item = (c, nome, n) => `<button class="serv ${c === catAtiva ? "ativo" : ""}" data-c="${esc(c)}" aria-pressed="${c === catAtiva}"><span class="ic">${ico(c || "_todos")}</span>${esc(nome)}</button>`;
+  $("cats").innerHTML = item("", "Todos") + cats.map(c => item(c, c)).join("");
+}
+$("cats").addEventListener("click", e => {
+  const b = e.target.closest(".serv"); if (!b) return;
+  catAtiva = b.dataset.c;
+  $("cats").querySelectorAll(".serv").forEach(x => { x.classList.toggle("ativo", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+  render();
+  if (window.scrollY < 200) document.querySelector(".lista-sec").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+function render() {
+  const termo = semAcento($("busca").value.trim());
+  const cidade = $("cidade").value;
+  const lista = profissionais.filter(p =>
+    (!catAtiva || p.categoria === catAtiva) &&
+    (!cidade || atende(p, cidade)) &&
+    (!termo || semAcento(p.categoria + " " + p.nome).includes(termo))
+  );
+  const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
+  const onde = cidade ? ` em ${cidade}` : "";
+  const filtrando = !!(catAtiva || termo || cidade);
+  $("limpar").classList.toggle("escondido", !filtrando);
+  const n = lista.length;
+  $("contagem").textContent = !n ? "Nenhum profissional encontrado"
+    : `${n} ${n > 1 ? "profissionais" : "profissional"}${oque ? " · " + oque : ""}${onde || (filtrando ? "" : " no litoral")}`;
+
+  $("lista").innerHTML = lista.length ? lista.map(p => card(p, cidade)).join("") : `
+    <div class="vazio">
+      <div class="ic">${ico(catAtiva || "_outro")}</div>
+      <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${esc(onde)}.</b>
+      <p>Chame a Kiiro que a gente procura alguém para você.</p>
+      ${btnKiiro(`Olá, Kiiro! Preciso de ${oque || "um profissional"}${onde}.`)}
+    </div>`;
+}
+$("busca").addEventListener("input", render);
+$("cidade").addEventListener("change", render);
+$("limpar").addEventListener("click", () => {
+  catAtiva = ""; $("busca").value = ""; $("cidade").value = "";
+  montarCats(); render();
+});
+
+function atende(p, cidade) {
+  const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
+  return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
+}
+function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
+function corAvatar(nome) { let h = 0; for (const c of String(nome)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return "av-" + (h % 3 + 1); }
+function estrelasMini(n) { const cheias = Math.round(n); return "★".repeat(cheias) + `<span>${"★".repeat(5 - cheias)}</span>`; }
+
+function card(p, cidadeFiltro) {
+  const temNota = p.avaliacoes >= 3;
+  const nota = temNota
+    ? `<p class="nota"><span class="estrelas-mini" aria-hidden="true">${estrelasMini(p.nota)}</span><b>${Number(p.nota).toFixed(1).replace(".", ",")}</b>(${p.avaliacoes})</p>`
+    : `<span class="novo">Novo na Kiiro</span>`;
+  const destaque = temNota && p.nota >= 4.7 && p.avaliacoes >= 5 ? `<span class="destaque">★ Destaque</span>` : "";
+  const foto = p.foto
+    ? `<div class="avatar"><img src="${esc(p.foto)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc(iniciais(p.nome))}'"></div>`
+    : `<div class="avatar ${corAvatar(p.nome)}" aria-hidden="true">${esc(iniciais(p.nome))}</div>`;
+  const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean)
+    .map(c => `<span class="${cidadeFiltro && semAcento(c) === semAcento(cidadeFiltro) ? "match" : ""}">${esc(c)}</span>`).join("");
+  return `
+  <article class="card">
+    <div class="card-corpo">
+      <button class="abre" type="button" data-perfil="${esc(p.id)}" aria-label="Ver perfil de ${esc(p.nome)}">${foto}</button>
+      <div class="info">
+        <div class="linha-cat"><span class="cat">${ico(p.categoria)}${esc(p.categoria)}</span>${destaque}</div>
+        <button class="abre" type="button" data-perfil="${esc(p.id)}"><h3>${esc(p.nome)}</h3></button>
+        ${nota}
+        <div class="cidades" aria-label="Atende em">${cidades}</div>
+        <button class="ver-perfil" type="button" data-perfil="${esc(p.id)}">Ver perfil${p.avaliacoes ? " e avaliações" : ""} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <button class="card-acao" type="button" data-chamar="${esc(p.id)}" aria-label="Chamar ${esc(p.nome)} no WhatsApp">${icoZap} Chamar no WhatsApp <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  </article>`;
+}
+
+function btnKiiro(texto) {
+  return `<a class="btn btn-ink" href="https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">${icoZap} Falar com a Kiiro</a>`;
+}
+
+/* ===== Chamar: pede nome e WhatsApp, avisa a Kiiro e abre o WhatsApp do profissional ===== */
+const modal = $("modal");
+let escolhido = null;
+$("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
+try { const c = JSON.parse(localStorage.getItem("kiiro-cliente") || "{}"); $("c-nome").value = c.nome || ""; $("c-whats").value = c.whats || ""; } catch {}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-chamar]"); if (!b) return;
+  if (mPerfil.classList.contains("aberto")) fecharPerfil();
+  escolhido = profissionais.find(p => String(p.id) === b.dataset.chamar);
+  if (!escolhido) return;
+  $("m-sub").textContent = `Para falar com ${escolhido.nome}, informe seu nome e WhatsApp.`;
+  $("c-erro").textContent = "";
+  modal.classList.add("aberto");
+  ($("c-nome").value ? $("c-whats") : $("c-nome")).focus();
+});
+const fechar = () => modal.classList.remove("aberto");
+$("c-cancelar").onclick = fechar;
+modal.addEventListener("click", e => { if (e.target === modal) fechar(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") fechar(); });
+
+$("form-chamar").addEventListener("submit", e => {
+  e.preventDefault();
+  const nome = $("c-nome").value.trim();
+  const whats = $("c-whats").value.replace(/\D/g, "");
+  if (!nome) { $("c-erro").textContent = "Informe seu nome."; return $("c-nome").focus(); }
+  if (whats.length < 10 || whats.length > 13) { $("c-erro").textContent = "Confira seu WhatsApp com DDD."; return $("c-whats").focus(); }
+  try { localStorage.setItem("kiiro-cliente", JSON.stringify({ nome, whats: $("c-whats").value })); } catch {}
+
+  const p = escolhido;
+  fechar();
+  if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
+
+  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalNome: p.nome, categoria: p.categoria, cidade: p.cidade });
+  const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
+  if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
+
+  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${p.categoria.toLowerCase()}.`;
+  window.location.href = `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(msg)}`;
+});
+
+function toast(t) {
+  const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status");
+  document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
+}
+
+/* ===== Cidades no seletor ===== */
+$("cidade").insertAdjacentHTML("beforeend", window.KIIRO_CIDADES.map(c => `<option>${esc(c)}</option>`).join(""));
+
+/* ===== Perfil ===== */
+const mPerfil = $("modal-perfil");
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const mesAno = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${MESES[d.getMonth()]}/${d.getFullYear()}`; };
+const quando = iso => {
+  const dias = Math.floor((Date.now() - new Date(iso)) / 864e5);
+  return dias < 1 ? "hoje" : dias < 2 ? "ontem" : dias < 30 ? `há ${dias} dias` : mesAno(iso);
+};
+const icoX = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-perfil]"); if (!b) return;
+  abrirPerfil(b.dataset.perfil);
+});
+
+async function abrirPerfil(id) {
+  const p = profissionais.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const temNota = p.avaliacoes >= 3;
+  const foto = p.foto
+    ? `<div class="avatar"><img src="${esc(p.foto)}" alt="" onerror="this.parentNode.textContent='${esc(iniciais(p.nome))}'"></div>`
+    : `<div class="avatar ${corAvatar(p.nome)}" aria-hidden="true">${esc(iniciais(p.nome))}</div>`;
+  const cidades = String(p.cidade).split(/\s*,\s*/).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join("");
+  $("perfil").innerHTML = `
+    <button class="fechar" type="button" id="pf-fechar" aria-label="Fechar">${icoX}</button>
+    <div class="pf-topo">
+      ${foto}
+      <h3>${esc(p.nome)}</h3>
+      <span class="cat">${ico(p.categoria)}${esc(p.categoria)}</span>
+      <div class="pf-resumo">
+        ${temNota
+          ? `<span class="grande">${Number(p.nota).toFixed(1).replace(".", ",")}</span><span class="estrelas-mini" style="font-size:1.2rem">${estrelasMini(p.nota)}</span><span>${p.avaliacoes} avaliações</span>`
+          : `<span class="novo">Novo na Kiiro</span>`}
+      </div>
+    </div>
+    <div class="pf-corpo">
+      ${p.descricao ? `<div class="pf-bloco"><h4>Sobre</h4><p>${esc(p.descricao)}</p></div>` : ""}
+      <div class="pf-bloco"><h4>Atende em</h4><div class="cidades">${cidades}</div></div>
+      ${p.desde ? `<div class="pf-bloco"><h4>Na Kiiro desde</h4><p>${mesAno(p.desde)}</p></div>` : ""}
+      <div class="pf-bloco" id="pf-reviews"><h4>Avaliações</h4><p class="carregando">Carregando…</p></div>
+    </div>
+    <div class="pf-acoes">
+      <button class="btn btn-zap btn-full" type="button" data-chamar="${esc(p.id)}">${icoZap} Chamar ${esc(p.nome.split(" ")[0])} no WhatsApp</button>
+      <button class="compartilhar" type="button" id="pf-share">Copiar link do perfil</button>
+    </div>`;
+  mPerfil.classList.add("aberto");
+  $("perfil").scrollTop = 0;
+  $("pf-fechar").onclick = fecharPerfil;
+  $("pf-fechar").focus();
+  $("pf-share").onclick = async () => {
+    const link = location.origin + location.pathname + "#p-" + p.id;
+    try { await navigator.clipboard.writeText(link); toast("Link copiado! Mande para quem precisar."); }
+    catch { toast(link); }
+  };
+  try { history.replaceState(null, "", "#p-" + p.id); } catch {}
+
+  // avaliações
+  let dados = { total: 0, distribuicao: [0, 0, 0, 0, 0], avaliacoes: [] };
+  if (DEMO) { if (p.avaliacoes) dados = p.id === "d1" ? EXEMPLOS_REVIEWS : { total: p.avaliacoes, distribuicao: [0,0,0,1,p.avaliacoes-1], avaliacoes: EXEMPLOS_REVIEWS.avaliacoes.slice(0, Math.min(2, p.avaliacoes)) }; }
+  else {
+    try { const r = await fetch("/.netlify/functions/perfil?id=" + encodeURIComponent(p.id)); if (r.ok) dados = await r.json(); } catch {}
+  }
+  const box = $("pf-reviews"); if (!box) return;
+  if (!dados.total) {
+    box.innerHTML = `<h4>Avaliações</h4><div class="sem-reviews">${esc(p.nome.split(" ")[0])} ainda não tem avaliações. Depois que você chamar, a Kiiro pergunta como foi.</div>`;
+    return;
+  }
+  const max = Math.max(...dados.distribuicao, 1);
+  const barras = [5, 4, 3, 2, 1].map(n => `<div class="barra"><span>${n} ★</span><i><b style="width:${(dados.distribuicao[n - 1] / max) * 100}%"></b></i><span>${dados.distribuicao[n - 1]}</span></div>`).join("");
+  const lista = dados.avaliacoes.map(a => `
+    <div class="review">
+      <div class="l1"><b>${esc(a.nome)} <span class="estrelas-mini">${estrelasMini(a.nota)}</span></b><span>${quando(a.data)}</span></div>
+      ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ""}
+    </div>`).join("");
+  box.innerHTML = `<h4>Avaliações (${dados.total})</h4>
+    ${dados.total >= 3 ? `<div class="barras" style="margin-bottom:1rem">${barras}</div>` : `<p class="carregando" style="margin-bottom:.6rem">A nota aparece no card a partir de 3 avaliações.</p>`}
+    ${lista}`;
+}
+function fecharPerfil() {
+  mPerfil.classList.remove("aberto");
+  try { history.replaceState(null, "", location.pathname + location.search); } catch {}
+}
+mPerfil.addEventListener("click", e => { if (e.target === mPerfil) fecharPerfil(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && mPerfil.classList.contains("aberto")) fecharPerfil(); });
+
+carregar().then(() => {
+  const m = location.hash.match(/^#p-([\w-]+)$/);
+  if (m) abrirPerfil(m[1]);
+});
+</script>
+</body>
+</html>

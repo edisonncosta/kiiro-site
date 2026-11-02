@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avalie o atendimento | Kiiro</title>
+<meta name="theme-color" content="#FFC800">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  .topo-pag{background:var(--sun);border-bottom:2px solid var(--ink);padding:1.6rem 0 2.2rem}
+  .quem{display:flex;gap:1rem;align-items:center}
+  .quem h1{font-size:clamp(1.5rem,5.5vw,2.2rem);font-weight:800;line-height:1.12}
+  .quem small{font-weight:600}
+  .form-wrap{width:min(520px,100% - 2.5rem);margin:-1.1rem auto 3rem;position:relative}
+  .estrelas{display:flex;gap:.3rem}
+  .estrelas button{background:none;border:0;cursor:pointer;padding:.2rem;line-height:0;border-radius:10px}
+  .estrelas svg{width:46px;height:46px;fill:#fff;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;transition:transform .12s}
+  .estrelas button.on svg{fill:var(--star)}
+  .estrelas button:active svg{transform:scale(.88)}
+  .rotulo-nota{font-weight:700;margin-top:.3rem;min-height:1.5em}
+  .final{text-align:center;padding:1rem 0}
+  .final .ok{width:76px;height:76px;border-radius:50%;background:var(--ink);color:var(--sun);display:grid;place-items:center;margin:0 auto 1rem;font-size:2rem}
+  .final h2{font-size:1.6rem;font-weight:800;line-height:1.15}
+  .final p{color:var(--muted);margin:.6rem auto 1.4rem;max-width:24rem}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wordmark" viewBox="0 0 340 150">
+    <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+      <circle cx="282" cy="90" r="28"/>
+      <path d="M137 24H147" stroke-width="6"/>
+    </g>
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--hole)"/>
+    <circle cx="166" cy="24" r="5" fill="var(--hole)"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
+  </div>
+</header>
+
+<section class="topo-pag">
+  <div class="wrap">
+    <div class="quem">
+      <div class="avatar" id="av" aria-hidden="true">…</div>
+      <div>
+        <h1 id="titulo">Carregando…</h1>
+        <small id="detalhe"></small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="form-wrap">
+  <div class="caixa">
+    <form id="form" class="escondido" novalidate>
+      <div class="campo">
+        <span class="legenda">O serviço foi feito?</span>
+        <div class="chips">
+          <input type="radio" name="feito" id="f1" value="sim"><label for="f1">Sim</label>
+          <input type="radio" name="feito" id="f2" value="nao"><label for="f2">Não</label>
+        </div>
+      </div>
+
+      <div class="campo escondido" id="bloco-nota">
+        <span class="legenda">Que nota você dá?</span>
+        <div class="estrelas" id="estrelas" role="radiogroup" aria-label="Nota de 1 a 5"></div>
+        <p class="rotulo-nota" id="rotulo-nota"></p>
+      </div>
+
+      <div class="campo escondido" id="bloco-motivo">
+        <span class="legenda">O que aconteceu?</span>
+        <div class="chips">
+          <input type="radio" name="motivo" id="m1" value="Não respondeu"><label for="m1">Não respondeu</label>
+          <input type="radio" name="motivo" id="m2" value="Preço alto"><label for="m2">Preço alto</label>
+          <input type="radio" name="motivo" id="m3" value="Sem agenda"><label for="m3">Sem agenda</label>
+          <input type="radio" name="motivo" id="m4" value="Ainda vai fazer"><label for="m4">Ainda vai fazer</label>
+          <input type="radio" name="motivo" id="m5" value="Outro motivo"><label for="m5">Outro</label>
+        </div>
+      </div>
+
+      <div class="campo escondido" id="bloco-comentario">
+        <label for="comentario">Quer contar mais? <span class="opc">(opcional)</span></label>
+        <textarea class="input" id="comentario" maxlength="500" placeholder="Ex.: chegou no horário, deixou tudo limpo."></textarea>
+      </div>
+
+      <p class="erro" id="erro" role="alert"></p>
+      <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar avaliação</button>
+    </form>
+
+    <div class="final escondido" id="final"></div>
+  </div>
+</div>
+
+<script>
+const DEMO = !!window.KIIRO_DEMO;
+const KIIRO_WHATS = "5551991855760";
+const $ = id => document.getElementById(id);
+const ROTULOS = ["", "Péssimo", "Ruim", "Ok", "Bom", "Excelente"];
+const estrela = `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>`;
+const codigo = new URLSearchParams(location.search).get("c") || (DEMO ? "demo" : "");
+let nota = 0, chamada = null;
+
+function mostraFinal(icone, titulo, texto, botao) {
+  $("form").classList.add("escondido");
+  $("final").innerHTML = `<div class="ok">${icone}</div><h2>${titulo}</h2><p>${texto}</p>${botao || `<a class="btn btn-ink" href="./">Ver profissionais</a>`}`;
+  $("final").classList.remove("escondido");
+}
+
+async function api(metodo, corpo) {
+  if (DEMO) {
+    await new Promise(r => setTimeout(r, 250));
+    return metodo === "GET" ? { profissionalNome: "Talita Rosa", categoria: "Diarista", cidade: "Imbé", clienteNome: "Maria", jaAvaliou: false } : { ok: true };
+  }
+  const r = await fetch("/.netlify/functions/avaliar" + (metodo === "GET" ? "?c=" + encodeURIComponent(codigo) : ""),
+    metodo === "GET" ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.erro || "falha"), { status: r.status });
+  return d;
+}
+
+async function iniciar() {
+  if (!codigo) return falhaLink();
+  try {
+    chamada = await api("GET");
+  } catch { return falhaLink(); }
+  const nomeCurto = chamada.profissionalNome.split(" ")[0];
+  $("titulo").textContent = `Como foi com ${chamada.profissionalNome}?`;
+  $("detalhe").textContent = `${chamada.categoria} · ${chamada.cidade}`;
+  $("av").textContent = chamada.profissionalNome.trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase();
+  if (chamada.jaAvaliou) return mostraFinal("✓", "Você já avaliou", `Obrigado, ${chamada.clienteNome}! Sua avaliação de ${nomeCurto} já foi registrada.`);
+  $("form").classList.remove("escondido");
+}
+
+function falhaLink() {
+  $("titulo").textContent = "Link de avaliação inválido";
+  $("av").textContent = "?";
+  mostraFinal("!", "Não encontramos esta avaliação", "O link pode estar incompleto. Fale com a Kiiro que a gente resolve.",
+    `<a class="btn btn-ink" href="https://wa.me/${KIIRO_WHATS}" target="_blank" rel="noopener">Falar com a Kiiro</a>`);
+}
+
+/* estrelas */
+for (let i = 1; i <= 5; i++) {
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.v = i; b.innerHTML = estrela;
+  b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
+  b.setAttribute("aria-label", `${i} estrela${i > 1 ? "s" : ""}, ${ROTULOS[i]}`);
+  b.onclick = () => { nota = i; pinta(); };
+  $("estrelas").appendChild(b);
+}
+function pinta() {
+  $("estrelas").querySelectorAll("button").forEach(b => {
+    b.classList.toggle("on", +b.dataset.v <= nota);
+    b.setAttribute("aria-checked", String(+b.dataset.v === nota));
+  });
+  $("rotulo-nota").textContent = ROTULOS[nota];
+  $("comentario").placeholder = nota && nota <= 2 ? "O que deu errado? A Kiiro vai ler e falar com você." : "Ex.: chegou no horário, deixou tudo limpo.";
+}
+
+document.querySelectorAll('input[name=feito]').forEach(r => r.addEventListener("change", () => {
+  const sim = $("f1").checked;
+  $("bloco-nota").classList.toggle("escondido", !sim);
+  $("bloco-motivo").classList.toggle("escondido", sim);
+  $("bloco-comentario").classList.remove("escondido");
+  $("erro").textContent = "";
+}));
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const feito = document.querySelector('input[name=feito]:checked');
+  const motivo = document.querySelector('input[name=motivo]:checked');
+  if (!feito) return $("erro").textContent = "Diga se o serviço foi feito.";
+  if (feito.value === "sim" && !nota) return $("erro").textContent = "Toque nas estrelas para dar a nota.";
+  if (feito.value === "nao" && !motivo) return $("erro").textContent = "Escolha o que aconteceu.";
+  $("erro").textContent = "";
+  $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
+
+  try {
+    await api("POST", { c: codigo, feito: feito.value, nota: feito.value === "sim" ? nota : 0, motivo: motivo ? motivo.value : "", comentario: $("comentario").value.trim() });
+  } catch (err) {
+    $("enviar").disabled = false; $("enviar").textContent = "Enviar avaliação";
+    if (err.status === 409) return mostraFinal("✓", "Você já avaliou", "Sua avaliação já tinha sido registrada. Obrigado!");
+    return $("erro").textContent = "Não deu para enviar agora. Tente de novo.";
+  }
+
+  if (feito.value === "nao") {
+    mostraFinal("✓", "Obrigado por avisar!", "Se ainda precisar do serviço, a Kiiro indica outra pessoa para você.",
+      `<a class="btn btn-ink" href="./">Ver outros profissionais</a>`);
+  } else if (nota <= 2) {
+    mostraFinal("!", "Sentimos muito.", "A Kiiro vai falar com você pelo WhatsApp para entender o que aconteceu.");
+  } else {
+    mostraFinal("★", "Obrigado pela avaliação!", "Sua nota ajuda outras pessoas do litoral a escolher bem.");
+  }
+  if (DEMO) $("final").insertAdjacentHTML("beforeend", `<p style="margin-top:1rem;font-size:.8rem">Prévia: nada foi salvo. <a href="avaliar.html">Testar de novo</a></p>`);
+});
+
+iniciar();
+</script>
+</body>
+</html>

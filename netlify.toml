@@ -1,0 +1,30 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# endereços curtos
+[[redirects]]
+  from = "/avaliar"
+  to = "/avaliar.html"
+  status = 200
+
+[[redirects]]
+  from = "/cadastro"
+  to = "/cadastro.html"
+  status = 200
+
+[[redirects]]
+  from = "/painel"
+  to = "/.netlify/functions/painel"
+  status = 200
+
+# links antigos
+[[redirects]]
+  from = "/profissionais"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/profissionais.html"
+  to = "/"
+  status = 301
