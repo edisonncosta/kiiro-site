@@ -102,9 +102,9 @@
     </div>
 
     <div class="campo">
-      <label for="descricao"><span class="n">6</span>Conte sobre seu trabalho <span class="opc">(opcional)</span></label>
+      <label for="descricao"><span class="n">6</span>Conte sobre seu trabalho</label>
       <textarea class="input" id="descricao" name="descricao" maxlength="400" placeholder="Ex.: 10 anos de experiência, faço instalação e manutenção. Atendo também fim de semana."></textarea>
-      <p class="opc" style="margin-top:.4rem">Aparece no seu perfil. Quem conta mais, recebe mais chamadas.</p>
+      <p class="opc" style="margin-top:.4rem;display:flex;justify-content:space-between;gap:1rem"><span>Aparece no seu perfil. Conte há quanto tempo trabalha, o que faz e quando atende.</span><span id="desc-conta" style="flex:none">0/400</span></p>
     </div>
 
     <p class="erro" id="erro" role="alert"></p>
@@ -193,6 +193,14 @@ $("servicos").addEventListener("change", e => {
   if (outro && e.target.id === "s-outro") $("outro").focus();
 });
 
+// descrição obrigatória
+const MIN_DESC = 30;
+$("descricao").addEventListener("input", () => {
+  const n = $("descricao").value.trim().length;
+  $("desc-conta").textContent = n < MIN_DESC ? `faltam ${MIN_DESC - n}` : `${n}/400`;
+  $("desc-conta").style.color = n < MIN_DESC ? "var(--danger)" : "";
+});
+
 // foto obrigatória
 let tentativasSemFoto = 0;
 function pedirFoto() {
@@ -251,8 +259,13 @@ $("form").addEventListener("submit", e => {
   else if (servicos.includes("")) msg = "Diga qual é o outro serviço.";
   else if (!cidades.length) msg = "Marque pelo menos uma cidade.";
   else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
+  else if ($("descricao").value.trim().length < MIN_DESC) msg = `Conte um pouco mais sobre o seu trabalho (pelo menos ${MIN_DESC} letras).`;
   $("erro").textContent = msg;
-  if (msg) { e.preventDefault(); return; }
+  if (msg) {
+    e.preventDefault();
+    if (msg.startsWith("Conte")) { $("descricao").focus(); $("descricao").scrollIntoView({ block: "center" }); }
+    return;
+  }
   if (!$("foto").files.length) { e.preventDefault(); pedirFoto(); return; }
 
   $("cidade").value = cidades.join(", ");
