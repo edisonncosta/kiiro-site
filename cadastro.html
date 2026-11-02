@@ -156,11 +156,33 @@ $("servicos").addEventListener("change", e => {
   if (outro && e.target.id === "s-outro") $("outro").focus();
 });
 
-$("foto").addEventListener("change", () => {
-  const f = $("foto").files[0];
+// foto: reduz para no máximo 800px antes de enviar (foto de celular tem vários MB)
+async function reduzirFoto(arquivo) {
+  const url = URL.createObjectURL(arquivo);
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = url; });
+    const max = 800, escala = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * escala); c.height = Math.round(img.naturalHeight * escala);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.82));
+    if (!blob || blob.size >= arquivo.size) return arquivo;
+    return new File([blob], (arquivo.name || "foto").replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } finally { URL.revokeObjectURL(url); }
+}
+
+$("foto").addEventListener("change", async () => {
+  let f = $("foto").files[0];
   if (!f) return;
-  if (f.size > 5 * 1024 * 1024) { $("erro").textContent = "A foto passa de 5 MB. Escolha uma menor."; $("foto").value = ""; return; }
   $("erro").textContent = "";
+  $("foto-txt").textContent = "Preparando foto…";
+  try {
+    const menor = await reduzirFoto(f);
+    if (menor !== f && window.DataTransfer) {
+      const dt = new DataTransfer(); dt.items.add(menor); $("foto").files = dt.files; f = menor;
+    }
+  } catch { /* se não der para reduzir, envia a original */ }
+  if (f.size > 8 * 1024 * 1024) { $("erro").textContent = "A foto é grande demais. Escolha outra."; $("foto").value = ""; $("foto-txt").textContent = "Escolher foto"; return; }
   $("prev").style.backgroundImage = `url(${URL.createObjectURL(f)})`;
   $("prev").textContent = "";
   $("foto-txt").textContent = "Trocar foto";
