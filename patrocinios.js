@@ -33,4 +33,4 @@ window.KIIRO_PRECOS = { servicoCidade: 10, cidade: 15, servico: 15, inicio: 20, 
 
 // Pagamento dos anúncios. Coloque aqui a chave Pix (aleatória) — aparece na tela final do anúncio
 // e na mensagem de renovação. Deixe vazio para não mostrar.
-window.KIIRO_PIX = { chave: "", titular: "" };
+window.KIIRO_PIX = { chave: "fcf24722-5ab9-46d6-ac2f-cd752a284077", titular: "" };
