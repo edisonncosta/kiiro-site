@@ -65,6 +65,27 @@ export default async (req) => {
       await admin.setJSON("fotosPro", trocas);
       if (f.get("js")) return new Response(JSON.stringify({ aviso }), { headers: { "Content-Type": "application/json" } });
     }
+    if (acao === "editar" && w) {
+      const edicoes = (await admin.get("editsPro", { type: "json" })) || {};
+      const txt = (n, max = 60) => String(f.get(n) || "").replace(/\s+/g, " ").trim().slice(0, max);
+      const categorias = [f.get("servico1"), f.get("servico2"), f.get("servico3")].map((x) => String(x || "").replace(/,/g, " ").trim().slice(0, 50)).filter(Boolean);
+      const ed = {
+        nome: txt("nome", 60),
+        categorias: [...new Set(categorias)],
+        cidade: txt("cidade", 400),
+        descricao: String(f.get("descricao") || "").trim().slice(0, 400),
+        experiencia: txt("experiencia"), dedicacao: txt("dedicacao"), urgencia: txt("urgencia"),
+        dias: f.getAll("dias").map(String).join(", ").slice(0, 80), orcamento: txt("orcamento"), mei: txt("mei"),
+        em: new Date().toISOString(),
+      };
+      if (!ed.nome || !ed.categorias.length || !ed.cidade) aviso = "Faltou nome, serviço ou cidade. Nada foi mudado.";
+      else { edicoes[w] = ed; await admin.setJSON("editsPro", edicoes); aviso = "Dados salvos! Já aparecem no site."; }
+    }
+    if (acao === "desfazer_edicao" && w) {
+      const edicoes = (await admin.get("editsPro", { type: "json" })) || {};
+      delete edicoes[w]; await admin.setJSON("editsPro", edicoes);
+      aviso = "Voltaram os dados do cadastro.";
+    }
     if (acao === "excluir" && w) {
       const ids = String(f.get("ids") || "").split(",").filter((x) => /^[\w-]+$/.test(x));
       let ok = 0;
@@ -76,7 +97,7 @@ export default async (req) => {
       aviso = ok === ids.length ? "Cadastro excluído." : `Excluí ${ok} de ${ids.length} cadastros. Tente de novo ou apague em Forms no Netlify.`;
     }
     await admin.setJSON("ocultos", [...ocultos]);
-    return Response.redirect(`${base}/painel${q({ aba: "profissionais", aviso })}`, 303);
+    return Response.redirect(`${base}/painel${q({ aba: "profissionais", aviso })}#${w}`, 303);
   }
 
   // ocultar foto de uma avaliação
@@ -182,6 +203,30 @@ export default async (req) => {
       if (ch && ch.profissionalWhatsapp) conta[ch.profissionalWhatsapp] = (conta[ch.profissionalWhatsapp] || 0) + 1;
     }));
     const aviso = url.searchParams.get("aviso");
+    const sel = (nome, rot, opcoes, atual) => `<label class="ed-l">${rot}<select name="${nome}">${opcoes.map((o) => `<option ${o === atual ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`;
+    const formEditar = (p) => {
+      const cats = p.categorias || [];
+      const dias = String(p.dias || "").split(/\s*,\s*/);
+      return `<form class="ed" method="post" action="/painel">
+        <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="editar"><input type="hidden" name="w" value="${esc(p.whatsapp)}">
+        <label class="ed-l">Nome<input name="nome" value="${esc(p.nome)}" maxlength="60" required></label>
+        <div class="ed-l">Serviços (até 3)
+          ${[0, 1, 2].map((i) => `<input name="servico${i + 1}" list="lista-servicos" value="${esc(cats[i] || "")}" placeholder="${i ? "opcional" : "ex.: Pedreiro"}" ${i ? "" : "required"}>`).join("")}
+        </div>
+        <div class="ed-l">Cidades<div class="ed-cids" data-atual="${esc(p.cidade)}"></div><input type="hidden" name="cidade" value="${esc(p.cidade)}"></div>
+        <label class="ed-l">Descrição<textarea name="descricao" maxlength="400" rows="4">${esc(p.descricao || "")}</textarea></label>
+        <div class="ed-g">
+          ${sel("experiencia", "Experiência", ["Menos de 1 ano", "1 a 3 anos", "3 a 5 anos", "Mais de 5 anos"], p.experiencia)}
+          ${sel("dedicacao", "Dedicação", ["Minha profissão principal", "Uma renda extra"], p.dedicacao)}
+          ${sel("urgencia", "Atende urgência", ["Sim", "Não"], p.urgencia)}
+          ${sel("orcamento", "Orçamento grátis", ["Sim", "Não"], p.orcamento)}
+          ${sel("mei", "Tem MEI/CNPJ", ["Sim", "Não"], p.mei)}
+        </div>
+        <div class="ed-l">Dias<div class="ed-dias">${["Dias de semana", "Fins de semana", "Feriados"].map((d) => `<label><input type="checkbox" name="dias" value="${d}" ${dias.includes(d) ? "checked" : ""}> ${d}</label>`).join("")}</div></div>
+        <p class="obs">O WhatsApp não muda por aqui, porque é ele que liga as avaliações à pessoa. Para trocar de número, a pessoa faz um cadastro novo.</p>
+        <button class="b zap" type="submit">Salvar alterações</button>
+      </form>`;
+    };
     const visiveis = pros.filter((p) => !p.oculto).length;
     html = `
       ${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
@@ -193,11 +238,11 @@ export default async (req) => {
         const formFoto = (acao, rot, varias) => `<form class="ffoto" method="post" action="/painel" enctype="multipart/form-data"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><label class="b">${rot}<input type="file" name="arquivo" accept="image/*" ${varias ? "multiple" : ""} hidden></label></form>`;
         const form = (acao, rot, cls, confirma) => `<form method="post" action="/painel"${confirma ? ` onsubmit="return confirm('${confirma}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><input type="hidden" name="ids" value="${esc((p.ids || [p.id]).join(","))}"><button class="b ${cls}" type="submit">${rot}</button></form>`;
         return `
-        <article class="pro ${p.oculto ? "oculto" : ""}" id="${esc(p.whatsapp)}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade).toLowerCase())}">
+        <article class="pro ${p.oculto ? "oculto" : ""}" data-editado="${p.editado ? 1 : ""}" id="${esc(p.whatsapp)}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade).toLowerCase())}">
           <div class="pro-l">
             ${p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy">` : `<span class="ini">${esc(String(p.nome)[0] || "?")}</span>`}
             <div>
-              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""}
+              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""} ${p.editado ? `<span class="st pend">Editado</span>` : ""}
               <p>${esc((p.categorias || []).join(" · "))}<br>${esc(p.cidade)}</p>
               ${(p.trabalhos || []).length ? `<div class="mini-trab">${p.trabalhos.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</div>` : ""}
               <p class="mini">${p.avaliacoes ? `★ ${String(p.nota).replace(".", ",")} (${p.avaliacoes})` : "Sem avaliações"} · ${conta[p.whatsapp] || 0} chamada${(conta[p.whatsapp] || 0) === 1 ? "" : "s"} · desde ${p.desde ? fmt(p.desde).slice(0, 5) : "–"}${(p.ids || []).length > 1 ? ` · ${(p.ids || []).length} cadastros` : ""}</p>
@@ -214,12 +259,40 @@ export default async (req) => {
             ${formFoto("trabalhos", `🛠️ ${(p.trabalhos || []).length ? "Trocar" : "Adicionar"} fotos de trabalhos`, true)}
             ${p.fotoTrocada ? form("foto_original", "Voltar foto do cadastro", "") : ""}
             ${p.trabalhosTrocados ? form("trabalhos_original", "Voltar trabalhos do cadastro", "") : ""}
+          </div>
+          <details class="editar"><summary class="b">✏️ Editar dados</summary>${formEditar(p)}</details>
+          <div class="acoes">
+            ${p.editado ? form("desfazer_edicao", "Desfazer edições (voltar ao cadastro)", "", "Voltar aos dados que a pessoa preencheu no cadastro?") : ""}
             ${form("excluir", "Excluir", "perigo", `Excluir o cadastro de ${String(p.nome).replace(/['"\\]/g, "")}? Isso apaga do Netlify e não dá para desfazer.`)}
           </div>
         </article>`;
       }).join("") || '<p class="vazio">Nenhum profissional cadastrado ainda.</p>'}
       <p class="obs">Ocultar tira do site na hora e dá para voltar. Excluir apaga o cadastro (e os cadastros antigos com o mesmo WhatsApp). As avaliações ficam guardadas: se a pessoa se cadastrar de novo, elas voltam.</p>
+      <datalist id="lista-servicos"></datalist>
+      <script src="/servicos.js"></script>
+      <script src="/cidades.js"></script>
       <script>
+        (function () {
+          const dl = document.getElementById("lista-servicos");
+          (window.KIIRO_SERVICOS || []).forEach(g => g.itens.forEach(i => { const o = document.createElement("option"); o.value = i; dl.appendChild(o); }));
+          const todas = window.KIIRO_TODAS || "Todo o Litoral Norte";
+          const N = s => String(s).normalize("NFC").trim();
+          const lista = [todas, ...(window.KIIRO_CIDADES || [])].map(N);
+          document.querySelectorAll(".ed-cids").forEach(box => {
+            const atual = box.dataset.atual.split(/\s*,\s*/).filter(Boolean).map(N);
+            const hidden = box.parentNode.querySelector('input[name=cidade]');
+            const extras = atual.filter(c => !lista.includes(c));
+            [...lista, ...extras].forEach(c => {
+              const l = document.createElement("label"); const i = document.createElement("input");
+              i.type = "checkbox"; i.value = c; i.checked = atual.includes(c);
+              l.appendChild(i); l.appendChild(document.createTextNode(" " + c)); box.appendChild(l);
+            });
+            box.addEventListener("change", () => { hidden.value = [...box.querySelectorAll("input:checked")].map(i => i.value).join(", "); });
+          });
+          document.querySelectorAll("form.ed").forEach(fm => fm.addEventListener("submit", e => {
+            if (!fm.elements.cidade.value) { e.preventDefault(); alert("Marque pelo menos uma cidade."); }
+          }));
+        })();
         const f = document.getElementById("filtro");
         // trocar foto: reduz no celular antes de enviar (máx. 1000px) e envia sozinho ao escolher
         async function reduzir(arq) {
@@ -340,6 +413,14 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .pro .mini{font-size:12px;color:#5E574A;margin:0}
 .pro.oculto{opacity:.65}
 .fotos-acoes{border-top:1px solid #F3ECD4;padding-top:10px}
+details.editar{margin-top:10px}details.editar summary{list-style:none;display:inline-block}details.editar summary::-webkit-details-marker{display:none}
+details.editar[open] summary{background:#1A1A1A;color:#FFC800}
+.ed{display:grid;gap:10px;margin-top:10px;background:#FFFAEA;border:1px solid #EFE6C8;border-radius:12px;padding:12px}
+.ed-l{display:grid;gap:4px;font-size:12px;font-weight:600;color:#5E574A}
+.ed input:not([type=checkbox]),.ed textarea,.ed select{width:100%;border:1px solid #E1D5AE;border-radius:10px;padding:9px 10px;font:14px Poppins,sans-serif;color:#1A1A1A;background:#fff}
+.ed-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ed-cids,.ed-dias{display:flex;flex-wrap:wrap;gap:6px}
+.ed-cids label,.ed-dias label{font-size:13px;font-weight:500;color:#1A1A1A;background:#fff;border:1px solid #EFE6C8;border-radius:999px;padding:4px 10px;display:flex;align-items:center;gap:4px}
 .fotos-acoes label.b{cursor:pointer}
 .mini-trab{display:flex;gap:4px;margin:2px 0 6px}.mini-trab img{width:40px;height:40px;object-fit:cover;border-radius:8px}
 </style></head><body>

@@ -67,6 +67,9 @@ export default async (req, context) => {
     let trocas = {};
     try { trocas = (await getStore("admin").get("fotosPro", { type: "json" })) || {}; } catch {}
     const urlFoto = (id) => `/.netlify/functions/foto?id=${id}`;
+    // dados editados pelo painel: { whatsapp: { nome, categorias, cidade, descricao, ... } }
+    let edicoes = {};
+    try { edicoes = (await getStore("admin").get("editsPro", { type: "json" })) || {}; } catch {}
     const vistos = new Set();
     const lista = envios
       .map((s) => {
@@ -103,6 +106,12 @@ export default async (req, context) => {
       .filter((p) => { if (vistos.has(p.whatsapp)) return false; vistos.add(p.whatsapp); return true; });
 
     for (const p of lista) {
+      const ed = edicoes[p.whatsapp];
+      if (ed) {
+        for (const k of ["nome", "cidade", "descricao", "experiencia", "dedicacao", "urgencia", "dias", "orcamento", "mei"]) if (typeof ed[k] === "string" && ed[k]) p[k] = ed[k];
+        if (Array.isArray(ed.categorias) && ed.categorias.length) { p.categorias = ed.categorias.slice(0, 3); p.categoria = p.categorias[0]; }
+        p.editado = true;
+      }
       const t = trocas[p.whatsapp];
       if (!t) continue;
       if (t.foto) p.foto = urlFoto(t.foto);
