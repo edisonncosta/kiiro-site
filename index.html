@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@800&text=%E9%BB%84%E8%89%B2&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
@@ -113,13 +114,17 @@
   @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
 
   /* boas-vindas */
-  .bv{text-align:center}
-  .bv-logo{width:96px;margin:0 auto .6rem;color:var(--ink);--hole:var(--paper)}
-  .bv-passos{list-style:none;text-align:left;display:grid;gap:.8rem;margin:0 0 1.3rem}
-  .bv-passos li{display:flex;gap:.8rem;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:.7rem .8rem;font-size:.88rem;line-height:1.4;color:var(--muted)}
-  .bv-passos li span{font-size:1.4rem;line-height:1}
-  .bv-passos b{display:block;color:var(--ink);font-size:.98rem}
-  .bv-pro{display:block;margin-top:.9rem;font-weight:700;font-size:.9rem;color:var(--ink)}
+  .bv{max-height:92vh;overflow-y:auto}
+  .bv-nome{background:var(--sun);border:2px solid var(--ink);border-radius:20px;padding:.9rem 1rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
+  .bv-kanji{font-family:"Noto Sans JP",Poppins,sans-serif;font-weight:800;font-size:2.6rem;line-height:1;white-space:nowrap;flex:none}
+  .bv-le{font-weight:700;font-size:.95rem;line-height:1.3}
+  .bv h3{font-size:1.45rem}
+  .bv-historia{display:grid;gap:.6rem;margin:.6rem 0 1rem;color:var(--muted);font-size:.95rem;line-height:1.55}
+  .bv-historia b{color:var(--ink)}
+  .bv-marca{display:flex;gap:.8rem;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:.8rem;margin-bottom:1.2rem;font-size:.85rem;line-height:1.45;color:var(--muted)}
+  .bv-marca svg{width:62px;flex:none;margin-top:.2rem}
+  .bv-marca b{color:var(--ink)}
+  .bv-pro{display:block;text-align:center;margin-top:.9rem;font-weight:700;font-size:.9rem;color:var(--ink)}
 
   /* lembrete de avaliação */
   .lembrete{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
@@ -183,6 +188,10 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="pin2" viewBox="102 8 32 42">
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--hole)"/>
+  </symbol>
   <symbol id="wordmark" viewBox="0 0 340 150">
     <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
       <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
@@ -284,23 +293,29 @@
   <div class="wrap">
     <span class="logo"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></span>
     <p>A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional.</p>
-    <p>Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></p>
+    <p>Litoral Norte do RS · <a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a> · <a href="#" id="abrir-sobre">Sobre a Kiiro</a></p>
   </div>
 </footer>
 
-<!-- Boas-vindas (só na primeira visita) -->
+<!-- Boas-vindas: quem é a Kiiro (só na primeira visita) -->
 <div class="modal" id="modal-bv" role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
   <div class="sheet bv">
-    <div class="bv-logo"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></div>
-    <h3 id="bv-titulo">Bem-vindo à Kiiro! 👋</h3>
-    <p class="sub">Profissionais do Litoral Norte, direto no seu WhatsApp.</p>
-    <ol class="bv-passos">
-      <li><span>🔍</span><div><b>Escolha um profissional</b>Veja serviço, cidade e nota de quem já contratou.</div></li>
-      <li><span>💬</span><div><b>Chame no WhatsApp</b>Combine direto com ele. É grátis para quem contrata.</div></li>
-      <li><span>⭐</span><div><b>Conte como foi</b>Sua nota ajuda a próxima pessoa a escolher bem.</div></li>
-    </ol>
-    <button class="btn btn-ink btn-full" type="button" id="bv-ok">Entendi, ver profissionais</button>
-    <a class="bv-pro" href="cadastro.html">Sou profissional, quero me cadastrar →</a>
+    <div class="bv-nome">
+      <span class="bv-kanji" lang="ja" aria-hidden="true">黄色</span>
+      <span class="bv-le">Kiiro, “amarelo” em japonês</span>
+    </div>
+    <h3 id="bv-titulo">Prazer, somos a Kiiro 👋</h3>
+    <div class="bv-historia">
+      <p>Aqui no litoral, achar alguém para cortar a grama, consertar o chuveiro ou limpar a casa ainda depende de indicação ou de sorte em grupo de WhatsApp.</p>
+      <p>Ao mesmo tempo, <b>tem muita gente querendo trabalhar e muita gente precisando do serviço.</b> Faltava uma ponte entre os dois.</p>
+      <p>A Kiiro nasceu no Litoral Norte do RS para ser essa ponte: <b>simples, local e com gente de verdade</b> do outro lado do WhatsApp.</p>
+    </div>
+    <div class="bv-marca">
+      <svg viewBox="102 6 84 44" aria-hidden="true" style="color:#1A1A1A;--hole:#FFC800"><use href="#pin2" x="102" y="8" width="32" height="42"/><use href="#pin2" x="150" y="8" width="32" height="42"/><path d="M137 24H147" stroke="#1A1A1A" stroke-width="6" stroke-linecap="round"/></svg>
+      <p>O amarelo é a cor das antigas listas onde todo mundo procurava um profissional. No nosso logo, os dois pins são <b>quem precisa</b> e <b>quem faz</b>, e o traço no meio é a Kiiro ligando os dois.</p>
+    </div>
+    <button class="btn btn-ink btn-full" type="button" id="bv-ok">Conhecer os profissionais</button>
+    <a class="bv-pro" href="cadastro.html">Sou profissional, quero fazer parte →</a>
   </div>
 </div>
 
@@ -727,17 +742,19 @@ function mostrarLembrete() {
 if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
 mostrarLembrete();
 
-/* ===== Boas-vindas: só na primeira visita e não para quem chega por link de perfil ===== */
+/* ===== Boas-vindas: quem é a Kiiro. Abre sozinha só na primeira visita; o rodapé tem "Sobre a Kiiro" ===== */
+const mBv = $("modal-bv");
+const fecharBv = () => { mBv.classList.remove("aberto"); try { localStorage.setItem("kiiro-bv", "1"); } catch {} };
+const abrirBv = () => { mBv.classList.add("aberto"); mBv.querySelector(".bv").scrollTop = 0; };
+$("bv-ok").onclick = fecharBv;
+mBv.addEventListener("click", e => { if (e.target === mBv) fecharBv(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && mBv.classList.contains("aberto")) fecharBv(); });
+$("abrir-sobre").addEventListener("click", e => { e.preventDefault(); abrirBv(); });
 (function () {
   let viu = false;
   try { viu = !!localStorage.getItem("kiiro-bv"); } catch {}
   if ((viu && !DEMO) || location.hash.startsWith("#p-")) return;
-  const m = $("modal-bv");
-  const fechar = () => { m.classList.remove("aberto"); try { localStorage.setItem("kiiro-bv", "1"); } catch {} };
-  m.classList.add("aberto");
-  $("bv-ok").onclick = fechar;
-  m.addEventListener("click", e => { if (e.target === m) fechar(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && m.classList.contains("aberto")) fechar(); });
+  abrirBv();
 })();
 
 carregar().then(() => {
