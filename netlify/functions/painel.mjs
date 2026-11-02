@@ -2,6 +2,7 @@
 // Endereço: /painel?chave=SUA_ADMIN_KEY
 // Abas: Resumo (acessos e funil) · Profissionais (ocultar, mostrar, excluir) · Chamadas (quem chamou quem, e como foi)
 import { getStore } from "@netlify/blobs";
+import { randomUUID } from "node:crypto";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TZ = "America/Sao_Paulo";
@@ -16,7 +17,8 @@ const dataDaChave = (k) => { const m = String(k).match(/^(\d{4}-\d{2}-\d{2})T(\d
 export default async (req) => {
   const url = new URL(req.url);
   const KEY = process.env.ADMIN_KEY;
-  const chave = url.searchParams.get("chave") || (req.method === "POST" ? (await req.clone().formData().catch(() => null))?.get("chave") : null);
+  const formPost = req.method === "POST" ? await req.formData().catch(() => null) : null;
+  const chave = url.searchParams.get("chave") || (formPost && formPost.get("chave"));
   if (!KEY || chave !== KEY) return new Response("Acesso negado", { status: 401 });
   const q = (extra = {}) => "?" + new URLSearchParams({ chave: KEY, ...extra }).toString();
   const aba = url.searchParams.get("aba") || "resumo";
@@ -25,7 +27,7 @@ export default async (req) => {
 
   /* ---------- ações ---------- */
   if (req.method === "POST") {
-    const f = await req.formData();
+    const f = formPost || new FormData();
     const acao = f.get("acao");
     const w = String(f.get("w") || "").replace(/\D/g, "");
     const admin = getStore("admin");
@@ -33,6 +35,36 @@ export default async (req) => {
     let aviso = "";
     if (acao === "ocultar" && w) { ocultos.add(w); aviso = "Profissional ocultado do site."; }
     if (acao === "mostrar" && w) { ocultos.delete(w); aviso = "Profissional aparece no site de novo."; }
+    if ((acao === "foto" || acao === "trabalhos" || acao === "foto_original" || acao === "trabalhos_original") && w) {
+      const fotos = getStore("fotos");
+      const trocas = (await admin.get("fotosPro", { type: "json" })) || {};
+      const t = (trocas[w] ||= {});
+      const salvar = async (arq) => {
+        if (!arq || typeof arq === "string" || !arq.size) return null;
+        if (arq.size > 3 * 1024 * 1024) throw new Error("grande");
+        const id = randomUUID();
+        await fotos.set(id, await arq.arrayBuffer());
+        return id;
+      };
+      try {
+        if (acao === "foto") {
+          const id = await salvar(f.get("arquivo"));
+          if (id) { if (t.foto) await fotos.delete(t.foto); t.foto = id; aviso = "Foto trocada! Já aparece no site."; }
+          else aviso = "Escolha uma foto.";
+        }
+        if (acao === "trabalhos") {
+          const ids = [];
+          for (const arq of f.getAll("arquivo").slice(0, 3)) { const id = await salvar(arq); if (id) ids.push(id); }
+          if (ids.length) { for (const old of t.trabalhos || []) await fotos.delete(old); t.trabalhos = ids; aviso = `${ids.length} foto${ids.length > 1 ? "s" : ""} de trabalhos no perfil.`; }
+          else aviso = "Escolha até 3 fotos.";
+        }
+        if (acao === "foto_original" && t.foto) { await fotos.delete(t.foto); delete t.foto; aviso = "Voltou a foto do cadastro."; }
+        if (acao === "trabalhos_original" && t.trabalhos) { for (const old of t.trabalhos) await fotos.delete(old); delete t.trabalhos; aviso = "Voltaram as fotos de trabalhos do cadastro."; }
+      } catch { aviso = "A foto é grande demais. Tente outra."; }
+      if (!t.foto && !(t.trabalhos && t.trabalhos.length)) delete trocas[w];
+      await admin.setJSON("fotosPro", trocas);
+      if (f.get("js")) return new Response(JSON.stringify({ aviso }), { headers: { "Content-Type": "application/json" } });
+    }
     if (acao === "excluir" && w) {
       const ids = String(f.get("ids") || "").split(",").filter((x) => /^[\w-]+$/.test(x));
       let ok = 0;
@@ -158,14 +190,16 @@ export default async (req) => {
       ${pros.map((p) => {
         const nome1 = String(p.nome).split(" ")[0];
         const msg = `Oi, ${nome1}! Aqui é da Kiiro 💛 Para atualizar seu perfil (foto, serviços, cidades ou fotos de trabalhos), é só preencher de novo com o mesmo WhatsApp: ${base}/cadastro . Suas avaliações continuam.`;
+        const formFoto = (acao, rot, varias) => `<form class="ffoto" method="post" action="/painel" enctype="multipart/form-data"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><label class="b">${rot}<input type="file" name="arquivo" accept="image/*" ${varias ? "multiple" : ""} hidden></label></form>`;
         const form = (acao, rot, cls, confirma) => `<form method="post" action="/painel"${confirma ? ` onsubmit="return confirm('${confirma}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><input type="hidden" name="ids" value="${esc((p.ids || [p.id]).join(","))}"><button class="b ${cls}" type="submit">${rot}</button></form>`;
         return `
-        <article class="pro ${p.oculto ? "oculto" : ""}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade).toLowerCase())}">
+        <article class="pro ${p.oculto ? "oculto" : ""}" id="${esc(p.whatsapp)}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade).toLowerCase())}">
           <div class="pro-l">
             ${p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy">` : `<span class="ini">${esc(String(p.nome)[0] || "?")}</span>`}
             <div>
               <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""}
               <p>${esc((p.categorias || []).join(" · "))}<br>${esc(p.cidade)}</p>
+              ${(p.trabalhos || []).length ? `<div class="mini-trab">${p.trabalhos.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</div>` : ""}
               <p class="mini">${p.avaliacoes ? `★ ${String(p.nota).replace(".", ",")} (${p.avaliacoes})` : "Sem avaliações"} · ${conta[p.whatsapp] || 0} chamada${(conta[p.whatsapp] || 0) === 1 ? "" : "s"} · desde ${p.desde ? fmt(p.desde).slice(0, 5) : "–"}${(p.ids || []).length > 1 ? ` · ${(p.ids || []).length} cadastros` : ""}</p>
             </div>
           </div>
@@ -174,6 +208,12 @@ export default async (req) => {
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
+          </div>
+          <div class="acoes fotos-acoes">
+            ${formFoto("foto", "📷 Trocar foto", false)}
+            ${formFoto("trabalhos", `🛠️ ${(p.trabalhos || []).length ? "Trocar" : "Adicionar"} fotos de trabalhos`, true)}
+            ${p.fotoTrocada ? form("foto_original", "Voltar foto do cadastro", "") : ""}
+            ${p.trabalhosTrocados ? form("trabalhos_original", "Voltar trabalhos do cadastro", "") : ""}
             ${form("excluir", "Excluir", "perigo", `Excluir o cadastro de ${String(p.nome).replace(/['"\\]/g, "")}? Isso apaga do Netlify e não dá para desfazer.`)}
           </div>
         </article>`;
@@ -181,6 +221,31 @@ export default async (req) => {
       <p class="obs">Ocultar tira do site na hora e dá para voltar. Excluir apaga o cadastro (e os cadastros antigos com o mesmo WhatsApp). As avaliações ficam guardadas: se a pessoa se cadastrar de novo, elas voltam.</p>
       <script>
         const f = document.getElementById("filtro");
+        // trocar foto: reduz no celular antes de enviar (máx. 1000px) e envia sozinho ao escolher
+        async function reduzir(arq) {
+          const url = URL.createObjectURL(arq);
+          try {
+            const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = url; });
+            const e = Math.min(1, 1000 / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * e); c.height = Math.round(img.naturalHeight * e);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            return await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.85));
+          } finally { URL.revokeObjectURL(url); }
+        }
+        document.querySelectorAll(".ffoto input[type=file]").forEach(inp => inp.addEventListener("change", async () => {
+          const form = inp.closest("form"); const rot = form.querySelector("label");
+          if (!inp.files.length) return;
+          rot.firstChild.textContent = "Enviando…";
+          const fd = new FormData();
+          ["chave", "acao", "w"].forEach(n => fd.append(n, form.elements[n].value));
+          fd.append("js", "1");
+          for (const arq of [...inp.files].slice(0, 3)) { let b = arq; try { b = (await reduzir(arq)) || arq; } catch {} fd.append("arquivo", b, "foto.jpg"); }
+          try {
+            const r = await fetch("/painel", { method: "POST", body: fd });
+            const d = await r.json();
+            location.href = location.pathname + "?" + new URLSearchParams({ chave: fd.get("chave"), aba: "profissionais", aviso: d.aviso || "Pronto." }) + "#" + encodeURIComponent(fd.get("w"));
+          } catch { rot.firstChild.textContent = "Não deu, tente de novo"; }
+        }));
         f && f.addEventListener("input", () => { const t = f.value.toLowerCase().trim(); document.querySelectorAll(".pro").forEach(a => a.style.display = !t || a.dataset.busca.includes(t) ? "" : "none"); });
       </script>`;
   }
@@ -274,6 +339,9 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .pro-l img,.pro-l .ini{width:64px;height:64px;border-radius:14px;object-fit:cover;flex:none;background:#FFC800;display:grid;place-items:center;font-weight:700;font-size:24px}
 .pro .mini{font-size:12px;color:#5E574A;margin:0}
 .pro.oculto{opacity:.65}
+.fotos-acoes{border-top:1px solid #F3ECD4;padding-top:10px}
+.fotos-acoes label.b{cursor:pointer}
+.mini-trab{display:flex;gap:4px;margin:2px 0 6px}.mini-trab img{width:40px;height:40px;object-fit:cover;border-radius:8px}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>

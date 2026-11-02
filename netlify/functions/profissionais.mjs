@@ -63,6 +63,10 @@ export default async (req, context) => {
     let ocultos = [];
     try { ocultos = (await getStore("admin").get("ocultos", { type: "json" })) || []; } catch {}
     const ocultosSet = new Set(ocultos);
+    // fotos trocadas pelo painel: { whatsapp: { foto: id, trabalhos: [id] } }
+    let trocas = {};
+    try { trocas = (await getStore("admin").get("fotosPro", { type: "json" })) || {}; } catch {}
+    const urlFoto = (id) => `/.netlify/functions/foto?id=${id}`;
     const vistos = new Set();
     const lista = envios
       .map((s) => {
@@ -97,6 +101,14 @@ export default async (req, context) => {
       .filter((p) => !aprovados.length || aprovados.some((a) => p.whatsapp.endsWith(a)))
       // se a mesma pessoa (mesmo WhatsApp) se cadastrou mais de uma vez, fica só o cadastro mais recente
       .filter((p) => { if (vistos.has(p.whatsapp)) return false; vistos.add(p.whatsapp); return true; });
+
+    for (const p of lista) {
+      const t = trocas[p.whatsapp];
+      if (!t) continue;
+      if (t.foto) p.foto = urlFoto(t.foto);
+      if (t.trabalhos && t.trabalhos.length) p.trabalhos = t.trabalhos.map(urlFoto);
+      p.fotoTrocada = !!t.foto; p.trabalhosTrocados = !!(t.trabalhos && t.trabalhos.length);
+    }
 
     if (admin) return json(200, lista.map((p) => ({ ...p, oculto: ocultosSet.has(p.whatsapp) })), { "Cache-Control": "no-store" });
     return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp)), { "Cache-Control": "public, max-age=60" });
