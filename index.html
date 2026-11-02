@@ -105,6 +105,25 @@
   .bt-zap-mini svg{width:16px;height:16px}
   .ver-bt{display:inline-flex;align-items:center;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;color:var(--ink);background:var(--sun-soft);min-height:34px}
   .item:hover .ver-bt{background:var(--sun)}
+  /* vitrine */
+  .fileira{grid-column:1/-1;min-width:0;margin-bottom:.4rem}
+  .fil-topo{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.7rem}
+  .fil-topo h2{font-size:1.15rem;font-weight:600;line-height:1.2}
+  .fil-topo h2 small{font-size:.8rem;font-weight:500;color:var(--muted);margin-left:.25rem}
+  .fil-ir{width:38px;height:38px;border-radius:50%;border:0;background:var(--sun-soft);display:grid;place-items:center;cursor:pointer;flex:none}
+  .fil-ir svg{width:18px;height:18px}
+  .fil-trilho{display:flex;gap:.9rem;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:1.25rem;margin:0 -1.25rem;padding:0 1.25rem .4rem;scrollbar-width:none}
+  .fil-trilho::-webkit-scrollbar{display:none}
+  .mc{flex:none;width:44%;max-width:210px;scroll-snap-align:start;cursor:pointer;min-width:0}
+  .mc-foto{position:relative;aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:var(--sun-soft)}
+  .mc-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+  .mc-foto .foto-ini{font-size:2.6rem}
+  .mc-selo{position:absolute;top:.5rem;left:.5rem;background:#fff;border-radius:999px;padding:.2rem .55rem;font-size:.68rem;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  .mc-selo.esc{background:var(--ink);color:var(--sun)}
+  .mc h3{margin-top:.45rem;font-size:.9rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc p{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-pe{margin-top:.15rem;display:flex}
+  .mc-pe .nota{font-size:.8rem}
   .vazio{grid-column:1/-1;text-align:center;background:var(--card);border:1.5px dashed #E1CF8C;border-radius:20px;padding:2rem 1.2rem}
   .vazio b{display:block;font-size:1.05rem;margin-bottom:.3rem}
   .vazio p{color:var(--muted);margin-bottom:1rem}
@@ -580,6 +599,11 @@ function render() {
     const onde = cidade ? `em <em>${esc(cidade)}</em>` : catAtiva ? "no <em>Litoral Norte</em>" : "<em>perto de você</em>";
     $("titulo").innerHTML = `${oque} ${onde}<small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"} · chame direto no WhatsApp` : "Nenhum profissional encontrado"}</small>`;
   }
+  // Página inicial sem filtro: vitrine com uma fileira por serviço (desliza para o lado)
+  if (modo === "inicio" && !filtrando && n) {
+    $("lista").innerHTML = cardPatrocinio() + vitrine(lista);
+    return;
+  }
   const cards = lista.map(p => card(p, cidade));
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
@@ -654,6 +678,45 @@ function card(p) {
   </article>`;
 }
 const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
+
+/* ===== Vitrine (fileiras por serviço) ===== */
+function cardMini(p) {
+  const temNota = p.avaliacoes >= 3;
+  const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
+  const selo = temNota && p.nota >= 4.7 && p.avaliacoes >= 5 ? `<span class="mc-selo">★ Destaque</span>` : p.urgencia === "Sim" ? `<span class="mc-selo esc">⚡ Urgência</span>` : "";
+  return `
+  <article class="mc" data-perfil="${esc(p.id)}">
+    <div class="mc-foto">
+      ${fotoDe(p)}
+      ${selo}
+      <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
+    </div>
+    <h3>${esc(p.nome)}</h3>
+    <p>${esc(String(p.cidade).split(/\s*,\s*/)[0])}${String(p.cidade).includes(",") ? " e região" : ""}</p>
+    <div class="mc-pe">${nota}</div>
+  </article>`;
+}
+function vitrine(lista) {
+  const conta = {};
+  lista.forEach(p => p.categorias.forEach(c => (conta[c] ||= []).push(p)));
+  const cats = Object.keys(conta).sort((a, b) => conta[b].length - conta[a].length).slice(0, 10);
+  const novos = [...lista].filter(p => p.desde).sort((a, b) => String(b.desde).localeCompare(String(a.desde))).slice(0, 10);
+  const fileira = (titulo, itens, cat) => `
+    <section class="fileira">
+      <div class="fil-topo">
+        <h2>${titulo}</h2>
+        ${cat ? `<button class="fil-ir" type="button" data-ir-cat="${esc(cat)}" aria-label="Ver todos: ${esc(cat)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>` : ""}
+      </div>
+      <div class="fil-trilho">${itens.map(cardMini).join("")}</div>
+    </section>`;
+  return (novos.length >= 3 ? fileira("Novos na Kiiro", novos) : "") +
+    cats.map(c => fileira(`${esc(c)} <small>${conta[c].length}</small>`, conta[c].slice(0, 12), c)).join("");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-ir-cat]"); if (!b) return;
+  catAtiva = b.dataset.irCat; contar("cat", catAtiva); montarCats(); render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 function btnKiiro(texto) {
   return `<a class="btn btn-ink" href="https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">${icoZap} Falar com a Kiiro</a>`;
