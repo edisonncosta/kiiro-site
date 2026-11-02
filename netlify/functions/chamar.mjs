@@ -29,8 +29,15 @@ export default async (req) => {
   if (!chamada.clienteNome || !chamada.profissionalNome || !chamada.profissionalId) return new Response("Dados faltando", { status: 400 });
 
   // a chave começa pela data (para ordenar) e termina com um código aleatório (é o link de avaliação)
-  const chave = chamada.data.replace(/[:.]/g, "-") + "_" + randomUUID().slice(0, 12);
-  await getStore("chamadas").setJSON(chave, chamada);
+  // a página pode mandar o código da chamada (para lembrar o cliente de avaliar quando ele voltar ao site)
+  const store = getStore("chamadas");
+  let chave = String(d.codigo || "");
+  const m = chave.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)_[a-f0-9]{12}$/);
+  const dataDoCodigo = m ? new Date(m[1].replace(/T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z/, "T$1:$2:$3.$4Z")).getTime() : NaN;
+  if (!m || Math.abs(Date.now() - dataDoCodigo) > 10 * 60 * 1000 || (await store.get(chave))) {
+    chave = chamada.data.replace(/[:.]/g, "-") + "_" + randomUUID().replace(/-/g, "").slice(0, 12);
+  }
+  await store.setJSON(chave, chamada);
 
   const tel = clienteWhats.replace(/^55(\d{2})(\d+)/, "($1) $2");
   await avisar({

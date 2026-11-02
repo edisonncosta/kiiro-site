@@ -138,6 +138,9 @@ async function iniciar() {
   $("titulo").textContent = `Como foi com ${chamada.profissionalNome}?`;
   $("detalhe").textContent = `${chamada.categoria} · ${chamada.cidade}`;
   $("av").textContent = chamada.profissionalNome.trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase();
+  if (chamada.jaAvaliou) {
+    try { const l = JSON.parse(localStorage.getItem("kiiro-chamadas") || "[]"); localStorage.setItem("kiiro-chamadas", JSON.stringify(l.map(x => x.c === codigo ? { ...x, ok: true } : x))); } catch {}
+  }
   if (chamada.jaAvaliou) return mostraFinal("✓", "Você já avaliou", `Obrigado, ${chamada.clienteNome}! Sua avaliação de ${nomeCurto} já foi registrada.`);
   $("form").classList.remove("escondido");
 }
@@ -193,6 +196,10 @@ $("form").addEventListener("submit", async e => {
     return $("erro").textContent = "Não deu para enviar agora. Tente de novo.";
   }
 
+  try {
+    const l = JSON.parse(localStorage.getItem("kiiro-chamadas") || "[]");
+    localStorage.setItem("kiiro-chamadas", JSON.stringify(l.map(x => x.c === codigo ? { ...x, ok: true } : x)));
+  } catch {}
   if (feito.value === "nao") {
     mostraFinal("✓", "Obrigado por avisar!", "Se ainda precisar do serviço, a Kiiro indica outra pessoa para você.",
       `<a class="btn btn-ink" href="./">Ver outros profissionais</a>`);

@@ -112,6 +112,16 @@
   .pro li svg{width:20px;height:20px;flex:none}
   @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
 
+  /* lembrete de avaliação */
+  .lembrete{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
+  .lembrete .wrap{display:flex;align-items:center;gap:.7rem;padding:.7rem 0}
+  .lembrete-ic{font-size:1.4rem}
+  .lembrete-txt{flex:1;min-width:0;line-height:1.25}
+  .lembrete-txt b{display:block;color:var(--sun);font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lembrete-txt span{font-size:.78rem;opacity:.8}
+  .lembrete .btn{background:var(--sun);color:var(--ink);border-color:var(--sun);flex:none}
+  .lembrete-x{background:none;border:0;color:var(--paper);opacity:.6;font-size:1rem;cursor:pointer;padding:.4rem;flex:none}
+
   /* botão "Sou profissional" com legenda */
   .btn-pro{flex-direction:column;gap:0;line-height:1.1;padding:.4rem 1.1rem;min-height:46px}
   .btn-pro small{font-size:.66rem;font-weight:600;color:#fff;opacity:.85;letter-spacing:.01em}
@@ -184,6 +194,14 @@
 </header>
 
 <main>
+  <div class="lembrete escondido" id="lembrete" role="region" aria-label="Avaliar atendimento">
+    <div class="wrap">
+      <span class="lembrete-ic" aria-hidden="true">⭐</span>
+      <div class="lembrete-txt"><b id="lembrete-titulo">Como foi?</b><span>Sua nota ajuda quem vem depois.</span></div>
+      <a class="btn btn-ink btn-sm" id="lembrete-link" href="#">Avaliar</a>
+      <button class="lembrete-x" type="button" id="lembrete-x" aria-label="Agora não">✕</button>
+    </div>
+  </div>
   <section class="hero">
     <div class="wrap">
       <svg class="pins" viewBox="0 0 300 200" aria-hidden="true">
@@ -516,7 +534,9 @@ $("form-chamar").addEventListener("submit", e => {
   if (DEMO) return toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`);
 
   const servico = catsDe(p)[0];
-  const dados = JSON.stringify({ clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
+  const codigo = novoCodigo();
+  guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
+  const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
 
@@ -655,6 +675,32 @@ function fecharPerfil() {
 }
 mPerfil.addEventListener("click", e => { if (e.target === mPerfil) fecharPerfil(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && mPerfil.classList.contains("aberto")) fecharPerfil(); });
+
+/* ===== Lembrete de avaliação (fica só neste celular) ===== */
+function novoCodigo() {
+  const rnd = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(16).slice(2) + Date.now().toString(16) + "000000000000").replace(/-/g, "").slice(0, 12);
+  return new Date().toISOString().replace(/[:.]/g, "-") + "_" + rnd;
+}
+function lerChamadas() { try { return JSON.parse(localStorage.getItem("kiiro-chamadas") || "[]"); } catch { return []; } }
+function salvarChamadas(l) { try { localStorage.setItem("kiiro-chamadas", JSON.stringify(l.slice(-10))); } catch {} }
+function guardarChamada(item) { salvarChamadas([...lerChamadas(), item]); }
+function mostrarLembrete() {
+  const agora = Date.now(), H = 3600e3;
+  const lista = lerChamadas().filter(x => agora - x.t < 30 * 24 * H);
+  salvarChamadas(lista);
+  // a mais recente que já tem algumas horas, não avaliada e não dispensada
+  const alvo = [...lista].reverse().find(x => !x.ok && !x.fora && agora - x.t > (DEMO ? 0 : 3 * H));
+  if (!alvo) return;
+  $("lembrete-titulo").textContent = `Como foi com ${String(alvo.nome).split(" ")[0]}?`;
+  $("lembrete-link").href = "avaliar.html?c=" + encodeURIComponent(alvo.c);
+  $("lembrete").classList.remove("escondido");
+  $("lembrete-x").onclick = () => {
+    salvarChamadas(lerChamadas().map(x => x.c === alvo.c ? { ...x, fora: true } : x));
+    $("lembrete").classList.add("escondido");
+  };
+}
+if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
+mostrarLembrete();
 
 carregar().then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
