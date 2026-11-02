@@ -64,9 +64,9 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem 1.4rem}
 
   .item{cursor:pointer;min-width:0}
-  .foto-box{position:relative;aspect-ratio:1/1;border-radius:var(--radius);overflow:hidden;background:var(--sun-soft)}
-  .foto-box img{width:100%;height:100%;object-fit:cover}
-  .foto-ini{width:100%;height:100%;display:grid;place-items:center;font-size:4.2rem;font-weight:700;color:var(--ink);background:linear-gradient(135deg,var(--sun) 0%,#FFE27A 100%)}
+  .foto-box{position:relative;aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;background:var(--sun-soft)}
+  .foto-box img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+  .foto-ini{width:100%;height:100%;display:grid;place-items:center;font-size:3.4rem;font-weight:700;color:var(--ink);background:linear-gradient(135deg,var(--sun) 0%,#FFE27A 100%)}
   .foto-ini.c2{background:linear-gradient(135deg,#FFE9A8,#FFD35C)}
   .foto-ini.c3{background:linear-gradient(135deg,#2B2B2B,#4A4A4A);color:var(--sun)}
   .selo-img{position:absolute;top:.75rem;left:.75rem;background:var(--sun);border-radius:999px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:.3rem;color:var(--ink)}
@@ -85,7 +85,7 @@
   .vazio{grid-column:1/-1;text-align:center;background:var(--card);border:1.5px dashed #E1CF8C;border-radius:20px;padding:2rem 1.2rem}
   .vazio b{display:block;font-size:1.05rem;margin-bottom:.3rem}
   .vazio p{color:var(--muted);margin-bottom:1rem}
-  .skel{aspect-ratio:1/1;border-radius:var(--radius);background:linear-gradient(90deg,#fff 0%,var(--sun-soft) 50%,#fff 100%) 0 0/200% 100%;animation:brilho 1.2s infinite linear}
+  .skel{aspect-ratio:4/3;border-radius:var(--radius);background:linear-gradient(90deg,#fff 0%,var(--sun-soft) 50%,#fff 100%) 0 0/200% 100%;animation:brilho 1.2s infinite linear}
   @keyframes brilho{to{background-position:-200% 0}}
 
   /* patrocínio */
