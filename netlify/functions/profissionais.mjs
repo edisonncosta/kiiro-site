@@ -8,6 +8,8 @@ const urlDe = (f) => (f && (f.url || (typeof f === "string" && /^https?:/.test(f
 const CAMPOS = { nome: "nome", categoria: "servico", cidade: "cidade", whatsapp: "whatsapp", foto: "foto", descricao: "descricao" };
 const API = "https://api.netlify.com/api/v1";
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
+// número com DDD (10 ou 11 dígitos) ganha o 55 do Brasil. Não dá para olhar só se começa com 55: o DDD 55 existe (Santa Maria e região)
+const comPais = (d) => { d = String(d || "").replace(/\D/g, ""); return d.length === 10 || d.length === 11 ? "55" + d : d; };
 const curto = (s, max = 40) => String(s || "").trim().slice(0, max);
 
 export default async (req, context) => {
@@ -41,7 +43,7 @@ export default async (req, context) => {
     const idsDoWhats = {};
     for (const e of envios) {
       let w = soDigitos((e.data || {})[CAMPOS.whatsapp]);
-      if (w && !w.startsWith("55")) w = "55" + w;
+      w = comPais(w);
       whatsDoId[e.id] = w;
       (idsDoWhats[w] ||= []).push(e.id);
     }
@@ -75,7 +77,7 @@ export default async (req, context) => {
       .map((s) => {
         const d = s.data || {};
         let whats = soDigitos(d[CAMPOS.whatsapp]);
-        if (whats && !whats.startsWith("55")) whats = "55" + whats;
+        whats = comPais(whats);
         const foto = d[CAMPOS.foto];
         const n = notas[whats];
         return {

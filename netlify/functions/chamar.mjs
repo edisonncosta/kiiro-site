@@ -13,7 +13,7 @@ export default async (req) => {
 
   let clienteWhats = soDigitos(d.clienteWhatsapp);
   if (clienteWhats.length < 10 || clienteWhats.length > 13) return new Response("WhatsApp inválido", { status: 400 });
-  if (!clienteWhats.startsWith("55")) clienteWhats = "55" + clienteWhats;
+  if (clienteWhats.length === 10 || clienteWhats.length === 11) clienteWhats = "55" + clienteWhats; // DDD 55 também existe
 
   const chamada = {
     data: new Date().toISOString(),

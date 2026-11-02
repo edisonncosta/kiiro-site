@@ -15,7 +15,7 @@ exports.handler = async (event) => {
           title: `🆕 Novo cadastro: ${String(d.nome || "").slice(0, 60)}`,
           message: `${d.servico || ""} · ${d.cidade || ""}\nWhatsApp: ${d.whatsapp || ""}`,
           tags: ["new"],
-          click: whats ? `https://wa.me/${whats.startsWith("55") ? whats : "55" + whats}` : undefined,
+          click: whats ? `https://wa.me/${whats.length === 10 || whats.length === 11 ? "55" + whats : whats}` : undefined,
         }),
       });
     }
