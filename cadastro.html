@@ -30,6 +30,12 @@
   .foto-btn span{font-weight:600;border:1px solid var(--ink);background:#fff;border-radius:999px;padding:.55rem 1.1rem;font-size:.92rem}
   #foto{position:absolute;opacity:0;width:1px;height:1px}
   .escondido-bot{position:absolute;left:-9999px}
+  .trab{display:flex;gap:.6rem;flex-wrap:wrap}
+  .trab-item{position:relative;width:84px;height:84px;border-radius:14px;background:var(--sun-soft) center/cover;border:1px solid var(--line)}
+  .trab-item button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;border:0;background:var(--ink);color:#fff;font-size:.75rem;cursor:pointer}
+  .trab-add{width:84px;height:84px;border-radius:14px;border:1.5px dashed #D9C88E;background:#fff;display:grid;place-items:center;text-align:center;font:600 .72rem/1.2 Poppins,sans-serif;color:var(--ink);cursor:pointer;padding:.3rem}
+  .trab-add b{display:block;font-size:1.4rem;font-weight:500}
+  .trab-file{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 </style>
 </head>
 <body>
@@ -146,9 +152,19 @@
       <p class="opc" style="margin-top:.4rem;display:flex;justify-content:space-between;gap:1rem"><span>Aparece no seu perfil. Conte há quanto tempo trabalha, o que faz e quando atende.</span><span id="desc-conta" style="flex:none">0/400</span></p>
     </div>
 
+    <div class="campo">
+      <span class="legenda"><span class="n">10</span>Fotos de serviços que você já fez</span>
+      <p class="opc" style="margin:-.2rem 0 .7rem">🛠️ <b>Opcional.</b> Até 3 fotos de trabalhos prontos: um quadro de luz montado, uma pintura, um jardim cortado. Aparecem no seu perfil e ajudam o cliente a escolher você.</p>
+      <div class="trab" id="trab"></div>
+      <input type="file" id="trab-escolher" class="trab-file" accept="image/*" multiple aria-label="Escolher fotos de trabalhos">
+      <input type="file" name="trabalho1" class="trab-file" accept="image/*" tabindex="-1" aria-hidden="true">
+      <input type="file" name="trabalho2" class="trab-file" accept="image/*" tabindex="-1" aria-hidden="true">
+      <input type="file" name="trabalho3" class="trab-file" accept="image/*" tabindex="-1" aria-hidden="true">
+    </div>
+
     <p class="erro" id="erro" role="alert"></p>
     <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar cadastro</button>
-    <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviços, cidades, foto, descrição e WhatsApp no site.</p>
+    <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviços, cidades, foto, descrição, fotos e WhatsApp no site.</p>
   </form>
 </div>
 
@@ -286,6 +302,30 @@ $("foto").addEventListener("change", async () => {
   $("prev").textContent = "";
   $("foto-txt").textContent = "Trocar foto";
 });
+
+// fotos de trabalhos (até 3, opcionais): reduz cada uma e coloca nos campos trabalho1..3
+const trabInputs = [...document.querySelectorAll('input[name^="trabalho"]')];
+let trabalhos = [];
+function desenharTrab() {
+  const dt = n => { const d = new DataTransfer(); if (trabalhos[n]) d.items.add(trabalhos[n]); return d.files; };
+  if (window.DataTransfer) trabInputs.forEach((inp, i) => { try { inp.files = dt(i); } catch {} });
+  $("trab").innerHTML = trabalhos.map((f, i) => `<div class="trab-item" style="background-image:url(${URL.createObjectURL(f)})"><button type="button" data-tirar="${i}" aria-label="Tirar foto">✕</button></div>`).join("") +
+    (trabalhos.length < 3 ? `<label class="trab-add" for="trab-escolher"><span><b>+</b>${trabalhos.length ? "Mais uma" : "Adicionar fotos"}</span></label>` : "");
+}
+$("trab").addEventListener("click", e => { const b = e.target.closest("[data-tirar]"); if (!b) return; trabalhos.splice(+b.dataset.tirar, 1); desenharTrab(); });
+$("trab-escolher").addEventListener("change", async () => {
+  const novos = [...$("trab-escolher").files].slice(0, 3 - trabalhos.length);
+  $("trab-escolher").value = "";
+  for (const f of novos) {
+    let g = f; try { g = await reduzirFoto(f); } catch {}
+    if (g.size <= 4 * 1024 * 1024) trabalhos.push(g);
+  }
+  desenharTrab();
+});
+if (!window.DataTransfer) { // celular muito antigo: mostra os 3 campos normais
+  trabInputs.forEach(i => { i.className = "input"; i.removeAttribute("aria-hidden"); i.tabIndex = 0; });
+  $("trab-escolher").remove();
+} else desenharTrab();
 
 $("form").addEventListener("submit", e => {
   const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);

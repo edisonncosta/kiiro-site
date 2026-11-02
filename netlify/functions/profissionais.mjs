@@ -4,6 +4,7 @@
 import { getStore } from "@netlify/blobs";
 
 // Nomes dos campos do formulário "cadastro" (cadastro.html)
+const urlDe = (f) => (f && (f.url || (typeof f === "string" && /^https?:/.test(f) ? f : ""))) || "";
 const CAMPOS = { nome: "nome", categoria: "servico", cidade: "cidade", whatsapp: "whatsapp", foto: "foto", descricao: "descricao" };
 const API = "https://api.netlify.com/api/v1";
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
@@ -72,7 +73,8 @@ export default async (req, context) => {
           cidade: String(d[CAMPOS.cidade] || "").trim(),
           whatsapp: whats,
           ids: (idsDoWhats[whats] || [s.id]).slice(0, 10),
-          foto: (foto && (foto.url || (typeof foto === "string" ? foto : ""))) || "",
+          foto: urlDe(foto),
+          trabalhos: ["trabalho1", "trabalho2", "trabalho3"].map((k) => urlDe(d[k])).filter(Boolean),
           descricao: String(d[CAMPOS.descricao] || "").trim().slice(0, 400),
           experiencia: curto(d.experiencia),
           dedicacao: curto(d.dedicacao),
