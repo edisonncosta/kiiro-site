@@ -14,6 +14,15 @@ export default async (req) => {
     return new Response("Acesso negado", { status: 401 });
   }
   const filtro = url.searchParams.get("ver") || "todas";
+
+  // ocultar foto de uma avaliação
+  const ocultar = url.searchParams.get("ocultar");
+  if (ocultar) {
+    const avs = getStore("avaliacoes");
+    const av = await avs.get(ocultar, { type: "json" });
+    if (av && av.fotoId) { await getStore("fotos").delete(av.fotoId); delete av.fotoId; await avs.setJSON(ocultar, av); }
+    return Response.redirect(`${url.origin}/painel?chave=${encodeURIComponent(process.env.ADMIN_KEY)}&ver=${encodeURIComponent(filtro)}`, 303);
+  }
   const base = url.origin;
 
   const chamadas = getStore("chamadas");
@@ -52,6 +61,7 @@ export default async (req) => {
       <p>chamou <b>${esc(ch.profissionalNome)}</b> · ${esc(ch.categoria)} · ${esc(ch.cidade)}</p>
       ${status}
       ${av && av.comentario ? `<blockquote>“${esc(av.comentario)}”</blockquote>` : ""}
+      ${av && av.fotoId ? `<div class="foto"><a href="/.netlify/functions/foto?id=${esc(av.fotoId)}" target="_blank" rel="noopener"><img src="/.netlify/functions/foto?id=${esc(av.fotoId)}" alt="Foto do serviço" loading="lazy"></a><a class="b" href="?chave=${encodeURIComponent(process.env.ADMIN_KEY)}&ver=${filtro}&ocultar=${encodeURIComponent(k)}">Ocultar foto</a></div>` : ""}
       <div class="acoes">
         ${!av ? `<a class="b zap" href="https://wa.me/${esc(ch.clienteWhatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir avaliação</a>` : ""}
         <a class="b" href="https://wa.me/${esc(ch.clienteWhatsapp)}" target="_blank" rel="noopener">${tel(esc(ch.clienteWhatsapp))}</a>
@@ -87,6 +97,7 @@ blockquote{margin-top:8px;font-size:14px;color:#5A5339;border-left:3px solid #FF
 .b{display:inline-block;border:2px solid #1A1A1A;border-radius:10px;padding:7px 12px;font-weight:600;font-size:14px;text-decoration:none;color:#1A1A1A}
 .b.zap{background:#168A45;border-color:#168A45;color:#fff}
 .vazio{text-align:center;color:#5A5339;padding:40px 0}
+.foto{display:flex;gap:10px;align-items:flex-end;margin-top:10px}.foto img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:2px solid #1A1A1A}
 </style></head><body>
 <header>
   <h1>Painel da Kiiro</h1>

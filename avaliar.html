@@ -22,6 +22,11 @@
   .estrelas button.on svg{fill:var(--star)}
   .estrelas button:active svg{transform:scale(.88)}
   .rotulo-nota{font-weight:700;margin-top:.3rem;min-height:1.5em}
+  .foto-av{display:flex;align-items:center;gap:.9rem;background:#fff;border:2px dashed var(--ink);border-radius:16px;padding:.7rem;cursor:pointer}
+  .foto-av-prev{width:64px;height:64px;border-radius:12px;background:var(--sun-soft) center/cover;display:grid;place-items:center;font-size:1.6rem;flex:none;border:2px solid var(--ink)}
+  .foto-av-txt b{display:block;font-size:.95rem}
+  .foto-av-txt small{color:var(--muted);font-size:.8rem;line-height:1.35;display:block}
+  .foto-av-tirar{background:none;border:0;color:var(--muted);font:600 .82rem Poppins,sans-serif;text-decoration:underline;margin-top:.4rem;cursor:pointer}
   .final{text-align:center;padding:1rem 0}
   .final .ok{width:76px;height:76px;border-radius:50%;background:var(--ink);color:var(--sun);display:grid;place-items:center;margin:0 auto 1rem;font-size:2rem}
   .final h2{font-size:1.6rem;font-weight:800;line-height:1.15}
@@ -89,6 +94,16 @@
         </div>
       </div>
 
+      <div class="campo escondido" id="bloco-foto">
+        <span class="legenda">Tem uma foto do serviço pronto? <span class="opc">(opcional)</span></span>
+        <label class="foto-av" for="foto-av">
+          <span class="foto-av-prev" id="foto-av-prev">📷</span>
+          <span class="foto-av-txt"><b id="foto-av-titulo">Adicionar foto</b><small>Ajuda outras pessoas a ver a qualidade do trabalho</small></span>
+        </label>
+        <input type="file" id="foto-av" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px">
+        <button type="button" class="foto-av-tirar escondido" id="foto-av-tirar">Remover foto</button>
+      </div>
+
       <div class="campo escondido" id="bloco-comentario">
         <label for="comentario">Quer contar mais? <span class="opc">(opcional)</span></label>
         <textarea class="input" id="comentario" maxlength="500" placeholder="Ex.: chegou no horário, deixou tudo limpo."></textarea>
@@ -152,6 +167,35 @@ function falhaLink() {
     `<a class="btn btn-ink" href="https://wa.me/${KIIRO_WHATS}" target="_blank" rel="noopener">Falar com a Kiiro</a>`);
 }
 
+/* foto do serviço: reduz para 1000px antes de enviar */
+let fotoDados = "";
+async function reduzir(arquivo) {
+  const url = URL.createObjectURL(arquivo);
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = url; });
+    const max = 1000, esc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * esc); c.height = Math.round(img.naturalHeight * esc);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.8);
+  } finally { URL.revokeObjectURL(url); }
+}
+$("foto-av").addEventListener("change", async () => {
+  const f = $("foto-av").files[0]; if (!f) return;
+  $("foto-av-titulo").textContent = "Preparando foto…";
+  try {
+    fotoDados = await reduzir(f);
+    $("foto-av-prev").style.backgroundImage = `url(${fotoDados})`; $("foto-av-prev").textContent = "";
+    $("foto-av-titulo").textContent = "Trocar foto";
+    $("foto-av-tirar").classList.remove("escondido");
+  } catch { fotoDados = ""; $("foto-av-titulo").textContent = "Não deu para usar essa foto. Tente outra."; }
+});
+$("foto-av-tirar").onclick = () => {
+  fotoDados = ""; $("foto-av").value = "";
+  $("foto-av-prev").style.backgroundImage = ""; $("foto-av-prev").textContent = "📷";
+  $("foto-av-titulo").textContent = "Adicionar foto"; $("foto-av-tirar").classList.add("escondido");
+};
+
 /* estrelas */
 for (let i = 1; i <= 5; i++) {
   const b = document.createElement("button");
@@ -175,6 +219,7 @@ document.querySelectorAll('input[name=feito]').forEach(r => r.addEventListener("
   $("bloco-nota").classList.toggle("escondido", !sim);
   $("bloco-motivo").classList.toggle("escondido", sim);
   $("bloco-comentario").classList.remove("escondido");
+  $("bloco-foto").classList.toggle("escondido", !sim);
   $("erro").textContent = "";
 }));
 
@@ -189,7 +234,7 @@ $("form").addEventListener("submit", async e => {
   $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
 
   try {
-    await api("POST", { c: codigo, feito: feito.value, nota: feito.value === "sim" ? nota : 0, motivo: motivo ? motivo.value : "", comentario: $("comentario").value.trim() });
+    await api("POST", { c: codigo, feito: feito.value, nota: feito.value === "sim" ? nota : 0, motivo: motivo ? motivo.value : "", comentario: $("comentario").value.trim(), foto: feito.value === "sim" ? fotoDados : "" });
   } catch (err) {
     $("enviar").disabled = false; $("enviar").textContent = "Enviar avaliação";
     if (err.status === 409) return mostraFinal("✓", "Você já avaliou", "Sua avaliação já tinha sido registrada. Obrigado!");

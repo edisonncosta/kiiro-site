@@ -151,6 +151,11 @@
   .selo.exp{background:var(--sun)}
   .filtro-urg{display:inline-flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:.3rem .8rem;font:700 .82rem Poppins,sans-serif;cursor:pointer;color:var(--ink)}
   .filtro-urg.ativo{background:var(--ink);color:var(--sun)}
+  .galeria{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.2rem}
+  .galeria button,.rv-foto{flex:none;border:2px solid var(--ink);border-radius:12px;padding:0;overflow:hidden;cursor:pointer;background:#fff}
+  .galeria img{width:96px;height:96px;object-fit:cover;display:block}
+  .rv-foto{margin-top:.5rem}
+  .rv-foto img{width:120px;height:90px;object-fit:cover;display:block}
   .pf-lista{list-style:none;display:grid;gap:.45rem}
   .pf-lista li{display:flex;gap:.6rem;align-items:flex-start;font-size:.93rem}
   .pf-lista li span{width:1.4rem;text-align:center;flex:none}
@@ -353,6 +358,11 @@
   </div>
 </div>
 
+<!-- Foto ampliada -->
+<div class="modal" id="modal-foto-av" role="dialog" aria-modal="true" aria-label="Foto do serviço" style="align-items:center;z-index:140">
+  <img id="foto-ampliada" alt="Foto do serviço" style="max-width:94vw;max-height:84vh;border-radius:16px;border:3px solid #fff">
+</div>
+
 <!-- Perfil do profissional -->
 <div class="modal" id="modal-perfil" role="dialog" aria-modal="true" aria-label="Perfil do profissional">
   <div class="sheet perfil" id="perfil"></div>
@@ -403,8 +413,8 @@ const EXEMPLOS = [
 const EXEMPLOS_REVIEWS = {
   total: 12, distribuicao: [0, 0, 1, 1, 10],
   avaliacoes: [
-    { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30" },
-    { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21" },
+    { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30", foto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23D9E4EA'/%3E%3Cg fill='%23fff' stroke='%23B7C7D1'%3E%3Crect x='0' y='0' width='30' height='30'/%3E%3Crect x='30' y='0' width='30' height='30'/%3E%3Crect x='60' y='0' width='30' height='30'/%3E%3Crect x='90' y='0' width='30' height='30'/%3E%3Crect x='0' y='30' width='30' height='30'/%3E%3Crect x='30' y='30' width='30' height='30'/%3E%3Crect x='60' y='30' width='30' height='30'/%3E%3Crect x='90' y='30' width='30' height='30'/%3E%3C/g%3E%3Crect y='60' width='120' height='30' fill='%23C9A77C'/%3E%3Ctext x='60' y='80' font-family='sans-serif' font-size='9' text-anchor='middle' fill='%23533'%3EFoto do servi%C3%A7o%3C/text%3E%3C/svg%3E" },
+    { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21", foto: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23F4EEDC'/%3E%3Crect x='20' y='15' width='80' height='55' rx='4' fill='%239CB98A'/%3E%3Crect x='28' y='22' width='64' height='41' fill='%23CFE3C0'/%3E%3Ctext x='60' y='82' font-family='sans-serif' font-size='9' text-anchor='middle' fill='%23553'%3EFoto do servi%C3%A7o%3C/text%3E%3C/svg%3E" },
     { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12" },
     { nome: "Paulo", nota: 5, comentario: "", data: "2026-10-03" }
   ]
@@ -747,7 +757,11 @@ async function abrirPerfil(id) {
     <div class="review">
       <div class="l1"><b>${esc(a.nome)} <span class="estrelas-mini">${estrelasMini(a.nota)}</span></b><span>${quando(a.data)}</span></div>
       ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ""}
+      ${a.foto ? `<button class="rv-foto" type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto do serviço"><img src="${esc(a.foto)}" alt="Foto do serviço" loading="lazy"></button>` : ""}
     </div>`).join("");
+  const fotos = dados.avaliacoes.filter(a => a.foto);
+  const galeria = fotos.length ? `<div class="galeria">${fotos.slice(0, 8).map(a => `<button type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="" loading="lazy"></button>`).join("")}</div>` : "";
+  box.insertAdjacentHTML("beforebegin", galeria ? `<div class="pf-bloco"><h4>Fotos de serviços feitos (${fotos.length})</h4>${galeria}</div>` : "");
   box.innerHTML = `<h4>Avaliações (${dados.total})</h4>
     ${dados.total >= 3 ? `<div class="barras" style="margin-bottom:1rem">${barras}</div>` : `<p class="carregando" style="margin-bottom:.6rem">A nota aparece no card a partir de 3 avaliações.</p>`}
     ${lista}`;
@@ -763,6 +777,11 @@ function comoAtende(p) {
   if (!it.length) return "";
   return `<div class="pf-bloco"><h4>Como trabalha</h4><ul class="pf-lista">${it.map(([i, t]) => `<li><span>${i}</span>${esc(t)}</li>`).join("")}</ul></div>`;
 }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-ampliar]"); if (!b) return;
+  $("foto-ampliada").src = b.dataset.ampliar; $("modal-foto-av").classList.add("aberto");
+});
+$("modal-foto-av").addEventListener("click", () => $("modal-foto-av").classList.remove("aberto"));
 function fecharPerfil() {
   mPerfil.classList.remove("aberto");
   try { history.replaceState(null, "", location.pathname + location.search); } catch {}

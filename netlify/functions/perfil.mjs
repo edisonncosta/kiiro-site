@@ -24,6 +24,7 @@ export default async (req) => {
     nome: String(a.clienteNome || "Cliente").split(" ")[0], // só o primeiro nome
     nota: a.nota,
     comentario: a.comentario || "",
+    foto: a.fotoId ? `/.netlify/functions/foto?id=${a.fotoId}` : "",
     data: a.data,
   }));
 

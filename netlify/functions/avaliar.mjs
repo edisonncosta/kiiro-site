@@ -2,6 +2,7 @@
 // GET  /.netlify/functions/avaliar?c=CODIGO  -> dados para a tela
 // POST /.netlify/functions/avaliar           -> { c, feito, nota, motivo, comentario }
 import { getStore } from "@netlify/blobs";
+import { randomUUID } from "node:crypto";
 
 const limpa = (s, max) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
 const MOTIVOS = ["Não respondeu", "Preço alto", "Sem agenda", "Ainda vai fazer", "Outro motivo"];
@@ -45,7 +46,26 @@ export default async (req) => {
     feito, nota, motivo,
     comentario: limpa(d.comentario, 500),
   };
+  // foto do serviço (opcional, só quando o serviço foi feito)
+  const foto = feito === "sim" && typeof d.foto === "string" ? d.foto.match(/^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/) : null;
+  if (foto) {
+    const bytes = Buffer.from(foto[1], "base64");
+    if (bytes.length > 0 && bytes.length <= 1.5 * 1024 * 1024) {
+      av.fotoId = randomUUID();
+      await getStore("fotos").set(av.fotoId, bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.length));
+    }
+  }
   await avaliacoes.setJSON(c, av);
+  if (av.fotoId) {
+    const site = (process.env.URL || "").replace(/\/$/, "");
+    await avisar({
+      title: `📷 Foto nova na avaliação de ${ch.profissionalNome}`,
+      message: `${ch.clienteNome} deu ${nota}★ e mandou uma foto. Se não estiver adequada, oculte pelo painel.`,
+      tags: ["camera"],
+      attach: site ? `${site}/.netlify/functions/foto?id=${av.fotoId}` : undefined,
+      click: site ? `${site}/.netlify/functions/foto?id=${av.fotoId}` : undefined,
+    });
+  }
 
   // nota baixa ou serviço não feito: avisa no celular
   if (feito === "nao" || nota <= 2) {

@@ -45,6 +45,7 @@
 - 🔔 Cliente chamou um profissional (tocar abre o WhatsApp do cliente)
 - ⚠️ Avaliação de 1 ou 2 estrelas
 - ℹ️ Cliente disse que o serviço não foi feito
+- 📷 Cliente mandou foto na avaliação (para ocultar: painel → Ocultar foto)
 - ⭐ Todo dia às 9h: "Pedir avaliação" para cada cliente que chamou alguém e ainda não avaliou (tocar abre o WhatsApp com o link pronto)
 
 ## Como tirar alguém da lista
