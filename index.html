@@ -112,6 +112,10 @@
   .pro li svg{width:20px;height:20px;flex:none}
   @media (max-width:700px){.pro .wrap{grid-template-columns:1fr}.pro .btn{width:100%}}
 
+  /* botão "Sou profissional" com legenda */
+  .btn-pro{flex-direction:column;gap:0;line-height:1.1;padding:.4rem 1.1rem;min-height:46px}
+  .btn-pro small{font-size:.66rem;font-weight:600;color:#fff;opacity:.85;letter-spacing:.01em}
+
   /* nome clicável */
   .abre{background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;font:inherit;display:block;max-width:100%}
   .abre h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--sun)}
@@ -175,7 +179,7 @@
 <header class="top">
   <div class="wrap">
     <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
-    <a class="btn btn-ink btn-sm" href="cadastro.html">Sou profissional</a>
+    <a class="btn btn-ink btn-sm btn-pro" href="cadastro.html"><span>Sou profissional</span><small>Cadastre-se aqui</small></a>
   </div>
 </header>
 
