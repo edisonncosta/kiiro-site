@@ -172,7 +172,10 @@ $("grupo").insertAdjacentHTML("beforeend", grupos.map(g => `<option>${g.grupo}</
 $("grupo").addEventListener("change", () => { const g = grupos.find(x => x.grupo === $("grupo").value); $("grupo-dica").textContent = g ? "Aparece em: " + g.itens.join(", ") + "." : ""; });
 
 // formato escolhido pela página Anuncie (?formato=...)
-const pedido = new URLSearchParams(location.search).get("formato");
+const qs = new URLSearchParams(location.search);
+const pedido = qs.get("formato");
+if (qs.get("cidade")) $("cidade").value = qs.get("cidade");
+if (qs.get("grupo")) { $("grupo").value = qs.get("grupo"); $("grupo").dispatchEvent(new Event("change")); }
 if (pedido && document.querySelector(`input[name=formato][value="${pedido}"]`)) document.querySelector(`input[name=formato][value="${pedido}"]`).checked = true;
 
 const formato = () => (document.querySelector("input[name=formato]:checked") || {}).value || "";

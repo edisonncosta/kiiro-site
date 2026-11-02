@@ -168,6 +168,9 @@
   .patro.ban.livre .ban-img{background:var(--sun-soft)}
   .patro.ban.livre .ban-dir{background:#FFF8DA}
   .patro.ban.livre .ban-bt{background:var(--sun);color:var(--ink)}
+  .ban-img span small{display:block;margin-top:.45rem;font-size:.78rem;font-weight:500;line-height:1.35;color:var(--muted)}
+  .ban-img span small b{font-size:.95rem;font-weight:800;color:var(--ink)}
+  .ban-bt small{display:block;font-size:.72rem;font-weight:600;margin-top:.2rem;opacity:.8}
   @media (min-width:700px){.patro.ban{min-height:180px}}
   .patro-roda{grid-column:1/-1;min-width:0}
   .pr-trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.8rem;scrollbar-width:none;padding:2px 2px 14px;margin:-2px -2px -8px}
@@ -855,13 +858,19 @@ function cardPatrocinio() {
       <div class="pr-dots">${lista.map((_, i) => `<button type="button" data-pr="${i}" class="${i ? "" : "on"}" aria-label="Patrocinador ${i + 1}"></button>`).join("")}</div>
     </div>`;
   if (!window.KIIRO_ANUNCIE) return "";
-  const onde = cidade ? ` em ${cidade}` : " no Litoral Norte";
-  return `<a class="patro ban livre" href="anunciar.html?formato=${cidade ? (catAtiva ? "servico_cidade" : "cidade") : (catAtiva ? "servico" : "inicio")}" data-anunciar="livre">
-    <div class="ban-img"><span>📣 Sua marca aqui</span></div>
-    <div class="ban-dir" aria-label="Este espaço pode ser seu: para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")}${esc(onde)}">
-      <span class="ban-bt">Quero anunciar</span>
+  const fmt = cidade ? (catAtiva ? "servico_cidade" : "cidade") : (catAtiva ? "servico" : "inicio");
+  const grupo = catAtiva ? (GRUPO_NOME[catAtiva] || "") : "";
+  const P = window.KIIRO_PRECOS || {};
+  const v = P[{ servico_cidade: "servicoCidade", cidade: "cidade", servico: "servico", inicio: "inicio" }[fmt]];
+  const linha1 = catAtiva ? (grupo || catAtiva) : (cidade ? "Todos os serviços" : "Página inicial");
+  const linha2 = cidade ? `em ${cidade}` : catAtiva ? "em todo o Litoral Norte" : "para todo mundo";
+  const qs = new URLSearchParams({ formato: fmt, ...(cidade ? { cidade } : {}), ...(grupo ? { grupo } : {}) });
+  return `<a class="patro ban livre" href="anunciar.html?${qs}" data-anunciar="livre">
+    <div class="ban-img"><span>📣 Sua marca aqui<small>${esc(linha1)}<br><b>${esc(linha2)}</b></small></span></div>
+    <div class="ban-dir" aria-label="Anuncie aqui: ${esc(linha1)} ${esc(linha2)}">
+      <span class="ban-bt">Anunciar ${esc(cidade ? "em " + cidade : "aqui")}${typeof v === "number" ? `<small>R$ ${v}/mês</small>` : ""}</span>
     </div>
-    <span class="ban-tag">Espaço para patrocínio</span>
+    <span class="ban-tag">Espaço disponível</span>
   </a>`;
 }
 // rodízio: troca de patrocinador a cada 4,5 s (para quando a pessoa encosta o dedo)
