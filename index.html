@@ -204,7 +204,9 @@
   .vaga .ic{width:36px;height:36px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;flex:none}
   .vaga .ic svg{width:18px;height:18px}
   .vaga .nm{flex:1;min-width:0;font-weight:500;font-size:.93rem}
-  .vaga .nm small{display:block;color:var(--muted);font-size:.75rem;font-weight:400}
+  .vaga .nm b{display:block;font-weight:600}
+  .vaga .nm small{display:block;color:var(--muted);font-size:.75rem;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vaga .nm .st{display:inline-block;margin-top:.3rem}
   .st{font-size:.72rem;font-weight:700;border-radius:999px;padding:.15rem .6rem;white-space:nowrap}
   .st.livre{background:#E3F4E6;color:#17663A}
   .st.ocup{background:#EEE;color:#777}
@@ -434,7 +436,9 @@ const GRUPO_ICONE = {
   outro: ICONES["_outro"]
 };
 const GRUPO_DE = {};
-(window.KIIRO_SERVICOS || []).forEach(g => g.itens.forEach(i => GRUPO_DE[i] = g.icone));
+const GRUPO_NOME = {};
+(window.KIIRO_SERVICOS || []).forEach(g => g.itens.forEach(i => { GRUPO_DE[i] = g.icone; GRUPO_NOME[i] = g.grupo; }));
+const GRUPOS_ANUNCIO = (window.KIIRO_SERVICOS || []).filter(g => g.icone !== "outro");
 const ico = (c, w = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[c] || GRUPO_ICONE[GRUPO_DE[c]] || ICONES._outro}</svg>`;
 
 /* ===== Dados de exemplo (só na prévia) ===== */
@@ -604,10 +608,17 @@ function alternarFav(id) {
 }
 
 /* ===== Patrocínio ===== */
+// c = serviço escolhido ("" = página inicial). Vale o patrocínio do serviço (exclusividade) ou, senão, o do grupo dele.
 function patrocinioDe(c) {
   const hoje = new Date().toISOString().slice(0, 10);
-  return (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje).find(x => x.categoria === (c || "Todos"));
+  const ativos = (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje);
+  if (!c) return ativos.find(x => x.categoria === "Todos" || x.categoria === "Página inicial");
+  return ativos.find(x => x.categoria === c) || ativos.find(x => x.categoria === GRUPO_NOME[c]);
 }
+const patrocinioDoGrupo = g => {
+  const hoje = new Date().toISOString().slice(0, 10);
+  return (window.KIIRO_PATROCINIOS || []).filter(x => !x.ate || x.ate >= hoje).find(x => x.categoria === g);
+};
 function cardPatroDe(pt) {
   const logo = pt.logo ? `style="background-image:url('${esc(pt.logo)}')"` : "";
   return `<a class="patro" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
@@ -621,7 +632,7 @@ function cardPatrocinio() {
   if (!window.KIIRO_ANUNCIE) return "";
   return `<a class="patro livre" href="#anuncie" data-ir="anuncie">
     <div class="patro-logo">📣</div>
-    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? catAtiva.toLowerCase() : "serviços")} no Litoral Norte.</p><span class="patro-cta">Quero patrocinar →</span></div>
+    <div class="patro-txt"><span class="patro-tag">Espaço para patrocínio</span><b>Este espaço pode ser seu</b><p>Apareça para quem procura ${esc(catAtiva ? (GRUPO_NOME[catAtiva] || catAtiva).toLowerCase() : "serviços")} no Litoral Norte.</p><span class="patro-cta">Quero patrocinar →</span></div>
   </a>`;
 }
 
@@ -641,6 +652,7 @@ document.addEventListener("click", e => {
 function irPara(t) {
   if (t === "sobre") return abrirBv();
   document.body.classList.remove("em-perfil");
+  $("balao").classList.add("escondido");
   document.querySelectorAll(".tela").forEach(x => x.classList.remove("ativa"));
   if (t === "inicio" || t === "salvos") {
     modo = t; $("tela-inicio").classList.add("ativa"); render();
@@ -870,10 +882,8 @@ document.querySelector('.aba[data-tela="sobre"]').addEventListener("click", () =
 
 /* ===== Anuncie ===== */
 function telaAnuncie() {
-  const conta = {};
-  profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
-  const base = ["Eletricista", "Encanador", "Pedreiro", "Pintor", "Diarista", "Jardineiro", "Piscineiro", "Técnico de ar-condicionado", "Motoboy", "Frete"];
-  const cats = ["Página inicial", ...new Set([...Object.keys(conta).sort((a, b) => conta[b] - conta[a]), ...base])].slice(0, 16);
+  const espacos = [{ nome: "Página inicial", sub: "Quem abre a Kiiro, sem escolher serviço", icone: "_todos", o: patrocinioDe(""), alvo: "a página inicial" },
+    ...GRUPOS_ANUNCIO.map(g => ({ nome: g.grupo, sub: g.itens.slice(0, 3).join(", ") + (g.itens.length > 3 ? "…" : ""), icone: g.itens[0], o: patrocinioDoGrupo(g.grupo), alvo: "o grupo " + g.grupo }))];
   const exemplo = (window.KIIRO_PATROCINIOS || [])[0] || { nome: "Sua loja", cidade: "Osório", texto: "Sua oferta aqui, com botão direto para o seu WhatsApp.", botao: "Ver ofertas no WhatsApp" };
   $("tela-anuncie").innerHTML = `
     <div class="an-topo"><div class="in">
@@ -892,31 +902,27 @@ function telaAnuncie() {
       </div>
       <h2>Formatos</h2>
       <div class="formatos">
-        <div class="formato top"><span class="tg">Mais procurado</span><b>Patrocínio de categoria</b><p>Sua marca dentro de um serviço, como “Eletricista” ou “Piscineiro”.</p>
-          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece no topo, antes dos profissionais</li><li>Só um patrocinador por categoria</li></ul>
-          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="uma categoria">Quero</button></div></div>
+        <div class="formato top"><span class="tg">Mais procurado</span><b>Patrocínio de grupo</b><p>Sua marca em um grupo inteiro de serviços, como “Casa e reforma” (eletricista, encanador, pedreiro, pintor e mais).</p>
+          <ul><li>Card com logo, oferta e botão para o seu WhatsApp</li><li>Aparece no topo, antes dos profissionais, em todos os serviços do grupo</li><li>Só um patrocinador por grupo</li></ul>
+          <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="um grupo de serviços">Quero</button></div></div>
         <div class="formato"><b>Página inicial</b><p>Aparece para todo mundo que abre a Kiiro.</p>
           <ul><li>Maior visibilidade</li><li>Card no topo da lista, antes dos profissionais</li></ul>
           <div class="preco"><span>Valor: <b>sob consulta</b> · mensal</span><button class="bt-quero" type="button" data-quero="a página inicial">Quero</button></div></div>
         <div class="formato"><b>Pacote Temporada</b><p>Dezembro a março, quando o litoral enche.</p>
-          <ul><li>Categoria + página inicial</li><li>Destaque nas redes da Kiiro</li></ul>
+          <ul><li>Grupo + página inicial</li><li>Destaque nas redes da Kiiro</li></ul>
           <div class="preco"><span>Valor: <b>sob consulta</b></span><button class="bt-quero" type="button" data-quero="o pacote temporada">Quero</button></div></div>
       </div>
       <h2>Como o anúncio aparece</h2>
       ${cardPatroDe({ ...exemplo, link: "#" }).replace('target="_blank"', 'onclick="return false"')}
       <h2>Espaços disponíveis</h2>
-      <div class="vagas">${cats.map(c => {
-        const o = patrocinioDe(c === "Página inicial" ? "" : c);
-        const alvo = c === "Página inicial" ? "a página inicial" : "a categoria " + c;
-        return `<div class="vaga"><span class="ic">${ico(c === "Página inicial" ? "_todos" : c)}</span><span class="nm">${esc(c)}${o ? `<small>${esc(o.nome)}</small>` : ""}</span><span class="st ${o ? "ocup" : "livre"}">${o ? "Ocupado" : "Disponível"}</span><button type="button" data-quero="${esc(alvo)}" ${o ? "disabled" : ""}>Quero</button></div>`;
-      }).join("")}</div>
+      <div class="vagas">${espacos.map(e => `<div class="vaga"><span class="ic">${ico(e.icone)}</span><span class="nm"><b>${esc(e.nome)}</b><small>${esc(e.o ? "Patrocinado por " + e.o.nome : e.sub)}</small><span class="st ${e.o ? "ocup" : "livre"}">${e.o ? "Ocupado" : "Disponível"}</span></span><button type="button" data-quero="${esc(e.alvo)}" ${e.o ? "disabled" : ""}>Quero</button></div>`).join("")}</div>
       <div class="an-rodape"><b>Vamos conversar?</b><p>Conte o que você vende e a cidade. A gente monta a proposta.</p><button class="bt-chamar" type="button" data-quero="um espaço">${icoZap} Falar com a Kiiro</button></div>
       <div style="height:1.5rem"></div>
     </div>`;
 }
 document.addEventListener("click", e => {
   const q = e.target.closest("[data-quero]"); if (!q || q.disabled) return;
-  const msg = `Olá, Kiiro! Quero anunciar n${q.dataset.quero.startsWith("a ") ? "" : "o "}${q.dataset.quero.replace(/^a /, "a ")} da Kiiro. Como funciona?`.replace("no um espaço", "num espaço");
+  const msg = `Olá, Kiiro! Quero anunciar na Kiiro (${q.dataset.quero}). Como funciona?`;
   window.open(`https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
 });
 

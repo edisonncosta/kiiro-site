@@ -1,10 +1,14 @@
 // Patrocínios da Kiiro.
-// categoria: "Todos" (página inicial) ou o nome exato do serviço (ex.: "Eletricista").
+// categoria: "Todos" (página inicial) ou o nome exato do GRUPO, como está em servicos.js:
+//   "Casa e reforma", "Climatização e segurança", "Limpeza", "Casa de praia e jardim",
+//   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Cuidados e aulas".
+// O patrocínio do grupo aparece em todos os serviços dele (ex.: Casa e reforma → Eletricista, Pedreiro…).
+// Exclusividade de um serviço só: use o nome do serviço (ex.: "Eletricista"); ele vale antes do grupo.
 // Depois da data "ate", o patrocínio some sozinho e o espaço volta a aparecer como disponível.
 //
 // Exemplo (apague as barras // para ativar):
-// { categoria: "Eletricista", nome: "Loja X", cidade: "Osório",
-//   texto: "Fios, disjuntores e chuveiros. Clientes Kiiro ganham 10% de desconto.",
+// { categoria: "Casa e reforma", nome: "Loja X", cidade: "Osório",
+//   texto: "Material elétrico, hidráulico e de construção. Clientes Kiiro ganham 10% de desconto.",
 //   botao: "Ver ofertas no WhatsApp", link: "https://wa.me/5551999999999?text=Vi%20voc%C3%AAs%20na%20Kiiro",
 //   logo: "", ate: "2026-12-31" },
 window.KIIRO_PATROCINIOS = [
