@@ -254,7 +254,7 @@ export default async (req, context) => {
         (function () {
           const st = document.getElementById("eu-st"), bt = document.getElementById("eu-bt");
           const ler = () => { try { return localStorage.getItem("kiiro-nao-contar") === "1"; } catch { return false; } };
-          const mostra = () => { const fora = ler(); st.textContent = fora ? "Não entra nas estatísticas (visitas, cadastros e cliques)." : "Suas visitas e testes estão sendo contados."; bt.textContent = fora ? "Voltar a contar" : "Não contar este celular"; bt.classList.toggle("zap", !fora); };
+          const mostra = () => { const fora = ler(); st.textContent = fora ? "✓ Desligado. Daqui para frente, o que você faz neste celular não entra nos números. O que já foi contado antes continua." : "Suas visitas e testes neste celular estão entrando nos números. Toque abaixo para parar de contar daqui para frente."; bt.textContent = fora ? "Voltar a contar" : "Não contar este celular"; bt.classList.toggle("zap", !fora); };
           bt.onclick = () => { try { ler() ? localStorage.removeItem("kiiro-nao-contar") : localStorage.setItem("kiiro-nao-contar", "1"); } catch {} mostra(); };
           mostra();
         })();
