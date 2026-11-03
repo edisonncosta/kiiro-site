@@ -24,7 +24,10 @@ window.KIIRO_SERVICOS = [
     "Massagista", "Personal trainer"
   ]},
   { grupo: "Festas e eventos", icone: "festa", itens: [
-    "Decoração de festa", "Buffet", "Bolos e doces", "Fotógrafo", "DJ", "Garçom"
+    "Decoração de festa", "Buffet", "Bolos e doces", "Fotógrafo", "DJ"
+  ]},
+  { grupo: "Cozinha e salão", icone: "cozinha", itens: [
+    "Cozinheiro(a)", "Auxiliar de cozinha", "Garçom", "Churrasqueiro", "Pizzaiolo", "Bartender", "Copeiro(a)"
   ]},
   { grupo: "Cuidados e aulas", icone: "cuidado", itens: [
     "Cuidador de idosos", "Babá", "Passeador e cuidador de pets", "Aulas particulares"
@@ -90,7 +93,13 @@ window.KIIRO_PALAVRAS = {
   "Bolos e doces": ["bolo", "doces", "docinhos", "brigadeiro", "torta", "confeitaria"],
   "Fotógrafo": ["foto", "fotos", "fotografia", "ensaio", "casamento", "filmagem"],
   "DJ": ["som", "música", "festa", "dj"],
-  "Garçom": ["garçom", "garçonete", "atendimento festa", "servir"],
+  "Garçom": ["garçom", "garçonete", "atendimento", "servir", "salão", "freelancer", "freela", "extra", "temporada"],
+  "Cozinheiro(a)": ["cozinheira", "cozinheiro", "cozinha", "chef", "comida", "freela de cozinha", "almoço", "marmita"],
+  "Auxiliar de cozinha": ["auxiliar", "ajudante de cozinha", "lavar louça", "louça", "preparo", "cozinha"],
+  "Churrasqueiro": ["churrasco", "churrasqueira", "assador", "carne", "costela"],
+  "Pizzaiolo": ["pizza", "pizzaria", "forno"],
+  "Bartender": ["bar", "drinks", "drink", "barman", "caipirinha", "coquetel"],
+  "Copeiro(a)": ["copa", "copeira", "café", "lanche"],
   "Cuidador de idosos": ["idoso", "idosa", "cuidadora", "acompanhante", "cuidar de idoso", "enfermagem"],
   "Babá": ["criança", "bebê", "babá", "cuidar de criança"],
   "Passeador e cuidador de pets": ["cachorro", "cão", "gato", "pet", "passear", "dog walker", "hospedagem pet"],

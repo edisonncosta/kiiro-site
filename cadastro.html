@@ -265,7 +265,9 @@ $("busca-servico").addEventListener("input", () => {
   $("servicos").querySelectorAll("[data-grupo]").forEach(g => {
     let visiveis = 0;
     g.querySelectorAll("input").forEach(i => {
-      const mostra = !t || i.value === "outro" || i.checked || semAcento(i.value).includes(t);
+      const pal = ((window.KIIRO_PALAVRAS || {})[i.value] || []).map(semAcento);
+      const grp = semAcento((g.querySelector(".grupo-titulo, h4, .g-nome") || {}).textContent || g.dataset.grupo || "");
+      const mostra = !t || i.value === "outro" || i.checked || semAcento(i.value).includes(t) || grp.includes(t) || pal.some(w => w.includes(t));
       i.nextElementSibling.style.display = mostra ? "" : "none";
       if (mostra && i.value !== "outro") visiveis++;
     });
