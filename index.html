@@ -184,6 +184,11 @@
   .in-fine{font-size:.74rem;color:var(--muted);margin-top:.5rem;line-height:1.4}
   .in-go{background:var(--sun);color:var(--ink);margin-top:.8rem}
   #in-texto{resize:vertical;min-height:84px}
+  .vem{display:inline-block;margin:.2rem 0 .1rem;background:#EAF2FF;color:#1E4E8C;border-radius:999px;padding:.12rem .6rem;font-size:.74rem;font-weight:600}
+  .sec-viz{grid-column:1/-1;margin:.6rem 0 .1rem}
+  .sec-viz b{display:block;font-size:1.02rem}
+  .sec-viz span{font-size:.82rem;color:var(--muted)}
+  .aviso-viz{grid-column:1/-1;background:#FFF8DA;border:1px solid #F2DC8A;border-radius:14px;padding:.75rem .9rem;font-size:.88rem;line-height:1.45}
   .orc-card{grid-column:1/-1;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.6rem 1.25rem;box-shadow:0 4px 18px rgba(90,70,0,.08)}
   .orc-ic{width:56px;height:56px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;margin:0 auto;font-size:1.5rem}
   .orc-card b{display:block;font-size:1.1rem;font-weight:700;color:var(--ink);margin:.8rem 0 .35rem;line-height:1.25}
@@ -783,6 +788,24 @@ function bate(p, t) {
   const servs = servicosDoTermo(t);
   return servs.length > 0 && p.categorias.some(c => servs.includes(c));
 }
+// cidade principal do profissional (a primeira marcada, para cadastros antigos)
+function baseDe(p) {
+  if (p.cidadeBase) return p.cidadeBase;
+  const l = String(p.cidade).split(/\s*,\s*/).filter(Boolean);
+  return l[0] && l[0] !== window.KIIRO_TODAS ? l[0] : "";
+}
+// texto da cidade no card: "Osório e região" quando atende várias
+function cidTxt(p) {
+  const l = String(p.cidade).split(/\s*,\s*/).filter(Boolean), b = baseDe(p);
+  if (l.includes(window.KIIRO_TODAS)) return window.KIIRO_TODAS;
+  return b && l.length > 2 ? `${b} e região` : l.join(", ");
+}
+function vemDe(p, cidade) {
+  const b = baseDe(p);
+  if (!cidade || !b || semAcento(b) === semAcento(cidade)) return "";
+  const km = window.kiiroKm ? window.kiiroKm(b, cidade) : null;
+  return `<p class="vem">🚗 Mora em ${esc(b)}${km !== null ? ` · ~${km} km` : ""}</p>`;
+}
 function render() {
   $("onde-nome").textContent = rotuloOnde();
   const termo = semAcento($("busca").value.trim());
@@ -811,7 +834,22 @@ function render() {
     $("lista").innerHTML = cardPatrocinio() + vitrine(lista);
     return;
   }
-  const cards = lista.map(p => visual === "grande" ? cardGrande(p) : card(p));
+  // com cidade escolhida: primeiro quem mora nela, depois quem vem de perto (mais perto primeiro)
+  let vizinhos = [];
+  if (cidade && modo !== "salvos") {
+    const mora = lista.filter(p => semAcento(baseDe(p)) === semAcento(cidade));
+    const km = p => { const b = baseDe(p); const k = b && window.kiiroKm ? window.kiiroKm(b, cidade) : null; return k === null ? 999 : k; };
+    vizinhos = lista.filter(p => !mora.includes(p)).sort((a, b) => km(a) - km(b));
+    lista.splice(0, lista.length, ...mora);
+  }
+  const fazCard = p => visual === "grande" ? cardGrande(p) : card(p);
+  const cards = lista.map(fazCard);
+  if (vizinhos.length) {
+    if (lista.length) cards.push(`<div class="sec-viz"><b>Vão até ${esc(cidade)}</b><span>Moram em cidades vizinhas e atendem aí</span></div>`);
+    else cards.push(`<div class="aviso-viz">Ainda não temos ${esc((catAtiva || "profissional").toLowerCase())} <b>morando</b> em ${esc(cidade)}, mas ${vizinhos.length === 1 ? "este profissional <b>vai</b>" : "estes profissionais <b>vão</b>"} até aí:</div>`);
+    cards.push(...vizinhos.map(fazCard));
+    lista.push(...vizinhos);
+  }
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const servTermo = !catAtiva && termo ? servicosDoTermo(termo)[0] : "";
   const oque = catAtiva || servTermo || (termo ? `“${$("busca").value.trim()}”` : "");
@@ -881,7 +919,7 @@ function card(p) {
     <div class="info">
       <div class="l1"><h3>${esc(p.nome)}</h3>${nota}</div>
       <p class="srv">${esc(catsDe(p).join(" · "))}</p>
-      <p class="cid">📍 ${esc(p.cidade)}</p>
+      ${vemDe(p, $("cidade").value) || `<p class="cid">📍 ${esc(cidTxt(p))}</p>`}
       ${tags ? `<div class="tags">${tags}</div>` : ""}
       ${p.descricao ? `<p class="desc">${esc(p.descricao)}</p>` : ""}
     </div>
@@ -906,7 +944,8 @@ function cardGrande(p) {
       <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
     </div>
     <div class="l1"><h3>${esc(p.nome)}</h3>${nota}</div>
-    <p>${esc(catsDe(p).join(" · "))} · ${esc(p.cidade)}</p>
+    <p>${esc(catsDe(p).join(" · "))} · ${esc(cidTxt(p))}</p>
+    ${vemDe(p, $("cidade").value)}
     ${tags ? `<div class="tags">${tags}</div>` : ""}
   </article>`;
 }
@@ -1549,16 +1588,7 @@ $("modal-orc").addEventListener("click", e => { if (e.target.id === "modal-orc")
 $("lista").addEventListener("click", e => { if (e.target.closest("[data-orc]")) abrirOrc(); });
 
 /* ===== Cidade pela localização (como o iFood) — tudo calculado no próprio celular ===== */
-const COORD_CIDADES = {
-  "Arroio do Sal": [-29.55, -49.89], "Balneário Pinhal": [-30.24, -50.23], "Capão da Canoa": [-29.75, -50.01],
-  "Capivari do Sul": [-30.14, -50.52], "Caraá": [-29.79, -50.43], "Cidreira": [-30.18, -50.21],
-  "Dom Pedro de Alcântara": [-29.36, -49.85], "Imbé": [-29.965, -50.125], "Itati": [-29.42, -50.10],
-  "Mampituba": [-29.21, -49.93], "Maquiné": [-29.68, -50.21], "Morrinhos do Sul": [-29.36, -49.93],
-  "Mostardas": [-31.11, -50.92], "Osório": [-29.89, -50.27], "Palmares do Sul": [-30.26, -50.51],
-  "Santo Antônio da Patrulha": [-29.82, -50.52], "Terra de Areia": [-29.58, -50.07], "Torres": [-29.34, -49.73],
-  "Tramandaí": [-29.985, -50.135], "Três Cachoeiras": [-29.45, -49.93], "Três Forquilhas": [-29.53, -50.07],
-  "Xangri-Lá": [-29.80, -50.04]
-};
+const COORD_CIDADES = window.KIIRO_COORD || {};
 function cidadeMaisPerto(lat, lon) {
   let melhor = null, dMin = Infinity;
   for (const [c, [la, lo]] of Object.entries(COORD_CIDADES)) {

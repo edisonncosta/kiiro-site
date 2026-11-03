@@ -49,6 +49,12 @@
   .trab-add{width:84px;height:84px;border-radius:14px;border:1.5px dashed #D9C88E;background:#fff;display:grid;place-items:center;text-align:center;font:600 .72rem/1.2 Poppins,sans-serif;color:var(--ink);cursor:pointer;padding:.3rem}
   .trab-add b{display:block;font-size:1.4rem;font-weight:500}
   .trab-file{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .cid-res{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.8rem .9rem;margin-top:.8rem;font-size:.88rem}
+  .cid-res b{display:block;margin-bottom:.4rem}
+  #cid-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+  #cid-tags button{background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.3rem .7rem;font:500 .82rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  #cid-tags button.fora{background:#fff;color:#9A9384;text-decoration:line-through;border-color:var(--line)}
+  #cid-tags button.base{font-weight:700;cursor:default}
 </style>
 </head>
 <body>
@@ -103,9 +109,21 @@
     </div>
 
     <div class="campo">
-      <span class="legenda"><span class="n">3</span>Onde você atende?</span>
-      <div class="chips" id="cidades"></div>
-      <p class="opc" style="margin-top:.5rem">Toque em todas as cidades onde você atende.</p>
+      <span class="legenda"><span class="n">3</span>Sua cidade principal</span>
+      <p class="opc" style="margin:-.2rem 0 .5rem">Onde você mora ou tem seu ponto.</p>
+      <select class="input" id="cid-base" name="cidade_base"><option value="">Escolha a cidade</option></select>
+      <span class="legenda" style="margin-top:1.1rem;display:block">Até onde você vai atender?</span>
+      <div class="chips" id="raios">
+        <input type="radio" name="raio" id="r0" value="0"><label for="r0">Só na minha cidade</label>
+        <input type="radio" name="raio" id="r15" value="15"><label for="r15">Até 15 km</label>
+        <input type="radio" name="raio" id="r30" value="30" checked><label for="r30">Até 30 km</label>
+        <input type="radio" name="raio" id="r50" value="50"><label for="r50">Até 50 km</label>
+      </div>
+      <div class="cid-res escondido" id="cid-res">
+        <b>Você vai aparecer em:</b>
+        <div id="cid-tags"></div>
+        <p class="opc" style="margin-top:.5rem">Toque para tirar alguma cidade que você não atende.</p>
+      </div>
     </div>
 
 
@@ -203,16 +221,30 @@
 const DEMO = !!window.KIIRO_DEMO;
 const $ = id => document.getElementById(id);
 
-// cidades
+// cidades: uma principal + até onde vai (a Kiiro calcula as cidades)
 const todas = window.KIIRO_TODAS;
-$("cidades").innerHTML = [todas, ...window.KIIRO_CIDADES].map((c, i) =>
-  `<input type="checkbox" id="c${i}" value="${c}"><label for="c${i}">${c}</label>`).join("");
-$("cidades").addEventListener("change", e => {
-  const marcouTodas = e.target.value === todas && e.target.checked;
-  $("cidades").querySelectorAll("input").forEach(i => {
-    if (marcouTodas && i.value !== todas) i.checked = false;
-    if (!marcouTodas && e.target.checked && i.value === todas) i.checked = false;
-  });
+const foraCid = new Set();
+$("cid-base").insertAdjacentHTML("beforeend", window.KIIRO_CIDADES.map(c => `<option>${c}</option>`).join(""));
+function cidadesAtende() {
+  const base = $("cid-base").value; if (!base) return [];
+  const raio = Number((document.querySelector("input[name=raio]:checked") || {}).value || 0);
+  const perto = window.KIIRO_CIDADES.filter(c => c !== base).map(c => [c, window.kiiroKm(base, c)])
+    .filter(([, km]) => km !== null && km <= raio).sort((a, b) => a[1] - b[1]);
+  return [[base, 0], ...perto];
+}
+function mostrarCidades() {
+  const l = cidadesAtende();
+  $("cid-res").classList.toggle("escondido", !l.length);
+  $("cid-tags").innerHTML = l.map(([c, km], i) => i === 0
+    ? `<button type="button" class="base">⭐ ${c}</button>`
+    : `<button type="button" data-c="${c}" class="${foraCid.has(c) ? "fora" : ""}">${c} · ${km} km</button>`).join("");
+}
+$("cid-base").addEventListener("change", () => { foraCid.clear(); mostrarCidades(); });
+$("raios").addEventListener("change", mostrarCidades);
+$("cid-tags").addEventListener("click", e => {
+  const b = e.target.closest("[data-c]"); if (!b) return;
+  foraCid.has(b.dataset.c) ? foraCid.delete(b.dataset.c) : foraCid.add(b.dataset.c);
+  b.classList.toggle("fora", foraCid.has(b.dataset.c));
 });
 
 // monta a lista de serviços por grupo
@@ -353,8 +385,7 @@ if (!window.DataTransfer) { // celular muito antigo: mostra os 3 campos normais
 
 $("form").addEventListener("submit", e => {
   const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);
-  const cidades = [...document.querySelectorAll("#cidades input:checked")].map(i => i.value);
-  if (cidades.length === window.KIIRO_CIDADES.length) { cidades.length = 0; cidades.push(todas); }
+  const cidades = cidadesAtende().map(([c]) => c).filter(c => !foraCid.has(c)); // a principal vem primeiro
   const whats = $("whatsapp").value.replace(/\D/g, "");
   const marcado = n => document.querySelector(`input[name=${n}]:checked`);
   const dias = [...document.querySelectorAll("#dias-op input:checked")].map(i => i.value);
@@ -362,7 +393,7 @@ $("form").addEventListener("submit", e => {
   if (!$("nome").value.trim()) msg = "Informe seu nome.";
   else if (!servicos.length) msg = "Escolha o que você faz.";
   else if (servicos.includes("")) msg = "Diga qual é o outro serviço.";
-  else if (!cidades.length) msg = "Marque pelo menos uma cidade.";
+  else if (!cidades.length) msg = "Escolha sua cidade principal.";
   else if (!marcado("experiencia")) msg = "Diga há quanto tempo trabalha na área.";
   else if (!marcado("dedicacao")) msg = "Diga se é sua profissão principal ou renda extra.";
   else if (!marcado("urgencia")) msg = "Diga se atende urgência.";

@@ -85,6 +85,8 @@ export default async (req, context) => {
           nome: String(d[CAMPOS.nome] || "").trim(),
           categorias: String(d[CAMPOS.categoria] || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 3),
           cidade: String(d[CAMPOS.cidade] || "").trim(),
+          cidadeBase: curto(d.cidade_base),
+          raio: curto(d.raio, 4),
           whatsapp: whats,
           ids: (idsDoWhats[whats] || [s.id]).slice(0, 10),
           foto: urlDe(foto),
