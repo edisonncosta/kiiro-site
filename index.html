@@ -457,7 +457,7 @@
   </main>
   <footer class="rodape">
     <p>A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional.</p>
-    <nav class="rod-links" aria-label="Links"><a href="termos.html">Termos de uso</a><a href="privacidade.html">Privacidade</a><a href="anunciar.html">Anuncie</a><a href="cadastro.html">Seja um profissional</a><a href="https://wa.me/5551991855760" target="_blank" rel="noopener">Fale com a Kiiro</a><a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></nav>
+    <nav class="rod-links" aria-label="Links"><a href="termos.html">Termos de uso</a><a href="privacidade.html">Privacidade</a><a href="anunciar.html">Anuncie</a><a href="cadastro.html">Seja um profissional</a><a href="/servicos">Serviços por cidade</a><a href="https://wa.me/5551991855760" target="_blank" rel="noopener">Fale com a Kiiro</a><a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></nav>
     <p class="rod-c">© 2026 Kiiro · Litoral Norte do RS</p>
   </footer>
 </section>
@@ -1377,6 +1377,16 @@ $("modal-cid").addEventListener("click", e => {
 });
 $("perto").addEventListener("click", pedirLocal);
 function iniciarLocal() {
+  // vindo das páginas do Google: /?cidade=Osório&servico=Eletricista
+  const q = new URLSearchParams(location.search);
+  const qc = (window.KIIRO_CIDADES || []).find(c => semAcento(c) === semAcento(q.get("cidade")));
+  const qs = q.get("servico");
+  if (qc || qs) {
+    if (qs && profissionais.some(p => p.categorias.includes(qs))) { catAtiva = qs; montarCats(); }
+    if (qc) { $("cidade").value = qc; salvarJSON("kiiro-cidade", qc); }
+    history.replaceState(null, "", location.pathname + location.hash);
+    return render();
+  }
   const salva = lerJSON("kiiro-cidade", "");
   if (salva && (window.KIIRO_CIDADES || []).includes(salva) && !$("cidade").value) { $("cidade").value = salva; render(); }
 }

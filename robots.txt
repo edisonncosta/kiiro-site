@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /painel
+Disallow: /.netlify/
+
+Sitemap: https://chamakiiro.netlify.app/sitemap.xml
