@@ -112,7 +112,7 @@ export default async (req, context) => {
     for (const p of lista) {
       const ed = edicoes[p.whatsapp];
       if (ed) {
-        for (const k of ["nome", "cidade", "descricao", "experiencia", "dedicacao", "urgencia", "dias", "orcamento", "mei"]) if (typeof ed[k] === "string" && ed[k]) p[k] = ed[k];
+        for (const k of ["nome", "cidade", "cidadeBase", "raio", "descricao", "experiencia", "dedicacao", "urgencia", "dias", "orcamento", "mei"]) if (typeof ed[k] === "string" && ed[k]) p[k] = ed[k];
         if (Array.isArray(ed.categorias) && ed.categorias.length) { p.categorias = ed.categorias.slice(0, 3); p.categoria = p.categorias[0]; }
         p.editado = true;
       }

@@ -155,6 +155,7 @@ export default async (req, context) => {
         nome: txt("nome", 60),
         categorias: [...new Set(categorias)],
         cidade: txt("cidade", 400),
+        cidadeBase: txt("cidade_base", 40), raio: txt("raio", 4),
         descricao: String(f.get("descricao") || "").trim().slice(0, 400),
         experiencia: txt("experiencia"), dedicacao: txt("dedicacao"), urgencia: txt("urgencia"),
         dias: f.getAll("dias").map(String).join(", ").slice(0, 80), orcamento: txt("orcamento"), mei: txt("mei"),
@@ -314,7 +315,9 @@ export default async (req, context) => {
           <div class="ed-servs" data-atual="${esc(cats.join("|"))}"></div>
           <input name="servico_outro" class="ed-outro" placeholder="Outro serviço (se não estiver na lista)" maxlength="50">
         </div>
-        <div class="ed-l">Cidades<div class="ed-cids" data-atual="${esc(p.cidade)}"></div><input type="hidden" name="cidade" value="${esc(p.cidade)}"></div>
+        <div class="ed-l">Cidade principal<select name="cidade_base" class="ed-base" data-atual="${esc(p.cidadeBase || "")}"></select></div>
+        <div class="ed-l">Até onde atende<div class="ed-chips ed-raio">${[["0", "Só na cidade"], ["15", "15 km"], ["30", "30 km"], ["50", "50 km"]].map(([v, t]) => `<label><input type="radio" name="raio" value="${v}"${String(p.raio || "") === v ? " checked" : ""}> ${t}</label>`).join("")}</div></div>
+        <div class="ed-l">Cidades onde aparece<div class="ed-cids" data-atual="${esc(p.cidade)}"></div><input type="hidden" name="cidade" value="${esc(p.cidade)}"><small class="ed-dica">Escolha a cidade principal e a distância: as cidades se marcam sozinhas. Dá para tirar ou pôr alguma tocando.</small></div>
         <label class="ed-l">Descrição<textarea name="descricao" maxlength="400" rows="4">${esc(p.descricao || "")}</textarea></label>
         <div class="ed-g">
           ${sel("experiencia", "Experiência", ["Menos de 1 ano", "1 a 3 anos", "3 a 5 anos", "Mais de 5 anos"], p.experiencia)}
@@ -420,7 +423,25 @@ export default async (req, context) => {
               i.type = "checkbox"; i.value = c; i.checked = atual.includes(c);
               l.appendChild(i); l.appendChild(document.createTextNode(" " + c)); box.appendChild(l);
             });
-            box.addEventListener("change", () => { hidden.value = [...box.querySelectorAll("input:checked")].map(i => i.value).join(", "); });
+            const sync = () => { hidden.value = [...box.querySelectorAll("input:checked")].map(i => i.value).join(", "); };
+            box.addEventListener("change", sync);
+            // cidade principal + distância: marca sozinho as cidades dentro do raio (a principal vai primeiro)
+            const fm = box.closest("form"), sel = fm.querySelector(".ed-base");
+            if (sel) {
+              const primeira = atual.find(c => c !== N(todas)) || "";
+              sel.innerHTML = '<option value="">Escolha</option>' + (window.KIIRO_CIDADES || []).map(c => "<option" + (N(c) === N(sel.dataset.atual || primeira) ? " selected" : "") + ">" + c + "</option>").join("");
+              const recalc = () => {
+                const base = sel.value, r = fm.querySelector("input[name=raio]:checked");
+                if (!base || !r || !window.kiiroKm) return;
+                const dentro = new Set([base, ...(window.KIIRO_CIDADES || []).filter(c => { const k = window.kiiroKm(base, c); return k !== null && k <= Number(r.value); })].map(N));
+                box.querySelectorAll("input").forEach(i => { i.checked = dentro.has(N(i.value)); });
+                const ordem = [N(base), ...[...box.querySelectorAll("input:checked")].map(i => N(i.value)).filter(c => c !== N(base))];
+                hidden.value = ordem.join(", ");
+              };
+              sel.addEventListener("change", recalc);
+              fm.querySelectorAll("input[name=raio]").forEach(i => i.addEventListener("change", recalc));
+              box.addEventListener("change", () => { const b = N(sel.value); const l = [...box.querySelectorAll("input:checked")].map(i => N(i.value)); hidden.value = (l.includes(b) ? [b, ...l.filter(c => c !== b)] : l).join(", "); });
+            }
           });
           document.querySelectorAll("form.ed").forEach(fm => fm.addEventListener("submit", e => {
             if (!fm.querySelector(".ed-servs input:checked") && !fm.querySelector(".ed-outro").value.trim()) { e.preventDefault(); alert("Marque pelo menos um serviço."); return; }
@@ -759,6 +780,9 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 .ed-l{display:grid;gap:4px;font-size:12px;font-weight:600;color:#5E574A}
 .ed input:not([type=checkbox]),.ed textarea,.ed select{width:100%;border:1px solid #E1D5AE;border-radius:10px;padding:9px 10px;font:14px Poppins,sans-serif;color:#1A1A1A;background:#fff}
 .ed-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ed-raio label{white-space:nowrap}
+.ed-dica{display:block;font-size:12px;color:#8A8271;margin-top:4px;font-weight:400}
+.ed-base{display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid #EFE6C8;border-radius:10px;font:500 14px Poppins,sans-serif;background:#fff}
 .ed-cids,.ed-dias,.ed-chips{display:flex;flex-wrap:wrap;gap:6px}
 .ed-servs{max-height:300px;overflow-y:auto;display:grid;gap:8px;border:1px solid #EFE6C8;border-radius:10px;padding:8px;background:#fff}
 .ed-gt{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6B6455;margin-bottom:4px}
