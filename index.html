@@ -171,6 +171,19 @@
   .selos-crit{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 1rem}
   .selo-crit{display:inline-flex;align-items:center;gap:.3rem;background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.35rem .75rem;font-size:.82rem;font-weight:600;color:var(--ink)}
   .selo-crit small{font-weight:500;color:var(--muted);font-size:.72rem}
+  .ind{background:#fff;border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:14px;padding:.8rem .9rem;margin-top:.6rem}
+  .ind-sub{color:var(--muted);font-size:.85rem;margin:.1rem 0 .3rem}
+  .ind .avatar{width:34px !important;height:34px !important;min-width:34px;border-radius:50% !important;font-size:.85rem !important;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:700}
+  .ind p{font-size:.9rem;line-height:1.45;margin-bottom:.55rem}
+  .ind .quem{display:flex;gap:.6rem;align-items:center}
+  .ind .quem b{display:block;font-size:.85rem}
+  .ind .quem span{font-size:.75rem;color:var(--muted)}
+  .ind-rel{display:inline-block !important;background:var(--sun-soft);border-radius:999px;padding:.05rem .5rem;font-size:.7rem !important;font-weight:600;color:var(--ink) !important;margin-left:.2rem}
+  .ind-bt{display:block;width:100%;margin-top:.9rem;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:.8rem;font:600 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .in-lb{display:block;font-size:.8rem;font-weight:600;margin:1rem 0 .4rem}
+  .in-fine{font-size:.74rem;color:var(--muted);margin-top:.5rem;line-height:1.4}
+  .in-go{background:var(--sun);color:var(--ink);margin-top:.8rem}
+  #in-texto{resize:vertical;min-height:84px}
   .orc-card{grid-column:1/-1;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.6rem 1.25rem;box-shadow:0 4px 18px rgba(90,70,0,.08)}
   .orc-ic{width:56px;height:56px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;margin:0 auto;font-size:1.5rem}
   .orc-card b{display:block;font-size:1.1rem;font-weight:700;color:var(--ink);margin:.8rem 0 .35rem;line-height:1.25}
@@ -536,6 +549,39 @@
     <h3 id="mt-titulo">Todos os serviços</h3>
     <input class="input" type="search" id="mt-busca" placeholder="Procurar… ex.: piscina" style="margin:.8rem 0 1rem" autocomplete="off">
     <div id="mt-lista"></div>
+  </div>
+</div>
+
+<!-- Janela: indicar um profissional -->
+<div class="modal" id="modal-ind" role="dialog" aria-modal="true" aria-labelledby="in-titulo">
+  <div class="sheet alta">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="in-fechar">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form id="in-form" novalidate>
+      <h3 id="in-titulo">Indicar</h3>
+      <p class="sub" id="in-sub"></p>
+      <span class="in-lb">De onde você conhece?</span>
+      <div class="chips">
+        <input type="radio" name="in-rel" id="ir1" value="Já contratou"><label for="ir1">Já contratei</label>
+        <input type="radio" name="in-rel" id="ir2" value="Vizinho"><label for="ir2">Vizinho</label>
+        <input type="radio" name="in-rel" id="ir3" value="Amigo ou família"><label for="ir3">Amigo ou família</label>
+        <input type="radio" name="in-rel" id="ir4" value="Trabalhamos juntos"><label for="ir4">Trabalhamos juntos</label>
+      </div>
+      <label class="in-lb" for="in-texto">Sua indicação</label>
+      <textarea class="input" id="in-texto" maxlength="400" rows="3" placeholder="Ex.: trabalha lá em casa há 3 anos, de total confiança."></textarea>
+      <label class="in-lb" for="in-nome">Seu nome</label>
+      <input class="input" id="in-nome" autocomplete="name" placeholder="Seu nome">
+      <label class="in-lb" for="in-whats">Seu WhatsApp</label>
+      <input class="input" id="in-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
+      <p class="in-fine">Só o seu primeiro nome aparece. O WhatsApp não é mostrado, serve só para a Kiiro confirmar que a indicação é real.</p>
+      <p class="erro" id="in-erro" role="alert"></p>
+      <button class="btn btn-full in-go" type="submit" id="in-enviar">Enviar indicação</button>
+    </form>
+    <div class="escondido" id="in-ok" style="text-align:center;padding:1rem 0 .5rem">
+      <div style="font-size:2.4rem">💛</div>
+      <h3 style="margin-top:.4rem">Obrigado pela indicação!</h3>
+      <p class="sub" id="in-ok-txt"></p>
+      <button class="btn btn-ink btn-full" type="button" onclick="document.getElementById('modal-ind').classList.remove('aberto')">Voltar ao perfil</button>
+    </div>
   </div>
 </div>
 
@@ -1090,6 +1136,7 @@ async function abrirPerfil(id) {
       ${(p.trabalhos || []).length ? `<hr><h2>Trabalhos de ${esc(nome1)}</h2><div class="galeria">${p.trabalhos.map(u => `<button type="button" data-ampliar="${esc(u)}" aria-label="Ver foto do trabalho"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
       <hr><h2>Atende em</h2><div class="pf-cidades">${cidades}</div>
       <hr><div id="pf-avals"><h2>Avaliações</h2><p class="sem-av">Carregando…</p></div>
+      <hr><div id="pf-inds"></div>
       <div style="height:1rem"></div>
     </div>
     <div class="rodape-pf">
@@ -1117,6 +1164,7 @@ async function abrirPerfil(id) {
       const r = await fetch("/.netlify/functions/perfil" + q); if (r.ok) dados = await r.json();
     } catch {}
   }
+  mostrarIndicacoes(p, dados.indicacoes || (DEMO && p.id === "d1" ? EXEMPLOS_INDICACOES : []));
   const box = $("pf-avals"); if (!box) return;
   if (!dados.total) { box.innerHTML = `<h2>Avaliações</h2><p class="sem-av">${esc(nome1)} ainda não tem avaliações. Depois que você chamar, a Kiiro pergunta como foi.</p>`; return; }
   const fotos = dados.avaliacoes.filter(a => a.foto);
@@ -1139,6 +1187,68 @@ function selosCrit(d) {
   const l = (d.destaques || []).filter(([, n]) => n >= 2);
   return d.total >= 3 && l.length ? `<p class="dest-tit">Clientes destacam</p><div class="selos-crit">${l.slice(0, 4).map(([t, n]) => `<span class="selo-crit">${esc(t)} <small>${n}</small></span>`).join("")}</div>` : "";
 }
+/* ===== Indicações (quem conhece o trabalho; não conta na nota) ===== */
+const EXEMPLOS_INDICACOES = [
+  { nome: "Márcia", relacao: "Já contratou", texto: "Trabalha lá em casa há 3 anos, de total confiança. Super recomendo!", data: new Date(Date.now() - 5 * 864e5).toISOString() },
+  { nome: "Roberto", relacao: "Vizinho", texto: "Minha vizinha, muito caprichosa e honesta.", data: new Date(Date.now() - 30 * 864e5).toISOString() },
+];
+let proIndicar = null;
+function mostrarIndicacoes(p, l) {
+  const box = $("pf-inds"); if (!box) return;
+  const nome1 = esc(p.nome.split(" ")[0]);
+  box.innerHTML = `<h2>💬 Indicações</h2>
+    <p class="ind-sub">${l.length ? `Pessoas que conhecem o trabalho de ${nome1}. Não contam na nota.` : `Conhece o trabalho de ${nome1}? Seja o primeiro a indicar.`}</p>
+    ${l.map(x => `<div class="ind">
+      <p>“${esc(x.texto)}”</p>
+      <div class="quem"><div class="avatar">${esc((x.nome || "?")[0])}</div><div><b>${esc(x.nome)} <span class="ind-rel">${esc(x.relacao)}</span></b><span>${quando(x.data)}</span></div></div>
+    </div>`).join("")}
+    <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">💬 Indicar ${nome1}</button>`;
+}
+function abrirIndicar(id) {
+  const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
+  proIndicar = p;
+  const n1 = p.nome.split(" ")[0];
+  $("in-titulo").textContent = `Indicar ${n1}`;
+  $("in-sub").textContent = `Conhece o trabalho de ${n1}? Conte para quem está procurando.`;
+  const eu = lerJSON("kiiro-cliente", {});
+  $("in-nome").value = eu.nome || ""; $("in-whats").value = eu.whats || "";
+  $("in-texto").value = ""; $("in-erro").textContent = "";
+  document.querySelectorAll('input[name=in-rel]').forEach(r => r.checked = false);
+  $("in-form").classList.remove("escondido"); $("in-ok").classList.add("escondido");
+  $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação";
+  $("modal-ind").classList.add("aberto");
+}
+const fecharIndicar = () => $("modal-ind").classList.remove("aberto");
+document.addEventListener("click", e => { const b = e.target.closest("[data-indicar]"); if (b) abrirIndicar(b.dataset.indicar); });
+$("in-fechar").addEventListener("click", fecharIndicar);
+$("modal-ind").addEventListener("click", e => { if (e.target.id === "modal-ind") fecharIndicar(); });
+$("in-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const rel = document.querySelector('input[name=in-rel]:checked');
+  const texto = $("in-texto").value.trim(), nome = $("in-nome").value.trim(), whats = $("in-whats").value.replace(/\D/g, "");
+  const erro = m => $("in-erro").textContent = m;
+  if (!rel) return erro("Escolha de onde você conhece.");
+  if (texto.length < 8) return erro("Escreva um pouquinho sobre o trabalho.");
+  if (nome.length < 2) return erro("Coloque seu nome.");
+  if (![10, 11, 12, 13].includes(whats.length)) return erro("Coloque seu WhatsApp com DDD.");
+  erro(""); $("in-enviar").disabled = true; $("in-enviar").textContent = "Enviando…";
+  salvarJSON("kiiro-cliente", { ...lerJSON("kiiro-cliente", {}), nome, whats: $("in-whats").value });
+  let st = DEMO ? 200 : 0;
+  if (!DEMO) {
+    try {
+      const r = await fetch("/.netlify/functions/indicar", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profissionalId: proIndicar.id, profissionalWhatsapp: proIndicar.whatsapp, profissionalNome: proIndicar.nome, relacao: rel.value, texto, nome, whatsapp: whats }) });
+      st = r.status; if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.erro === "proprio") st = 403; }
+    } catch {}
+  }
+  if (st === 409) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("Você já indicou este profissional. Obrigado!"); }
+  if (st === 403) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("O próprio profissional não pode se indicar 🙂"); }
+  if (st !== 200) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("Não deu para enviar agora. Tente de novo."); }
+  contar("indicar", proIndicar.categorias[0]);
+  $("in-form").classList.add("escondido"); $("in-ok").classList.remove("escondido");
+  $("in-ok-txt").textContent = `Sua indicação para ${proIndicar.nome.split(" ")[0]} foi enviada. Ela aparece no perfil depois de uma conferida rápida da Kiiro.`;
+});
+
 function fecharPerfil() {
   irPara(telaAntes || "inicio");
 }
@@ -1333,7 +1443,7 @@ function toast(t) {
 }
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  ["modal", "modal-todos", "modal-foto-av", "modal-cid", "modal-orc"].forEach(id => $(id).classList.remove("aberto"));
+  ["modal", "modal-todos", "modal-foto-av", "modal-cid", "modal-orc", "modal-ind"].forEach(id => $(id).classList.remove("aberto"));
   if (mBv.classList.contains("aberto")) fecharBv();
 });
 $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${esc(c)}</option>`).join(""));
@@ -1542,6 +1652,13 @@ function iniciarLocal() {
 }
 
 Promise.all([carregar(), carregarAnuncios()]).then(() => {
+  const mi = location.hash.match(/^#indicar-([\w-]+)$/);
+  if (mi) {
+    // pelo id do cadastro ou pelo WhatsApp (#indicar-w5551999999999, usado na tela de cadastro concluído)
+    let id = mi[1];
+    if (/^w\d{10,13}$/.test(id)) { const w = id.slice(1); const pr = profissionais.find(x => String(x.whatsapp).endsWith(w.slice(-9))); id = pr ? pr.id : ""; }
+    if (id && profissionais.some(x => String(x.id) === String(id))) { abrirPerfil(id); return setTimeout(() => abrirIndicar(id), 400); }
+  }
   const m = location.hash.match(/^#p-([\w-]+)$/);
   if (m) return abrirPerfil(m[1]);
   if (location.hash === "#anuncie") return irPara("anuncie");

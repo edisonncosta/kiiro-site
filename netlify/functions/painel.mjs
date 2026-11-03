@@ -89,6 +89,17 @@ export default async (req, context) => {
       await admin.setJSON("anunciosRecusados", [...recusados]);
       return Response.redirect(`${base}/painel${q({ aba: "anuncios", aviso })}`, 303);
     }
+    // ----- indicações (aprovar antes de aparecer no perfil)
+    if (String(acao || "").startsWith("in_")) {
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      const st = getStore("indicacoes");
+      const x = id && (await st.get(id, { type: "json" }));
+      let aviso = "";
+      if (x && acao === "in_aprovar") { await st.setJSON(id, { ...x, status: "aprovada" }); aviso = "Indicação aprovada. Já aparece no perfil."; }
+      if (x && acao === "in_ocultar") { await st.setJSON(id, { ...x, status: "pendente" }); aviso = "Indicação tirada do perfil."; }
+      if (x && acao === "in_excluir") { await st.delete(id); aviso = "Indicação excluída."; }
+      return Response.redirect(`${base}/painel${q({ aba: "indicacoes", aviso })}`, 303);
+    }
     // ----- pedidos de orçamento (chat do site)
     if (String(acao || "").startsWith("pd_")) {
       const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
@@ -225,6 +236,7 @@ export default async (req, context) => {
       ["Clicaram em “Quero anunciar”", (d) => soma("anuncie_quero", d)],
       ["Abriram o pedido de orçamento", (d) => soma("orc_abrir", d)],
       ["Enviaram pedido de orçamento", (d) => soma("orc_envio", d)],
+      ["Indicações enviadas", (d) => soma("indicar", d)],
       ["Usaram a localização", (d) => soma("local_usar", d)],
       ["Aceitaram ver a cidade sugerida", (d) => soma("local_sim", d)],
     ];
@@ -339,6 +351,7 @@ export default async (req, context) => {
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
+            <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma indicação em 1 minuto:\n👉 ${base}/#indicar-${p.id}\n\nQuanto mais indicações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir indicações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
           </div>
           <div class="acoes fotos-acoes">
@@ -501,6 +514,30 @@ export default async (req, context) => {
       <p class="obs">Link para mandar às empresas: <b>${esc(base)}/anunciar</b></p>`;
   }
 
+  if (aba === "indicacoes") {
+    const st = getStore("indicacoes");
+    const { blobs } = await st.list();
+    const itens = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
+    const pend = itens.filter((i) => i.x.status !== "aprovada").length;
+    const ver = filtro === "todas" ? "pendentes" : filtro;
+    const lista = itens.filter((i) => (ver === "aprovadas" ? i.x.status === "aprovada" : i.x.status !== "aprovada"));
+    const sub = (v, t, n) => `<a class="aba mini ${ver === v ? "on" : ""}" href="${q({ aba: "indicacoes", ver: v })}">${t} <small>${n}</small></a>`;
+    const bt = (k, acao, txt, cls = "", conf = "") => `<form method="post" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="id" value="${esc(k)}"><button class="b ${cls}" name="acao" value="${acao}"${conf ? ` onclick="return confirm('${conf}')"` : ""}>${txt}</button></form>`;
+    html = `<nav class="abas sub">${sub("pendentes", "Para aprovar", pend)}${sub("aprovadas", "No perfil", itens.length - pend)}</nav>` +
+      (lista.map(({ k, x }) => `
+        <article>
+          <div class="l1"><b>Para ${esc(x.profissionalNome)}</b><span>${fmt(x.data)}</span></div>
+          <p><b>${esc(x.nome)}</b> · ${esc(x.relacao)}</p>
+          <blockquote>“${esc(x.texto)}”</blockquote>
+          <div class="acoes">
+            ${x.status === "aprovada" ? bt(k, "in_ocultar", "Tirar do perfil") : bt(k, "in_aprovar", "Aprovar", "zap")}
+            <a class="b" href="https://wa.me/${esc(x.whatsapp)}" target="_blank" rel="noopener">Falar com ${esc(String(x.nome).split(" ")[0])}</a>
+            ${bt(k, "in_excluir", "Excluir", "", "Excluir esta indicação?")}
+          </div>
+        </article>`).join("") || `<p class="vazio">${ver === "aprovadas" ? "Nenhuma indicação no perfil ainda." : "Nenhuma indicação para aprovar."}</p>`) +
+      `<p class="obs">Dica: na aba Profissionais, o botão <b>Pedir indicações</b> manda para o profissional um link que ele envia aos clientes antigos.</p>`;
+  }
+
   if (aba === "pedidos") {
     const store = getStore("pedidos");
     const { blobs } = await store.list();
@@ -645,7 +682,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("chamadas", "Chamadas")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;

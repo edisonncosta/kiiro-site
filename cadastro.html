@@ -377,6 +377,7 @@ $("form").addEventListener("submit", e => {
     if (msg.startsWith("Conte")) { $("descricao").focus(); $("descricao").scrollIntoView({ block: "center" }); }
     return;
   }
+  try { localStorage.setItem("kiiro-meu-cadastro", JSON.stringify({ nome: $("nome").value.trim(), whats: whats.length <= 11 ? "55" + whats : whats })); } catch {}
   if (!$("foto").files.length) { e.preventDefault(); pedirFoto(); return; }
 
   $("cidade").value = cidades.join(", ");

@@ -13,6 +13,11 @@
   .ok svg{width:40px;height:40px}
   h1{font-size:clamp(1.8rem,6vw,2.4rem);font-weight:700;line-height:1.15}
   p{margin:.8rem auto 1.6rem;max-width:22rem;font-weight:500}
+  .indique{max-width:24rem;margin:2rem auto 0;background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.3rem 1.2rem;text-align:center;box-shadow:0 4px 18px rgba(90,70,0,.08)}
+  .indique .ic{width:52px;height:52px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;margin:0 auto;font-size:1.5rem}
+  .indique h2{font-size:1.15rem;font-weight:700;margin:.7rem 0 .3rem}
+  .indique p{margin:0 auto 1rem;font-weight:400;font-size:.9rem;color:var(--muted);line-height:1.5}
+  .indique .btn{width:100%}
 </style>
 </head>
 <body>
@@ -22,6 +27,23 @@
     <p>Em poucos minutos seu perfil aparece na lista de profissionais da Kiiro. Fique de olho no WhatsApp.</p>
     <p style="font-size:.85rem;margin-top:-.8rem">Para mudar algo depois, é só preencher o cadastro de novo com o mesmo WhatsApp.</p>
     <a class="btn btn-ink" href="./">Ver profissionais</a>
+    <section class="indique" id="indique" hidden>
+      <div class="ic">💬</div>
+      <h2>Peça indicações e ganhe confiança</h2>
+      <p>Mande este link para clientes antigos e conhecidos que já viram seu trabalho. As indicações aparecem no seu perfil e ajudam você a ser chamado mais vezes.</p>
+      <a class="btn" id="indique-bt" style="background:var(--sun);color:var(--ink)" target="_blank" rel="noopener">Pedir indicações no WhatsApp</a>
+    </section>
   </main>
+  <script>
+  try {
+    const eu = JSON.parse(localStorage.getItem("kiiro-meu-cadastro") || "null");
+    if (eu && eu.whats) {
+      const link = location.origin + "/#indicar-w" + eu.whats;
+      const txt = `Oi! Tudo bem? 😊 Estou na Kiiro, a plataforma de profissionais do Litoral Norte.\n\nVocê que conhece meu trabalho pode me deixar uma indicação? Leva 1 minuto:\n👉 ${link}\n\nAjuda muito, obrigado! 🙏`;
+      document.getElementById("indique-bt").href = "https://wa.me/?text=" + encodeURIComponent(txt);
+      document.getElementById("indique").hidden = false;
+    }
+  } catch {}
+  </script>
 </body>
 </html>
