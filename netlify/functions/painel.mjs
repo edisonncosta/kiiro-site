@@ -212,6 +212,8 @@ export default async (req, context) => {
       ["Cadastros novos ou atualizados", cadastrosEm],
       ["Viram a página Anuncie", (d) => soma("anuncie_ver", d)],
       ["Clicaram em “Quero anunciar”", (d) => soma("anuncie_quero", d)],
+      ["Usaram a localização", (d) => soma("local_usar", d)],
+      ["Aceitaram ver a cidade sugerida", (d) => soma("local_sim", d)],
     ];
     const tabela = `<table><thead><tr><th></th><th>Hoje</th><th>7 dias</th><th>30 dias</th></tr></thead><tbody>${linhas.map(([n, f]) => `<tr><td>${n}</td><td>${num(f(periodo.d1))}</td><td>${num(f(periodo.d7))}</td><td>${num(f(periodo.d30))}</td></tr>`).join("")}</tbody></table>`;
 

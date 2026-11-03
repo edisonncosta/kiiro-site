@@ -45,6 +45,32 @@
   .busca-txt{flex:1;min-width:0}
   .busca-txt input{border:0;outline:0;font:600 .95rem Poppins,sans-serif;width:100%;background:transparent;color:var(--text);padding:0}
   .busca-txt input::placeholder{color:var(--text)}
+  .onde{display:flex;align-items:center;gap:.45rem;background:none;border:0;padding:0 0 .55rem;cursor:pointer;color:var(--ink);font-family:Poppins,sans-serif;text-align:left;max-width:100%}
+  .onde-pin{width:22px;height:22px;flex:none}
+  .onde-txt{min-width:0;line-height:1.15}
+  .onde-txt small{display:block;font-size:.72rem;color:var(--muted)}
+  .onde-txt b{display:block;font-size:1rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .onde-seta{width:18px;height:18px;flex:none;align-self:flex-end;margin-bottom:.1rem}
+  .cid-sheet{background:#fff;padding-top:1rem}
+  .cid-cab{position:relative;display:flex;align-items:center;justify-content:center;min-height:40px;margin-bottom:.9rem}
+  .cid-cab h3{font-size:.95rem;font-weight:600;letter-spacing:.04em;color:var(--ink)}
+  .cid-cab button{position:absolute;left:-.3rem;top:50%;transform:translateY(-50%);background:none;border:0;padding:.4rem;cursor:pointer;color:#B08A00}
+  .cid-cab button svg{width:24px;height:24px;display:block}
+  .cid-busca{display:flex;align-items:center;gap:.7rem;background:#F4F4F4;border:1px solid #ECECEC;border-radius:10px;padding:.75rem .9rem;color:#B08A00}
+  .cid-busca svg{width:20px;height:20px;flex:none}
+  .cid-busca input{border:0;outline:0;background:transparent;font:400 .95rem Poppins,sans-serif;width:100%;color:var(--text)}
+  .cid-gps{display:flex;align-items:center;gap:1rem;width:100%;margin:.6rem 0 .4rem;background:none;border:0;padding:1rem .2rem;font-family:Poppins,sans-serif;text-align:left;cursor:pointer;color:#777}
+  .cid-gps svg{width:26px;height:26px;flex:none}
+  .cid-gps b{display:block;color:var(--text);font-size:1rem;font-weight:500}
+  .cid-gps small{display:block;font-size:.85rem;color:#999;margin-top:.1rem}
+  .cid-gps:disabled{opacity:.6}
+  .cid-lista{display:flex;flex-direction:column;gap:.6rem;background:#F7F7F7;margin:0 -1.25rem;padding:.8rem 1.25rem 1rem}
+  .cid-lista button{display:flex;align-items:center;gap:1rem;width:100%;background:#fff;border:1.5px solid #fff;border-radius:12px;padding:.95rem 1rem;font:500 .98rem Poppins,sans-serif;color:var(--text);cursor:pointer;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .cid-lista button svg{width:22px;height:22px;flex:none;color:#888}
+  .cid-lista button span{flex:1;min-width:0;line-height:1.25}
+  .cid-lista button small{display:block;font-size:.82rem;color:#999;font-weight:400}
+  .cid-lista button.on{border-color:#F2C200}
+  .cid-lista button.on::after{content:"✓";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#FFC800;color:var(--ink);font-size:.8rem;font-weight:800;flex:none}
   .busca select{border:0;font:.78rem Poppins,sans-serif;color:var(--muted);background:transparent;appearance:none;-webkit-appearance:none;padding:0;width:100%;cursor:pointer}
   .btn-lupa{width:44px;height:44px;border-radius:50%;border:0;background:var(--sun);display:grid;place-items:center;flex:none;cursor:pointer}
   .btn-lupa svg{width:20px;height:20px}
@@ -375,11 +401,16 @@
         <a class="logo" href="./" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
         <a class="link-pro" href="cadastro.html">Sou profissional<small>Cadastre-se aqui</small></a>
       </div>
+      <button class="onde" type="button" id="onde" aria-haspopup="dialog">
+        <svg class="onde-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="#FFC800" stroke="#1A1A1A" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="#1A1A1A"/></svg>
+        <span class="onde-txt"><small>Ver profissionais em</small><b id="onde-nome">Todo o Litoral Norte</b></span>
+        <svg class="onde-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
       <div class="busca" role="search">
         <svg class="lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <div class="busca-txt">
           <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
-          <select id="cidade" aria-label="Cidade"><option value="">Qualquer cidade · Litoral Norte</option></select>
+          <select id="cidade" aria-label="Cidade" autocomplete="off" hidden><option value="">Qualquer cidade · Litoral Norte</option></select>
         </div>
         <button class="btn-lupa" type="button" id="btn-lupa" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       </div>
@@ -462,6 +493,19 @@
     <h3 id="mt-titulo">Todos os serviços</h3>
     <input class="input" type="search" id="mt-busca" placeholder="Procurar… ex.: piscina" style="margin:.8rem 0 1rem" autocomplete="off">
     <div id="mt-lista"></div>
+  </div>
+</div>
+
+<!-- Janela: escolher cidade (estilo iFood) -->
+<div class="modal" id="modal-cid" role="dialog" aria-modal="true" aria-labelledby="mc-titulo">
+  <div class="sheet alta cid-sheet" id="cid-sheet">
+    <div class="cid-cab"><button type="button" id="mc-fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><h3 id="mc-titulo">ONDE VOCÊ PRECISA</h3></div>
+    <label class="cid-busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="cid-q" placeholder="Buscar cidade" autocomplete="off"></label>
+    <button class="cid-gps" type="button" id="perto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      <span><b>Usar minha localização</b><small id="perto-sub">Mostramos quem atende perto de você</small></span>
+    </button>
+    <div class="cid-lista" id="cid-lista"></div>
   </div>
 </div>
 
@@ -629,6 +673,7 @@ function atende(p, cidade) {
   return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
 }
 function render() {
+  $("onde-nome").textContent = rotuloOnde();
   const termo = semAcento($("busca").value.trim());
   const cidade = $("cidade").value;
   const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
@@ -680,7 +725,7 @@ $("busca").addEventListener("input", () => {
     if (!$("lista").querySelector(".item")) contar("busca_vazia", t);
   }, 1500);
 });
-$("cidade").addEventListener("change", render);
+$("cidade").addEventListener("change", () => { salvarJSON("kiiro-cidade", $("cidade").value); render(); });
 $("btn-lupa").addEventListener("click", () => { render(); $("lista").scrollIntoView({ behavior: "smooth", block: "start" }); });
 $("filtro-urg").addEventListener("click", () => {
   soUrgencia = !soUrgencia;
@@ -689,7 +734,7 @@ $("filtro-urg").addEventListener("click", () => {
   render();
 });
 $("limpar").addEventListener("click", () => {
-  catAtiva = ""; $("busca").value = ""; $("cidade").value = "";
+  catAtiva = ""; $("busca").value = ""; $("cidade").value = ""; salvarJSON("kiiro-cidade", "");
   soUrgencia = false; $("filtro-urg").classList.remove("ativo"); $("filtro-urg").setAttribute("aria-pressed", "false");
   montarCats(); render();
 });
@@ -1215,7 +1260,7 @@ function toast(t) {
 }
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  ["modal", "modal-todos", "modal-foto-av"].forEach(id => $(id).classList.remove("aberto"));
+  ["modal", "modal-todos", "modal-foto-av", "modal-cid"].forEach(id => $(id).classList.remove("aberto"));
   if (mBv.classList.contains("aberto")) fecharBv();
 });
 $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${esc(c)}</option>`).join(""));
@@ -1233,10 +1278,104 @@ async function carregarAnuncios() {
     if (Array.isArray(extras) && extras.length) { window.KIIRO_PATROCINIOS = [...(window.KIIRO_PATROCINIOS || []), ...extras]; if (profissionais.length) render(); }
   } catch {}
 }
+/* ===== Cidade pela localização (como o iFood) — tudo calculado no próprio celular ===== */
+const COORD_CIDADES = {
+  "Arroio do Sal": [-29.55, -49.89], "Balneário Pinhal": [-30.24, -50.23], "Capão da Canoa": [-29.75, -50.01],
+  "Capivari do Sul": [-30.14, -50.52], "Caraá": [-29.79, -50.43], "Cidreira": [-30.18, -50.21],
+  "Dom Pedro de Alcântara": [-29.36, -49.85], "Imbé": [-29.965, -50.125], "Itati": [-29.42, -50.10],
+  "Mampituba": [-29.21, -49.93], "Maquiné": [-29.68, -50.21], "Morrinhos do Sul": [-29.36, -49.93],
+  "Mostardas": [-31.11, -50.92], "Osório": [-29.89, -50.27], "Palmares do Sul": [-30.26, -50.51],
+  "Santo Antônio da Patrulha": [-29.82, -50.52], "Terra de Areia": [-29.58, -50.07], "Torres": [-29.34, -49.73],
+  "Tramandaí": [-29.985, -50.135], "Três Cachoeiras": [-29.45, -49.93], "Três Forquilhas": [-29.53, -50.07],
+  "Xangri-Lá": [-29.80, -50.04]
+};
+function cidadeMaisPerto(lat, lon) {
+  let melhor = null, dMin = Infinity;
+  for (const [c, [la, lo]] of Object.entries(COORD_CIDADES)) {
+    if (!(window.KIIRO_CIDADES || []).includes(c)) continue;
+    const x = (lo - lon) * Math.cos((la + lat) / 2 * Math.PI / 180), y = la - lat;
+    const d = Math.sqrt(x * x + y * y) * 111.2; // km
+    if (d < dMin) { dMin = d; melhor = c; }
+  }
+  return dMin <= 30 ? melhor : null; // longe do litoral: não sugere
+}
+function usarCidade(c) {
+  $("cidade").value = c; salvarJSON("kiiro-cidade", c); render();
+}
+const lerOnde = () => lerJSON("kiiro-onde", null);
+function rotuloOnde() {
+  const c = $("cidade").value, o = lerOnde();
+  if (c && o && o.cidade === c && o.bairro) return `${o.bairro}, ${c}`;
+  return c || "Todo o Litoral Norte";
+}
+function pedirLocal() {
+  contar("local_usar");
+  const sub = $("perto-sub"), bt = $("perto");
+  bt.disabled = true; sub.textContent = "Procurando sua localização…";
+  const pronto = (c, end) => {
+    bt.disabled = false;
+    if (!c) { sub.textContent = "Você está fora do Litoral Norte. Escolha uma cidade abaixo."; return; }
+    salvarJSON("kiiro-onde", { ...(end || {}), cidade: c });
+    contar("local_sim"); usarCidade(c); fecharCid();
+  };
+  const falhou = () => {
+    if (DEMO) return pronto("Tramandaí", { rua: "Av. Fernandes Bastos", bairro: "Centro" }); // na prévia simula
+    bt.disabled = false; sub.textContent = "Não consegui ver sua localização. Escolha uma cidade abaixo.";
+  };
+  if (!navigator.geolocation) return falhou();
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    const perto = cidadeMaisPerto(la, lo);
+    let end = null;
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 5000);
+      const r = await fetch(`/.netlify/functions/onde?lat=${la}&lon=${lo}`, { signal: ctl.signal }); clearTimeout(t);
+      if (r.ok) end = await r.json();
+    } catch {}
+    if (DEMO && !end) end = { rua: "Av. Emancipação", bairro: "Centro", cidade: perto || "" }; // na prévia simula
+    // a cidade do endereço vale mais (ex.: divisa Imbé/Tramandaí); senão, a mais perto
+    const daLista = end && (window.KIIRO_CIDADES || []).find(c => semAcento(c).trim() === semAcento(end.cidade).trim());
+    const c = daLista || perto;
+    pronto(c, end && daLista ? { rua: end.rua, bairro: end.bairro } : null);
+  }, falhou, { enableHighAccuracy: true, timeout: 10000, maximumAge: 3e5 });
+}
+const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg>';
+function listarCid() {
+  const atual = $("cidade").value, q = semAcento($("cid-q").value), o = lerOnde();
+  let todas = ["", ...(window.KIIRO_CIDADES || [])].filter(c => !q || semAcento(c || "todo o litoral norte").includes(q));
+  if (atual && todas.includes(atual)) todas = [atual, ...todas.filter(c => c !== atual)]; // a escolhida vem primeiro
+  $("cid-lista").innerHTML = todas.map(c => {
+    const nome = c ? esc(c) : "Todo o Litoral Norte";
+    const sub = !c ? "Todas as 22 cidades" : (o && o.cidade === c && (o.rua || o.bairro)) ? esc([o.rua, o.bairro].filter(Boolean).join(" · ")) : "";
+    return `<button type="button" data-c="${esc(c)}" class="${c === atual ? "on" : ""}">${PIN}<span>${nome}${sub ? `<small>${sub}</small>` : ""}</span></button>`;
+  }).join("") || `<p style="color:#999;padding:.5rem">Nenhuma cidade com esse nome.</p>`;
+}
+function abrirCid() {
+  $("cid-q").value = ""; const o = lerOnde();
+  $("perto-sub").textContent = o && (o.rua || o.bairro) ? [o.rua, o.bairro, o.cidade].filter(Boolean).join(" - ") : "Mostramos quem atende perto de você";
+  listarCid();
+  $("modal-cid").classList.add("aberto"); $("cid-sheet").scrollTop = 0;
+}
+const fecharCid = () => $("modal-cid").classList.remove("aberto");
+$("onde").addEventListener("click", abrirCid);
+$("mc-fechar").addEventListener("click", fecharCid);
+$("cid-q").addEventListener("input", listarCid);
+$("modal-cid").addEventListener("click", e => {
+  if (e.target.id === "modal-cid") return fecharCid();
+  const b = e.target.closest("[data-c]"); if (!b) return;
+  usarCidade(b.dataset.c); fecharCid();
+});
+$("perto").addEventListener("click", pedirLocal);
+function iniciarLocal() {
+  const salva = lerJSON("kiiro-cidade", "");
+  if (salva && (window.KIIRO_CIDADES || []).includes(salva) && !$("cidade").value) { $("cidade").value = salva; render(); }
+}
+
 Promise.all([carregar(), carregarAnuncios()]).then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
   if (m) return abrirPerfil(m[1]);
   if (location.hash === "#anuncie") return irPara("anuncie");
+  iniciarLocal();
   mostrarBalao();
 });
 </script>
