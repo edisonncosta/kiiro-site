@@ -167,6 +167,10 @@
   .mc p{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mc-pe{margin-top:.15rem;display:flex}
   .mc-pe .nota{font-size:.8rem}
+  .dest-tit{font-size:.8rem;color:var(--muted);margin:.1rem 0 .35rem}
+  .selos-crit{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 1rem}
+  .selo-crit{display:inline-flex;align-items:center;gap:.3rem;background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.35rem .75rem;font-size:.82rem;font-weight:600;color:var(--ink)}
+  .selo-crit small{font-weight:500;color:var(--muted);font-size:.72rem}
   .orc-card{grid-column:1/-1;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.6rem 1.25rem;box-shadow:0 4px 18px rgba(90,70,0,.08)}
   .orc-ic{width:56px;height:56px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;margin:0 auto;font-size:1.5rem}
   .orc-card b{display:block;font-size:1.1rem;font-weight:700;color:var(--ink);margin:.8rem 0 .35rem;line-height:1.25}
@@ -639,7 +643,7 @@ const EXEMPLOS = [
   {id:"d6",nome:"Jardins do Litoral",categorias:["Jardineiro","Piscineiro"],cidade:"Xangri-Lá, Capão da Canoa, Imbé",whatsapp:"5551999990006",foto:"",nota:5,avaliacoes:3,desde:"2026-09-01",experiencia:"Mais de 5 anos",dedicacao:"Minha profissão principal",urgencia:"Não",dias:"Dias de semana",orcamento:"Sim",mei:"Sim",descricao:"Corte de grama, poda e manutenção mensal de pátios e piscinas de casa de praia."},
   {id:"d7",nome:"Diego Entregas",categorias:["Motoboy"],cidade:"Todo o Litoral Norte",whatsapp:"5551999990007",foto:"",nota:4.7,avaliacoes:9,desde:"2026-08-22",experiencia:"1 a 3 anos",dedicacao:"Minha profissão principal",urgencia:"Sim",dias:"Dias de semana, Fins de semana, Feriados",orcamento:"Não",mei:"Sim",descricao:"Entregas e coletas rápidas: documentos, farmácia, peças e compras."}
 ];
-const EXEMPLOS_REVIEWS = { total: 12, distribuicao: [0, 0, 1, 1, 10], avaliacoes: [
+const EXEMPLOS_REVIEWS = { total: 12, distribuicao: [0, 0, 1, 1, 10], destaques: [["✨ Caprichoso", 9], ["⏰ Pontual", 8], ["🧹 Deixou tudo limpo", 6], ["💰 Preço justo", 4]], avaliacoes: [
   { nome: "Maria", nota: 5, comentario: "Deixou a casa impecável, super pontual. Já marquei de novo para dezembro.", data: "2026-10-30", foto: EXEMPLO_FOTO },
   { nome: "Carlos", nota: 5, comentario: "Fez a faxina pós-obra em um dia só. Recomendo!", data: "2026-10-21", foto: "" },
   { nome: "Fernanda", nota: 4, comentario: "Muito caprichosa. Só atrasou um pouco.", data: "2026-10-12", foto: "" }
@@ -720,6 +724,19 @@ function atende(p, cidade) {
   const lista = String(p.cidade).split(/\s*,\s*/).map(semAcento);
   return lista.includes(semAcento(window.KIIRO_TODAS)) || lista.includes(semAcento(cidade));
 }
+// busca: nome, serviço, descrição e palavras do dia a dia (servicos.js → KIIRO_PALAVRAS)
+const PALAVRAS = Object.entries(window.KIIRO_PALAVRAS || {}).map(([serv, ps]) => [serv, ps.map(semAcento)]);
+function servicosDoTermo(t) {
+  if (!t || t.length < 3) return [];
+  const comeca = w => w.split(/[\s\-']+/).some(x => x.startsWith(t)) || w.startsWith(t); // "vaza" → "vazamento"
+  const contem = w => w.length >= 4 && (" " + t + " ").includes(" " + w + " ");  // "vazamento na pia" contém "vazamento"
+  return PALAVRAS.filter(([serv, ps]) => comeca(semAcento(serv)) || ps.some(w => comeca(w) || contem(w))).map(([serv]) => serv);
+}
+function bate(p, t) {
+  if (semAcento(p.categorias.join(" ") + " " + p.nome + " " + (p.descricao || "")).includes(t)) return true;
+  const servs = servicosDoTermo(t);
+  return servs.length > 0 && p.categorias.some(c => servs.includes(c));
+}
 function render() {
   $("onde-nome").textContent = rotuloOnde();
   const termo = semAcento($("busca").value.trim());
@@ -729,7 +746,7 @@ function render() {
     (!catAtiva || p.categorias.includes(catAtiva)) &&
     (!soUrgencia || p.urgencia === "Sim") &&
     (!cidade || atende(p, cidade)) &&
-    (!termo || semAcento(p.categorias.join(" ") + " " + p.nome).includes(termo))
+    (!termo || bate(p, termo))
   );
   const filtrando = !!(catAtiva || termo || cidade || soUrgencia);
   $("limpar").classList.toggle("escondido", !filtrando);
@@ -750,7 +767,8 @@ function render() {
   }
   const cards = lista.map(p => visual === "grande" ? cardGrande(p) : card(p));
   if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
-  const oque = catAtiva || (termo ? `“${$("busca").value.trim()}”` : "");
+  const servTermo = !catAtiva && termo ? servicosDoTermo(termo)[0] : "";
+  const oque = catAtiva || servTermo || (termo ? `“${$("busca").value.trim()}”` : "");
   // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
   // sem ninguém nesse serviço: o patrocinador (ou o espaço livre) aparece em cima do aviso
   const ptVazio = !n && modo !== "salvos" && (catAtiva || cidade);
@@ -1106,6 +1124,7 @@ async function abrirPerfil(id) {
   box.innerHTML = `
     ${fotos.length ? `<h2>Fotos enviadas pelos clientes</h2><div class="galeria">${fotos.slice(0, 10).map(a => `<button type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="" loading="lazy"></button>`).join("")}</div><hr>` : ""}
     <h2>★ ${dados.total >= 3 ? notaTxt(p.nota) + " · " : ""}${dados.total} ${dados.total === 1 ? "avaliação" : "avaliações"}</h2>
+    ${selosCrit(dados)}
     ${dados.total >= 3 ? `<div class="barras">${[5, 4, 3, 2, 1].map(n => `<div class="barra"><span>${n} ★</span><i><b style="width:${(dados.distribuicao[n - 1] / max) * 100}%"></b></i><span>${dados.distribuicao[n - 1]}</span></div>`).join("")}</div>` : `<p class="sem-av" style="margin-bottom:.8rem">A nota aparece no card a partir de 3 avaliações.</p>`}
     <div class="reviews">${dados.avaliacoes.map(a => `
       <div class="review">
@@ -1114,6 +1133,11 @@ async function abrirPerfil(id) {
         ${a.foto ? `<button class="ft" type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="Foto do serviço" loading="lazy"></button>` : ""}
         <div class="quem"><div class="avatar">${esc((a.nome || "?")[0])}</div><div><b>${esc(a.nome)}</b><span>${quando(a.data)}</span></div></div>
       </div>`).join("")}</div>`;
+}
+// o que os clientes destacam (aparece com 3+ avaliações; cada ponto com 2+ menções)
+function selosCrit(d) {
+  const l = (d.destaques || []).filter(([, n]) => n >= 2);
+  return d.total >= 3 && l.length ? `<p class="dest-tit">Clientes destacam</p><div class="selos-crit">${l.slice(0, 4).map(([t, n]) => `<span class="selo-crit">${esc(t)} <small>${n}</small></span>`).join("")}</div>` : "";
 }
 function fecharPerfil() {
   irPara(telaAntes || "inicio");
@@ -1399,7 +1423,8 @@ const artigo = s => s ? `um profissional (${s})` : "um profissional";
 function abrirOrc() {
   const termo = $("busca").value.trim();
   const eu = lerJSON("kiiro-cliente", {});
-  orc.dados = { servico: catAtiva || termo || "", cidade: $("cidade").value || "", nome: eu.nome || "", whatsapp: eu.whats || "" };
+  const tb = semAcento(termo);
+  orc.dados = { servico: catAtiva || servicosDoTermo(tb)[0] || termo || "", cidade: $("cidade").value || "", nome: eu.nome || "", whatsapp: eu.whats || "" };
   orc.passo = 0; orc.enviando = false;
   $("oc-msgs").innerHTML = ""; $("oc-in").value = "";
   $("modal-orc").classList.add("aberto");

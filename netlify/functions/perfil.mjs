@@ -28,7 +28,11 @@ export default async (req) => {
     data: a.data,
   }));
 
-  return json(200, { total: dele.length, distribuicao, avaliacoes }, { "Cache-Control": "public, max-age=120" });
+  // o que os clientes destacam (só os pontos positivos aparecem no perfil)
+  const BONS = ["⏰ Pontual", "✨ Caprichoso", "💰 Preço justo", "🙂 Educado", "🧹 Deixou tudo limpo", "⚡ Resolveu rápido"];
+  const destaques = BONS.map((t) => [t, dele.filter((a) => Array.isArray(a.tags) && a.tags.includes(t)).length]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+
+  return json(200, { total: dele.length, distribuicao, avaliacoes, destaques }, { "Cache-Control": "public, max-age=120" });
 };
 
 function json(status, body, extra = {}) {

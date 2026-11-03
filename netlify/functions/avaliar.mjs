@@ -46,6 +46,12 @@ export default async (req) => {
     feito, nota, motivo,
     comentario: limpa(d.comentario, 500),
   };
+  // o que foi bom / o que pode melhorar (opcional, lista fixa)
+  const TAGS = ["⏰ Pontual", "✨ Caprichoso", "💰 Preço justo", "🙂 Educado", "🧹 Deixou tudo limpo", "⚡ Resolveu rápido", "Atrasou", "Preço alto", "Acabamento", "Comunicação", "Deixou sujeira", "Demorou para resolver"];
+  if (feito === "sim" && Array.isArray(d.tags)) {
+    const t = [...new Set(d.tags.filter((x) => TAGS.includes(x)))];
+    if (t.length) av.tags = t;
+  }
   // foto do serviço (opcional, só quando o serviço foi feito)
   const foto = feito === "sim" && typeof d.foto === "string" ? d.foto.match(/^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/) : null;
   if (foto) {

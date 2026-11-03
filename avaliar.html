@@ -34,6 +34,9 @@
   .estrelas svg{width:46px;height:46px;fill:#fff;stroke:#C9B470;stroke-width:1.4;stroke-linejoin:round;transition:transform .12s}
   .estrelas button.on svg{fill:var(--sun);stroke:#B08A00}
   .estrelas button:active svg{transform:scale(.88)}
+  .tags-av{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.5rem}
+  .tags-av button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:.5rem .9rem;font:500 .88rem Poppins,sans-serif;color:var(--text);cursor:pointer;transition:all .12s}
+  .tags-av button.on{background:var(--sun-soft);border-color:#F2C200;color:var(--ink);font-weight:600}
   .rotulo-nota{font-weight:700;margin-top:.3rem;min-height:1.5em}
   .foto-av{display:flex;align-items:center;gap:.9rem;background:#fff;border:1.5px dashed #D9C88E;border-radius:16px;padding:.7rem;cursor:pointer}
   .foto-av-prev{width:64px;height:64px;border-radius:12px;background:var(--sun-soft) center/cover;display:grid;place-items:center;font-size:1.6rem;flex:none;border:1px solid var(--line)}
@@ -94,6 +97,11 @@
         <span class="legenda">Que nota você dá?</span>
         <div class="estrelas" id="estrelas" role="radiogroup" aria-label="Nota de 1 a 5"></div>
         <p class="rotulo-nota" id="rotulo-nota"></p>
+      </div>
+
+      <div class="campo escondido" id="bloco-crit">
+        <span class="legenda" id="tags-titulo">O que foi ótimo?</span> <span class="opc">(opcional, pode marcar mais de um)</span>
+        <div class="tags-av" id="tags-av"></div>
       </div>
 
       <div class="campo escondido" id="bloco-motivo">
@@ -209,13 +217,30 @@ $("foto-av-tirar").onclick = () => {
   $("foto-av-titulo").textContent = "Adicionar foto"; $("foto-av-tirar").classList.add("escondido");
 };
 
+/* o que foi bom / o que pode melhorar (muda conforme as estrelas, como no iFood) */
+const TAGS_BOM = ["⏰ Pontual", "✨ Caprichoso", "💰 Preço justo", "🙂 Educado", "🧹 Deixou tudo limpo", "⚡ Resolveu rápido"];
+const TAGS_RUIM = ["Atrasou", "Preço alto", "Acabamento", "Comunicação", "Deixou sujeira", "Demorou para resolver"];
+let tags = new Set(), grupoTags = "";
+function montarTags() {
+  const g = nota >= 4 ? "bom" : nota ? "ruim" : "";
+  $("bloco-crit").classList.toggle("escondido", !g);
+  if (g === grupoTags) return;
+  grupoTags = g; tags = new Set();
+  $("tags-titulo").textContent = g === "bom" ? "O que foi ótimo?" : "O que pode melhorar?";
+  $("tags-av").innerHTML = (g === "bom" ? TAGS_BOM : TAGS_RUIM).map(t => `<button type="button" data-t="${t}">${t}</button>`).join("");
+}
+$("tags-av").addEventListener("click", e => {
+  const b = e.target.closest("button[data-t]"); if (!b) return;
+  const t = b.dataset.t; tags.has(t) ? tags.delete(t) : tags.add(t); b.classList.toggle("on", tags.has(t));
+});
+
 /* estrelas */
 for (let i = 1; i <= 5; i++) {
   const b = document.createElement("button");
   b.type = "button"; b.dataset.v = i; b.innerHTML = estrela;
   b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
   b.setAttribute("aria-label", `${i} estrela${i > 1 ? "s" : ""}, ${ROTULOS[i]}`);
-  b.onclick = () => { nota = i; pinta(); };
+  b.onclick = () => { nota = i; pinta(); montarTags(); };
   $("estrelas").appendChild(b);
 }
 function pinta() {
@@ -233,6 +258,7 @@ document.querySelectorAll('input[name=feito]').forEach(r => r.addEventListener("
   $("bloco-motivo").classList.toggle("escondido", sim);
   $("bloco-comentario").classList.remove("escondido");
   $("bloco-foto").classList.toggle("escondido", !sim);
+  $("bloco-crit").classList.toggle("escondido", !sim || !nota);
   $("erro").textContent = "";
 }));
 
@@ -247,7 +273,7 @@ $("form").addEventListener("submit", async e => {
   $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
 
   try {
-    await api("POST", { c: codigo, feito: feito.value, nota: feito.value === "sim" ? nota : 0, motivo: motivo ? motivo.value : "", comentario: $("comentario").value.trim(), foto: feito.value === "sim" ? fotoDados : "" });
+    await api("POST", { c: codigo, feito: feito.value, nota: feito.value === "sim" ? nota : 0, motivo: motivo ? motivo.value : "", comentario: $("comentario").value.trim(), foto: feito.value === "sim" ? fotoDados : "", tags: feito.value === "sim" ? [...tags] : [] });
   } catch (err) {
     $("enviar").disabled = false; $("enviar").textContent = "Enviar avaliação";
     if (err.status === 409) return mostraFinal("✓", "Você já avaliou", "Sua avaliação já tinha sido registrada. Obrigado!");
