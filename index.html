@@ -167,6 +167,34 @@
   .mc p{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mc-pe{margin-top:.15rem;display:flex}
   .mc-pe .nota{font-size:.8rem}
+  .orc-card{grid-column:1/-1;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:1.6rem 1.25rem;box-shadow:0 4px 18px rgba(90,70,0,.08)}
+  .orc-ic{width:56px;height:56px;border-radius:50%;background:var(--sun-soft);display:grid;place-items:center;margin:0 auto;font-size:1.5rem}
+  .orc-card b{display:block;font-size:1.1rem;font-weight:700;color:var(--ink);margin:.8rem 0 .35rem;line-height:1.25}
+  .orc-card p{color:var(--muted);font-size:.88rem;line-height:1.5;max-width:22rem;margin:0 auto}
+  .orc-bt{display:block;width:100%;max-width:22rem;margin:1.1rem auto 0;background:var(--sun);color:var(--ink);border:0;border-radius:14px;padding:.95rem;font:700 1rem Poppins,sans-serif;cursor:pointer}
+  #modal-orc .sheet{background:#fff;padding:0;display:flex;flex-direction:column;height:min(88vh,720px);max-height:none;overflow:hidden}
+  .oc-top{display:flex;align-items:center;gap:.65rem;padding:1.1rem 1.1rem .8rem;border-bottom:1px solid #F0EBDD;position:relative}
+  .oc-top::before{content:"";position:absolute;left:50%;top:.45rem;transform:translateX(-50%);width:40px;height:4px;border-radius:4px;background:#E2DAC0}
+  .oc-av{width:38px;height:38px;border-radius:50%;background:var(--sun);display:grid;place-items:center;flex:none}
+  .oc-av svg{width:26px;color:var(--ink)}
+  .oc-top b{display:block;font-size:.95rem}
+  .oc-top small{font-size:.75rem;color:var(--muted)}
+  .oc-x{margin-left:auto;background:none;border:0;font-size:1.3rem;color:#999;cursor:pointer;padding:.3rem .5rem}
+  .oc-msgs{flex:1;overflow-y:auto;padding:1rem .9rem;display:flex;flex-direction:column;gap:.5rem;background:#FFFCF2}
+  .oc-k,.oc-u{max-width:82%;padding:.65rem .85rem;font-size:.9rem;line-height:1.42;border-radius:18px;animation:balao .25s ease-out;white-space:pre-line;overflow-wrap:anywhere}
+  .oc-k{background:#fff;border:1px solid #EFE8D4;border-bottom-left-radius:6px;align-self:flex-start}
+  .oc-u{background:#FFE9A3;align-self:flex-end;border-bottom-right-radius:6px}
+  .oc-digit{align-self:flex-start;background:#fff;border:1px solid #EFE8D4;border-radius:18px;padding:.6rem .9rem;letter-spacing:.2em;color:#B5AE98}
+  .oc-chips{display:flex;flex-wrap:wrap;gap:.4rem;align-self:flex-start;max-width:100%}
+  .oc-chips button{border:1.5px solid #F2C200;background:#fff;color:var(--ink);border-radius:999px;padding:.45rem .85rem;font:500 .84rem Poppins,sans-serif;cursor:pointer}
+  .oc-ok{align-self:stretch;background:#EAF7EF;border:1px solid #BFE6CD;border-radius:16px;padding:.8rem .9rem;font-size:.86rem;line-height:1.45}
+  .oc-ok b{display:block;color:#1E7A45}
+  .oc-bar{display:flex;gap:.5rem;align-items:center;padding:.65rem .75rem calc(.9rem + env(safe-area-inset-bottom));border-top:1px solid #F0EBDD;background:#fff}
+  .oc-bar input{flex:1;min-width:0;background:#F5F3EC;border:0;outline:0;border-radius:999px;padding:.75rem 1rem;font:400 16px Poppins,sans-serif;color:var(--text)}
+  .oc-bar input:disabled{opacity:.5}
+  .oc-go{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:var(--sun);display:grid;place-items:center;cursor:pointer}
+  .oc-go svg{width:20px;height:20px}
+  .oc-go:disabled{opacity:.4}
   .vazio{grid-column:1/-1;text-align:center;background:var(--card);border:1.5px dashed #E1CF8C;border-radius:20px;padding:2rem 1.2rem}
   .vazio b{display:block;font-size:1.05rem;margin-bottom:.3rem}
   .vazio p{color:var(--muted);margin-bottom:1rem}
@@ -507,6 +535,15 @@
   </div>
 </div>
 
+<!-- Janela: pedido de orçamento (chat) -->
+<div class="modal" id="modal-orc" role="dialog" aria-modal="true" aria-label="Pedido de orçamento">
+  <div class="sheet">
+    <div class="oc-top"><span class="oc-av"><svg viewBox="0 0 340 150" aria-hidden="true"><use href="#wordmark"/></svg></span><div><b>Kiiro</b><small>Pedido de orçamento grátis</small></div><button class="oc-x" type="button" id="oc-x" aria-label="Fechar">✕</button></div>
+    <div class="oc-msgs" id="oc-msgs" aria-live="polite"></div>
+    <form class="oc-bar" id="oc-form" autocomplete="on"><input id="oc-in" placeholder="Escreva aqui…" enterkeyhint="send"><button class="oc-go" id="oc-go" type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="#1A1A1A"><path d="M3 20.5V14l9-2-9-2V3.5L22 12z"/></svg></button></form>
+  </div>
+</div>
+
 <!-- Janela: escolher cidade (estilo iFood) -->
 <div class="modal" id="modal-cid" role="dialog" aria-modal="true" aria-labelledby="mc-titulo">
   <div class="sheet alta cid-sheet" id="cid-sheet">
@@ -719,10 +756,11 @@ function render() {
   const ptVazio = !n && modo !== "salvos" && (catAtiva || cidade);
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
     ${ptVazio ? cardPatrocinio() : ""}
-    <div class="vazio">
-      <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${cidade ? " em " + esc(cidade) : ""}.</b>
-      <p>Chame a Kiiro que a gente procura alguém para você.</p>
-      ${btnKiiro(`Olá, Kiiro! Preciso de ${oque || "um profissional"}${cidade ? " em " + cidade : ""}.`)}
+    <div class="orc-card">
+      <span class="orc-ic" aria-hidden="true">📝</span>
+      <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${cidade ? " em " + esc(cidade) : ""}</b>
+      <p>Conte o que você precisa e a Kiiro procura um profissional para você. Ele te chama no WhatsApp.</p>
+      <button class="orc-bt" type="button" data-orc>Pedir orçamento grátis</button>
     </div>`;
 }
 let buscaTimer;
@@ -1271,7 +1309,7 @@ function toast(t) {
 }
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  ["modal", "modal-todos", "modal-foto-av", "modal-cid"].forEach(id => $(id).classList.remove("aberto"));
+  ["modal", "modal-todos", "modal-foto-av", "modal-cid", "modal-orc"].forEach(id => $(id).classList.remove("aberto"));
   if (mBv.classList.contains("aberto")) fecharBv();
 });
 $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${esc(c)}</option>`).join(""));
@@ -1289,6 +1327,92 @@ async function carregarAnuncios() {
     if (Array.isArray(extras) && extras.length) { window.KIIRO_PATROCINIOS = [...(window.KIIRO_PATROCINIOS || []), ...extras]; if (profissionais.length) render(); }
   } catch {}
 }
+/* ===== Pedido de orçamento em formato de chat (só quando não tem profissional) ===== */
+const orc = { dados: {}, passo: 0, enviando: false };
+function ocMsg(txt, quem = "k") {
+  const d = document.createElement("div"); d.className = quem === "k" ? "oc-k" : "oc-u";
+  d.innerHTML = txt; $("oc-msgs").appendChild(d); $("oc-msgs").scrollTop = 1e6; return d;
+}
+function ocDigitando(ms = 550) {
+  const d = document.createElement("div"); d.className = "oc-digit"; d.textContent = "•••";
+  $("oc-msgs").appendChild(d); $("oc-msgs").scrollTop = 1e6;
+  return new Promise(r => setTimeout(() => { d.remove(); r(); }, ms));
+}
+function ocChips(opcoes, fn) {
+  const c = document.createElement("div"); c.className = "oc-chips";
+  opcoes.forEach(o => { const b = document.createElement("button"); b.type = "button"; b.textContent = o; b.onclick = () => { c.remove(); fn(o); }; c.appendChild(b); });
+  $("oc-msgs").appendChild(c); $("oc-msgs").scrollTop = 1e6;
+}
+function ocEntrada(on, tipo = "text", ph = "Escreva aqui…") {
+  const i = $("oc-in"); i.disabled = !on; $("oc-go").disabled = !on;
+  i.type = tipo; i.inputMode = tipo === "tel" ? "tel" : "text"; i.placeholder = ph;
+  i.autocomplete = tipo === "tel" ? "tel" : ph.startsWith("Seu nome") ? "name" : "off";
+  if (on) setTimeout(() => i.focus(), 60);
+}
+const OC_PASSOS = [
+  { campo: "descricao", pergunta: () => "Me conta: o que você precisa?", ph: "Ex.: vazamento embaixo da pia", ok: v => v.length >= 4 || "Conta um pouquinho mais, para o profissional entender." },
+  { campo: "cidade", pula: () => !!orc.dados.cidade, pergunta: () => "Em qual cidade?", chips: () => window.KIIRO_CIDADES || [] },
+  { campo: "quando", pergunta: () => "Entendi! Para quando?", chips: () => ["Hoje", "Esta semana", "Sem pressa"] },
+  { campo: "nome", pula: () => !!orc.dados.nome, pergunta: () => "Qual o seu nome?", ph: "Seu nome", ok: v => v.length >= 2 || "Me diz seu nome, por favor." },
+  { campo: "whatsapp", pergunta: () => orc.dados.whatsapp ? `Posso pedir para te chamarem no ${orc.dados.whatsapp}?` : "E o seu WhatsApp, para o profissional te chamar?", chipsSe: () => orc.dados.whatsapp ? ["Sim, pode", "Outro número"] : null, tipo: "tel", ph: "(51) 99999-9999", ok: v => [10, 11].includes(v.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "").length) || "Esse número parece incompleto. Coloque com DDD, ex.: (51) 99999-9999." },
+];
+async function ocProximo() {
+  while (orc.passo < OC_PASSOS.length && OC_PASSOS[orc.passo].pula && OC_PASSOS[orc.passo].pula()) orc.passo++;
+  if (orc.passo >= OC_PASSOS.length) return ocEnviar();
+  const P = OC_PASSOS[orc.passo];
+  ocEntrada(false); await ocDigitando(); ocMsg(esc(P.pergunta()));
+  const chipsSe = P.chipsSe && P.chipsSe();
+  if (chipsSe) return ocChips(chipsSe, o => { ocMsg(esc(o), "u"); if (o.startsWith("Sim")) { orc.passo++; ocProximo(); } else { orc.dados.whatsapp = ""; ocEntrada(true, P.tipo, P.ph); } });
+  if (P.chips) { ocChips(P.chips(), o => { ocMsg(esc(o), "u"); orc.dados[P.campo] = o; orc.passo++; ocProximo(); }); return; }
+  ocEntrada(true, P.tipo || "text", P.ph);
+}
+$("oc-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const P = OC_PASSOS[orc.passo]; const v = $("oc-in").value.trim();
+  if (!P || !v || $("oc-in").disabled) return;
+  $("oc-in").value = ""; ocMsg(esc(v), "u");
+  const ok = P.ok ? P.ok(v) : true;
+  if (ok !== true) { ocEntrada(false); await ocDigitando(400); ocMsg(esc(ok)); return ocEntrada(true, P.tipo || "text", P.ph); }
+  orc.dados[P.campo] = v; orc.passo++; ocProximo();
+});
+async function ocEnviar() {
+  if (orc.enviando) return; orc.enviando = true;
+  ocEntrada(false); await ocDigitando(700);
+  const d = orc.dados;
+  salvarJSON("kiiro-cliente", { ...lerJSON("kiiro-cliente", {}), nome: d.nome, whats: d.whatsapp });
+  let ok = DEMO;
+  if (!DEMO) {
+    try { const r = await fetch("/.netlify/functions/pedido", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) }); ok = r.ok; } catch {}
+  }
+  orc.enviando = false;
+  if (!ok) {
+    ocMsg("Ops, não consegui enviar agora. 😕");
+    return ocChips(["Tentar de novo"], () => ocEnviar());
+  }
+  contar("orc_envio", d.servico);
+  const c = document.createElement("div"); c.className = "oc-ok";
+  c.innerHTML = `<b>✓ Pedido enviado!</b>Vamos procurar ${esc(artigo(d.servico))} que atende${d.cidade ? " em " + esc(d.cidade) : ""}. Ele vai te chamar no WhatsApp.`;
+  $("oc-msgs").appendChild(c); $("oc-msgs").scrollTop = 1e6;
+  ocChips(["Fechar"], fecharOrc);
+}
+const artigo = s => s ? `um profissional (${s})` : "um profissional";
+function abrirOrc() {
+  const termo = $("busca").value.trim();
+  const eu = lerJSON("kiiro-cliente", {});
+  orc.dados = { servico: catAtiva || termo || "", cidade: $("cidade").value || "", nome: eu.nome || "", whatsapp: eu.whats || "" };
+  orc.passo = 0; orc.enviando = false;
+  $("oc-msgs").innerHTML = ""; $("oc-in").value = "";
+  $("modal-orc").classList.add("aberto");
+  contar("orc_abrir", orc.dados.servico);
+  const oque = orc.dados.servico ? `<b>${esc(orc.dados.servico.toLowerCase())}${orc.dados.cidade ? " em " + esc(orc.dados.cidade) : ""}</b>` : "esse serviço";
+  ocMsg(`Oi${orc.dados.nome ? ", " + esc(orc.dados.nome.split(" ")[0]) : ""}! 👋 Ainda não temos ${oque}, mas eu procuro um para você.`);
+  ocProximo();
+}
+const fecharOrc = () => $("modal-orc").classList.remove("aberto");
+$("oc-x").addEventListener("click", fecharOrc);
+$("modal-orc").addEventListener("click", e => { if (e.target.id === "modal-orc") fecharOrc(); });
+$("lista").addEventListener("click", e => { if (e.target.closest("[data-orc]")) abrirOrc(); });
+
 /* ===== Cidade pela localização (como o iFood) — tudo calculado no próprio celular ===== */
 const COORD_CIDADES = {
   "Arroio do Sal": [-29.55, -49.89], "Balneário Pinhal": [-30.24, -50.23], "Capão da Canoa": [-29.75, -50.01],

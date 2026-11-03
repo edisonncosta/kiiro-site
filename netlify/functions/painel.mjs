@@ -89,6 +89,17 @@ export default async (req, context) => {
       await admin.setJSON("anunciosRecusados", [...recusados]);
       return Response.redirect(`${base}/painel${q({ aba: "anuncios", aviso })}`, 303);
     }
+    // ----- pedidos de orçamento (chat do site)
+    if (String(acao || "").startsWith("pd_")) {
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      const pedidos = getStore("pedidos");
+      const p = id && (await pedidos.get(id, { type: "json" }));
+      let aviso = "";
+      if (p && acao === "pd_atendido") { await pedidos.setJSON(id, { ...p, status: "atendido" }); aviso = "Pedido marcado como atendido."; }
+      if (p && acao === "pd_novo") { await pedidos.setJSON(id, { ...p, status: "novo" }); aviso = "Pedido voltou para abertos."; }
+      if (p && acao === "pd_excluir") { await pedidos.delete(id); aviso = "Pedido excluído."; }
+      return Response.redirect(`${base}/painel${q({ aba: "pedidos", aviso })}`, 303);
+    }
     const w = String(f.get("w") || "").replace(/\D/g, "");
     const admin = getStore("admin");
     const ocultos = new Set((await admin.get("ocultos", { type: "json" })) || []);
@@ -212,6 +223,8 @@ export default async (req, context) => {
       ["Cadastros novos ou atualizados", cadastrosEm],
       ["Viram a página Anuncie", (d) => soma("anuncie_ver", d)],
       ["Clicaram em “Quero anunciar”", (d) => soma("anuncie_quero", d)],
+      ["Abriram o pedido de orçamento", (d) => soma("orc_abrir", d)],
+      ["Enviaram pedido de orçamento", (d) => soma("orc_envio", d)],
       ["Usaram a localização", (d) => soma("local_usar", d)],
       ["Aceitaram ver a cidade sugerida", (d) => soma("local_sim", d)],
     ];
@@ -488,6 +501,35 @@ export default async (req, context) => {
       <p class="obs">Link para mandar às empresas: <b>${esc(base)}/anunciar</b></p>`;
   }
 
+  if (aba === "pedidos") {
+    const store = getStore("pedidos");
+    const { blobs } = await store.list();
+    const itens = (await Promise.all(blobs.map((b) => b.key).sort().reverse().slice(0, 300).map(async (k) => ({ k, p: await store.get(k, { type: "json" }) })))).filter((i) => i.p);
+    const abertos = itens.filter((i) => i.p.status !== "atendido").length;
+    const lista = itens.filter((i) => (filtro === "abertos" ? i.p.status !== "atendido" : filtro === "atendidos" ? i.p.status === "atendido" : true));
+    const sub = (v, t, n) => `<a class="aba mini ${filtro === v ? "on" : ""}" href="${q({ aba: "pedidos", ver: v })}">${t} <small>${n}</small></a>`;
+    const bt = (k, acao, txt, conf) => `<form method="post" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="id" value="${esc(k)}"><button class="b" name="acao" value="${acao}"${conf ? ` onclick="return confirm('${conf}')"` : ""}>${txt}</button></form>`;
+    html = `<nav class="abas sub">${sub("todas", "Todos", itens.length)}${sub("abertos", "Abertos", abertos)}${sub("atendidos", "Atendidos", itens.length - abertos)}</nav>` +
+      (lista.map(({ k, p }) => {
+        const primeiro = String(p.nome).split(" ")[0];
+        const texto = `Oi, ${primeiro}! Aqui é da Kiiro 💛\n\nRecebi seu pedido de ${String(p.servico).toLowerCase()}${p.cidade ? " em " + p.cidade : ""}. Já estou procurando um profissional para você e te aviso por aqui.`;
+        const indicar = `Oi! Aqui é da Kiiro 💛 Tenho um cliente precisando de ${String(p.servico).toLowerCase()}${p.cidade ? " em " + p.cidade : ""}: "${p.descricao}" (${p.quando || "sem data"}). Tem interesse? O contato é ${p.nome}: https://wa.me/${p.whatsapp}`;
+        return `
+        <article>
+          <div class="l1"><b>${esc(p.servico)}${p.cidade ? " · " + esc(p.cidade) : ""}</b><span>${fmt(p.data)}</span></div>
+          <p><b>${esc(p.nome)}</b> · ${esc(p.quando || "sem data")}</p>
+          <blockquote>“${esc(p.descricao)}”</blockquote>
+          ${p.status === "atendido" ? `<span class="st bom">Atendido</span>` : `<span class="st pend">Aberto</span>`}
+          <div class="acoes">
+            <a class="b zap" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">Responder cliente</a>
+            <a class="b" href="https://wa.me/?text=${encodeURIComponent(indicar)}" target="_blank" rel="noopener">Mandar a um profissional</a>
+            ${p.status === "atendido" ? bt(k, "pd_novo", "Reabrir") : bt(k, "pd_atendido", "Marcar atendido")}
+            ${bt(k, "pd_excluir", "Excluir", "Excluir este pedido?")}
+          </div>
+        </article>`;
+      }).join("") || '<p class="vazio">Nenhum pedido ainda. Eles aparecem aqui quando alguém pede orçamento num serviço sem profissional.</p>');
+  }
+
   if (aba === "chamadas") {
     const chaves = todasChaves.slice(0, 300);
     const itens = (await Promise.all(chaves.map(async (k) => {
@@ -603,7 +645,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("chamadas", "Chamadas")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("chamadas", "Chamadas")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
