@@ -1570,6 +1570,7 @@ function cidadeMaisPerto(lat, lon) {
   return dMin <= 30 ? melhor : null; // longe do litoral: não sugere
 }
 function usarCidade(c) {
+  if (c && c !== $("cidade").value) contar("cidade", c);
   $("cidade").value = c; salvarJSON("kiiro-cidade", c); render();
 }
 const lerOnde = () => lerJSON("kiiro-onde", null);

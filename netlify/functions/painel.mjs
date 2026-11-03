@@ -275,8 +275,10 @@ export default async (req, context) => {
         ${lista("Mais buscados", top("buscas"), "Nenhuma busca ainda.")}
         ${lista("Buscaram e não acharam ninguém", top("vazias"), "Nenhuma busca sem resultado. Ótimo!")}
         ${lista("Serviços mais chamados", top("chamados"), "Nenhuma chamada ainda.")}
+        ${lista("De onde acessam (aproximado)", top("geo"), "A contagem por cidade começou agora.")}
+        ${lista("Cidades escolhidas no site", top("cidades_esc"), "Ninguém escolheu cidade ainda.")}
       </div>
-      <p class="obs" style="padding:0 4px">“Buscaram e não acharam” mostra que tipo de profissional falta cadastrar.</p>
+      <p class="obs" style="padding:0 4px">“Buscaram e não acharam” mostra que tipo de profissional falta cadastrar. “De onde acessam” vem da internet da pessoa e é aproximado: no 4G, a operadora às vezes mostra outra cidade, como Porto Alegre. “Cidades escolhidas” é o que a pessoa marcou na Kiiro, mais certeiro.</p>
       ${(() => {
         const vis = Object.fromEntries(top("patro_ver")), cli = Object.fromEntries(top("patro_clique"));
         const nomes = [...new Set([...Object.keys(vis), ...Object.keys(cli)])];
@@ -514,6 +516,82 @@ export default async (req, context) => {
       <p class="obs">Link para mandar às empresas: <b>${esc(base)}/anunciar</b></p>`;
   }
 
+  if (aba === "graficos") {
+    const met = getStore("metricas");
+    const d30 = diasAtras(29);
+    const chavesMet = (await met.list()).blobs.map((b) => b.key).filter((k) => k.slice(0, 10) >= d30);
+    const gav = await Promise.all(chavesMet.map(async (k) => ({ dia: k.slice(0, 10), m: (await met.get(k, { type: "json" })) || { n: {} } })));
+    const tipo = url.searchParams.get("t") || "visita";
+    const TIPOS_G = { visita: "Visitas", perfil: "Perfis abertos", chamar: "Chamadas" };
+    const nomeT = TIPOS_G[tipo] || "Visitas";
+
+    // por dia (30 dias)
+    const listaDias = Array.from({ length: 30 }, (_, i) => diasAtras(29 - i));
+    const chDias = todasChaves.map((k) => dataDaChave(k)).filter(Boolean);
+    const porDia = listaDias.map((dia) => tipo === "chamar"
+      ? chDias.filter((d) => diaSP(d) === dia).length
+      : gav.filter((g) => g.dia === dia).reduce((a, g) => a + (g.m.n[tipo] || 0), 0));
+    const rotDia = listaDias.map((d) => d.slice(8, 10) + "/" + d.slice(5, 7));
+
+    // por hora: hoje e 7 dias (os eventos por hora começaram a ser guardados em 03/11/2026)
+    const horaSP = (d) => Number(new Date(d).toLocaleString("en-GB", { timeZone: TZ, hour: "2-digit", hourCycle: "h23" }).slice(0, 2));
+    const porHora = (desde) => Array.from({ length: 24 }, (_, h) => {
+      if (tipo === "chamar") return chDias.filter((d) => diaSP(d) >= desde && horaSP(d) === h).length;
+      const hh = String(h).padStart(2, "0");
+      return gav.filter((g) => g.dia >= desde).reduce((a, g) => a + ((g.m.h && g.m.h[hh] && g.m.h[hh][tipo]) || 0), 0);
+    });
+    const hHoje = porHora(hoje), h7 = porHora(diasAtras(6));
+    const rotHora = Array.from({ length: 24 }, (_, h) => h + "h");
+    const horaAgora = horaSP(Date.now());
+
+    // dia da semana (30 dias)
+    const SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const porSem = SEM.map((_, w) => listaDias.reduce((a, dia, i) => a + (new Date(dia + "T12:00:00Z").getUTCDay() === w ? porDia[i] : 0), 0));
+
+    const pico = (arr, rot) => { const mx = Math.max(...arr); return mx ? rot[arr.indexOf(mx)] : "–"; };
+    const total = (arr) => arr.reduce((a, b) => a + b, 0);
+    const temHora = tipo === "chamar" || gav.some((g) => g.m.h);
+
+    // gráfico de barras em SVG (uma série, sem legenda; passar o dedo mostra o valor)
+    const barras = (vals, rots, { destaque = -1, cada = 1, alt = 150 } = {}) => {
+      const n = vals.length, W = 640, H = alt, top = 18, base = H - 22, mx = Math.max(1, ...vals);
+      const passo = W / n, larg = Math.max(4, passo - 2);
+      const nice = mx <= 5 ? mx : Math.ceil(mx / 5) * 5;
+      const y = (v) => base - (v / nice) * (base - top);
+      const grade = [0.5, 1].map((f) => `<line x1="0" x2="${W}" y1="${y(nice * f)}" y2="${y(nice * f)}" class="gl"/><text x="${W}" y="${y(nice * f) - 4}" class="gy" text-anchor="end">${num(Math.round(nice * f))}</text>`).join("");
+      const bs = vals.map((v, i) => {
+        const x = i * passo + 1, h = Math.max(0, base - y(v)), r = Math.min(4, larg / 2, h);
+        const d = h > 0 ? `M${x},${base}V${base - h + r}Q${x},${base - h} ${x + r},${base - h}H${x + larg - r}Q${x + larg},${base - h} ${x + larg},${base - h + r}V${base}Z` : "";
+        return `<g class="gb${i === destaque ? " on" : ""}"><rect x="${i * passo}" y="${top}" width="${passo}" height="${base - top}" class="hit"/>${d ? `<path d="${d}"/>` : `<rect x="${x}" y="${base - 1}" width="${larg}" height="1" class="zero"/>`}<title>${esc(rots[i])}: ${num(v)}</title></g>`;
+      }).join("");
+      const rx = rots.map((t, i) => (i % cada === 0 || i === n - 1) && !(i === n - 1 && (n - 1) % cada !== 0 && (n - 1) % cada < cada / 2) ? `<text x="${i * passo + passo / 2}" y="${H - 6}" class="gx" text-anchor="middle">${esc(t)}</text>` : "").join("");
+      return `<svg viewBox="0 0 ${W} ${H}" class="graf" role="img">${grade}<line x1="0" x2="${W}" y1="${base}" y2="${base}" class="gbase"/>${bs}${rx}</svg>`;
+    };
+    const tabelaDe = (rots, vals) => `<details class="gt"><summary>Ver em tabela</summary><table><tbody>${rots.map((r, i) => `<tr><td>${esc(r)}</td><td>${num(vals[i])}</td></tr>`).join("")}</tbody></table></details>`;
+    const sel = (v, t) => `<a class="aba mini ${tipo === v ? "on" : ""}" href="${q({ aba: "graficos", t: v })}">${t}</a>`;
+
+    html = `<nav class="abas sub">${sel("visita", "Visitas")}${sel("perfil", "Perfis abertos")}${sel("chamar", "Chamadas")}</nav>
+      <section class="cx"><h3>${nomeT} por dia · 30 dias</h3>
+        <div class="kpis"><div><b>${num(total(porDia))}</b><span>no total</span></div><div><b>${num(porDia[29])}</b><span>hoje</span></div><div><b>${esc(pico(porDia, rotDia))}</b><span>melhor dia</span></div></div>
+        ${barras(porDia, rotDia, { destaque: 29, cada: 5 })}
+        ${tabelaDe(rotDia, porDia)}
+      </section>
+      <section class="cx"><h3>${nomeT} por hora · hoje</h3>
+        ${temHora ? `<div class="kpis"><div><b>${num(total(hHoje))}</b><span>hoje</span></div><div><b>${esc(pico(hHoje, rotHora))}</b><span>hora com mais</span></div></div>
+        ${barras(hHoje, rotHora, { destaque: horaAgora, cada: 3 })}<p class="obs">A barra amarela é a hora atual.</p>` : `<p class="vz">A contagem por hora começou agora. Os dados aparecem conforme as pessoas entram.</p>`}
+      </section>
+      <section class="cx"><h3>${nomeT} por hora · últimos 7 dias somados</h3>
+        ${temHora ? `<div class="kpis"><div><b>${esc(pico(h7, rotHora))}</b><span>horário de pico</span></div></div>
+        ${barras(h7, rotHora, { destaque: h7.indexOf(Math.max(...h7)), cada: 3 })}
+        <p class="obs">Bom para saber a melhor hora de postar no Instagram e nos grupos.</p>${tabelaDe(rotHora, h7)}` : `<p class="vz">Começa a aparecer a partir de hoje.</p>`}
+      </section>
+      <section class="cx"><h3>${nomeT} por dia da semana · 30 dias</h3>
+        <div class="kpis"><div><b>${esc(pico(porSem, SEM))}</b><span>dia com mais</span></div></div>
+        ${barras(porSem, SEM, { destaque: porSem.indexOf(Math.max(...porSem)), alt: 130 })}
+      </section>
+      <p class="obs" style="padding:0 4px">Passe o dedo ou o mouse numa barra para ver o número. ${tipo === "chamar" ? "Chamadas contam desde o início." : "As contagens por hora começaram em 03/11/2026; as por dia, quando o contador foi ligado."}</p>`;
+  }
+
   if (aba === "indicacoes") {
     const st = getStore("indicacoes");
     const { blobs } = await st.list();
@@ -638,6 +716,17 @@ ol{list-style:none;display:grid;gap:4px;font-size:14px}ol li{display:flex;justif
 .vz{font-size:13px;color:#6B6455}
 .l1{display:flex;justify-content:space-between;gap:8px}.l1 span{color:#5E574A;font-size:13px}
 article p{margin:4px 0 8px;font-size:14px;line-height:1.45}
+.graf{width:100%;height:auto;display:block;margin-top:6px;overflow:visible}
+.graf .gb path,.graf .gb .zero{fill:#3A3630}
+.graf .gb.on path{fill:#FFC800}
+.graf .gb .hit{fill:transparent}
+.graf .gb:hover path{fill:#6B6458}.graf .gb.on:hover path{fill:#E6B400}
+.graf .gl{stroke:#EFE6C8;stroke-width:1;stroke-dasharray:3 4}
+.graf .gbase{stroke:#D8CDA8;stroke-width:1}
+.graf .gx,.graf .gy{font:500 11px Poppins,sans-serif;fill:#8A8271}
+.kpis{display:flex;gap:18px;margin:4px 0 2px;flex-wrap:wrap}
+.kpis div{display:flex;flex-direction:column}.kpis b{font-size:20px;line-height:1.2}.kpis span{font-size:11.5px;color:#8A8271}
+.gt{margin-top:8px;font-size:13px}.gt summary{cursor:pointer;color:#5E574A}.gt table{margin-top:6px}
 .st{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px}
 .pend{background:#FFF3C4}.bom{background:#DDF3E4;color:#0E5C2C}.ruim{background:#FFE4DE;color:#8A1C0E}
 blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FFC800;padding-left:10px}
@@ -682,7 +771,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
