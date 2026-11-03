@@ -14,6 +14,16 @@
   status = 200
 
 [[redirects]]
+  from = "/termos"
+  to = "/termos.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacidade"
+  to = "/privacidade.html"
+  status = 200
+
+[[redirects]]
   from = "/anunciar"
   to = "/anunciar.html"
   status = 200
