@@ -8,7 +8,7 @@
 // O anúncio aparece como banner: "banner" (imagem larga, ex. 1200x500) ou "logo" + "cor" de fundo.
 // categoria: "Todos" (página inicial) ou o nome exato do GRUPO, como está em servicos.js:
 //   "Casa e reforma", "Climatização e segurança", "Limpeza", "Casa de praia e jardim",
-//   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Cozinha e salão", "Cuidados e aulas".
+//   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Freelas de cozinha e salão", "Cuidados e aulas".
 // O patrocínio do grupo aparece em todos os serviços dele (ex.: Casa e reforma → Eletricista, Pedreiro…).
 // Exclusividade de um serviço só: use o nome do serviço (ex.: "Eletricista"); ele vale antes do grupo.
 // Depois da data "ate", o patrocínio some sozinho e o espaço volta a aparecer como disponível.

@@ -26,8 +26,8 @@ window.KIIRO_SERVICOS = [
   { grupo: "Festas e eventos", icone: "festa", itens: [
     "Decoração de festa", "Buffet", "Bolos e doces", "Fotógrafo", "DJ"
   ]},
-  { grupo: "Cozinha e salão", icone: "cozinha", itens: [
-    "Cozinheiro(a)", "Auxiliar de cozinha", "Garçom", "Churrasqueiro", "Pizzaiolo", "Bartender", "Copeiro(a)"
+  { grupo: "Freelas de cozinha e salão", icone: "cozinha", itens: [
+    "Cozinheiro(a) freela", "Auxiliar de cozinha freela", "Garçom freela", "Churrasqueiro freela", "Pizzaiolo freela", "Bartender freela", "Copeiro(a) freela"
   ]},
   { grupo: "Cuidados e aulas", icone: "cuidado", itens: [
     "Cuidador de idosos", "Babá", "Passeador e cuidador de pets", "Aulas particulares"
@@ -38,7 +38,7 @@ window.KIIRO_SERVICOS = [
 ];
 
 // nomes antigos que mudaram (cadastros antigos continuam aparecendo no lugar certo)
-window.KIIRO_SERVICOS_ANTIGOS = { "Ar-condicionado": "Técnico de ar-condicionado" };
+window.KIIRO_SERVICOS_ANTIGOS = { "Ar-condicionado": "Técnico de ar-condicionado", "Garçom": "Garçom freela" };
 
 // Palavras do dia a dia que levam a cada serviço na busca (ex.: "vazamento" → Encanador).
 // Para melhorar a busca, é só acrescentar palavras aqui.
@@ -93,13 +93,13 @@ window.KIIRO_PALAVRAS = {
   "Bolos e doces": ["bolo", "doces", "docinhos", "brigadeiro", "torta", "confeitaria"],
   "Fotógrafo": ["foto", "fotos", "fotografia", "ensaio", "casamento", "filmagem"],
   "DJ": ["som", "música", "festa", "dj"],
-  "Garçom": ["garçom", "garçonete", "atendimento", "servir", "salão", "freelancer", "freela", "extra", "temporada"],
-  "Cozinheiro(a)": ["cozinheira", "cozinheiro", "cozinha", "chef", "comida", "freela de cozinha", "almoço", "marmita"],
-  "Auxiliar de cozinha": ["auxiliar", "ajudante de cozinha", "lavar louça", "louça", "preparo", "cozinha"],
-  "Churrasqueiro": ["churrasco", "churrasqueira", "assador", "carne", "costela"],
-  "Pizzaiolo": ["pizza", "pizzaria", "forno"],
-  "Bartender": ["bar", "drinks", "drink", "barman", "caipirinha", "coquetel"],
-  "Copeiro(a)": ["copa", "copeira", "café", "lanche"],
+  "Garçom freela": ["garçom", "garçonete", "atendimento", "servir", "salão", "freelancer", "freela", "extra", "temporada"],
+  "Cozinheiro(a) freela": ["cozinheira", "cozinheiro", "cozinha", "chef", "comida", "freela de cozinha", "almoço", "marmita"],
+  "Auxiliar de cozinha freela": ["auxiliar", "ajudante de cozinha", "lavar louça", "louça", "preparo", "cozinha"],
+  "Churrasqueiro freela": ["churrasco", "churrasqueira", "assador", "carne", "costela"],
+  "Pizzaiolo freela": ["pizza", "pizzaria", "forno"],
+  "Bartender freela": ["bar", "drinks", "drink", "barman", "caipirinha", "coquetel"],
+  "Copeiro(a) freela": ["copa", "copeira", "café", "lanche"],
   "Cuidador de idosos": ["idoso", "idosa", "cuidadora", "acompanhante", "cuidar de idoso", "enfermagem"],
   "Babá": ["criança", "bebê", "babá", "cuidar de criança"],
   "Passeador e cuidador de pets": ["cachorro", "cão", "gato", "pet", "passear", "dog walker", "hospedagem pet"],
