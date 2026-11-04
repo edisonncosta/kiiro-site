@@ -287,12 +287,18 @@
   /* banner de patrocínio (imagem grande + botão, como anúncio de portal) */
   /* banner no formato do 99: fundo amarelo cheio, bordas bem arredondadas, botão branco em pílula */
   .patro.ban{position:relative;padding:.7rem;gap:.7rem;align-items:stretch;overflow:hidden;min-height:150px;border:0;border-radius:26px;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
+  .patro.ban > *{position:relative;z-index:1}
+  .patro.ban .ban-fundo{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;background:var(--sun)}
+  .patro.ban .ban-fundo::before{content:"";position:absolute;inset:-30px;background:var(--fundo-img) center/cover no-repeat;filter:blur(26px) saturate(1.5);opacity:.55;mix-blend-mode:soft-light}
+  .patro.ban .ban-fundo::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.28),transparent 60%)}
+  .patro.ban.pintado{box-shadow:0 8px 22px rgba(0,0,0,.18)}
+  .patro.ban.pintado .ban-tag{position:absolute}
   .ban-img{flex:0 0 56%;background:center/contain no-repeat;display:grid;place-items:center;padding:.8rem;border-radius:18px}
   .ban-img.cheio{background-size:contain;padding:0}
   .ban-img span{font-weight:800;font-size:1.25rem;line-height:1.15;text-align:center;color:var(--ink)}
   .ban-dir{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:.2rem 0;background:none}
   .ban-bt{width:100%;display:grid;place-items:center;text-align:center;background:#fff;color:#1F3FBF;border-radius:999px;padding:.8rem .7rem;font-weight:700;font-size:.92rem;line-height:1.2;box-shadow:0 3px 10px rgba(0,0,0,.12)}
-  .ban-tag{position:absolute;right:1rem;top:.55rem;background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.08rem .55rem;font-size:.6rem;font-weight:600}
+  .patro.ban .ban-tag{position:absolute;z-index:2;right:1rem;top:.55rem;background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.08rem .55rem;font-size:.6rem;font-weight:600}
   .patro.ban.livre{border:0;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
   .patro.ban.livre .ban-img{background:rgba(255,255,255,.45);border:1.5px dashed rgba(26,26,26,.25)}
   .patro.ban.livre .ban-bt{background:#fff;color:var(--ink)}
@@ -1141,13 +1147,69 @@ const corEscura = (c) => { const m = /^#([0-9a-f]{6})$/i.exec(c || ""); if (!m) 
 function cardPatroDe(pt) {
   const img = pt.banner || pt.logo;
   const fundo = `background-color:${/^#[0-9a-f]{3,8}$/i.test(pt.cor || "") ? pt.cor : img ? "#fff" : "var(--sun)"};${img ? `background-image:url('${esc(img)}');` : ""}`;
-  return `<a class="patro ban" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+  if (img) setTimeout(pintarBanners, 0);
+  return `<a class="patro ban" data-nome="${esc(pt.nome)}" ${img ? `data-cor-de="${esc(img)}"` : ""} href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+    <span class="ban-fundo" aria-hidden="true"${img ? ` style="--fundo-img:url('${esc(img)}')"` : ""}></span>
     <div class="ban-img${pt.banner ? " cheio" : ""}" style="${fundo}" role="img" aria-label="${esc(pt.nome)}">${img ? "" : `<span style="color:${corEscura(pt.cor) ? "#fff" : "var(--ink)"}">${esc(pt.nome)}</span>`}</div>
     <div class="ban-dir" aria-label="${esc(pt.nome + (pt.texto ? ": " + pt.texto : ""))}">
       <span class="ban-bt">${esc(pt.botao || "Saber mais")}</span>
     </div>
     <span class="ban-tag">Patrocinado</span>
   </a>`;
+}
+/* Fundo automático do banner: pega a cor mais viva da arte do patrocinador e monta um degradê com ela.
+   (Se a arte for só preto e branco, fica no amarelo da Kiiro.) */
+const coresBanner = new Map();
+function corVivaDe(src) {
+  if (coresBanner.has(src)) return coresBanner.get(src);
+  const pr = new Promise(ok => {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const N = 48, c = document.createElement("canvas"); c.width = c.height = N;
+        const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(im, 0, 0, N, N);
+        const px = g.getImageData(0, 0, N, N).data, bins = Array.from({ length: 12 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+        let total = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i] / 255, gg = px[i + 1] / 255, b = px[i + 2] / 255, mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), l = (mx + mn) / 2, d = mx - mn;
+          if (px[i + 3] < 200 || d < .2 || l < .18 || l > .82) continue;
+          const sat = d / (1 - Math.abs(2 * l - 1));
+          if (sat < .4) continue;
+          let h = mx === r ? ((gg - b) / d) % 6 : mx === gg ? (b - r) / d + 2 : (r - gg) / d + 4; h = (h * 60 + 360) % 360;
+          const k = bins[Math.floor(h / 30) % 12], w = sat * sat;
+          k.w += w; k.r += px[i] * w; k.g += px[i + 1] * w; k.b += px[i + 2] * w; total++;
+        }
+        const top = bins.reduce((a, b) => b.w > a.w ? b : a);
+        ok(total >= N * N * .015 && top.w ? vivo([top.r / top.w, top.g / top.w, top.b / top.w]) : null);
+      } catch { ok(null); }
+    };
+    im.onerror = () => ok(null);
+    im.src = src;
+  });
+  coresBanner.set(src, pr);
+  return pr;
+}
+// deixa a cor da marca bem viva (média de pixels tende a sair "lavada")
+function vivo([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0, l = (mx + mn) / 2;
+  if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360; const s = .78; l = Math.min(.48, Math.max(.36, l));
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  const [a, bb, cc] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [a, bb, cc].map(v => Math.round((v + m) * 255));
+}
+const misturar = (c, alvo, t) => c.map((v, i) => Math.round(v + (alvo[i] - v) * t));
+const rgb = c => `rgb(${c.join(",")})`;
+function pintarBanners() {
+  document.querySelectorAll(".patro.ban[data-cor-de]:not([data-pintado])").forEach(async el => {
+    el.dataset.pintado = "1";
+    const c = await corVivaDe(el.dataset.corDe); if (!c) return;
+    const claro = misturar(c, [255, 255, 255], .18), escuro = misturar(c, [0, 0, 0], .45);
+    el.querySelector(".ban-fundo").style.background = `linear-gradient(135deg, ${rgb(claro)} 0%, ${rgb(c)} 45%, ${rgb(escuro)} 100%)`;
+    const bt = el.querySelector(".ban-bt"); if (bt) bt.style.color = rgb(misturar(c, [0, 0, 0], .35));
+    el.classList.add("pintado");
+  });
 }
 const patroVistos = new Set();
 function cardPatrocinio() {

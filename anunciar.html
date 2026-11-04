@@ -38,13 +38,19 @@
   .fmts input:checked + label{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun-soft)}
   .fmts input:focus-visible + label{outline:3px solid var(--sun-deep)}
   select.input{appearance:auto}
-  .campo > label.ban-up,.ban-up{display:block;font-weight:400;border:1.5px dashed #D9C88E;border-radius:4px;background:#fff;cursor:pointer;overflow:hidden}
+  .campo > label.ban-up,.ban-up{display:block;font-weight:400;cursor:pointer}
   .ban-up input{position:absolute;opacity:0;width:1px;height:1px}
-  .previa{display:flex;min-height:130px;border:1.5px solid #E6DAB0;box-shadow:0 6px 22px rgba(90,70,0,.12);position:relative;background:#fff}
-  .previa .pi{flex:0 0 58%;background:#fff center/contain no-repeat;display:grid;place-items:center;text-align:center;font-weight:700;color:var(--muted);font-size:.85rem;padding:.6rem}
-  .previa .pd{flex:1;display:flex;align-items:center;justify-content:center;padding:.7rem;background:#ECE7D8}
-  .previa .pb{width:100%;text-align:center;background:var(--ink);color:#fff;border-radius:4px;padding:.8rem .4rem;font-weight:700;font-size:.88rem}
-  .previa .pt{position:absolute;right:0;top:0;background:rgba(255,255,255,.92);color:#5E574A;border-radius:0 0 0 6px;padding:.08rem .5rem;font-size:.62rem;font-weight:600}
+  .previa{display:flex;gap:.7rem;padding:.7rem;min-height:140px;border-radius:26px;position:relative;overflow:hidden;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
+  .previa > *{position:relative;z-index:1}
+  .previa .pf{position:absolute;inset:0;z-index:0;background:var(--sun)}
+  .previa .pf::before{content:"";position:absolute;inset:-30px;background:var(--fundo-img) center/cover no-repeat;filter:blur(26px) saturate(1.5);opacity:.55;mix-blend-mode:soft-light}
+  .previa .pf::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.28),transparent 60%)}
+  .previa .pi{flex:0 0 56%;background:rgba(255,255,255,.55) center/contain no-repeat;border:1.5px dashed rgba(26,26,26,.25);border-radius:18px;display:grid;place-items:center;text-align:center;font-weight:700;color:#4A3D00;font-size:.85rem;padding:.6rem}
+  .previa .pi.tem{border:0;padding:0}
+  .previa .pd{flex:1;display:flex;align-items:center;justify-content:center}
+  .previa .pb{width:100%;text-align:center;background:#fff;color:var(--ink);border-radius:999px;padding:.8rem .5rem;font-weight:700;font-size:.88rem;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .previa .pt{position:absolute;z-index:2;right:1rem;top:.55rem;background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.08rem .55rem;font-size:.6rem;font-weight:600}
+  .ban-dica{display:block;text-align:center;font-size:.8rem;color:var(--muted);margin-top:.5rem}
   .ban-dica{display:block;text-align:center;font-size:.8rem;color:var(--muted);padding:.5rem}
   .linha{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .total{background:var(--sun-soft);border:1px solid #F0DC92;border-radius:14px;padding:.8rem 1rem;font-weight:600;display:flex;justify-content:space-between;gap:1rem}
@@ -115,9 +121,10 @@
 
     <div class="campo">
       <span class="legenda"><span class="n">3</span>Sua arte do anúncio</span>
-      <p class="opc" style="margin:-.2rem 0 .7rem">Uma imagem <b>deitada</b> (mais larga que alta), com logo, oferta e telefone, se quiser. Se não tiver arte, mande o logo e escolha a cor de fundo.</p>
+      <p class="opc" style="margin:-.2rem 0 .7rem">Uma imagem <b>deitada</b> (mais larga que alta), com logo, oferta e telefone, se quiser. Pode ser só o logo. <b>O fundo do anúncio é criado sozinho com a cor da sua marca.</b></p>
       <label class="ban-up" for="banner">
-        <div class="previa">
+        <div class="previa" id="pv">
+          <span class="pf" id="pv-fundo" aria-hidden="true"></span>
           <div class="pi" id="pv-img">Toque para escolher a imagem</div>
           <div class="pd"><span class="pb" id="pv-bt">Chamar no WhatsApp</span></div>
           <span class="pt">Patrocinado</span>
@@ -126,7 +133,7 @@
         <input type="file" id="banner" name="banner" accept="image/*">
       </label>
       <div class="linha" style="margin-top:.7rem">
-        <label class="opc" style="display:flex;align-items:center;gap:.5rem">Cor de fundo <input type="color" id="cor" name="cor" value="#ffffff" style="width:44px;height:34px;border:1px solid var(--line);border-radius:8px;padding:0;background:none"></label>
+        <label class="opc" style="display:flex;align-items:center;gap:.5rem">Cor atrás da imagem <input type="color" id="cor" name="cor" value="#ffffff" style="width:44px;height:34px;border:1px solid var(--line);border-radius:8px;padding:0;background:none"></label>
       </div>
     </div>
 
@@ -230,10 +237,57 @@ async function reduzir(arq) {
 $("banner").addEventListener("change", async () => {
   let f = $("banner").files[0]; if (!f) return;
   try { const m = await reduzir(f); if (window.DataTransfer) { const dt = new DataTransfer(); dt.items.add(m); $("banner").files = dt.files; f = m; } } catch {}
-  $("pv-img").style.backgroundImage = `url(${URL.createObjectURL(f)})`; $("pv-img").textContent = "";
+  const u = URL.createObjectURL(f);
+  $("pv-img").style.backgroundImage = `url(${u})`; $("pv-img").textContent = ""; $("pv-img").classList.add("tem");
+  $("pv-img").style.backgroundColor = $("cor").value;
+  $("pv-fundo").style.setProperty("--fundo-img", `url(${u})`);
   $("pv-dica").textContent = "Toque de novo para trocar a imagem";
+  const c = await corViva(u);
+  if (c) {
+    const mis = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t)), rgb = x => `rgb(${x.join(",")})`;
+    $("pv-fundo").style.background = `linear-gradient(135deg, ${rgb(mis(c, [255, 255, 255], .18))} 0%, ${rgb(c)} 45%, ${rgb(mis(c, [0, 0, 0], .45))} 100%)`;
+    $("pv-bt").style.color = rgb(mis(c, [0, 0, 0], .35));
+    $("pv-dica").textContent = "Fundo criado com a cor da sua marca · toque para trocar a imagem";
+  } else { $("pv-fundo").style.background = ""; $("pv-bt").style.color = ""; }
 });
 $("cor").addEventListener("input", () => $("pv-img").style.backgroundColor = $("cor").value);
+// deixa a cor da marca bem viva (média de pixels tende a sair "lavada")
+function vivo([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0, l = (mx + mn) / 2;
+  if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360; const s = .78; l = Math.min(.48, Math.max(.36, l));
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  const [a, bb, cc] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [a, bb, cc].map(v => Math.round((v + m) * 255));
+}
+// mesma regra do site: a cor mais viva da imagem vira o fundo do anúncio
+function corViva(src) {
+  return new Promise(ok => {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const N = 48, c = document.createElement("canvas"); c.width = c.height = N;
+        const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(im, 0, 0, N, N);
+        const px = g.getImageData(0, 0, N, N).data, bins = Array.from({ length: 12 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+        let total = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i] / 255, gg = px[i + 1] / 255, b = px[i + 2] / 255, mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), l = (mx + mn) / 2, d = mx - mn;
+          if (px[i + 3] < 200 || d < .2 || l < .18 || l > .82) continue;
+          const sat = d / (1 - Math.abs(2 * l - 1));
+          if (sat < .4) continue;
+          let h = mx === r ? ((gg - b) / d) % 6 : mx === gg ? (b - r) / d + 2 : (r - gg) / d + 4; h = (h * 60 + 360) % 360;
+          const k = bins[Math.floor(h / 30) % 12], w = sat * sat;
+          k.w += w; k.r += px[i] * w; k.g += px[i + 1] * w; k.b += px[i + 2] * w; total++;
+        }
+        const top = bins.reduce((a, b) => b.w > a.w ? b : a);
+        ok(total >= N * N * .015 && top.w ? vivo([top.r / top.w, top.g / top.w, top.b / top.w]) : null);
+      } catch { ok(null); }
+    };
+    im.onerror = () => ok(null);
+    im.src = src;
+  });
+}
 
 $("form").addEventListener("submit", e => {
   const f = formato(), d = $("destino").value.trim(), w = $("contato").value.replace(/\D/g, "");
