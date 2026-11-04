@@ -4,8 +4,8 @@
 // Endereço: POST /.netlify/functions/evento   corpo: {"t":"visita"} ou {"t":"busca","k":"piscina"}
 import { getStore } from "@netlify/blobs";
 
-const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre", "patro_ver", "patro_clique", "local_usar", "local_sim", "orc_abrir", "orc_envio", "indicar", "cidade"]);
-const COM_PALAVRA = { busca: "buscas", busca_vazia: "vazias", cat: "cats", perfil: "perfis", chamar: "chamados", patro_ver: "patro_ver", patro_clique: "patro_clique", cidade: "cidades_esc" };
+const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre", "patro_ver", "patro_clique", "local_usar", "local_sim", "orc_abrir", "orc_envio", "indicar", "cidade", "doe_abrir", "doe_valor", "doe_copiar", "ia"]);
+const COM_PALAVRA = { busca: "buscas", busca_vazia: "vazias", cat: "cats", perfil: "perfis", chamar: "chamados", patro_ver: "patro_ver", patro_clique: "patro_clique", cidade: "cidades_esc", doe_valor: "doe_valores", ia: "ia_servicos" };
 const MAX_PALAVRAS = 300;
 const POR_HORA = new Set(["visita", "perfil", "chamar", "cad_envio", "orc_envio"]);
 
@@ -21,7 +21,7 @@ export default async (req, context) => {
   const t = String(d && d.t || "");
   if (!TIPOS.has(t)) return new Response("", { status: 400 });
   let k = String(d.k || "").normalize("NFC").replace(/\s+/g, " ").trim().slice(0, 40);
-  if (!t.startsWith("patro") && t !== "cidade") k = k.toLowerCase();
+  if (!t.startsWith("patro") && t !== "cidade" && t !== "ia") k = k.toLowerCase();
 
   // 4 "gavetas" por dia, para dois eventos ao mesmo tempo quase nunca se atropelarem
   const store = getStore({ name: "metricas", consistency: "strong" });

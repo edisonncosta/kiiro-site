@@ -30,7 +30,7 @@
 <script src="servicos.js"></script>
 <script src="patrocinios.js"></script>
 <style>
-  body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   body.em-perfil{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
   .tela{display:none}
   .tela.ativa{display:block}
@@ -41,7 +41,57 @@
   .topo-linha{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.75rem}
   .link-pro{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;font-size:.85rem;font-weight:600;color:var(--ink);text-decoration:none;background:var(--sun);border-radius:999px;padding:.4rem 1rem}
   .link-pro small{font-size:.62rem;font-weight:500;opacity:.8}
-  .busca{display:flex;align-items:center;gap:.8rem;background:var(--card);border-radius:999px;box-shadow:0 3px 14px rgba(90,70,0,.12);border:1px solid var(--line);padding:.5rem .5rem .5rem 1.2rem;max-width:640px}
+  .topo-acoes{display:flex;align-items:center;gap:.55rem}
+  /* botão Doe: coração com etiqueta verde (como o "Pix" do 99) */
+  .bt-doe{position:relative;width:46px;height:46px;border:0;background:none;padding:0;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+  .bt-doe svg{width:27px;height:27px}
+  .bt-doe span{position:absolute;top:-1px;left:-6px;background:#1AAD5B;color:#fff;font:700 .62rem/1 Poppins,sans-serif;border-radius:999px;padding:.22rem .45rem;box-shadow:0 0 0 2px var(--paper)}
+  /* janela de doação */
+  .doe-cab{display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem}
+  .doe-ic{width:48px;height:48px;border-radius:50%;background:var(--sun);display:grid;place-items:center;flex:none}
+  .doe-ic svg{width:26px;height:26px;color:var(--ink)}
+  .doe-txt{color:var(--muted);font-size:.93rem;line-height:1.55}
+  .doe-txt b{color:var(--text)}
+  .doe-vals{display:grid;grid-template-columns:repeat(5,1fr);gap:.45rem}
+  .doe-vals button{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:.75rem .2rem;font:700 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .doe-vals button small{display:block;font-size:.66rem;font-weight:500;color:var(--muted)}
+  .doe-vals button.on{background:var(--sun);border-color:var(--sun)}
+  .doe-vals button.on small{color:var(--ink)}
+  .doe-outro{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;background:var(--card);border:1.5px solid var(--ink);border-radius:14px;padding:0 1rem}
+  .doe-outro b{font-size:1rem}
+  .doe-outro input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:700 1.1rem Poppins,sans-serif;padding:.8rem 0;color:var(--ink)}
+  .doe-pix{margin-top:1.1rem;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.1rem;text-align:center}
+  .doe-pix .qr{width:200px;height:200px;margin:0 auto;display:block;image-rendering:pixelated}
+  .doe-pix .vl{font-size:1.25rem;font-weight:700;margin-top:.5rem}
+  .doe-pix .vl small{display:block;font-size:.78rem;font-weight:500;color:var(--muted)}
+  .doe-cod{margin-top:.8rem;background:#F6F3EA;border-radius:12px;padding:.65rem .8rem;font:500 .72rem/1.4 ui-monospace,Menlo,monospace;color:#555;word-break:break-all;text-align:left;max-height:4.4em;overflow:hidden}
+  .doe-copiar{margin-top:.7rem}
+  .doe-copiar.ok{background:#1AAD5B;color:#fff}
+  .doe-fine{font-size:.76rem;color:var(--muted);line-height:1.45;margin-top:.7rem}
+  /* IA na busca */
+  .btn-ia{flex:none;display:inline-flex;align-items:center;gap:.2rem;border:0;border-left:1px solid var(--line);background:none;padding:.35rem .15rem .35rem .6rem;font:700 .9rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .btn-ia i{font-style:normal;font-size:1rem;background:linear-gradient(135deg,#FFB800,#FF7A00 55%,#E0459B);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #modal-ia .sheet{background:#fff}
+  .ia-cab{display:flex;align-items:center;gap:.7rem}
+  .ia-av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--sun);display:grid;place-items:center;font-size:1.2rem;flex:none}
+  .ia-cab small{display:block;font-size:.78rem;color:var(--muted)}
+  .ia-form{display:flex;gap:.5rem;align-items:flex-end;margin-top:1rem;background:#F5F3EC;border-radius:20px;padding:.45rem .45rem .45rem 1rem}
+  .ia-form textarea{flex:1;min-width:0;border:0;outline:0;background:transparent;resize:none;font:400 16px/1.4 Poppins,sans-serif;color:var(--text);padding:.45rem 0;max-height:7rem}
+  .ia-ex{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+  .ia-ex button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.4rem .8rem;font:500 .8rem Poppins,sans-serif;color:var(--text);cursor:pointer}
+  .ia-resp{margin-top:1.1rem}
+  .ia-balao{background:#FFF8DA;border:1px solid #F2DC8A;border-radius:18px 18px 18px 6px;padding:.8rem .95rem;font-size:.92rem;line-height:1.5}
+  .ia-servs{display:grid;gap:.55rem;margin-top:.8rem}
+  .ia-serv{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:.75rem .85rem;cursor:pointer;font-family:Poppins,sans-serif;color:var(--text)}
+  .ia-serv:first-child{border-color:var(--sun);box-shadow:0 0 0 3px var(--sun-soft)}
+  .ia-serv .ic{width:42px;height:42px;border-radius:50%;background:var(--sun);display:grid;place-items:center;flex:none}
+  .ia-serv .ic svg{width:22px;height:22px}
+  .ia-serv b{display:block;font-size:.98rem;font-weight:600}
+  .ia-serv small{display:block;font-size:.8rem;color:#1AAD5B;font-weight:600}
+  .ia-serv small.zero{color:var(--muted);font-weight:500}
+  .ia-serv .seta{margin-left:auto;width:20px;height:20px;flex:none}
+  .ia-pensando{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+  .busca{display:flex;align-items:center;gap:.55rem;background:var(--card);border-radius:999px;box-shadow:0 3px 14px rgba(90,70,0,.12);border:1px solid var(--line);padding:.5rem .5rem .5rem 1.2rem;max-width:640px}
   .busca .lupa{width:20px;height:20px;flex:none}
   .busca-txt{flex:1;min-width:0}
   .busca-txt input{border:0;outline:0;font:600 .95rem Poppins,sans-serif;width:100%;background:transparent;color:var(--text);padding:0}
@@ -144,10 +194,8 @@
   .cg-foto{position:relative;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:var(--sun-soft)}
   .cg-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
   .cg-foto .foto-ini{font-size:3.4rem}
-  .cg .l1{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;margin-top:.6rem}
-  .cg h3{font-size:1rem;font-weight:600;line-height:1.25}
-  .cg p{font-size:.88rem;color:var(--muted);margin-top:.1rem}
-  .cg .tags{margin-top:.35rem}
+  .cg h3{font-size:1.05rem;font-weight:600;line-height:1.25;margin-top:.6rem}
+  .cg .linha-nc{font-size:.88rem}
   /* vitrine */
   .fileira{grid-column:1/-1;min-width:0;margin-bottom:.4rem}
   .fil-topo{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.7rem}
@@ -161,12 +209,15 @@
   .mc-foto{position:relative;aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:var(--sun-soft)}
   .mc-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
   .mc-foto .foto-ini{font-size:2.6rem}
-  .mc-selo{position:absolute;top:.5rem;left:.5rem;background:#fff;border-radius:999px;padding:.2rem .55rem;font-size:.68rem;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-  .mc-selo.esc{background:var(--ink);color:var(--sun)}
-  .mc h3{margin-top:.45rem;font-size:.9rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mc p{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mc-pe{margin-top:.15rem;display:flex}
-  .mc-pe .nota{font-size:.8rem}
+  /* selo no canto de baixo da foto (como o "60% OFF" do 99) */
+  .selo-ft{position:absolute;left:.5rem;bottom:.5rem;max-width:calc(100% - 1rem);border-radius:999px;padding:.22rem .65rem;font-size:.72rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .selo-ft.dest{background:#1AAD5B;color:#fff}
+  .selo-ft.novo{background:var(--ink);color:#fff}
+  .selo-ft.urg{background:#fff;color:var(--ink)}
+  .mc h3{margin-top:.5rem;font-size:.95rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .linha-nc{font-size:.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.05rem}
+  .linha-nc .nt{color:#1AAD5B;font-weight:600}
+  .linha-nc .nt span{font-weight:500}
   .dest-tit{font-size:.8rem;color:var(--muted);margin:.1rem 0 .35rem}
   .selos-crit{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 1rem}
   .selo-crit{display:inline-flex;align-items:center;gap:.3rem;background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.35rem .75rem;font-size:.82rem;font-weight:600;color:var(--ink)}
@@ -234,17 +285,18 @@
   .patro:not(.livre) .patro-cta{background:var(--ink);color:var(--sun);text-decoration:none;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;margin-top:.35rem}
   .patro-logo.img{background-color:#fff;background-size:contain;background-repeat:no-repeat;border:1px solid var(--line);width:84px;height:84px}
   /* banner de patrocínio (imagem grande + botão, como anúncio de portal) */
-  .patro.ban{position:relative;padding:0;gap:0;align-items:stretch;overflow:hidden;min-height:150px;border:1.5px solid #E6DAB0;border-radius:0;box-shadow:0 6px 22px rgba(90,70,0,.14)}
-  .ban-img{flex:0 0 58%;background:center/contain no-repeat;display:grid;place-items:center;padding:.8rem}
+  /* banner no formato do 99: fundo amarelo cheio, bordas bem arredondadas, botão branco em pílula */
+  .patro.ban{position:relative;padding:.7rem;gap:.7rem;align-items:stretch;overflow:hidden;min-height:150px;border:0;border-radius:26px;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
+  .ban-img{flex:0 0 56%;background:center/contain no-repeat;display:grid;place-items:center;padding:.8rem;border-radius:18px}
   .ban-img.cheio{background-size:contain;padding:0}
   .ban-img span{font-weight:800;font-size:1.25rem;line-height:1.15;text-align:center;color:var(--ink)}
-  .ban-dir{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:.8rem;background:#ECE7D8}
-  .ban-bt{width:100%;display:grid;place-items:center;text-align:center;background:var(--ink);color:#fff;border-radius:4px;padding:.9rem .6rem;font-weight:700;font-size:.95rem;line-height:1.2;min-height:64px}
-  .ban-tag{position:absolute;right:0;top:0;background:rgba(255,255,255,.92);color:#5E574A;border-radius:0 0 0 6px;padding:.08rem .5rem;font-size:.62rem;font-weight:600}
-  .patro.ban.livre{border:1.5px dashed #D9C88E;background:transparent;box-shadow:none}
-  .patro.ban.livre .ban-img{background:var(--sun-soft)}
-  .patro.ban.livre .ban-dir{background:#FFF8DA}
-  .patro.ban.livre .ban-bt{background:var(--sun);color:var(--ink)}
+  .ban-dir{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:.2rem 0;background:none}
+  .ban-bt{width:100%;display:grid;place-items:center;text-align:center;background:#fff;color:#1F3FBF;border-radius:999px;padding:.8rem .7rem;font-weight:700;font-size:.92rem;line-height:1.2;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .ban-tag{position:absolute;right:1rem;top:.55rem;background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.08rem .55rem;font-size:.6rem;font-weight:600}
+  .patro.ban.livre{border:0;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
+  .patro.ban.livre .ban-img{background:rgba(255,255,255,.45);border:1.5px dashed rgba(26,26,26,.25)}
+  .patro.ban.livre .ban-bt{background:#fff;color:var(--ink)}
+  .patro.ban.livre .ban-img span small{color:#4A3D00}
   .ban-img span small{display:block;margin-top:.45rem;font-size:.78rem;font-weight:500;line-height:1.35;color:var(--muted)}
   .ban-img span small b{font-size:.95rem;font-weight:800;color:var(--ink)}
   .ban-bt small{display:block;font-size:.72rem;font-weight:600;margin-top:.2rem;opacity:.8}
@@ -390,12 +442,14 @@
   .an-rodape .bt-chamar{margin:0 auto}
 
   /* ===== ABAS ===== */
-  .abas{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--paper);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:.45rem 0 calc(.45rem + env(safe-area-inset-bottom))}
-  .aba{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-size:.66rem;color:var(--muted);font-weight:500;min-width:58px;cursor:pointer;text-decoration:none}
+  /* menu flutuante (como o 99): barra branca arredondada, item ativo num círculo amarelo saltado */
+  .abas{position:fixed;left:.9rem;right:.9rem;bottom:calc(.7rem + env(safe-area-inset-bottom));z-index:25;max-width:520px;margin:0 auto;height:66px;background:#fff;border-radius:999px;box-shadow:0 8px 28px rgba(60,45,0,.18),0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-around;align-items:center;padding:0 .5rem}
+  .aba{position:relative;flex:1;height:100%;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;font-size:.66rem;color:var(--muted);font-weight:500;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
   .aba svg{width:24px;height:24px}
   .aba .pin{color:var(--sun)}
-  .aba.ativa{color:var(--ink);font-weight:600}
-  .aba.ativa::after{content:"";position:absolute;top:-.46rem;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:3px;background:var(--sun)}
+  .aba.ativa{font-size:0;color:var(--ink)}
+  .aba.ativa svg{position:absolute;left:50%;top:50%;width:64px;height:64px;padding:19px;margin:-44px 0 0 -32px;background:var(--sun);border-radius:50%;box-shadow:0 0 0 6px #fff,0 6px 16px rgba(150,110,0,.3);transition:margin .2s}
+  .aba.ativa .pin{color:var(--ink)}
   body.em-perfil .abas{display:none}
 
   /* ===== JANELAS ===== */
@@ -422,7 +476,7 @@
   .link-sub{display:block;text-align:center;margin-top:.9rem;font-weight:600;font-size:.9rem;color:var(--ink)}
   .foto-grande{max-width:94vw;max-height:84vh;border-radius:16px}
   /* balãozinho apontando para o Sobre */
-  .balao{position:fixed;z-index:26;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:.3rem;background:var(--ink);color:#fff;border-radius:14px;padding:.35rem .35rem .35rem .9rem;box-shadow:0 6px 20px rgba(0,0,0,.25);white-space:nowrap;animation:balao .35s ease-out}
+  .balao{position:fixed;z-index:26;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:.3rem;background:var(--ink);color:#fff;border-radius:14px;padding:.35rem .35rem .35rem .9rem;box-shadow:0 6px 20px rgba(0,0,0,.25);white-space:nowrap;animation:balao .35s ease-out}
   .balao::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:var(--ink);border-radius:2px}
   .balao button{background:none;border:0;color:inherit;font:500 .86rem Poppins,sans-serif;cursor:pointer;padding:.35rem 0}
   .balao button b{color:var(--sun);font-weight:600}
@@ -456,7 +510,10 @@
     <div class="topo-in">
       <div class="topo-linha">
         <a class="logo" href="./" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
-        <a class="link-pro" href="cadastro.html">Sou profissional<small>Cadastre-se aqui</small></a>
+        <div class="topo-acoes">
+          <button class="bt-doe" type="button" id="bt-doe" aria-label="Doe para a Kiiro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Doe</span></button>
+          <a class="link-pro" href="cadastro.html">Sou profissional<small>Cadastre-se aqui</small></a>
+        </div>
       </div>
       <button class="onde" type="button" id="onde" aria-haspopup="dialog">
         <svg class="onde-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="#FFC800" stroke="#1A1A1A" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="#1A1A1A"/></svg>
@@ -469,6 +526,7 @@
           <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
           <select id="cidade" aria-label="Cidade" autocomplete="off" hidden><option value="">Qualquer cidade · Litoral Norte</option></select>
         </div>
+        <button class="btn-ia" type="button" id="btn-ia" aria-label="Descrever o problema para a IA da Kiiro"><i aria-hidden="true">✦</i>IA</button>
         <button class="btn-lupa" type="button" id="btn-lupa" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       </div>
       <nav class="cats" id="cats" aria-label="Serviços"></nav>
@@ -629,6 +687,47 @@
     </div>
     <button class="btn btn-ink btn-full" type="button" id="bv-ok">Conhecer os profissionais</button>
     <a class="link-sub" href="cadastro.html">Sou profissional, quero fazer parte →</a>
+  </div>
+</div>
+
+<!-- Janela: doação via Pix -->
+<div class="modal" id="modal-doe" role="dialog" aria-modal="true" aria-labelledby="doe-titulo">
+  <div class="sheet alta" id="doe-sheet">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="doe-x">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="doe-cab"><span class="doe-ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><h3 id="doe-titulo">Apoie a Kiiro</h3></div>
+    <p class="doe-txt">A Kiiro é um projeto feito aqui no <b>Litoral Norte</b> e <b>não cobra nada</b>: nem de quem procura um serviço, nem do profissional. Se ela te ajudou, uma doação ajuda a manter o site no ar e a levar a Kiiro para mais gente. 💛</p>
+    <span class="in-lb">Quanto você quer doar?</span>
+    <div class="doe-vals" id="doe-vals">
+      <button type="button" data-v="5">5<small>reais</small></button>
+      <button type="button" data-v="10">10<small>reais</small></button>
+      <button type="button" data-v="20">20<small>reais</small></button>
+      <button type="button" data-v="50">50<small>reais</small></button>
+      <button type="button" data-v="outro">✎<small>outro</small></button>
+    </div>
+    <label class="doe-outro escondido" id="doe-outro"><b>R$</b><input id="doe-outro-v" inputmode="decimal" placeholder="0,00" aria-label="Outro valor em reais" autocomplete="off"></label>
+    <div class="doe-pix escondido" id="doe-pix" aria-live="polite">
+      <img class="qr" id="doe-qr" alt="QR Code do Pix">
+      <div class="vl" id="doe-vl"></div>
+      <div class="doe-cod" id="doe-cod"></div>
+      <button class="btn btn-ink btn-full doe-copiar" type="button" id="doe-copiar">Copiar código Pix</button>
+      <p class="doe-fine">No app do seu banco, escolha <b>Pix › Ler QR Code</b> ou <b>Pix Copia e Cola</b> e cole o código.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Janela: IA da busca -->
+<div class="modal" id="modal-ia" role="dialog" aria-modal="true" aria-labelledby="ia-titulo">
+  <div class="sheet alta" id="ia-sheet">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="ia-x">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ia-cab"><span class="ia-av" aria-hidden="true">✦</span><div><h3 id="ia-titulo">Conte o que aconteceu</h3><small>Do seu jeito. A Kiiro diz quem chamar.</small></div></div>
+    <form class="ia-form" id="ia-form"><textarea id="ia-in" rows="2" maxlength="300" placeholder="Ex.: caiu o disjuntor da cozinha" enterkeyhint="send" aria-label="Descreva o problema"></textarea><button class="oc-go" type="submit" id="ia-go" aria-label="Perguntar"><svg viewBox="0 0 24 24" fill="#1A1A1A"><path d="M3 20.5V14l9-2-9-2V3.5L22 12z"/></svg></button></form>
+    <div class="ia-ex" id="ia-ex">
+      <button type="button">Caiu o disjuntor da cozinha</button>
+      <button type="button">A grama da casa de praia tá alta</button>
+      <button type="button">Vazamento embaixo da pia</button>
+      <button type="button">Preciso de alguém pra servir numa festa</button>
+    </div>
+    <div class="ia-resp" id="ia-resp" aria-live="polite"></div>
   </div>
 </div>
 
@@ -928,26 +1027,35 @@ function card(p) {
 }
 const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
 
+/* ===== Selo na foto + linha "★ 4,9 (27) · Cidade" (cards com foto em cima) ===== */
+function seloFoto(p) {
+  const temNota = p.avaliacoes >= 3;
+  if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">★ Destaque</span>`;
+  if (p.urgencia === "Sim") return `<span class="selo-ft urg">⚡ Atende urgência</span>`;
+  if (!temNota) return `<span class="selo-ft novo">Novo na Kiiro</span>`;
+  return "";
+}
+function linhaNotaCidade(p, cidade) {
+  const temNota = p.avaliacoes >= 3;
+  const nt = temNota ? `<span class="nt">★ ${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span> · ` : "";
+  const b = baseDe(p);
+  const l = String(p.cidade).split(/\s*,\s*/).filter(Boolean);
+  const curta = l.includes(window.KIIRO_TODAS) ? window.KIIRO_TODAS : (b || l[0] || "") + (l.length > 1 ? " e região" : "");
+  const onde = cidade && b && semAcento(b) !== semAcento(cidade) ? `Vem de ${b}` : curta;
+  return `<p class="linha-nc">${nt}${esc(onde)}</p>`;
+}
+
 /* ===== Card com foto grande ===== */
 function cardGrande(p) {
-  const temNota = p.avaliacoes >= 3;
-  const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
-  const tags = [
-    temNota && p.nota >= 4.7 && p.avaliacoes >= 5 && `<span class="tag ouro">★ Destaque</span>`,
-    p.urgencia === "Sim" && `<span class="tag esc">⚡ Urgência</span>`,
-    p.orcamento === "Sim" && `<span class="tag">Orçamento grátis</span>`,
-    EXP_CARD[p.experiencia] && `<span class="tag">${EXP_CARD[p.experiencia]}</span>`,
-  ].filter(Boolean).slice(0, 3).join("");
   return `
   <article class="cg" data-perfil="${esc(p.id)}">
     <div class="cg-foto">
       ${fotoDe(p)}
+      ${seloFoto(p)}
       <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
     </div>
-    <div class="l1"><h3>${esc(p.nome)}</h3>${nota}</div>
-    <p>${esc(catsDe(p).join(" · "))} · ${esc(cidTxt(p))}</p>
-    ${vemDe(p, $("cidade").value)}
-    ${tags ? `<div class="tags">${tags}</div>` : ""}
+    <h3>${esc(p.nome)}</h3>
+    ${linhaNotaCidade(p, $("cidade").value)}
   </article>`;
 }
 document.querySelector(".vis").addEventListener("click", e => {
@@ -957,19 +1065,15 @@ document.querySelector(".vis").addEventListener("click", e => {
 
 /* ===== Vitrine (fileiras por serviço) ===== */
 function cardMini(p) {
-  const temNota = p.avaliacoes >= 3;
-  const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
-  const selo = temNota && p.nota >= 4.7 && p.avaliacoes >= 5 ? `<span class="mc-selo">★ Destaque</span>` : p.urgencia === "Sim" ? `<span class="mc-selo esc">⚡ Urgência</span>` : "";
   return `
   <article class="mc" data-perfil="${esc(p.id)}">
     <div class="mc-foto">
       ${fotoDe(p)}
-      ${selo}
+      ${seloFoto(p)}
       <button class="fav ${favs.has(String(p.id)) ? "on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="Salvar ${esc(p.nome)}" aria-pressed="${favs.has(String(p.id))}">${icoCoracao}</button>
     </div>
     <h3>${esc(p.nome)}</h3>
-    <p>${esc(String(p.cidade).split(/\s*,\s*/)[0])}${String(p.cidade).includes(",") ? " e região" : ""}</p>
-    <div class="mc-pe">${nota}</div>
+    ${linhaNotaCidade(p, "")}
   </article>`;
 }
 function vitrine(lista) {
@@ -1476,6 +1580,169 @@ document.addEventListener("click", e => {
   window.open(`https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
 });
 
+/* ===== Doe (Pix com a chave de patrocinios.js → KIIRO_PIX) ===== */
+// Monta o "Pix Copia e Cola" (padrão BR Code do Banco Central) com o valor escolhido.
+function pixPayload(chave, valor, nome, cidade, txid) {
+  const tlv = (id, v) => id + String(v.length).padStart(2, "0") + v;
+  const limpo = (s, n) => semAcento(s).toUpperCase().replace(/[^A-Z0-9 ]/g, "").trim().slice(0, n) || "KIIRO";
+  const corpo = tlv("00", "01") +
+    tlv("26", tlv("00", "br.gov.bcb.pix") + tlv("01", chave)) +
+    tlv("52", "0000") + tlv("53", "986") +
+    (valor ? tlv("54", valor.toFixed(2)) : "") +
+    tlv("58", "BR") + tlv("59", limpo(nome, 25)) + tlv("60", limpo(cidade, 15)) +
+    tlv("62", tlv("05", txid || "***")) + "6304";
+  let crc = 0xFFFF;
+  for (const ch of corpo) { crc ^= ch.charCodeAt(0) << 8; for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF; }
+  return corpo + crc.toString(16).toUpperCase().padStart(4, "0");
+}
+function carregarQR() {
+  if (window.qrcode) return Promise.resolve();
+  return new Promise((ok, erro) => { const s = document.createElement("script"); s.src = "qrcode.js"; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
+}
+const reais = v => "R$ " + v.toFixed(2).replace(".", ",");
+let doeCodigo = "";
+async function mostrarPix(valor) {
+  const pix = window.KIIRO_PIX || {};
+  if (!pix.chave || !(valor >= 1)) { $("doe-pix").classList.add("escondido"); return; }
+  doeCodigo = pixPayload(pix.chave, valor, pix.titular || "Kiiro", "Litoral Norte", "DOACAOKIIRO");
+  $("doe-vl").innerHTML = `${reais(valor)}<small>Doação para a Kiiro</small>`;
+  $("doe-cod").textContent = doeCodigo;
+  $("doe-copiar").textContent = "Copiar código Pix"; $("doe-copiar").classList.remove("ok");
+  $("doe-pix").classList.remove("escondido");
+  try {
+    await carregarQR();
+    const q = window.qrcode(0, "M"); q.addData(doeCodigo); q.make();
+    $("doe-qr").src = q.createDataURL(8, 2);
+  } catch { $("doe-qr").removeAttribute("src"); }
+  contar("doe_valor", String(valor));
+}
+function abrirDoe() {
+  contar("doe_abrir");
+  $("doe-vals").querySelectorAll("button").forEach(b => b.classList.remove("on"));
+  $("doe-outro").classList.add("escondido"); $("doe-outro-v").value = "";
+  $("doe-pix").classList.add("escondido");
+  $("modal-doe").classList.add("aberto"); $("doe-sheet").scrollTop = 0;
+}
+const fecharDoe = () => $("modal-doe").classList.remove("aberto");
+$("bt-doe").addEventListener("click", abrirDoe);
+$("doe-x").addEventListener("click", fecharDoe);
+$("modal-doe").addEventListener("click", e => { if (e.target.id === "modal-doe") fecharDoe(); });
+$("doe-vals").addEventListener("click", e => {
+  const b = e.target.closest("[data-v]"); if (!b) return;
+  $("doe-vals").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  if (b.dataset.v === "outro") {
+    $("doe-outro").classList.remove("escondido"); $("doe-pix").classList.add("escondido");
+    return setTimeout(() => $("doe-outro-v").focus(), 50);
+  }
+  $("doe-outro").classList.add("escondido");
+  mostrarPix(Number(b.dataset.v));
+  setTimeout(() => $("doe-pix").scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+});
+let doeTimer;
+$("doe-outro-v").addEventListener("input", () => {
+  clearTimeout(doeTimer);
+  doeTimer = setTimeout(() => {
+    const v = Number($("doe-outro-v").value.replace(/[^\d,.]/g, "").replace(/\.(?=\d{3})/g, "").replace(",", "."));
+    mostrarPix(v >= 1 && v <= 10000 ? Math.round(v * 100) / 100 : 0);
+  }, 500);
+});
+$("doe-copiar").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(doeCodigo); }
+  catch { const t = document.createElement("textarea"); t.value = doeCodigo; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch {} t.remove(); }
+  $("doe-copiar").textContent = "✓ Código copiado!"; $("doe-copiar").classList.add("ok");
+  contar("doe_copiar");
+});
+
+/* ===== IA na busca: a pessoa conta o problema, a Kiiro diz qual serviço chamar ===== */
+// Sem a IA (ou se ela falhar), usa as palavras de servicos.js (KIIRO_PALAVRAS).
+const TODOS_SERVICOS = (window.KIIRO_SERVICOS || []).flatMap(g => g.itens);
+function iaLocal(texto) {
+  const so = s => " " + semAcento(s).replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  const t = so(texto);
+  const toks = t.trim().split(" ").filter(w => w.length >= 4);
+  // palavra que aparece em vários serviços vale menos (ex.: "cozinha")
+  const quantos = {};
+  PALAVRAS.forEach(([, ps]) => ps.forEach(w => quantos[w] = (quantos[w] || 0) + 1));
+  const pontos = {};
+  PALAVRAS.forEach(([serv, ps]) => {
+    let p = 0;
+    ps.forEach(w => {
+      const peso = 3 / (quantos[w] || 1);
+      if (t.includes(so(w))) p += peso;
+      else if (toks.some(k => k.length >= 5 && w.startsWith(k))) p += peso / 2;
+    });
+    // o nome do serviço conta pouco ("cozinha" no texto não quer dizer cozinheiro)
+    if (so(serv).trim().split(" ").some(w => w.length >= 5 && toks.some(k => k.startsWith(w) || w.startsWith(k)))) p += 1;
+    if (p) pontos[serv] = p;
+  });
+  const ord = Object.entries(pontos).sort((a, b) => b[1] - a[1]);
+  if (!ord.length) return [];
+  return ord.filter(([, p]) => p >= ord[0][1] * 0.85).slice(0, 3).map(([s]) => s);
+}
+function quantosDisponiveis(serv) {
+  const cidade = $("cidade").value;
+  return profissionais.filter(p => p.categorias.includes(serv) && (!cidade || atende(p, cidade))).length;
+}
+function iaMostrar(servicos, resposta) {
+  const cidade = $("cidade").value;
+  if (!servicos.length) {
+    $("ia-resp").innerHTML = `<div class="ia-balao">${esc(resposta || "Não consegui entender qual profissional você precisa. Tente contar com outras palavras, ou peça um orçamento que a Kiiro procura para você.")}</div>
+      <button class="btn btn-sun btn-full" type="button" id="ia-orc" style="margin-top:.8rem">Pedir orçamento grátis</button>`;
+    $("ia-orc").onclick = () => { fecharIa(); abrirOrc(); };
+    return;
+  }
+  const txt = resposta || (servicos.length === 1 ? `Pelo que você contou, o profissional certo é: ${servicos[0]}.` : "Pelo que você contou, estes profissionais podem resolver:");
+  $("ia-resp").innerHTML = `<div class="ia-balao">${esc(txt)}</div>
+    <div class="ia-servs">${servicos.map(s => {
+      const n = quantosDisponiveis(s);
+      const sub = n ? `${n} ${n > 1 ? "disponíveis" : "disponível"}${cidade ? " em " + esc(cidade) : " no Litoral Norte"}` : "Ainda sem profissional · peça orçamento";
+      return `<button class="ia-serv" type="button" data-ia-serv="${esc(s)}"><span class="ic">${ico(s, 2)}</span><span><b>${esc(s)}</b><small class="${n ? "" : "zero"}">${sub}</small></span><svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>`;
+    }).join("")}</div>`;
+}
+let iaPergunta = 0;
+async function iaPerguntar(texto) {
+  texto = String(texto || "").trim();
+  if (texto.length < 3) return $("ia-in").focus();
+  const minha = ++iaPergunta;
+  $("ia-in").value = texto;
+  $("ia-ex").classList.add("escondido");
+  $("ia-resp").innerHTML = `<p class="ia-pensando">✦ Entendendo o que você precisa…</p>`;
+  let servicos = [], resposta = "";
+  if (!DEMO) {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 9000);
+      const r = await fetch("/.netlify/functions/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto }), signal: ctl.signal });
+      clearTimeout(t);
+      if (r.ok) { const d = await r.json(); if (!d.fallback) { servicos = (d.servicos || []).filter(s => TODOS_SERVICOS.includes(s)); resposta = d.resposta || ""; } }
+    } catch {}
+  }
+  if (!servicos.length && !resposta) servicos = iaLocal(texto);
+  if (minha !== iaPergunta) return;
+  contar("ia", servicos[0] || "nada");
+  iaMostrar(servicos, resposta);
+}
+function abrirIa() {
+  const termo = $("busca").value.trim();
+  $("ia-resp").innerHTML = ""; $("ia-ex").classList.remove("escondido");
+  $("ia-in").value = termo.length >= 3 ? termo : "";
+  $("modal-ia").classList.add("aberto"); $("ia-sheet").scrollTop = 0;
+  setTimeout(() => $("ia-in").focus(), 80);
+  if (termo.length >= 8) iaPerguntar(termo);
+}
+const fecharIa = () => $("modal-ia").classList.remove("aberto");
+$("btn-ia").addEventListener("click", abrirIa);
+$("ia-x").addEventListener("click", fecharIa);
+$("modal-ia").addEventListener("click", e => {
+  if (e.target.id === "modal-ia") return fecharIa();
+  const ex = e.target.closest("#ia-ex button"); if (ex) return iaPerguntar(ex.textContent);
+  const s = e.target.closest("[data-ia-serv]"); if (!s) return;
+  catAtiva = s.dataset.iaServ; $("busca").value = ""; contar("cat", catAtiva);
+  fecharIa(); if (modo !== "inicio") irPara("inicio"); montarCats(); render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+$("ia-form").addEventListener("submit", e => { e.preventDefault(); iaPerguntar($("ia-in").value); });
+$("ia-in").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); iaPerguntar($("ia-in").value); } });
+
 /* ===== Geral ===== */
 function toast(t) {
   const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status");
@@ -1483,7 +1750,7 @@ function toast(t) {
 }
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  ["modal", "modal-todos", "modal-foto-av", "modal-cid", "modal-orc", "modal-ind"].forEach(id => $(id).classList.remove("aberto"));
+  ["modal", "modal-todos", "modal-foto-av", "modal-cid", "modal-orc", "modal-ind", "modal-doe", "modal-ia"].forEach(id => $(id).classList.remove("aberto"));
   if (mBv.classList.contains("aberto")) fecharBv();
 });
 $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c => `<option>${esc(c)}</option>`).join(""));
