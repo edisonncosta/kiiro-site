@@ -1422,7 +1422,7 @@ function mostrarIndicacoes(p, l) {
       <div class="quem"><div class="avatar">${esc((x.nome || "?")[0])}</div><div><b>${esc(x.nome)} <span class="ind-rel">${esc(x.relacao)}</span></b><span>${quando(x.data)}</span></div></div>
     </div>`).join("")}
     <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">💬 Indicar ${nome1}</button>
-    <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}">📣 É ${nome1}? <b>Peça indicações</b> com sua foto</button>`;
+    <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}">📣 É ${nome1}? <b>Peça indicações</b></button>`;
 }
 function abrirIndicar(id) {
   const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
