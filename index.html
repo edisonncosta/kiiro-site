@@ -366,11 +366,8 @@
   .linha-host .avatar{width:56px;height:56px;border-radius:50%;font-size:1.2rem;box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--sun)}
   .linha-host b{display:block;font-weight:600}
   .linha-host span{color:var(--muted);font-size:.88rem}
-  .bt-pedir-ind{display:flex;align-items:center;gap:.8rem;width:100%;margin-top:1rem;background:var(--sun);border:0;border-radius:16px;padding:.8rem .9rem;font-family:Poppins,sans-serif;color:var(--ink);text-align:left;cursor:pointer;box-shadow:0 4px 14px rgba(150,110,0,.18)}
-  .bt-pedir-ind .pi-ic{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15rem;flex:none}
-  .bt-pedir-ind b{display:block;font-size:.98rem;font-weight:700}
-  .bt-pedir-ind small{display:block;font-size:.78rem;line-height:1.3;opacity:.8}
-  .bt-pedir-ind svg{width:20px;height:20px;margin-left:auto;flex:none}
+  .bt-pedir-ind{display:block;margin:.8rem auto 0;background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.45rem .95rem;font:500 .8rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .bt-pedir-ind b{font-weight:700}
   .recursos{display:grid;gap:1.2rem}
   .recurso{display:flex;gap:1rem;align-items:flex-start}
   .recurso .ri{width:44px;height:44px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;flex:none;font-size:1.25rem}
@@ -1353,7 +1350,6 @@ async function abrirPerfil(id) {
         <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
         <div><b>${esc(p.nome)}</b><span>${p.desde ? `Na Kiiro desde ${mesAno(p.desde)} · ` : ""}combina tudo direto com você</span></div>
       </div>
-      <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}"><span class="pi-ic" aria-hidden="true">📣</span><span><b>Pedir indicações</b><small>É ${esc(nome1)}? Mande para seus clientes com sua foto</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       ${recursos.length ? `<hr><div class="recursos">${recursos.map(([i, t, d]) => `<div class="recurso"><span class="ri">${i}</span><div><b>${esc(t)}</b>${d ? `<span>${esc(d)}</span>` : ""}</div></div>`).join("")}</div>` : ""}
       ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
       ${(p.trabalhos || []).length ? `<hr><h2>Trabalhos de ${esc(nome1)}</h2><div class="galeria">${p.trabalhos.map(u => `<button type="button" data-ampliar="${esc(u)}" aria-label="Ver foto do trabalho"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
@@ -1425,7 +1421,8 @@ function mostrarIndicacoes(p, l) {
       <p>“${esc(x.texto)}”</p>
       <div class="quem"><div class="avatar">${esc((x.nome || "?")[0])}</div><div><b>${esc(x.nome)} <span class="ind-rel">${esc(x.relacao)}</span></b><span>${quando(x.data)}</span></div></div>
     </div>`).join("")}
-    <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">💬 Indicar ${nome1}</button>`;
+    <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">💬 Indicar ${nome1}</button>
+    <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}">📣 É ${nome1}? <b>Peça indicações</b> com sua foto</button>`;
 }
 function abrirIndicar(id) {
   const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
