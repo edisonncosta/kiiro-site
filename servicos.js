@@ -43,7 +43,7 @@ window.KIIRO_SERVICOS_ANTIGOS = { "Ar-condicionado": "Técnico de ar-condicionad
 // Palavras do dia a dia que levam a cada serviço na busca (ex.: "vazamento" → Encanador).
 // Para melhorar a busca, é só acrescentar palavras aqui.
 window.KIIRO_PALAVRAS = {
-  "Eletricista": ["tomada", "chuveiro", "luz", "disjuntor", "fiação", "fio", "curto", "lâmpada", "luminária", "quadro de luz", "energia", "interruptor", "resistência", "padrão de luz"],
+  "Eletricista": ["tomada", "chuveiro", "luz", "disjuntor", "fiação", "fio", "curto", "lâmpada", "luminária", "quadro de luz", "energia", "interruptor", "resistência", "padrão de luz", "ventilador", "ventilador de teto", "lustre", "spot", "led", "choque", "pisca", "piscando", "queda de energia", "sem luz", "relé", "fotocélula"],
   "Encanador": ["vazamento", "vazando", "cano", "torneira", "descarga", "privada", "vaso sanitário", "pia", "esgoto", "entupido", "entupimento", "desentupir", "registro", "infiltração", "hidráulica", "caixa acoplada", "ralo"],
   "Pedreiro": ["obra", "reforma", "muro", "parede", "reboco", "contrapiso", "piso", "construção", "laje", "alvenaria", "calçada"],
   "Pintor": ["pintura", "pintar", "tinta", "parede", "fachada", "textura", "grafiato", "verniz"],

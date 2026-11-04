@@ -10,7 +10,9 @@
 import { getStore } from "@netlify/blobs";
 import vm from "node:vm";
 
-const MODELO = process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
+// tenta o modelo da variável e, se não existir na conta, os seguintes
+const MODELOS = [...new Set([process.env.ANTHROPIC_MODEL, "claude-haiku-5-5", "claude-haiku-4-5", "claude-sonnet-5-5", "claude-sonnet-4-5"].filter(Boolean))];
+let MODELO_OK = null;
 const LIMITE = Number(process.env.IA_LIMITE_DIA || 400);
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json" } });
 const hojeSP = () => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
@@ -28,21 +30,27 @@ async function servicos(origem) {
 }
 
 export default async (req) => {
-  if (req.method !== "POST") return new Response("", { status: 405 });
+  // teste rápido pelo navegador: /.netlify/functions/ia?diag=SUA_ADMIN_KEY&texto=caiu o disjuntor
+  const u = new URL(req.url);
+  const diag = !!process.env.ADMIN_KEY && u.searchParams.get("diag") === process.env.ADMIN_KEY;
   let d;
-  try { d = JSON.parse(await req.text()); } catch { return json({ erro: "JSON inválido" }, 400); }
+  if (diag && req.method === "GET") d = { texto: u.searchParams.get("texto") || "caiu o disjuntor da cozinha" };
+  else {
+    if (req.method !== "POST") return new Response("", { status: 405 });
+    try { d = JSON.parse(await req.text()); } catch { return json({ erro: "JSON inválido" }, 400); }
+  }
   const texto = String(d && d.texto || "").replace(/\s+/g, " ").trim().slice(0, 300);
   if (texto.length < 3) return json({ erro: "texto curto" }, 400);
 
   const chave = process.env.ANTHROPIC_API_KEY;
-  if (!chave) return json({ fallback: true });
+  if (!chave) return json(diag ? { fallback: true, erro: "ANTHROPIC_API_KEY não chegou na função (faça um novo deploy depois de criar a variável)" } : { fallback: true });
 
   // limite diário, para a conta da IA nunca fugir do controle
   try {
     const st = getStore({ name: "ia", consistency: "strong" });
     const k = "uso-" + hojeSP();
     const n = Number(await st.get(k)) || 0;
-    if (n >= LIMITE) return json({ fallback: true });
+    if (n >= LIMITE && !diag) return json({ fallback: true });
     await st.set(k, String(n + 1));
   } catch {}
 
@@ -64,15 +72,22 @@ Regras:
 - Não invente preço, prazo nem diagnóstico técnico. Não prometa que alguém vai atender.
 - Se for uma emergência com risco (fogo, cheiro forte de gás, choque elétrico em alguém, pessoa ferida), diga na resposta para ligar antes para os Bombeiros (193) ou o SAMU (192).
 - Se não for um pedido de serviço, ou nada da lista servir, use "servicos": [] e explique em uma frase.`;
-    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 8000);
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      signal: ctl.signal,
-      headers: { "x-api-key": chave, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODELO, max_tokens: 300, system: sistema, messages: [{ role: "user", content: texto }] }),
-    });
-    clearTimeout(t);
-    if (!r.ok) { console.log("IA erro", r.status, (await r.text()).slice(0, 300)); return json({ fallback: true }); }
+    let r = null, ultimoErro = "";
+    for (const modelo of MODELO_OK ? [MODELO_OK] : MODELOS) {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 8000);
+      r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        signal: ctl.signal,
+        headers: { "x-api-key": chave, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({ model: modelo, max_tokens: 300, system: sistema, messages: [{ role: "user", content: texto }] }),
+      });
+      clearTimeout(t);
+      if (r.ok) { MODELO_OK = modelo; break; }
+      ultimoErro = `${modelo}: ${r.status} ${(await r.text()).slice(0, 300)}`;
+      console.log("IA erro", ultimoErro);
+      if (r.status !== 404 && r.status !== 400) break; // chave inválida, sem crédito etc.: não adianta trocar de modelo
+    }
+    if (!r || !r.ok) return json(diag ? { fallback: true, erro: ultimoErro } : { fallback: true });
     const out = await r.json();
     const bruto = (out.content || []).map(c => c.text || "").join("");
     const m = bruto.match(/\{[\s\S]*\}/);
@@ -81,9 +96,9 @@ Regras:
     const lista2 = (Array.isArray(res.servicos) ? res.servicos : []).filter(s => validos.has(s)).slice(0, 3);
     const resposta = String(res.resposta || "").trim().slice(0, 400);
     if (!lista2.length && !resposta) return json({ fallback: true });
-    return json({ resposta, servicos: lista2 });
+    return json(diag ? { resposta, servicos: lista2, modelo: MODELO_OK } : { resposta, servicos: lista2 });
   } catch (e) {
     console.log("IA falhou", e && e.message);
-    return json({ fallback: true });
+    return json(diag ? { fallback: true, erro: String(e && e.message) } : { fallback: true });
   }
 };
