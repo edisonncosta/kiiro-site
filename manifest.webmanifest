@@ -1,0 +1,15 @@
+{
+  "name": "Kiiro · Profissionais do Litoral Norte",
+  "short_name": "Kiiro",
+  "description": "Profissionais perto de você no Litoral Norte do RS.",
+  "lang": "pt-BR",
+  "start_url": "/?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFAEA",
+  "theme_color": "#FFC800",
+  "icons": [
+    { "src": "/img/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

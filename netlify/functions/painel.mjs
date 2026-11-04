@@ -3,6 +3,7 @@
 // Abas: Resumo (acessos e funil) · Profissionais (ocultar, mostrar, excluir) · Chamadas (quem chamou quem, e como foi)
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import { enviarPara, inscricoes } from "../lib/push.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TZ = "America/Sao_Paulo";
@@ -110,6 +111,20 @@ export default async (req, context) => {
       if (p && acao === "pd_novo") { await pedidos.setJSON(id, { ...p, status: "novo" }); aviso = "Pedido voltou para abertos."; }
       if (p && acao === "pd_excluir") { await pedidos.delete(id); aviso = "Pedido excluído."; }
       return Response.redirect(`${base}/painel${q({ aba: "pedidos", aviso })}`, 303);
+    }
+    // ----- avisos no celular (notificações): mandar um aviso para quem ativou
+    if (acao === "push_enviar") {
+      const para = ["pro", "cliente"].includes(String(f.get("para"))) ? String(f.get("para")) : "";
+      const titulo = String(f.get("titulo") || "").trim().slice(0, 60);
+      const texto = String(f.get("texto") || "").trim().slice(0, 180);
+      let link = String(f.get("link") || "").trim().slice(0, 300);
+      if (link && !/^(https?:\/\/|\/)/.test(link)) link = "/" + link;
+      let aviso = "Escreva o título e o texto do aviso.";
+      if (titulo && texto) {
+        const n = await enviarPara({ tipo: para }, { title: titulo, body: texto, url: link || "/", tag: "kiiro-painel-" + Date.now() });
+        aviso = n ? `Aviso enviado para ${n} ${n > 1 ? "aparelhos" : "aparelho"}.` : "Ninguém desse grupo ativou os avisos ainda.";
+      }
+      return Response.redirect(`${base}/painel${q({ aba: "avisos", aviso })}`, 303);
     }
     const w = String(f.get("w") || "").replace(/\D/g, "");
     const admin = getStore("admin");
@@ -704,6 +719,29 @@ export default async (req, context) => {
       }).join("") || '<p class="vazio">Nada por aqui ainda.</p>');
   }
 
+  if (aba === "avisos") {
+    const aviso = url.searchParams.get("aviso");
+    let l = [];
+    try { l = await inscricoes(); } catch {}
+    const pros = l.filter((x) => x.tipo === "pro"), clis = l.filter((x) => x.tipo === "cliente");
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
+      <section class="cx"><h3>Quem recebe avisos no celular</h3>
+        <div class="kpis"><div><b>${num(pros.length)}</b><span>profissionais</span></div><div><b>${num(clis.length)}</b><span>clientes</span></div></div>
+        <p class="obs">Avisos automáticos: o profissional recebe quando um cliente chama e quando recebe avaliação; o cliente recebe o lembrete para avaliar no dia seguinte. Para ativar, mande o link <b>${esc(base)}/avisos</b>.</p>
+      </section>
+      <section class="cx"><h3>Mandar um aviso agora</h3>
+        <form class="ed" method="post" action="/painel" onsubmit="return confirm('Mandar este aviso agora?')">
+          <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="push_enviar">
+          <label class="ed-l">Para quem<select name="para"><option value="pro">Profissionais (${pros.length})</option><option value="cliente">Clientes (${clis.length})</option><option value="">Todo mundo (${l.length})</option></select></label>
+          <label class="ed-l">Título<input name="titulo" maxlength="60" required placeholder="Ex.: Começou a temporada! ☀️"></label>
+          <label class="ed-l">Texto<textarea name="texto" maxlength="180" rows="3" required placeholder="Ex.: Atualize sua agenda na Kiiro para receber mais clientes no verão."></textarea></label>
+          <label class="ed-l">Abrir ao tocar <span class="ed-dica">Opcional. Ex.: /cadastro ou um link completo. Vazio abre a Kiiro.</span><input name="link" maxlength="300" placeholder="/"></label>
+          <button class="b zap" type="submit">Enviar aviso</button>
+        </form>
+        <p class="obs">Use com moderação: aviso demais faz as pessoas desligarem.</p>
+      </section>`;
+  }
+
   const abaLink = (v, t) => `<a class="aba ${aba === v ? "on" : ""}" href="${q({ aba: v })}">${t}</a>`;
   const pagina = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
@@ -795,7 +833,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;

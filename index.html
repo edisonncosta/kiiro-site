@@ -20,6 +20,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://chamakiiro.netlify.app/img/og-kiiro.jpg">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kiiro">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC800'/%3E%3Cpath d='M18 46C18 46 8 38 8 30a10 10 0 0 1 20 0c0 8-10 16-10 16ZM46 46C46 46 36 38 36 30a10 10 0 0 1 20 0c0 8-10 16-10 16Z' fill='%231A1A1A'/%3E%3Ccircle cx='18' cy='30' r='3.5' fill='%23FFC800'/%3E%3Ccircle cx='46' cy='30' r='3.5' fill='%23FFC800'/%3E%3Cpath d='M26 30h12' stroke='%231A1A1A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +32,7 @@
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
 <script src="patrocinios.js"></script>
+<script src="avisos.js"></script>
 <style>
   body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   body.em-perfil{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
@@ -547,6 +551,13 @@
       <button class="lembrete-x" type="button" id="lembrete-x" aria-label="Agora não">✕</button>
     </div>
 
+    <div class="lembrete escondido" id="convite-avisos" role="region" aria-label="Ativar avisos">
+      <span class="lembrete-ic" aria-hidden="true">🔔</span>
+      <div class="lembrete-txt"><b>Ative os avisos 🔔</b><span id="convite-avisos-sub">Saiba na hora quando tiver novidade.</span></div>
+      <a href="avisos.html">Ativar</a>
+      <button class="lembrete-x" type="button" id="convite-avisos-x" aria-label="Agora não">✕</button>
+    </div>
+
     <div class="lista-head">
       <h1 id="titulo">Profissionais <em>perto de você</em><small id="contagem">Carregando…</small></h1>
       <div class="filtros">
@@ -572,7 +583,7 @@
   </main>
   <footer class="rodape">
     <p>A Kiiro conecta você ao profissional. Valor, prazo e execução do serviço são combinados diretamente entre cliente e profissional.</p>
-    <nav class="rod-links" aria-label="Links"><a href="termos.html">Termos de uso</a><a href="privacidade.html">Privacidade</a><a href="anunciar.html">Anuncie</a><a href="cadastro.html">Seja um profissional</a><a href="/servicos">Serviços por cidade</a><a href="https://wa.me/5551991855760" target="_blank" rel="noopener">Fale com a Kiiro</a><a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></nav>
+    <nav class="rod-links" aria-label="Links"><a href="termos.html">Termos de uso</a><a href="privacidade.html">Privacidade</a><a href="anunciar.html">Anuncie</a><a href="cadastro.html">Seja um profissional</a><a href="avisos.html">🔔 Receber avisos</a><a href="/servicos">Serviços por cidade</a><a href="https://wa.me/5551991855760" target="_blank" rel="noopener">Fale com a Kiiro</a><a href="https://instagram.com/chamakiiro" target="_blank" rel="noopener">@chamakiiro</a></nav>
     <p class="rod-c">© 2026 Kiiro · Litoral Norte do RS</p>
   </footer>
 </section>
@@ -1820,6 +1831,17 @@ $("cidade").insertAdjacentHTML("beforeend", (window.KIIRO_CIDADES || []).map(c =
 if (DEMO && !lerChamadas().length) guardarChamada({ c: "demo", nome: "Talita Rosa", cat: "Diarista", t: Date.now() - 864e5 });
 mostrarLembrete();
 
+/* ===== Convite para ativar os avisos (só na Kiiro instalada na tela de início) ===== */
+(async function conviteAvisos() {
+  const av = window.kiiroAvisos; if (!av || !av.instalado()) return;
+  if (lerJSON("kiiro-avisos-fora", 0) > Date.now()) return;
+  const st = await av.estado(); if (st === "ativo" || st === "sem-suporte") return;
+  const quero = lerJSON("kiiro-avisos-quero", null);
+  if (quero) $("convite-avisos-sub").textContent = quero.tipo === "pro" ? "Falta só um toque para saber quando um cliente te chamar." : "Falta só um toque para ativar.";
+  $("convite-avisos").classList.remove("escondido");
+  $("convite-avisos-x").onclick = () => { salvarJSON("kiiro-avisos-fora", Date.now() + 14 * 864e5); $("convite-avisos").classList.add("escondido"); };
+})();
+
 // anúncios aprovados pelo painel entram junto com os de patrocinios.js
 async function carregarAnuncios() {
   if (DEMO) return;
@@ -1896,7 +1918,7 @@ async function ocEnviar() {
   const c = document.createElement("div"); c.className = "oc-ok";
   c.innerHTML = `<b>✓ Pedido enviado!</b>Vamos procurar ${esc(artigo(d.servico))} que atende${d.cidade ? " em " + esc(d.cidade) : ""}. Ele vai te chamar no WhatsApp.`;
   $("oc-msgs").appendChild(c); $("oc-msgs").scrollTop = 1e6;
-  ocChips(["Fechar"], fecharOrc);
+  ocChips(["🔔 Me avise pelo celular", "Fechar"], o => { if (o.startsWith("🔔")) location.href = "avisos.html?tipo=cliente"; else fecharOrc(); });
 }
 const artigo = s => s ? `um profissional (${s})` : "um profissional";
 function abrirOrc() {

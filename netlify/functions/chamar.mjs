@@ -2,6 +2,7 @@
 // Endereço: /.netlify/functions/chamar (POST, usado pela página inicial)
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import { enviarPara } from "../lib/push.mjs";
 
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
 const limpa = (s, max = 80) => String(s || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
@@ -57,6 +58,15 @@ export default async (req) => {
       { action: "view", label: "Só abrir conversa", url: `https://wa.me/${clienteWhats}` },
     ],
   });
+
+  // aviso no celular do profissional (se ele ativou os avisos)
+  try {
+    await enviarPara({ tipo: "pro", whats: chamada.profissionalWhatsapp }, {
+      title: "🔔 Novo cliente pela Kiiro",
+      body: `${cliente1} quer ${chamada.categoria ? chamada.categoria.toLowerCase() : "um orçamento"} e vai te chamar no WhatsApp. Fique de olho nas mensagens!`,
+      url: "/", tag: "kiiro-chamada-" + chave.slice(-6),
+    });
+  } catch {}
 
   return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
 };

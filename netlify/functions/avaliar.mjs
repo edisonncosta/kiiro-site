@@ -3,6 +3,7 @@
 // POST /.netlify/functions/avaliar           -> { c, feito, nota, motivo, comentario }
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import { enviarPara } from "../lib/push.mjs";
 
 const limpa = (s, max) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
 const MOTIVOS = ["Não respondeu", "Preço alto", "Sem agenda", "Ainda vai fazer", "Outro motivo"];
@@ -71,6 +72,17 @@ export default async (req) => {
       attach: site ? `${site}/.netlify/functions/foto?id=${av.fotoId}` : undefined,
       click: site ? `${site}/.netlify/functions/foto?id=${av.fotoId}` : undefined,
     });
+  }
+
+  // aviso no celular do profissional: avaliação nova (só quando o serviço foi feito)
+  if (feito === "sim") {
+    try {
+      await enviarPara({ tipo: "pro", whats: ch.profissionalWhatsapp }, {
+        title: `⭐ Você recebeu uma avaliação de ${nota} ${nota === 1 ? "estrela" : "estrelas"}`,
+        body: `${String(ch.clienteNome || "Um cliente").split(" ")[0]} avaliou seu atendimento na Kiiro. Toque para ver seu perfil.`,
+        url: `/#p-${ch.profissionalId}`, tag: "kiiro-avaliacao",
+      });
+    } catch {}
   }
 
   // nota baixa ou serviço não feito: avisa no celular

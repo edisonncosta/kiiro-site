@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Receba avisos da Kiiro</title>
+<meta name="description" content="Ative os avisos da Kiiro no seu celular: saiba na hora quando um cliente te chamar.">
+<meta name="theme-color" content="#FFC800">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kiiro">
+<meta property="og:image" content="https://chamakiiro.netlify.app/img/og-cadastro.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<script src="avisos.js"></script>
+<style>
+  body{min-height:100vh;padding:calc(1.2rem + env(safe-area-inset-top)) 1.25rem 2rem}
+  .in{max-width:460px;margin:0 auto}
+  .logo{width:84px;margin-bottom:1.6rem}
+  .sino{width:76px;height:76px;border-radius:50%;background:var(--sun);display:grid;place-items:center;box-shadow:0 0 0 8px var(--sun-soft);margin-bottom:1.2rem}
+  .sino svg{width:38px;height:38px}
+  h1{font-size:1.65rem;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+  .lead{color:var(--muted);margin:.6rem 0 1.4rem;line-height:1.5}
+  .tipos{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.2rem}
+  .tipos button{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:.9rem .7rem;text-align:left;font:600 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .tipos button small{display:block;font-weight:400;font-size:.76rem;color:var(--muted);margin-top:.15rem;line-height:1.35}
+  .tipos button.on{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun-soft)}
+  .lista{list-style:none;display:grid;gap:.55rem;margin:0 0 1.3rem}
+  .lista li{display:flex;gap:.7rem;align-items:flex-start;font-size:.92rem;line-height:1.4}
+  .lista li span{font-size:1.15rem;line-height:1.2}
+  .passos{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.1rem;margin-bottom:1rem}
+  .passos h2{font-size:1.05rem;font-weight:700;margin-bottom:.7rem}
+  .passos ol{list-style:none;display:grid;gap:.85rem}
+  .passos li{display:flex;gap:.8rem;align-items:flex-start;font-size:.92rem;line-height:1.4}
+  .passos .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-weight:700;font-size:.85rem}
+  .ic-share{display:inline-block;vertical-align:-4px;width:20px;height:20px;color:#1E6BFF}
+  .ok-box{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.4rem 1.1rem}
+  .ok-box .ic{font-size:2.2rem}
+  .ok-box b{display:block;font-size:1.15rem;margin:.4rem 0 .3rem}
+  .ok-box p{color:var(--muted);font-size:.9rem;line-height:1.5}
+  .link-sair{display:block;margin:1rem auto 0;background:none;border:0;color:var(--muted);font:500 .85rem Poppins,sans-serif;text-decoration:underline;cursor:pointer}
+  .voltar{display:block;text-align:center;margin-top:1.2rem;font-weight:600;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="in">
+  <a class="logo" href="./" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro" style="display:block;width:100%;color:#1A1A1A;--hole:#FFC800"><g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"><path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/><circle cx="282" cy="90" r="28"/><path d="M137 24H147" stroke-width="6"/></g><path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/><circle cx="118" cy="24" r="5" fill="#FFC800"/><circle cx="166" cy="24" r="5" fill="#FFC800"/></svg></a>
+
+  <div class="sino"><svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+  <h1>Receba os avisos da Kiiro no celular</h1>
+  <p class="lead">Grátis e sem app para baixar. Você pode desligar quando quiser.</p>
+
+  <div class="tipos" role="group" aria-label="Quem é você">
+    <button type="button" data-t="pro">Sou profissional<small>Saber na hora quando um cliente me chamar</small></button>
+    <button type="button" data-t="cliente">Procuro serviços<small>Avisos sobre os meus pedidos</small></button>
+  </div>
+
+  <div id="corpo"></div>
+  <a class="voltar" href="./">← Voltar para a Kiiro</a>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ler = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+const qs = new URLSearchParams(location.search);
+const meu = ler("kiiro-meu-cadastro"), cli = ler("kiiro-cliente"), quero = ler("kiiro-avisos-quero"), ativo = ler("kiiro-avisos");
+let tipo = qs.get("tipo") || (quero && quero.tipo) || (ativo && ativo.tipo) || (meu ? "pro" : "");
+const fmt = (w) => { w = String(w || "").replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, ""); return w.length >= 10 ? `(${w.slice(0, 2)}) ${w.slice(2, -4)}-${w.slice(-4)}` : ""; };
+const whatsInicial = () => fmt(qs.get("w") || (quero && quero.whats) || (tipo === "pro" ? meu && meu.whats : cli && cli.whats) || "");
+
+const BENEF = {
+  pro: [["🔔", "Quando um cliente te chamar pela Kiiro"], ["⭐", "Quando você receber uma avaliação"], ["📣", "Novidades importantes, tipo início da temporada"]],
+  cliente: [["⭐", "Lembrete para avaliar quem te atendeu"], ["📝", "Novidades sobre os seus pedidos"]],
+};
+const SHARE = '<svg class="ic-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+
+async function montar() {
+  document.querySelectorAll(".tipos button").forEach((b) => b.classList.toggle("on", b.dataset.t === tipo));
+  if (!tipo) { $("corpo").innerHTML = ""; return; }
+  const est = await kiiroAvisos.estado();
+  const lista = `<ul class="lista">${BENEF[tipo].map(([i, t]) => `<li><span>${i}</span>${t}</li>`).join("")}</ul>`;
+  if (est === "ativo") {
+    $("corpo").innerHTML = `<div class="ok-box"><div class="ic">✅</div><b>Avisos ativados neste celular</b><p>${tipo === "pro" ? "Quando um cliente te chamar pela Kiiro, você fica sabendo na hora." : "A Kiiro te avisa por aqui."}</p><button class="link-sair" type="button" id="sair">Desligar os avisos</button></div>`;
+    $("sair").onclick = async () => { await kiiroAvisos.desativar(); montar(); };
+    return;
+  }
+  const campoWhats = `<div class="campo"><label for="w">${tipo === "pro" ? "O WhatsApp do seu cadastro na Kiiro" : "Seu WhatsApp"}</label><input class="input" id="w" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999" value="${esc(whatsInicial())}"><p class="opc" style="margin-top:.4rem">${tipo === "pro" ? "É assim que a Kiiro sabe que o aviso é para você." : "Para os avisos dos seus pedidos chegarem aqui."}</p></div>`;
+  if (est === "instalar") {
+    $("corpo").innerHTML = `${lista}${campoWhats}
+      <div class="passos"><h2>No iPhone, falta um passo antes 📲</h2><ol>
+        <li><span class="n">1</span><span>Toque em <b>Compartilhar</b> ${SHARE} na barra do Safari</span></li>
+        <li><span class="n">2</span><span>Role e toque em <b>Adicionar à Tela de Início</b></span></li>
+        <li><span class="n">3</span><span>Abra a <b>Kiiro</b> pelo ícone amarelo que apareceu e toque em <b>Ativar avisos</b></span></li>
+      </ol></div>
+      <button class="btn btn-ink btn-full" type="button" id="lembrar">Entendi, vou adicionar</button>
+      <p class="fine">O iPhone só permite avisos de sites que estão na tela de início.</p>`;
+    $("lembrar").onclick = () => {
+      try { localStorage.setItem("kiiro-avisos-quero", JSON.stringify({ tipo, whats: $("w").value })); } catch {}
+      $("lembrar").textContent = "✓ Agora toque em Compartilhar ↓";
+    };
+    return;
+  }
+  if (est === "sem-suporte") { $("corpo").innerHTML = `${lista}<p class="fine" style="text-align:left;font-size:.92rem">Este navegador não aceita avisos. Abra a Kiiro no <b>Chrome</b> (Android) ou no <b>Safari</b> (iPhone).</p>`; return; }
+  if (est === "negado") { $("corpo").innerHTML = `${lista}<p class="erro">Os avisos da Kiiro estão bloqueados neste celular. Libere nas configurações do navegador (Notificações › Kiiro) e volte aqui.</p>`; return; }
+  $("corpo").innerHTML = `${lista}${campoWhats}<p class="erro" id="erro" role="alert"></p><button class="btn btn-ink btn-full" type="button" id="ativar">🔔 Ativar avisos</button>`;
+  $("ativar").onclick = async () => {
+    const w = $("w").value.replace(/\D/g, "");
+    if (tipo === "pro" && (w.length < 10 || w.length > 13)) { $("erro").textContent = "Coloque o WhatsApp com DDD."; return $("w").focus(); }
+    $("ativar").disabled = true; $("ativar").textContent = "Ativando…"; $("erro").textContent = "";
+    try {
+      const r = await kiiroAvisos.ativar(tipo, w);
+      if (r === "negado") $("erro").textContent = "Você não permitiu os avisos. Se mudar de ideia, libere nas configurações do navegador.";
+      else if (r === "cancelado") $("erro").textContent = "Toque em Permitir quando o celular perguntar.";
+      if (r === "ativo") return montar();
+    } catch (e) { $("erro").textContent = "Não deu certo agora. Tente de novo em instantes."; }
+    $("ativar").disabled = false; $("ativar").textContent = "🔔 Ativar avisos";
+  };
+}
+document.querySelector(".tipos").addEventListener("click", (e) => { const b = e.target.closest("[data-t]"); if (!b) return; tipo = b.dataset.t; montar(); });
+montar();
+</script>
+</body>
+</html>

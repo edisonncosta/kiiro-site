@@ -76,3 +76,24 @@ Abra `/painel?chave=SUA_ADMIN_KEY`. Tem três abas:
 - **Profissionais:** ocultar do site (volta quando quiser), excluir o cadastro, pedir atualização pelo WhatsApp.
   Quem está oculto fica na store "admin", chave "ocultos".
 - **Chamadas:** quem chamou quem, pedir avaliação, avaliações ruins.
+
+## Doações (botão "Doe")
+
+O botão com coração no topo gera um Pix com a chave de `patrocinios.js` (`KIIRO_PIX`). Para trocar a chave, edite lá.
+
+## IA na busca (botão "✦ IA")
+
+A pessoa descreve o problema e a Kiiro diz qual serviço chamar. Variáveis no Netlify:
+
+| Nome | Valor |
+|---|---|
+| `ANTHROPIC_API_KEY` | chave da API da Anthropic (sem ela, a busca usa as palavras de `servicos.js`) |
+| `ANTHROPIC_MODEL` | (opcional) modelo usado; o padrão está em `netlify/functions/ia.mjs` |
+| `IA_LIMITE_DIA` | (opcional) máximo de perguntas por dia à IA, padrão 400 |
+
+## Avisos no celular (notificações)
+
+- Página para ativar: `/avisos` (mande para os profissionais). Também aparece no cadastro concluído e no rodapé.
+- Automáticos: profissional recebe quando um cliente chama e quando recebe avaliação; cliente recebe o lembrete de avaliar.
+- Para mandar um aviso na mão: painel → aba **Avisos**.
+- Não precisa configurar nada: as chaves se criam sozinhas (store "push" no Blobs). No iPhone, só funciona com a Kiiro adicionada à tela de início.

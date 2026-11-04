@@ -29,6 +29,11 @@
   status = 200
 
 [[redirects]]
+  from = "/avisos"
+  to = "/avisos.html"
+  status = 200
+
+[[redirects]]
   from = "/painel"
   to = "/.netlify/functions/painel"
   status = 200
@@ -43,3 +48,14 @@
   from = "/profissionais.html"
   to = "/"
   status = 301
+
+# o aviso do celular precisa sempre da versão nova do service worker
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
