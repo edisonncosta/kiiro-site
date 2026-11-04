@@ -48,7 +48,7 @@
   try {
     const eu = JSON.parse(localStorage.getItem("kiiro-meu-cadastro") || "null");
     if (eu && eu.whats) {
-      const link = location.origin + "/#indicar-w" + eu.whats;
+      const link = location.origin + "/i/w" + eu.whats;
       const txt = `Oi! Tudo bem? 😊 Estou na Kiiro, a plataforma de profissionais do Litoral Norte.\n\nVocê que conhece meu trabalho pode me deixar uma indicação? Leva 1 minuto:\n👉 ${link}\n\nAjuda muito, obrigado! 🙏`;
       document.getElementById("indique-bt").href = "https://wa.me/?text=" + encodeURIComponent(txt);
       document.getElementById("indique").hidden = false;

@@ -371,7 +371,7 @@ export default async (req, context) => {
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
-            <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma indicação em 1 minuto:\n👉 ${base}/#indicar-${p.id}\n\nQuanto mais indicações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir indicações</a>
+            <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma indicação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais indicações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir indicações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
           </div>
           <div class="acoes fotos-acoes">
