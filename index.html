@@ -2308,19 +2308,28 @@ function iaLocal(texto) {
   const so = s => " " + semAcento(s).replace(/[^a-z0-9]+/g, " ").trim() + " ";
   const t = so(texto);
   const toks = t.trim().split(" ").filter(w => w.length >= 4);
-  // palavra que aparece em vários serviços vale menos (ex.: "cozinha")
+  // palavra que aparece em vários serviços vale menos (ex.: "cozinha", "quadro")
   const quantos = {};
   PALAVRAS.forEach(([, ps]) => ps.forEach(w => quantos[w] = (quantos[w] || 0) + 1));
+  // verbos genéricos ajudam pouco ("trocar a fechadura" é chaveiro, não marido de aluguel)
+  const GENERICAS = new Set(["trocar", "conserto", "consertar", "reparo", "instalar", "limpeza", "transporte"]);
+  // expressões inteiras ("guarda roupa") tiram as palavras soltas de dentro delas ("roupa" não é passadeira)
+  let t2 = t;
+  PALAVRAS.forEach(([, ps]) => ps.forEach(w => { if (so(w).trim().includes(" ") && t.includes(so(w))) t2 = t2.split(so(w)).join("  "); }));
+  const toks2 = t2.trim().split(/ +/).filter(w => w.length >= 4);
   const pontos = {};
   PALAVRAS.forEach(([serv, ps]) => {
     let p = 0;
     ps.forEach(w => {
-      const peso = 3 / (quantos[w] || 1);
-      if (t.includes(so(w))) p += peso;
-      else if (toks.some(k => k.length >= 5 && w.startsWith(k))) p += peso / 2;
+      const peso = (GENERICAS.has(w) ? 1 : 3) / (quantos[w] || 1);
+      if ((so(w).trim().includes(" ") ? t : t2).includes(so(w))) p += peso;
+      // começo de palavra ("vaza" → "vazamento") só vale para palavra única
+      else if (!so(w).trim().includes(" ") && toks2.some(k => k.length >= 5 && w.startsWith(k))) p += peso / 2;
     });
-    // o nome do serviço conta pouco ("cozinha" no texto não quer dizer cozinheiro)
-    if (so(serv).trim().split(" ").some(w => w.length >= 5 && toks.some(k => k.startsWith(w) || w.startsWith(k)))) p += 1;
+    // o nome do serviço escrito no texto ("frete", "babá") conta bastante; parecido conta pouco
+    const nome = so(serv).trim().split(" ").filter(w => w.length >= 4 && !["freela", "para"].includes(w));
+    if (nome[0] && t.includes(" " + nome[0] + " ")) p += 2.5;
+    else if (nome.some(w => w.length >= 5 && toks.some(k => k.startsWith(w) || w.startsWith(k)))) p += 1;
     if (p) pontos[serv] = p;
   });
   const ord = Object.entries(pontos).sort((a, b) => b[1] - a[1]);
