@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kiiro | Profissionais perto de você no Litoral Norte</title>
 <meta name="description" content="Eletricista, diarista, pedreiro, piscineiro e mais no Litoral Norte do RS. Escolha o profissional e chame direto no WhatsApp.">
-<meta name="theme-color" content="#FFFAEA">
+<meta name="theme-color" content="#FFC800">
 <meta name="google-site-verification" content="aW5FfKb0Fz5V9cUX1tckNxtwSSsrYJtX-yqqHHktKdk" />
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Kiiro">
@@ -40,7 +40,26 @@
   .tela.ativa{display:block}
 
   /* ===== TOPO ===== */
-  .topo{position:sticky;top:0;z-index:30;background:var(--paper);padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
+  .topo{position:relative;z-index:30;background:linear-gradient(var(--sun) 0,var(--sun) calc(150px + env(safe-area-inset-top)),var(--paper) calc(150px + env(safe-area-inset-top)));padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
+  .topo .link-pro{background:#fff;box-shadow:0 2px 8px rgba(120,90,0,.15)}
+  .topo .bt-doe span{box-shadow:0 0 0 2px var(--sun)}
+  /* mapa no topo, no estilo do 99 */
+  .hero{position:relative;max-width:640px}
+  .mapa-home{height:210px;border-radius:24px;overflow:hidden;background:#E9EEF3;box-shadow:0 6px 22px rgba(90,70,0,.16);z-index:0}
+  .mapa-home .leaflet-control-attribution{font-size:8px;background:rgba(255,255,255,.7);margin-bottom:34px !important}
+  .hero .onde{position:absolute;z-index:5;left:.7rem;top:.7rem;max-width:calc(100% - 4.5rem);background:#fff;border-radius:999px;padding:.35rem .8rem .35rem .55rem;box-shadow:0 3px 12px rgba(0,0,0,.14)}
+  .hero .onde-txt small{font-size:.62rem}
+  .hero .onde-txt b{font-size:.9rem}
+  .hero .onde-seta{align-self:center;margin:0}
+  .mh-eu{position:absolute;z-index:5;right:.7rem;top:.7rem;width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:#1E6BFF;display:grid;place-items:center;box-shadow:0 3px 12px rgba(0,0,0,.14);cursor:pointer}
+  .mh-eu svg{width:22px;height:22px}
+  .hero .busca{position:relative;z-index:6;margin:-34px .55rem 0;max-width:none;padding:.65rem .55rem .65rem 1.2rem;border-radius:22px;box-shadow:0 8px 24px rgba(60,45,0,.16)}
+  .hero .busca-txt input{font-size:1rem;font-weight:700}
+  .hero .busca .lupa{display:none}
+  .pino-cid{position:relative;display:grid;place-items:center;min-width:34px;height:34px;padding:0 .45rem;border-radius:999px;background:var(--sun);color:var(--ink);font:800 .9rem Poppins,sans-serif;box-shadow:0 0 0 3px #fff,0 4px 10px rgba(0,0,0,.25);white-space:nowrap}
+  .pino-cid::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+  .pino-cid.on{background:var(--ink);color:var(--sun)}
+  .mapa-home .voce-aqui{width:18px;height:18px;border-radius:50%;background:#1E6BFF;border:3px solid #fff;box-shadow:0 0 0 7px rgba(30,107,255,.22),0 2px 6px rgba(0,0,0,.3)}
   .topo-in{max-width:1080px;margin:0 auto}
   .topo-linha{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.75rem}
   .link-pro{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;font-size:.85rem;font-weight:600;color:var(--ink);text-decoration:none;background:var(--sun);border-radius:999px;padding:.4rem 1rem}
@@ -534,11 +553,14 @@
           <a class="link-pro" href="cadastro.html">Sou profissional<small>Cadastre-se aqui</small></a>
         </div>
       </div>
-      <button class="onde" type="button" id="onde" aria-haspopup="dialog">
-        <svg class="onde-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="#FFC800" stroke="#1A1A1A" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="#1A1A1A"/></svg>
+      <div class="hero">
+        <div class="mapa-home" id="mapa-home" aria-label="Mapa dos profissionais por cidade"></div>
+        <button class="onde" type="button" id="onde" aria-haspopup="dialog">
+          <svg class="onde-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="#FFC800" stroke="#1A1A1A" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="#1A1A1A"/></svg>
         <span class="onde-txt"><small>Ver profissionais em</small><b id="onde-nome">Todo o Litoral Norte</b></span>
         <svg class="onde-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>
+        <button class="mh-eu" type="button" id="mh-eu" aria-label="Mostrar onde estou"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
       <div class="busca" role="search">
         <svg class="lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <div class="busca-txt">
@@ -547,6 +569,7 @@
         </div>
         <button class="btn-ia" type="button" id="btn-ia" aria-label="Descrever o problema para a IA da Kiiro"><i aria-hidden="true">✦</i>IA</button>
         <button class="btn-lupa" type="button" id="btn-lupa" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      </div>
       </div>
       <nav class="cats" id="cats" aria-label="Serviços"></nav>
     </div>
@@ -934,6 +957,7 @@ function vemDe(p, cidade) {
 }
 function render() {
   $("onde-nome").textContent = rotuloOnde();
+  atualizarMapaHome();
   const termo = semAcento($("busca").value.trim());
   const cidade = $("cidade").value;
   const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
@@ -1488,6 +1512,64 @@ $("in-form").addEventListener("submit", async e => {
   contar("indicar", proIndicar.categorias[0]);
   $("in-form").classList.add("escondido"); $("in-ok").classList.remove("escondido");
   $("in-ok-txt").textContent = `Sua indicação para ${proIndicar.nome.split(" ")[0]} foi enviada. Ela aparece no perfil depois de uma conferida rápida da Kiiro.`;
+});
+
+/* ===== Mapa da página inicial: um pingo por cidade com quantos profissionais moram lá ===== */
+const mh = { map: null, camada: null, eu: null, pronto: false };
+async function iniciarMapaHome() {
+  const box = $("mapa-home"); if (!box) return;
+  try { await carregarLeaflet(); } catch { box.closest(".hero").classList.add("sem-mapa"); return; }
+  mh.map = L.map(box, { zoomControl: false, attributionControl: true, dragging: true, touchZoom: true, scrollWheelZoom: false, doubleClickZoom: true, tap: false });
+  mh.map.attributionControl.setPrefix(false);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 16, subdomains: "abcd", attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }).addTo(mh.map);
+  mh.camada = L.layerGroup().addTo(mh.map);
+  mh.map.fitBounds([[-30.35, -50.6], [-29.25, -49.7]], { paddingTopLeft: [12, 58], paddingBottomRight: [12, 48] });
+  mh.pronto = true;
+  const o = lerOnde();
+  if (o && typeof o.lat === "number") marcarEuHome(o.lat, o.lon, false);
+  atualizarMapaHome();
+  setTimeout(() => mh.map && mh.map.invalidateSize(), 300);
+}
+function marcarEuHome(lat, lon, centralizar = true) {
+  if (!mh.map) return;
+  if (mh.eu) mh.eu.remove();
+  mh.eu = L.marker([lat, lon], { icon: L.divIcon({ className: "", html: '<div class="voce-aqui"></div>', iconSize: [18, 18] }), interactive: false, zIndexOffset: 1000 }).addTo(mh.map);
+  if (centralizar) mh.map.setView([lat, lon], 11, { animate: true });
+}
+function atualizarMapaHome() {
+  if (!mh.pronto) return;
+  // mesmos filtros da lista (serviço, urgência, busca), menos a cidade
+  const termo = semAcento($("busca").value.trim());
+  const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
+  const conta = {};
+  base.filter(p => (!catAtiva || p.categorias.includes(catAtiva)) && (!soUrgencia || p.urgencia === "Sim") && (!termo || bate(p, termo)))
+    .forEach(p => { const b = baseDe(p); const c = (window.KIIRO_CIDADES || []).find(x => semAcento(x) === semAcento(b)); if (c) conta[c] = (conta[c] || 0) + 1; });
+  const escolhida = $("cidade").value;
+  mh.camada.clearLayers();
+  Object.entries(conta).forEach(([c, n]) => {
+    const xy = (window.KIIRO_COORD || {})[c]; if (!xy) return;
+    const on = c === escolhida;
+    const m = L.marker(xy, { icon: L.divIcon({ className: "", html: `<div class="pino-cid${on ? " on" : ""}">${n}</div>`, iconSize: null, iconAnchor: [17, 41] }), title: `${n} ${n > 1 ? "profissionais" : "profissional"} em ${c}`, zIndexOffset: on ? 500 : 0 });
+    m.on("click", () => { usarCidade(on ? "" : c); if (!on) setTimeout(() => $("lista").scrollIntoView({ behavior: "smooth", block: "start" }), 120); });
+    m.bindTooltip(`${c} · ${n} ${n > 1 ? "profissionais" : "profissional"}`, { direction: "top", offset: [0, -40] });
+    m.addTo(mh.camada);
+  });
+  // na primeira vez, enquadra os pingos (e você), deixando livre o espaço do "Ver profissionais em" e da busca
+  if (!mh.enquadrado) {
+    const pts = Object.keys(conta).map(c => (window.KIIRO_COORD || {})[c]).filter(Boolean);
+    if (mh.eu) pts.push([mh.eu.getLatLng().lat, mh.eu.getLatLng().lng]);
+    if (pts.length) { mh.map.fitBounds(L.latLngBounds(pts).pad(.15), { paddingTopLeft: [24, 70], paddingBottomRight: [24, 60], maxZoom: 11 }); mh.enquadrado = true; }
+  }
+}
+$("mh-eu").addEventListener("click", () => {
+  const o = lerOnde();
+  if (o && typeof o.lat === "number") return marcarEuHome(o.lat, o.lon);
+  if (!navigator.geolocation) return toast("Este celular não mostra a localização.");
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    salvarJSON("kiiro-onde", { ...(lerOnde() || {}), lat: la, lon: lo });
+    marcarEuHome(la, lo);
+  }, () => toast("Não consegui ver sua localização."), { timeout: 10000, maximumAge: 6e5 });
 });
 
 /* ===== Mapa "Atende em": cidades pintadas + onde a pessoa está (a localização fica só no celular) ===== */
@@ -2114,6 +2196,7 @@ function pedirLocal() {
     if (!c) { sub.textContent = "Você está fora do Litoral Norte. Escolha uma cidade abaixo."; return; }
     salvarJSON("kiiro-onde", { ...(end || {}), cidade: c, ...(ultimaPos || {}) });
     contar("local_sim"); usarCidade(c); fecharCid();
+    if (ultimaPos) marcarEuHome(ultimaPos.lat, ultimaPos.lon);
   };
   const falhou = () => {
     if (DEMO) return pronto("Tramandaí", { rua: "Av. Fernandes Bastos", bairro: "Centro" }); // na prévia simula
@@ -2180,6 +2263,7 @@ function iniciarLocal() {
 }
 
 Promise.all([carregar(), carregarAnuncios()]).then(() => {
+  iniciarMapaHome();
   const mi = location.hash.match(/^#indicar-([\w-]+)$/);
   if (mi) {
     // pelo id do cadastro ou pelo WhatsApp (#indicar-w5551999999999, usado na tela de cadastro concluído)
