@@ -2062,18 +2062,37 @@ $("form-chamar").addEventListener("submit", e => {
   contar("chamar", servico);
   const abrirZap = animarConexao(p);
   if (DEMO) return abrirZap.then(() => { // no teste, abre o WhatsApp da própria Kiiro
-    window.location.href = `https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(`(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`)}`;
-    setTimeout(() => $("conectando")?.remove(), 2500);
+    irParaWhats(KIIRO_WHATS, `(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`);
   });
   const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
   const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`;
   abrirZap.then(() => {
-    window.location.href = `https://wa.me/${p.whatsapp}?text=${encodeURIComponent(msg)}`;
-    setTimeout(() => $("conectando")?.remove(), 2500); // se a pessoa voltar para o site
+    irParaWhats(p.whatsapp, msg);
   });
 });
+/* Abre o WhatsApp e, quando a pessoa volta para o site, ela cai na tela inicial (e não no perfil) */
+let voltarAoInicio = false;
+function irParaWhats(numero, msg) {
+  voltarAoInicio = true;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch {} // tira o #p-… do endereço
+  window.location.href = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
+  setTimeout(() => $("conectando")?.remove(), 2500);
+}
+function aoVoltarDoWhats(e) {
+  if (document.hidden) return;
+  if (!voltarAoInicio && !(e && e.persisted)) return;
+  voltarAoInicio = false;
+  $("conectando")?.remove();
+  document.querySelectorAll(".modal.aberto").forEach(m => m.classList.remove("aberto"));
+  if (!$("tela-inicio").classList.contains("ativa") || document.body.classList.contains("em-perfil")) irPara("inicio");
+  window.scrollTo(0, 0);
+  if (typeof mostrarLembrete === "function") mostrarLembrete();
+}
+document.addEventListener("visibilitychange", aoVoltarDoWhats);
+window.addEventListener("pageshow", aoVoltarDoWhats);
+
 /* Tela "Conectando…": o logo da Kiiro no meio, a câmera aproxima nos dois pins (quem precisa e quem faz)
    e o traço do logo se desenha ligando os dois */
 function animarConexao(p) {
