@@ -180,6 +180,52 @@ export default async (req, context) => {
       await admin.setJSON("anunciosRecusados", [...recusados]);
       return Response.redirect(`${base}/painel${q({ aba: "anuncios", aviso })}`, 303);
     }
+    // ----- disparos: modelos de mensagem + fila de envio pelo WhatsApp (um toque por profissional)
+    if (String(acao || "").startsWith("dp_")) {
+      const admin = getStore("admin");
+      let aviso = "", extra = {};
+      if (acao === "dp_tpl_salvar") {
+        const lista = await lerModelos(admin);
+        const id = String(f.get("id") || "") || randomUUID().slice(0, 8);
+        const nome = String(f.get("nome") || "").trim().slice(0, 60), texto = String(f.get("texto") || "").trim().slice(0, 2000);
+        if (nome && texto) {
+          const m = lista.find((x) => x.id === id);
+          if (m) Object.assign(m, { nome, texto }); else lista.push({ id, nome, texto });
+          await admin.setJSON("modelos", lista); aviso = "Modelo salvo.";
+        } else aviso = "Coloque nome e texto do modelo.";
+      }
+      if (acao === "dp_tpl_apagar") {
+        const lista = (await lerModelos(admin)).filter((x) => x.id !== f.get("id"));
+        await admin.setJSON("modelos", lista); aviso = "Modelo apagado.";
+      }
+      if (acao === "dp_criar") {
+        const m = (await lerModelos(admin)).find((x) => x.id === f.get("modelo"));
+        if (m) {
+          const camps = (await admin.get("campanhas", { type: "json" })) || [];
+          const c = { id: randomUUID().slice(0, 8), nome: m.nome, texto: m.texto, cidade: String(f.get("cidade") || ""), servico: String(f.get("servico") || ""), criada: new Date().toISOString(), enviados: {}, pulados: {} };
+          camps.unshift(c); await admin.setJSON("campanhas", camps.slice(0, 20));
+          aviso = "Fila criada. Toque em Enviar em cada um."; extra = { c: c.id };
+        }
+      }
+      if (acao === "dp_enviar" || acao === "dp_pular" || acao === "dp_desfazer") {
+        const camps = (await admin.get("campanhas", { type: "json" })) || [];
+        const c = camps.find((x) => x.id === f.get("c"));
+        const w = String(f.get("w") || "").replace(/\D/g, "");
+        if (c && w) {
+          if (acao === "dp_enviar") { c.enviados[w] = new Date().toISOString(); delete c.pulados[w]; }
+          if (acao === "dp_pular") c.pulados[w] = new Date().toISOString();
+          if (acao === "dp_desfazer") { delete c.enviados[w]; delete c.pulados[w]; }
+          await admin.setJSON("campanhas", camps);
+          if (acao === "dp_enviar") return Response.redirect(`https://wa.me/${w}?text=${encodeURIComponent(String(f.get("texto") || ""))}`, 303);
+        }
+        extra = { c: String(f.get("c") || "") };
+      }
+      if (acao === "dp_apagar") {
+        const camps = ((await admin.get("campanhas", { type: "json" })) || []).filter((x) => x.id !== f.get("c"));
+        await admin.setJSON("campanhas", camps); aviso = "Fila apagada.";
+      }
+      return Response.redirect(`${base}/painel${q({ aba: "disparos", ...extra, ...(aviso ? { aviso } : {}) })}`, 303);
+    }
     // ----- contas (sem confirmação por código: aqui dá para soltar o WhatsApp ou apagar a conta)
     if (String(acao || "").startsWith("ct_")) {
       const login = String(f.get("login") || "");
@@ -915,6 +961,73 @@ export default async (req, context) => {
       <p class="obs" style="padding:0 4px">Passe o dedo ou o mouse numa barra para ver o número. ${tipo === "chamar" ? "Chamadas contam desde o início." : "As contagens por hora começaram em 03/11/2026; as por dia, quando o contador foi ligado."}</p>`;
   }
 
+  if (aba === "disparos") {
+    const admin = getStore("admin");
+    const modelos = await lerModelos(admin);
+    const camps = (await admin.get("campanhas", { type: "json" })) || [];
+    const aviso = url.searchParams.get("aviso");
+    let pros = [];
+    try { const r = await fetch(`${base}/.netlify/functions/profissionais?admin=${encodeURIComponent(KEY)}`); pros = await r.json(); if (!Array.isArray(pros)) pros = []; } catch {}
+    pros = pros.filter((p) => !p.oculto);
+    const cidades = [...new Set(pros.map((p) => p.cidade).filter(Boolean))].sort();
+    const servicos = [...new Set(pros.flatMap((p) => p.categorias || [p.categoria]).filter(Boolean))].sort();
+    const hid = (n, v) => `<input type="hidden" name="${n}" value="${esc(v)}">`;
+    const camp = camps.find((x) => x.id === url.searchParams.get("c"));
+
+    if (camp) {
+      // ----- a fila
+      const alvo = pros.filter((p) => (!camp.cidade || p.cidade === camp.cidade) && (!camp.servico || (p.categorias || [p.categoria]).includes(camp.servico)));
+      const feito = (p) => camp.enviados[p.whatsapp] ? "enviado" : camp.pulados[p.whatsapp] ? "pulado" : "";
+      const ordem = [...alvo.filter((p) => !feito(p)), ...alvo.filter((p) => feito(p))];
+      const nEnv = alvo.filter((p) => camp.enviados[p.whatsapp]).length;
+      html = `${aviso ? `<div class="aviso">${esc(aviso)}</div>` : ""}
+        <p><a href="${q({ aba: "disparos" })}">← Disparos</a></p>
+        <h2 style="margin:6px 0 2px">${esc(camp.nome)}</h2>
+        <p class="mini">${camp.cidade || "Todas as cidades"} · ${camp.servico || "todos os serviços"} · criada ${fmt(camp.criada)}</p>
+        <div class="prog"><i style="width:${alvo.length ? (nEnv / alvo.length) * 100 : 0}%"></i></div>
+        <p style="margin:6px 0 12px"><b>${nEnv} de ${alvo.length}</b> enviados${alvo.length - nEnv ? ` · faltam ${alvo.length - nEnv}` : " · ✅ todos!"}</p>
+        ${ordem.map((p, i) => {
+          const txt = preencher(camp.texto, p, base), st = feito(p);
+          return `<article class="fila ${st ? "ok" : ""} ${!st && i === 0 ? "prox" : ""}">
+            <div class="l1"><b>${esc(p.nome)}</b><span>${st === "enviado" ? `<span class="st bom">✓ enviado ${fmt(camp.enviados[p.whatsapp]).slice(0, 5)}</span>` : st === "pulado" ? `<span class="st pend">pulado</span>` : esc(tel(p.whatsapp))}</span></div>
+            <p class="mini">${esc((p.categorias || []).join(" · "))} · ${esc(p.cidade)}</p>
+            <details><summary class="mini" style="cursor:pointer">Ver mensagem</summary><blockquote style="white-space:pre-wrap">${esc(txt)}</blockquote></details>
+            <div class="acoes">
+              ${st ? `<form method="post">${hid("chave", KEY)}${hid("acao", "dp_desfazer")}${hid("c", camp.id)}${hid("w", p.whatsapp)}<button class="b">Desfazer</button></form>`
+                : `<form method="post" target="_blank" onsubmit="setTimeout(()=>location.reload(),1500)">${hid("chave", KEY)}${hid("acao", "dp_enviar")}${hid("c", camp.id)}${hid("w", p.whatsapp)}${hid("texto", txt)}<button class="b zap">Enviar no WhatsApp</button></form>
+                   <form method="post">${hid("chave", KEY)}${hid("acao", "dp_pular")}${hid("c", camp.id)}${hid("w", p.whatsapp)}<button class="b">Pular</button></form>`}
+            </div></article>`;
+        }).join("") || `<p class="vazio">Nenhum profissional nesse filtro.</p>`}
+        <form method="post" onsubmit="return confirm('Apagar esta fila?')" style="margin-top:14px">${hid("chave", KEY)}${hid("acao", "dp_apagar")}${hid("c", camp.id)}<button class="b perigo">Apagar fila</button></form>`;
+    } else {
+      // ----- modelos + nova fila + filas anteriores
+      const opc = (l, rot) => `<option value="">${rot}</option>` + l.map((x) => `<option>${esc(x)}</option>`).join("");
+      const editor = (m) => `<form class="ed" method="post">${hid("chave", KEY)}${hid("acao", "dp_tpl_salvar")}${hid("id", m ? m.id : "")}
+          <label class="ed-l">Nome do modelo<input name="nome" value="${esc(m ? m.nome : "")}" placeholder="Ex.: Pedir avaliações"></label>
+          <label class="ed-l">Mensagem<textarea name="texto" rows="9" placeholder="Oi, {nome}! ...">${esc(m ? m.texto : "")}</textarea></label>
+          <button class="b zap">Salvar modelo</button></form>`;
+      html = `${aviso ? `<div class="aviso">${esc(aviso)}</div>` : ""}
+        <h2 style="margin-bottom:4px">Nova fila de envio</h2>
+        <p class="obs" style="margin:0 0 10px">Escolha o modelo e para quem vai. Depois é só tocar em <b>Enviar</b> em cada profissional: o WhatsApp abre com a mensagem e o link certo de cada um.</p>
+        <form class="ed" method="post">${hid("chave", KEY)}${hid("acao", "dp_criar")}
+          <label class="ed-l">Modelo<select name="modelo">${modelos.map((m) => `<option value="${esc(m.id)}">${esc(m.nome)}</option>`).join("")}</select></label>
+          <div class="ed-g"><label class="ed-l">Cidade<select name="cidade">${opc(cidades, "Todas")}</select></label>
+          <label class="ed-l">Serviço<select name="servico">${opc(servicos, "Todos")}</select></label></div>
+          <button class="b zap">Criar fila (${pros.length} profissionais no site)</button></form>
+
+        ${camps.length ? `<h2 style="margin:20px 0 6px">Filas</h2>` + camps.map((c) => {
+          const n = Object.keys(c.enviados).length;
+          return `<a class="fila-l" href="${q({ aba: "disparos", c: c.id })}"><b>${esc(c.nome)}</b><span>${fmt(c.criada).slice(0, 5)} · ${c.cidade || "todas"} · ${n} enviado${n === 1 ? "" : "s"}</span></a>`;
+        }).join("") : ""}
+
+        <h2 style="margin:20px 0 6px">Modelos</h2>
+        <p class="obs" style="margin:0 0 8px">Palavras entre chaves viram os dados de cada profissional: <b>{nome}</b> · <b>{link_avaliacao}</b> · <b>{link_doacao}</b> · <b>{link_perfil}</b> · <b>{servico}</b> · <b>{cidade}</b> · <b>{site}</b></p>
+        ${modelos.map((m) => `<details class="editar"><summary class="b">✏️ ${esc(m.nome)}</summary>${editor(m)}
+          <form method="post" onsubmit="return confirm('Apagar este modelo?')" style="margin-top:6px">${hid("chave", KEY)}${hid("acao", "dp_tpl_apagar")}${hid("id", m.id)}<button class="b perigo">Apagar modelo</button></form></details>`).join("")}
+        <details class="editar" style="margin-top:8px"><summary class="b">＋ Novo modelo</summary>${editor(null)}</details>`;
+    }
+  }
+
   if (aba === "contas") {
     const contas = (await todasContas()).sort((a, b) => (a.criado < b.criado ? 1 : -1));
     const bt = (login, acao, txt, conf) => `<form method="post" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="login" value="${esc(login)}"><button class="b" name="acao" value="${acao}" onclick="return confirm('${conf}')">${txt}</button></form>`;
@@ -1149,6 +1262,9 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .planilha .st{font-size:11.5px;padding:2px 8px;white-space:nowrap}
 details.cx summary{list-style:none}details.cx summary::-webkit-details-marker{display:none}
 .foto{display:flex;gap:10px;align-items:flex-end;margin-top:10px}.foto img{width:96px;height:96px;object-fit:cover;border-radius:12px}
+.prog{height:10px;border-radius:6px;background:#F3ECD4;overflow:hidden;margin-top:10px}.prog i{display:block;height:100%;background:#1AAD5B}
+article.fila.ok{opacity:.6}article.fila.prox{border:2px solid #FFC800}
+.fila-l{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid #EFE6C8;border-radius:12px;padding:10px 12px;margin-bottom:6px;text-decoration:none;color:#1A1A1A}.fila-l span{font-size:12px;color:#6B6455}
 .aviso{background:#FFF3C4;border:1px solid #F0DC92;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:500}
 .aviso.ruim{background:#FFE4DE;border-color:#F3B8AC}
 .topo-pro{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
@@ -1187,10 +1303,28 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Avaliações por link")}${abaLink("chamadas", "Chamadas")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Avaliações por link")}${abaLink("chamadas", "Chamadas")}${abaLink("disparos", "Disparos")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
 
   return new Response(pagina, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
 };
+
+/* ---------- disparos ---------- */
+const MODELOS_PADRAO = [
+  { id: "avaliacoes", nome: "Pedir avaliações", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nAgora seu perfil pode receber avaliações de quem já conhece seu trabalho: clientes antigos, vizinhos, amigos. Elas aparecem no seu perfil, contam na sua nota e fazem mais gente te chamar.\n\nÉ só encaminhar a mensagem abaixo para seus clientes e conhecidos 👇\n\n—\n\nOi! Tudo bem? 😊 Estou na Kiiro, o app de profissionais do Litoral Norte.\n\nVocê que já fez serviço comigo ou conhece meu trabalho pode me deixar uma avaliação? É só tocar nas estrelas, leva 1 minuto:\n👉 {link_avaliacao}\n\nAjuda muito, obrigado! 🙏" },
+  { id: "doacao", nome: "Pedir doação", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nQue bom que a Kiiro te ajudou a fechar serviço! A Kiiro é grátis para os profissionais e se mantém com doações.\n\nSe puder, apoie com qualquer valor pelo Pix, leva 1 minuto:\n👉 {link_doacao}\n\nMuito obrigado pela parceria! 🙏" },
+  { id: "conta", nome: "Novidade: área do profissional", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nNovidade: agora você tem uma área só sua na Kiiro. Lá você vê quantas pessoas viram seu perfil, quem te chamou e pode anotar os serviços que fechou.\n\nÉ só criar sua conta com este mesmo WhatsApp:\n👉 {site}/conta\n\nQualquer dúvida, é só chamar!" },
+];
+async function lerModelos(admin) {
+  const l = await admin.get("modelos", { type: "json" });
+  return Array.isArray(l) ? l : MODELOS_PADRAO.map((m) => ({ ...m }));
+}
+// troca {nome}, {link_avaliacao}... pelos dados de cada profissional
+function preencher(texto, p, base) {
+  const nm = String(p.nome || "").trim();
+  const nome = nm.length <= 26 && /\b(borracharia|loja|oficina|auto|comércio|comercio|serviços|servicos|ltda|me|mei|cia)\b/i.test(nm) ? nm : nm.split(/\s+/)[0];
+  const d = { nome, link_avaliacao: `${base}/i/${p.id}`, link_doacao: `${base}/d/${p.id}`, link_perfil: `${base}/#p-${p.id}`, servico: ((p.categorias || [p.categoria])[0] || "").toLowerCase(), cidade: p.cidade || "", site: base };
+  return String(texto).replace(/\{(\w+)\}/g, (m, k) => (k in d ? d[k] : m));
+}
