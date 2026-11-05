@@ -59,6 +59,18 @@
   .pino-cid{position:relative;display:grid;place-items:center;min-width:34px;height:34px;padding:0 .45rem;border-radius:999px;background:var(--sun);color:var(--ink);font:800 .9rem Poppins,sans-serif;box-shadow:0 0 0 3px #fff,0 4px 10px rgba(0,0,0,.25);white-space:nowrap}
   .pino-cid::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;border-bottom:0}
   .pino-cid.on{background:var(--ink);color:var(--sun)}
+  /* patrocinador no mapa, no estilo do Waze */
+  .pino-patro{position:relative;width:46px;height:46px;border-radius:50%;background:#fff center/contain no-repeat;box-shadow:0 0 0 3px #1F3FBF,0 5px 12px rgba(0,0,0,.3)}
+  .pino-patro::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:7px solid transparent;border-top-color:#1F3FBF;border-bottom:0}
+  .pino-patro i{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;background:#1F3FBF;color:#fff;font:700 10px/20px Poppins,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px #fff}
+  .pp-card{position:fixed;z-index:40;left:.9rem;right:.9rem;bottom:calc(92px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:0 12px 34px rgba(0,0,0,.25);padding:.8rem;display:flex;gap:.75rem;align-items:center;animation:sobe .22s ease-out;font-family:Poppins,sans-serif}
+  .pp-card .lg{width:58px;height:58px;border-radius:14px;background:#fff center/cover no-repeat;border:1px solid var(--line);flex:none}
+  .pp-card .tx{flex:1;min-width:0}
+  .pp-card small{display:block;font-size:.66rem;color:#1F3FBF;font-weight:700}
+  .pp-card b{display:block;font-size:.95rem;line-height:1.2;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pp-card p{font-size:.76rem;line-height:1.35;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:.1rem}
+  .pp-card a{flex:none;background:var(--sun);color:var(--ink);border-radius:999px;padding:.55rem .8rem;font:700 .78rem Poppins,sans-serif;text-decoration:none;max-width:7.5rem;text-align:center;line-height:1.2}
+  .pp-card .x{position:absolute;top:-10px;right:-6px;width:28px;height:28px;border-radius:50%;border:0;background:var(--ink);color:#fff;font-size:.8rem;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)}
   .mapa-home .voce-aqui{width:18px;height:18px;border-radius:50%;background:#1E6BFF;border:3px solid #fff;box-shadow:0 0 0 7px rgba(30,107,255,.22),0 2px 6px rgba(0,0,0,.3)}
   .topo-in{max-width:1080px;margin:0 auto}
   .topo-linha{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.75rem}
@@ -1554,6 +1566,13 @@ function atualizarMapaHome() {
     m.bindTooltip(`${c} · ${n} ${n > 1 ? "profissionais" : "profissional"}`, { direction: "top", offset: [0, -40] });
     m.addTo(mh.camada);
   });
+  // patrocinadores com lugar no mapa (como no Waze): campo "local: [lat, lon]" ou a cidade do anúncio
+  patrocinadoresNoMapa().forEach(({ pt, xy }) => {
+    const img = pt.logo || pt.banner;
+    const m = L.marker(xy, { icon: L.divIcon({ className: "", html: `<div class="pino-patro" style="background-image:url('${esc(img)}')"><i>Ad</i></div>`, iconSize: [46, 46], iconAnchor: [23, 55], popupAnchor: [0, -52] }), zIndexOffset: 800, title: pt.nome });
+    m.on("click", () => cartaoPatro(pt, img));
+    m.addTo(mh.camada);
+  });
   // na primeira vez, enquadra os pingos (e você), deixando livre o espaço do "Ver profissionais em" e da busca
   if (!mh.enquadrado) {
     const pts = Object.keys(conta).map(c => (window.KIIRO_COORD || {})[c]).filter(Boolean);
@@ -1561,6 +1580,29 @@ function atualizarMapaHome() {
     if (pts.length) { mh.map.fitBounds(L.latLngBounds(pts).pad(.15), { paddingTopLeft: [24, 70], paddingBottomRight: [24, 60], maxZoom: 11 }); mh.enquadrado = true; }
   }
 }
+function cartaoPatro(pt, img) {
+  let c = $("pp-card");
+  if (!c) { c = document.createElement("div"); c.id = "pp-card"; c.className = "pp-card"; c.setAttribute("role", "dialog"); document.body.appendChild(c); }
+  c.innerHTML = `<span class="lg" style="background-image:url('${esc(img)}')"></span><div class="tx"><small>Patrocinado</small><b>${esc(pt.nome)}</b>${pt.texto ? `<p>${esc(pt.texto)}</p>` : ""}</div><a href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored" data-pp="${esc(pt.nome)}">${esc(pt.botao || "Saber mais")}</a><button class="x" type="button" aria-label="Fechar">✕</button>`;
+  c.querySelector(".x").onclick = () => c.remove();
+  contar("patro_ver", pt.nome + " (mapa)");
+}
+document.addEventListener("scroll", () => { const c = $("pp-card"); if (c && window.scrollY > 260) c.remove(); }, { passive: true });
+function patrocinadoresNoMapa() {
+  const lista = [...patroAtivos(), ...(/^deploy-preview-|^localhost$|^127\./.test(location.hostname) ? EXEMPLOS_MAPA : [])];
+  return lista.filter(pt => !pt.pausado && (pt.logo || pt.banner) && (!catAtiva || ehInicio(pt) || doServico(pt, catAtiva))).map(pt => {
+    if (Array.isArray(pt.local) && pt.local.length === 2) return { pt, xy: pt.local };
+    const c = (window.KIIRO_CIDADES || []).find(x => semAcento(x) === semAcento(pt.alvoCidade || pt.cidade));
+    const xy = c && (window.KIIRO_COORD || {})[c];
+    return xy ? { pt, xy: [xy[0] + .012, xy[1] - .02] } : null; // um pouco ao lado do pingo da cidade
+  }).filter(Boolean);
+}
+// só na prévia do Netlify: dois patrocinadores de exemplo para ver como fica
+const EXEMPLOS_MAPA = [
+  { categoria: "Todos", nome: "Madeira Pinho (exemplo)", texto: "Madeira, telhas e ferragens. Entrega no mesmo dia em Osório.", botao: "Ver ofertas", link: "#", logo: "img/patrocinadores/ex-madeireira.jpg", local: [-29.893, -50.275] },
+  { categoria: "Todos", nome: "Ótica Sol (exemplo)", texto: "Óculos de sol e de grau. Clientes Kiiro ganham 10% de desconto.", botao: "Chamar no WhatsApp", link: "#", logo: "img/patrocinadores/ex-otica.jpg", local: [-29.978, -50.132] },
+];
+document.addEventListener("click", e => { const a = e.target.closest("[data-pp]"); if (a) contar("patro_clique", a.dataset.pp + " (mapa)"); });
 $("mh-eu").addEventListener("click", () => {
   const o = lerOnde();
   if (o && typeof o.lat === "number") return marcarEuHome(o.lat, o.lon);

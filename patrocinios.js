@@ -11,6 +11,8 @@
 //   "Transporte e mudança", "Beleza e bem-estar", "Festas e eventos", "Freelas de cozinha e salão", "Cuidados e aulas".
 // O patrocínio do grupo aparece em todos os serviços dele (ex.: Casa e reforma → Eletricista, Pedreiro…).
 // Exclusividade de um serviço só: use o nome do serviço (ex.: "Eletricista"); ele vale antes do grupo.
+// No mapa da página inicial (como no Waze): aparece com o logo na cidade do anúncio ("alvoCidade" ou "cidade"),
+// ou no lugar exato da loja com local: [latitude, longitude] (copie do Google Maps: segure o dedo na loja).
 // Depois da data "ate", o patrocínio some sozinho e o espaço volta a aparecer como disponível.
 //
 // Exemplo (apague as barras // para ativar):
