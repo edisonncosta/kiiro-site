@@ -2,6 +2,8 @@
 // Endereço: /.netlify/functions/perfil?id=ID_DO_CADASTRO
 import { getStore } from "@netlify/blobs";
 
+const nomeCurto = (n) => { const p = String(n || "").trim().split(/\s+/).filter(Boolean); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0].toUpperCase()}.` : (p[0] || ""); };
+
 export default async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get("id") || "";
@@ -21,7 +23,7 @@ export default async (req) => {
   dele.forEach((a) => distribuicao[a.nota - 1]++);
 
   const avaliacoes = dele.slice(0, 30).map((a) => ({
-    nome: String(a.clienteNome || "Cliente").split(" ")[0], // só o primeiro nome
+    nome: nomeCurto(a.clienteNome || "Cliente"), // nome + inicial do sobrenome (Ana S.)
     nota: a.nota,
     comentario: a.comentario || "",
     foto: a.fotoId ? `/.netlify/functions/foto?id=${a.fotoId}` : "",
@@ -41,7 +43,7 @@ export default async (req) => {
     indicacoes = todasInd
       .filter((x) => x.status === "aprovada" && (ids.has(x.profissionalId) || (w && x.profissionalWhatsapp === w)))
       .sort((a, b) => (a.data < b.data ? 1 : -1)).slice(0, 20)
-      .map((x) => ({ nome: String(x.nome || "").split(" ")[0], relacao: x.relacao, texto: x.texto, data: x.data }));
+      .map((x) => ({ nome: nomeCurto(x.nome), relacao: x.relacao, texto: x.texto, data: x.data }));
   } catch {}
 
   return json(200, { total: dele.length, distribuicao, avaliacoes, destaques, indicacoes }, { "Cache-Control": "public, max-age=120" });

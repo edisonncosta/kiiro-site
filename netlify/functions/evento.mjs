@@ -19,6 +19,19 @@ export default async (req, context) => {
   let d;
   try { d = JSON.parse(await req.text()); } catch { return new Response("", { status: 400 }); }
   const t = String(d && d.t || "");
+  // por profissional (para a conta dele): quem abriu o perfil e quem tocou em Chamar
+  if (t === "pro_ver" || t === "pro_clique") {
+    const w = String(d.w || "").replace(/\D/g, "");
+    if (w.length < 12 || w.length > 13) return new Response("", { status: 400 });
+    const st = getStore({ name: "pros", consistency: "strong" });
+    const ch = `${w}#${Math.floor(Math.random() * 4)}`;
+    const m = (await st.get(ch, { type: "json" })) || {};
+    const g = (m[t === "pro_ver" ? "v" : "c"] ||= {});
+    const dia = hojeSP();
+    g[dia] = (g[dia] || 0) + 1;
+    await st.setJSON(ch, m);
+    return new Response(null, { status: 204 });
+  }
   if (!TIPOS.has(t)) return new Response("", { status: 400 });
   let k = String(d.k || "").normalize("NFC").replace(/\s+/g, " ").trim().slice(0, 40);
   if (!t.startsWith("patro") && t !== "cidade" && t !== "ia") k = k.toLowerCase();

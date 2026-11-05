@@ -25,6 +25,19 @@ exports.handler = async (event) => {
     if (!payload || payload.form_name !== (process.env.FORM_NAME || "cadastro")) return { statusCode: 200, body: "ignorado" };
     const d = payload.data || {};
     const whats = String(d.whatsapp || "").replace(/\D/g, "");
+    // veio pelo convite de alguém com conta: conta como amigo convidado
+    const ref = String(d.indicado_por || "").replace(/[^a-f0-9]/g, "").slice(0, 10);
+    if (ref) {
+      try {
+        const b = await import("@netlify/blobs");
+        if (b.connectLambda) b.connectLambda(event);
+        const st = b.getStore({ name: "contas", consistency: "strong" });
+        const login = await st.get(`id:${ref}`);
+        const chave = login && `u:${encodeURIComponent(login)}`;
+        const c = chave && (await st.get(chave, { type: "json" }));
+        if (c) { c.convidados = (c.convidados || 0) + 1; await st.setJSON(chave, c); }
+      } catch {}
+    }
     if (process.env.NTFY_TOPIC) {
       await fetch("https://ntfy.sh/", {
         method: "POST",

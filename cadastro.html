@@ -94,6 +94,8 @@
   <form class="caixa" name="cadastro" method="POST" action="cadastro-ok.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="form" novalidate>
     <input type="hidden" name="form-name" value="cadastro">
     <input type="hidden" name="cidade" id="cidade">
+    <input type="hidden" name="indicado_por" id="indicado_por">
+    <script>try { const r = new URLSearchParams(location.search).get("r") || JSON.parse(localStorage.getItem("kiiro-ref") || '""'); if (r) document.getElementById("indicado_por").value = String(r).slice(0, 12); } catch {}</script>
     <p class="escondido-bot"><label>Não preencha: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
     <div class="campo">

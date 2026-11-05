@@ -1,6 +1,7 @@
 // Kiiro — registra quando um cliente chama um profissional e avisa no celular (ntfy).
 // Endereço: /.netlify/functions/chamar (POST, usado pela página inicial)
 import { getStore } from "@netlify/blobs";
+import { contaDoToken, salvarConta } from "../lib/contas.mjs";
 import { randomUUID } from "node:crypto";
 import { enviarPara } from "../lib/push.mjs";
 
@@ -39,6 +40,13 @@ export default async (req) => {
     chave = chamada.data.replace(/[:.]/g, "-") + "_" + randomUUID().replace(/-/g, "").slice(0, 12);
   }
   await store.setJSON(chave, chamada);
+  // quem está com a conta aberta: a chamada entra no histórico dela
+  if (d.conta) {
+    try {
+      const c = await contaDoToken(d.conta);
+      if (c && !(c.chamadas || []).includes(chave)) { c.chamadas = [...(c.chamadas || []), chave].slice(-300); await salvarConta(c); }
+    } catch {}
+  }
 
   const tel = clienteWhats.replace(/^55(\d{2})(\d+)/, "($1) $2");
   // ao tocar no aviso, abre o WhatsApp do cliente com a mensagem pronta (contato + link de avaliação)

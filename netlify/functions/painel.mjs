@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
+import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats } from "../lib/contas.mjs";
 import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -178,6 +179,18 @@ export default async (req, context) => {
       await admin.setJSON("anuncios", lista);
       await admin.setJSON("anunciosRecusados", [...recusados]);
       return Response.redirect(`${base}/painel${q({ aba: "anuncios", aviso })}`, 303);
+    }
+    // ----- contas (sem confirmação por código: aqui dá para soltar o WhatsApp ou apagar a conta)
+    if (String(acao || "").startsWith("ct_")) {
+      const login = String(f.get("login") || "");
+      let aviso = "";
+      const c = login && (await lerConta(login));
+      if (c && acao === "ct_soltar" && c.whats) {
+        if ((await donoDoWhats(c.whats)) === login) await soltarWhats(c.whats);
+        delete c.whats; await salvarConta(c); aviso = "WhatsApp desligado da conta.";
+      }
+      if (c && acao === "ct_apagar") { await apagarConta(login); aviso = "Conta apagada. A pessoa pode criar de novo."; }
+      return Response.redirect(`${base}/painel${q({ aba: "contas", aviso })}`, 303);
     }
     // ----- indicações (aprovar antes de aparecer no perfil)
     if (String(acao || "").startsWith("in_")) {
@@ -877,6 +890,24 @@ export default async (req, context) => {
       <p class="obs" style="padding:0 4px">Passe o dedo ou o mouse numa barra para ver o número. ${tipo === "chamar" ? "Chamadas contam desde o início." : "As contagens por hora começaram em 03/11/2026; as por dia, quando o contador foi ligado."}</p>`;
   }
 
+  if (aba === "contas") {
+    const contas = (await todasContas()).sort((a, b) => (a.criado < b.criado ? 1 : -1));
+    const bt = (login, acao, txt, conf) => `<form method="post" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="login" value="${esc(login)}"><button class="b" name="acao" value="${acao}" onclick="return confirm('${conf}')">${txt}</button></form>`;
+    const pros = contas.filter((c) => c.whats).length;
+    html = `<p class="obs">${contas.length} ${contas.length === 1 ? "conta" : "contas"} · ${pros} ligada${pros === 1 ? "" : "s"} a profissional. Senhas ficam guardadas só como código (ninguém vê). Esqueceu a senha? Apague a conta e a pessoa cria de novo (os chamados voltam, porque vêm pelo WhatsApp).</p>` +
+      (contas.map((c) => `
+        <article>
+          <div class="l1"><b>${esc(c.nome)} ${esc(c.sobrenome)}</b><span>${fmt(c.criado)}</span></div>
+          <p class="mini">${tel(c.login)} · ${(c.chamadas || []).length} chamados · ${c.convidados || 0} convidados${c.ref ? " · veio por convite" : ""}</p>
+          ${c.whats ? `<p>🔑 Ligada ao profissional <b>${tel(c.whats)}</b>${c.whats === c.tel ? " (mesmo WhatsApp da conta)" : ""}</p>` : ""}
+          <div class="acoes">
+            ${c.whats ? bt(c.login, "ct_soltar", "Desligar do profissional", "Desligar esta conta do cadastro de profissional?") : ""}
+            ${c.tel ? `<a class="b" href="https://wa.me/${esc(c.tel)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+            ${bt(c.login, "ct_apagar", "Apagar conta", "Apagar esta conta? O histórico de chamadas continua no painel.")}
+          </div>
+        </article>`).join("") || `<p class="vazio">Ninguém criou conta ainda.</p>`);
+  }
+
   if (aba === "indicacoes") {
     const st = getStore("indicacoes");
     const { blobs } = await st.list();
@@ -1131,7 +1162,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;

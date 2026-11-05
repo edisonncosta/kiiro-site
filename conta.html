@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minha conta | Kiiro</title>
+<meta name="theme-color" content="#FFC800">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  body{background:var(--paper)}
+  .topo-c{background:var(--sun);padding:calc(.8rem + env(safe-area-inset-top)) 1.1rem 2.6rem;border-radius:0 0 26px 26px}
+  .topo-c .lin{display:flex;align-items:center;gap:.6rem;max-width:560px;margin:0 auto}
+  .voltar{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.55);display:grid;place-items:center;color:var(--ink);text-decoration:none;flex:none}
+  .voltar svg{width:22px;height:22px}
+  .topo-c h1{font-size:1.15rem;font-weight:700}
+  .wrap{width:min(560px,100% - 1.6rem);margin:-1.7rem auto 3rem;position:relative;display:grid;gap:.9rem}
+  .cx{background:var(--card);border-radius:18px;padding:1.1rem;box-shadow:0 2px 12px rgba(120,90,0,.08)}
+  .cx h2{font-size:1rem;font-weight:700;margin-bottom:.15rem}
+  .cx .sub{font-size:.8rem;color:var(--muted);margin-bottom:.8rem}
+  .seg{display:flex;background:#F6EFD6;border-radius:999px;padding:4px;gap:4px}
+  .seg button{flex:1;border:0;background:none;border-radius:999px;padding:.6rem .4rem;font:600 .86rem Poppins,sans-serif;color:#6A5F3E;cursor:pointer}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(120,90,0,.15)}
+  .campo{display:grid;gap:.3rem;margin-top:.75rem}
+  .campo label{font-size:.78rem;font-weight:600;color:#5E574A}
+  .in{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:.75rem .85rem;font:500 .95rem Poppins,sans-serif;color:var(--ink);background:#fff}
+  .in:focus{outline:none;border-color:#F2C200;box-shadow:0 0 0 3px var(--sun-soft)}
+  .dois{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .senha-w{position:relative}
+  .olho{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;padding:.4rem;color:var(--muted);cursor:pointer;font:600 .75rem Poppins}
+  .forca{display:flex;gap:4px;margin-top:.35rem}.forca i{flex:1;height:4px;border-radius:4px;background:#EEE6CC}
+  .forca[data-n="1"] i:nth-child(-n+1){background:#E5484D}.forca[data-n="2"] i:nth-child(-n+2){background:#F5A524}.forca[data-n="3"] i:nth-child(-n+3){background:#F5C524}.forca[data-n="4"] i{background:#1AAD5B}
+  .crit{list-style:none;display:grid;gap:.3rem;margin-top:.35rem}
+  .crit li{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--muted);transition:color .15s}
+  .crit li::before{content:"";width:18px;height:18px;border-radius:50%;border:1.5px solid #D9CFAE;flex:none;display:grid;place-items:center;font-size:.7rem;font-weight:800;color:#fff;transition:all .15s}
+  .crit li.ok{color:#11753A;font-weight:600}
+  .crit li.ok::before{content:"✓";background:#1AAD5B;border-color:#1AAD5B}
+  .crit.tentou li:not(.ok){color:var(--danger)}
+  .nf{border:0;background:none;padding:0;font:500 .72rem Poppins,sans-serif;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:.15rem}
+  .ver-ocultos{border:0;background:none;font:600 .78rem Poppins,sans-serif;color:var(--muted);cursor:pointer;padding:.7rem 0 0;text-decoration:underline;display:block;margin:0 auto}
+  .it.oc{opacity:.55}
+  .forca-t{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+  .bt{display:flex;align-items:center;justify-content:center;gap:.45rem;width:100%;border:0;border-radius:14px;padding:.85rem 1rem;font:700 .95rem Poppins,sans-serif;background:var(--ink);color:#fff;cursor:pointer;text-decoration:none;margin-top:1rem}
+  .bt.sun{background:var(--sun);color:var(--ink)}
+  .bt.zap{background:var(--zap)}
+  .bt.leve{background:#F6EFD6;color:var(--ink)}
+  .bt.mini{width:auto;display:inline-flex;padding:.5rem .85rem;font-size:.8rem;border-radius:10px;margin:0}
+  .bt:disabled{opacity:.55}
+  .erro{color:var(--danger);font-size:.82rem;font-weight:600;margin-top:.6rem;min-height:1.1em}
+  .nota-sem{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.45;margin-top:.9rem}
+  .nota-sem b{color:var(--ink)}
+
+  .eu{display:flex;align-items:center;gap:.9rem}
+  .av{position:relative;width:68px;height:68px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font:800 1.6rem Poppins;color:var(--ink);overflow:visible;flex:none;cursor:pointer;border:0;padding:0}
+  .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .av .cam{position:absolute;right:-2px;bottom:-2px;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 3px #fff}
+  .av .cam svg{width:14px;height:14px}
+  .eu b{display:block;font-size:1.1rem}
+  .eu span{font-size:.8rem;color:var(--muted)}
+  .eu .ed{margin-left:auto;align-self:flex-start}
+
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+  .tiles.q4{grid-template-columns:repeat(2,1fr)}
+  .tile{background:#FFFBEE;border:1px solid var(--line);border-radius:14px;padding:.7rem .75rem}
+  .tile b{display:block;font-size:1.45rem;font-weight:800;line-height:1.1}
+  .tile span{font-size:.72rem;color:#6A5F3E;font-weight:500;line-height:1.25;display:block;margin-top:.15rem}
+  .tile.forte{background:var(--ink);border-color:var(--ink);color:#fff}.tile.forte span{color:#E9DFB8}
+  .tile.forte b{color:var(--sun)}
+
+  .lista{display:grid;gap:0;margin-top:.4rem}
+  .it{display:flex;align-items:center;gap:.7rem;padding:.75rem 0;border-top:1px solid #F3ECD4}
+  .it:first-child{border-top:0}
+  .it .ic{width:40px;height:40px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;font-size:1.15rem;flex:none}
+  .it .tx{flex:1;min-width:0}
+  .it .tx b{display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .it .tx span{display:block;font-size:.74rem;color:var(--muted)}
+  .it .dir{text-align:right;flex:none}
+  .estr{color:var(--sun-deep)!important;font-size:.85rem;letter-spacing:1px;display:inline!important}
+  #av-ini{font:800 1.6rem Poppins,sans-serif;color:var(--ink)}
+  .pill{display:inline-block;font:600 .7rem Poppins;border-radius:999px;padding:.25rem .6rem;background:#F1ECDD;color:#6A5F3E;white-space:nowrap}
+  .pill.ok{background:#E3F6EA;color:#11753A}.pill.nao{background:#FBE9E9;color:#A12A22}
+  .vazio{font-size:.85rem;color:var(--muted);text-align:center;padding:1rem 0}
+
+  .gerir{background:#FFFBEE;border:1px solid var(--line);border-radius:12px;padding:.7rem;margin:-.2rem 0 .6rem;display:grid;gap:.5rem}
+  .gerir .lin2{display:flex;gap:.45rem;align-items:center}
+  .gerir .rs{position:relative;flex:1}.gerir .rs i{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-style:normal;font-weight:600;color:var(--muted);font-size:.85rem}
+  .gerir .rs .in{padding-left:2.2rem}
+
+  .per{display:flex;gap:.35rem;margin-bottom:.7rem}
+  .per button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:.35rem .8rem;font:600 .78rem Poppins;color:#6A5F3E;cursor:pointer}
+  .per button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .graf{display:flex;align-items:flex-end;gap:2px;height:84px;margin-top:.8rem;padding-top:.3rem}
+  .graf i{flex:1;background:var(--sun);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+  .graf i.z{background:#EFE6C8}
+  .graf-leg{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);margin-top:.25rem}
+  .meses{display:grid;gap:.4rem;margin-top:.7rem}
+  .mes{display:grid;grid-template-columns:3.2rem 1fr auto;align-items:center;gap:.5rem;font-size:.78rem}
+  .mes .barra{height:12px;border-radius:6px;background:#F3ECD4;overflow:hidden}.mes .barra i{display:block;height:100%;background:var(--zap);border-radius:6px}
+  .mes b{font-size:.8rem}
+  .pro-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem}
+  .pro-top img,.pro-top .ini{width:48px;height:48px;border-radius:12px;object-fit:cover;background:var(--sun);display:grid;place-items:center;font-weight:800;flex:none}
+  .pro-top b{display:block}.pro-top span{font-size:.78rem;color:var(--muted)}
+  .so-voce{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.3rem;margin-top:.6rem}
+  .ind{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+  .ind button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:.8rem .6rem;text-align:left;cursor:pointer;font-family:Poppins}
+  .ind button i{font-style:normal;font-size:1.3rem;display:block}
+  .ind button b{display:block;font-size:.85rem;margin-top:.25rem}
+  .ind button span{font-size:.72rem;color:var(--muted);line-height:1.3;display:block}
+  .rodape-c{display:flex;justify-content:center;gap:1.2rem;font-size:.8rem;margin-top:.3rem}
+  .rodape-c button{border:0;background:none;color:var(--muted);font:600 .8rem Poppins;cursor:pointer;text-decoration:underline}
+  .avulso{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.5rem}
+  .avulso .full{grid-column:1/-1}
+  details.mais summary{list-style:none;cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink);padding:.6rem 0 .2rem}
+  details.mais summary::-webkit-details-marker{display:none}
+  .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.2rem .4rem}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:.7rem 1.1rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="topo-c">
+  <div class="lin">
+    <a class="voltar" href="./" aria-label="Voltar para o início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <h1 id="titulo">Minha conta</h1>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ===== Entrar / criar conta ===== -->
+  <section id="v-entrar" hidden>
+    <div class="cx">
+      <div class="seg" role="tablist"><button type="button" class="on" data-modo="criar">Criar conta</button><button type="button" data-modo="entrar">Entrar</button></div>
+      <form id="f-conta" novalidate>
+        <div class="dois" id="so-criar">
+          <div class="campo"><label for="f-nome">Nome</label><input class="in" id="f-nome" autocomplete="given-name" placeholder="Ana"></div>
+          <div class="campo"><label for="f-sobrenome">Sobrenome</label><input class="in" id="f-sobrenome" autocomplete="family-name" placeholder="Silva"></div>
+        </div>
+        <div class="campo"><label for="f-login">Seu WhatsApp</label><input class="in" id="f-login" type="tel" inputmode="tel" autocomplete="username" placeholder="(51) 99999-9999"><small id="so-criar2" style="font-size:.72rem;color:var(--muted)">Os chamados que você fizer com esse número aparecem na sua conta, mesmo sem entrar.</small></div>
+        <div class="campo"><label for="f-senha">Senha</label>
+          <div class="senha-w"><input class="in" id="f-senha" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"><button class="olho" type="button" id="olho">ver</button></div>
+          <div id="forca-w"><div class="forca" id="forca"><i></i><i></i><i></i><i></i></div>
+            <p class="forca-t">Sua senha precisa ter:</p>
+            <ul class="crit" id="crit">
+              <li data-c="tam">8 caracteres ou mais</li>
+              <li data-c="mai">Uma letra maiúscula (A-Z)</li>
+              <li data-c="min">Uma letra minúscula (a-z)</li>
+              <li data-c="num">Um número (0-9)</li>
+            </ul></div>
+        </div>
+        <p class="erro" id="f-erro" role="alert"></p>
+        <button class="bt sun" id="f-ok" type="submit">Criar minha conta</button>
+      </form>
+      <p class="nota-sem">A Kiiro <b>funciona sem conta</b>. A conta só guarda seus chamados e, se você é profissional, mostra visitas, chamados e ganhos.<br>Esqueceu a senha? <a href="https://wa.me/5551991855760?text=Oi%2C%20esqueci%20a%20senha%20da%20minha%20conta%20na%20Kiiro" target="_blank" rel="noopener">Fale com a Kiiro</a>.</p>
+    </div>
+  </section>
+
+  <!-- ===== Logado ===== -->
+  <section id="v-painel" hidden style="display:grid;gap:.9rem">
+    <div class="cx">
+      <div class="eu">
+        <button class="av" type="button" id="av" aria-label="Trocar foto"><span id="av-ini"></span><span class="cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span></button>
+        <input type="file" id="av-arq" accept="image/*" hidden>
+        <div><b id="eu-nome"></b><span id="eu-login"></span></div>
+        <button class="bt leve mini ed" type="button" id="bt-editar">Editar</button>
+      </div>
+      <form id="f-editar" hidden style="margin-top:.6rem">
+        <div class="dois">
+          <div class="campo"><label for="e-nome">Nome</label><input class="in" id="e-nome"></div>
+          <div class="campo"><label for="e-sobrenome">Sobrenome</label><input class="in" id="e-sobrenome"></div>
+        </div>
+
+        <p class="erro" id="e-erro"></p>
+        <button class="bt" type="submit" style="margin-top:.3rem">Salvar</button>
+      </form>
+    </div>
+
+    <div class="seg" id="seg-papel"><button type="button" class="on" data-papel="cliente">Como cliente</button><button type="button" data-papel="pro">Como profissional</button></div>
+
+    <!-- cliente -->
+    <div id="p-cliente" style="display:grid;gap:.9rem">
+      <div class="tiles">
+        <div class="tile forte"><b id="t-cham">0</b><span>profissionais chamados</span></div>
+        <div class="tile"><b id="t-aval">0</b><span>avaliações feitas</span></div>
+        <div class="tile"><b id="t-conv">0</b><span>amigos convidados</span></div>
+      </div>
+      <div class="cx">
+        <h2>Seus chamados</h2>
+        <p class="sub">Quem você chamou pela Kiiro. Não fechou? Toque em "Não foi feito" e ele sai da lista.</p>
+        <div class="lista" id="l-cliente"></div>
+      </div>
+      <a class="cx" id="vire-pro" href="cadastro.html" hidden style="display:flex;align-items:center;gap:.8rem;text-decoration:none;color:inherit">
+        <span style="font-size:1.6rem">🛠️</span><span><b style="display:block">Você também presta serviço?</b><span style="font-size:.8rem;color:var(--muted)">Cadastre-se grátis com este mesmo WhatsApp e a área do profissional aparece aqui.</span></span>
+      </a>
+    </div>
+
+    <!-- profissional -->
+    <div id="p-pro" hidden style="display:grid;gap:.9rem">
+      <div class="cx" id="pro-ligar" hidden>
+        <h2>Você é profissional na Kiiro?</h2>
+        <p class="sub">O WhatsApp da sua conta não está num cadastro de profissional. Se você se cadastrou com outro número, informe ele aqui. Aí você vê quem viu seu perfil, seus chamados e seus ganhos.</p>
+        <div class="campo"><label for="lg-whats">WhatsApp do cadastro</label><input class="in" id="lg-whats" type="tel" inputmode="tel" placeholder="(51) 99999-9999"></div>
+        <p class="erro" id="lg-erro"></p>
+        <button class="bt" type="button" id="lg-ok">Ligar ao meu cadastro</button>
+        <a class="bt leve" href="cadastro.html">Ainda não tenho cadastro · Cadastrar grátis</a>
+      </div>
+
+      <div id="pro-dados" hidden style="display:grid;gap:.9rem">
+        <div class="cx">
+          <div class="pro-top" id="pro-top"></div>
+          <div class="per" id="per"><button type="button" data-d="7">7 dias</button><button type="button" class="on" data-d="30">30 dias</button><button type="button" data-d="90">90 dias</button></div>
+          <div class="tiles q4">
+            <div class="tile"><b id="m-ver">0</b><span>viram seu perfil</span></div>
+            <div class="tile"><b id="m-cli">0</b><span>tocaram em Chamar</span></div>
+            <div class="tile forte"><b id="m-cham">0</b><span>chamados no WhatsApp</span></div>
+            <div class="tile"><b id="m-fech">0</b><span>serviços fechados</span></div>
+          </div>
+          <div class="graf" id="graf" aria-label="Visitas ao perfil por dia"></div>
+          <div class="graf-leg"><span id="g-ini"></span><span>visitas por dia</span><span>hoje</span></div>
+        </div>
+
+        <div class="cx">
+          <h2>Seus chamados</h2>
+          <p class="sub">Toque num chamado para marcar o valor que fechou. Se não foi feito, ele sai da lista.</p>
+          <div class="lista" id="l-pro"></div>
+        </div>
+
+        <div class="cx">
+          <h2>Relatório de ganhos</h2>
+          <p class="sub">Soma do que você marcou como fechado.</p>
+          <div class="tiles q4">
+            <div class="tile forte"><b id="r-mes">R$ 0</b><span id="r-mes-t">ganhos este mês</span></div>
+            <div class="tile"><b id="r-ant">R$ 0</b><span>mês passado</span></div>
+            <div class="tile"><b id="r-tic">R$ 0</b><span>valor médio por serviço</span></div>
+            <div class="tile"><b id="r-taxa">0%</b><span>dos chamados viraram serviço</span></div>
+          </div>
+          <div class="meses" id="meses"></div>
+          <details class="mais" id="d-avulso">
+            <summary>＋ Lançar serviço feito por fora da Kiiro</summary>
+            <form class="avulso" id="f-avulso">
+              <input class="in full" id="av-serv" placeholder="Serviço (ex.: troca de chuveiro)">
+              <input class="in" id="av-valor" inputmode="decimal" placeholder="Valor R$">
+              <input class="in" id="av-data" type="date">
+              <button class="bt full" type="submit" style="margin-top:0">Lançar</button>
+            </form>
+            <div class="lista" id="l-avulso"></div>
+          </details>
+          <p class="so-voce">🔒 Só você vê esses valores. A Kiiro não cobra nada sobre eles.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cx" id="indicar">
+      <h2>Indique amigos</h2>
+      <p class="sub">Mande seu convite pelo WhatsApp. Cada amigo que entrar conta aqui.</p>
+      <div class="ind">
+        <button type="button" data-ind="pro"><i>🛠️</i><b>Quem trabalha</b><span>Indique um prestador para se cadastrar grátis</span></button>
+        <button type="button" data-ind="cli"><i>🏠</i><b>Quem precisa</b><span>Indique a Kiiro para quem procura serviço</span></button>
+      </div>
+    </div>
+    <div class="rodape-c"><button type="button" id="bt-desligar" hidden>Desligar do cadastro</button><button type="button" id="bt-sair">Sair da conta</button></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lerJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
+const salvarJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const params = new URLSearchParams(location.search);
+const DEMO = params.has("demo") || window.KIIRO_DEMO === true;
+const reais = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: v % 1 ? 2 : 0 });
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const diaSP = (d) => new Date(d).toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+const quando = (iso) => { const d = Math.floor((Date.now() - new Date(iso)) / 864e5); const dt = new Date(iso); return d < 1 ? "hoje" : d < 2 ? "ontem" : d < 7 ? `há ${d} dias` : `${dt.getDate()} ${MESES[dt.getMonth()]}`; };
+const ICONES = { "Eletricista": "⚡", "Encanador": "🚿", "Diarista": "🧹", "Pintor": "🎨", "Pedreiro": "🧱", "Jardineiro": "🌿", "Frete": "🚚", "Marido de aluguel": "🔧", "Ar-condicionado": "❄️", "Piscineiro": "🏊" };
+const ic = (cat) => ICONES[cat] || "🛠️";
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+
+// convite: quem chegou por ?r= guarda para quando criar a conta
+if (params.get("r")) salvarJSON("kiiro-ref", params.get("r"));
+
+let sessao = lerJSON("kiiro-conta", null);
+let dados = null;
+const codigosDoCelular = () => lerJSON("kiiro-chamadas", []).map((x) => x.c).filter(Boolean);
+
+async function api(acao, corpo = {}) {
+  if (DEMO) return demoApi(acao, corpo);
+  const r = await fetch("/.netlify/functions/conta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao, token: sessao && sessao.token, ...corpo }) });
+  const j = await r.json().catch(() => ({ erro: "Sem conexão. Tente de novo." }));
+  if (r.status === 401 && j.erro === "sessao") { sair(true); throw new Error("Sua sessão expirou. Entre de novo."); }
+  if (!r.ok) throw new Error(j.erro || "Algo deu errado. Tente de novo.");
+  return j;
+}
+
+/* ===== Entrar / criar ===== */
+let modoForm = "criar";
+document.querySelectorAll("[data-modo]").forEach((b) => b.onclick = () => {
+  modoForm = b.dataset.modo;
+  document.querySelectorAll("[data-modo]").forEach((x) => x.classList.toggle("on", x === b));
+  $("so-criar").hidden = modoForm !== "criar"; $("so-criar2").hidden = modoForm !== "criar";
+  $("forca-w").hidden = modoForm !== "criar";
+  $("f-senha").autocomplete = modoForm === "criar" ? "new-password" : "current-password";
+  $("f-senha").placeholder = modoForm === "criar" ? "Crie uma senha forte" : "Sua senha";
+  $("f-ok").textContent = modoForm === "criar" ? "Criar minha conta" : "Entrar";
+  $("f-erro").textContent = "";
+});
+$("olho").onclick = () => { const s = $("f-senha"); s.type = s.type === "password" ? "text" : "password"; $("olho").textContent = s.type === "password" ? "ver" : "ocultar"; };
+const CRIT = { tam: (s) => s.length >= 8, mai: (s) => /[A-Z]/.test(s), min: (s) => /[a-z]/.test(s), num: (s) => /\d/.test(s) };
+const forca = (s) => Object.values(CRIT).filter((f) => f(s)).length; // 4 = forte
+$("f-senha").addEventListener("input", () => {
+  const s = $("f-senha").value;
+  $("forca").dataset.n = s ? forca(s) : 0;
+  $("crit").querySelectorAll("li").forEach((li) => li.classList.toggle("ok", CRIT[li.dataset.c](s)));
+});
+$("f-conta").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const login = $("f-login").value.trim(), senha = $("f-senha").value;
+  $("f-erro").textContent = "";
+  if (modoForm === "criar") {
+    if ($("f-nome").value.trim().length < 2) return erroEm("f-nome", "Informe seu nome.");
+    if ($("f-sobrenome").value.trim().length < 2) return erroEm("f-sobrenome", "Informe seu sobrenome.");
+  }
+  if (!/^\d{10,13}$/.test(login.replace(/\D/g, ""))) return erroEm("f-login", "Informe seu WhatsApp com DDD.");
+  if (modoForm === "criar" && forca(senha) < 4) { $("crit").classList.add("tentou"); return erroEm("f-senha", "Falta marcar todos os itens da senha."); }
+  $("f-ok").disabled = true;
+  try {
+    const r = await api(modoForm, { login, senha, nome: $("f-nome").value, sobrenome: $("f-sobrenome").value, ref: lerJSON("kiiro-ref", ""), codigos: codigosDoCelular() });
+    sessao = { token: r.token, conta: r.conta };
+    salvarJSON("kiiro-conta", sessao);
+    lembrarNome(r.conta);
+    await abrirPainel();
+  } catch (err) { $("f-erro").textContent = err.message; }
+  $("f-ok").disabled = false;
+});
+function erroEm(id, t) { $("f-erro").textContent = t; $(id).focus(); }
+// o nome da conta já vem preenchido quando a pessoa for chamar alguém
+function lembrarNome(c) { const cl = lerJSON("kiiro-cliente", {}); salvarJSON("kiiro-cliente", { ...cl, nome: `${c.nome} ${c.sobrenome}`.trim(), whats: c.tel ? fmtTel(c.tel) : cl.whats || "" }); }
+const fmtTel = (t) => String(t || "").replace(/^55(\d{2})(\d{4,5})(\d{4})$/, "($1) $2-$3");
+
+/* ===== Painel ===== */
+let papel = params.get("ver") === "cliente" ? "cliente" : "pro";
+let periodo = 30;
+async function abrirPainel() {
+  $("v-entrar").hidden = true; $("v-painel").hidden = false;
+  pintarEu(sessao.conta);
+  try { dados = await api("dados", { codigos: codigosDoCelular() }); }
+  catch (err) { if (!sessao) return; toast(err.message); return; }
+  sessao.conta = dados.conta; salvarJSON("kiiro-conta", sessao);
+  pintarEu(dados.conta);
+  // o número diz quem é: só cliente, só profissional, ou os dois (aí aparecem as duas abas)
+  const ehPro = !!dados.pro, ehCli = dados.cliente.lista.length > 0 || !ehPro;
+  $("seg-papel").hidden = !(ehPro && ehCli);
+  $("vire-pro").hidden = ehPro;
+  papel = ehPro && ehCli ? (params.get("ver") === "cliente" ? "cliente" : params.get("ver") === "pro" ? "pro" : papel) : ehPro ? "pro" : "cliente";
+  trocarPapel(papel);
+  pintarCliente(); pintarPro();
+}
+function pintarEu(c) {
+  $("eu-nome").textContent = `${c.nome} ${c.sobrenome}`.trim();
+  $("eu-login").textContent = fmtTel(c.tel || c.login);
+  $("av-ini").innerHTML = c.foto ? `<img src="${esc(c.foto)}" alt="">` : esc((c.nome || "?")[0].toUpperCase());
+}
+function trocarPapel(p) {
+  papel = p;
+  document.querySelectorAll("[data-papel]").forEach((b) => b.classList.toggle("on", b.dataset.papel === p));
+  $("p-cliente").hidden = p !== "cliente"; $("p-pro").hidden = p !== "pro";
+  $("titulo").textContent = p === "pro" ? "Área do profissional" : "Minha conta";
+}
+document.querySelectorAll("[data-papel]").forEach((b) => b.onclick = () => trocarPapel(b.dataset.papel));
+
+let verOcultosCli = false, verOcultosPro = false;
+function pintarCliente() {
+  const c = dados.cliente;
+  const vis = c.lista.filter((x) => !x.oculto), oc = c.lista.filter((x) => x.oculto);
+  $("t-cham").textContent = vis.length; $("t-aval").textContent = c.avaliados; $("t-conv").textContent = c.convidados;
+  const item = (x) => `
+    <div class="it${x.oculto ? " oc" : ""}">
+      <span class="ic">${ic(x.categoria)}</span>
+      <div class="tx"><b>${esc(x.pro)}</b><span>${esc(x.categoria)} · ${esc(x.cidade)} · ${quando(x.data)}</span>
+        ${x.avaliacao && x.avaliacao.feito === "sim" ? "" : `<button class="nf" type="button" data-oc="${esc(x.c)}" data-v="${x.oculto ? 0 : 1}">${x.oculto ? "Voltar para a lista" : "Não foi feito"}</button>`}</div>
+      <div class="dir">${x.oculto ? "" : x.avaliacao ? (x.avaliacao.feito === "sim" ? `<span class="estr">${"★".repeat(x.avaliacao.nota)}</span>` : `<span class="pill">Não fechou</span>`)
+        : `<a class="bt sun mini" href="avaliar.html?c=${encodeURIComponent(x.c)}">Avaliar</a>`}</div>
+    </div>`;
+  $("l-cliente").innerHTML = (vis.length ? vis.map(item).join("") : `<p class="vazio">Quando você chamar alguém pela Kiiro, aparece aqui.<br><a href="./">Procurar profissional</a></p>`)
+    + (oc.length ? `<button class="ver-ocultos" type="button" id="cli-oc">${verOcultosCli ? "Esconder" : "Mostrar"} os ${oc.length} que não foram feitos</button>${verOcultosCli ? oc.map(item).join("") : ""}` : "");
+}
+$("l-cliente").addEventListener("click", async (e) => {
+  if (e.target.id === "cli-oc") { verOcultosCli = !verOcultosCli; return pintarCliente(); }
+  const b = e.target.closest("[data-oc]"); if (!b) return;
+  const x = dados.cliente.lista.find((y) => y.c === b.dataset.oc); const ocultar = b.dataset.v === "1";
+  try { await api("ocultar", { c: x.c, ocultar }); x.oculto = ocultar; pintarCliente(); toast(ocultar ? "Tirado da lista ✓" : "Voltou para a lista ✓"); } catch (err) { toast(err.message); }
+});
+
+const somaPeriodo = (dias, t, n) => { const desde = diaSP(Date.now() - (n - 1) * 864e5); return Object.entries(dias).filter(([d]) => d >= desde).reduce((s, [, o]) => s + (o[t] || 0), 0); };
+function pintarPro() {
+  const p = dados.pro;
+  $("pro-ligar").hidden = true; $("pro-dados").hidden = !p; $("bt-desligar").hidden = true;
+  if (!p) return;
+  $("pro-top").innerHTML = `${p.foto ? `<img src="${esc(p.foto)}" alt="">` : `<span class="ini">${esc(p.nome[0])}</span>`}
+    <div><b>${esc(p.nome)}</b><span>${esc(p.categoria)}${p.avaliacoes ? ` · <span class="estr">★</span> ${String(p.nota).replace(".", ",")} (${p.avaliacoes})` : " · sem avaliações ainda"}</span></div>
+    ${p.id ? `<a class="bt leve mini" style="margin-left:auto" href="./#p-${esc(p.id)}">Ver perfil</a>` : ""}`;
+  // período
+  const desde = diaSP(Date.now() - (periodo - 1) * 864e5);
+  const noPer = p.chamados.filter((x) => diaSP(x.data) >= desde);
+  $("m-ver").textContent = somaPeriodo(p.dias, "v", periodo);
+  $("m-cli").textContent = somaPeriodo(p.dias, "c", periodo);
+  $("m-cham").textContent = noPer.length;
+  $("m-fech").textContent = noPer.filter((x) => x.status === "fechou").length + p.avulsos.filter((a) => a.data >= desde).length;
+  // gráfico de visitas por dia
+  const barras = [];
+  for (let i = periodo - 1; i >= 0; i--) { const d = diaSP(Date.now() - i * 864e5); barras.push((p.dias[d] || {}).v || 0); }
+  const mx = Math.max(1, ...barras);
+  $("graf").innerHTML = barras.map((v) => `<i class="${v ? "" : "z"}" style="height:${Math.max(3, (v / mx) * 100)}%" title="${v}"></i>`).join("");
+  $("g-ini").textContent = periodo === 7 ? "7 dias atrás" : `${periodo} dias atrás`;
+  // chamados
+  const proVis = p.chamados.filter((x) => x.status !== "nao"), proOc = p.chamados.filter((x) => x.status === "nao");
+  const itemPro = (x) => `
+    <div class="it" data-ref="${x.ref}" style="cursor:pointer">
+      <span class="ic">${ic(x.categoria)}</span>
+      <div class="tx"><b>${esc(x.cliente)}</b><span>${esc(x.tel)} · ${esc(x.categoria)} · ${quando(x.data)}${x.nota ? ` · <span class="estr">${"★".repeat(x.nota)}</span>` : ""}</span></div>
+      <div class="dir">${x.status === "fechou" ? `<span class="pill ok">✓ ${reais(x.valor)}</span>` : x.status === "nao" ? `<span class="pill nao">Não foi feito</span>` : `<span class="pill">Marcar</span>`}</div>
+    </div>`;
+  $("l-pro").innerHTML = (proVis.length ? proVis.slice(0, 80).map(itemPro).join("") : `<p class="vazio">Quando alguém te chamar pela Kiiro, aparece aqui.</p>`)
+    + (proOc.length ? `<button class="ver-ocultos" type="button" id="pro-oc">${verOcultosPro ? "Esconder" : "Mostrar"} os ${proOc.length} que não foram feitos</button>${verOcultosPro ? proOc.slice(0, 80).map(itemPro).join("") : ""}` : "");
+  pintarGanhos();
+}
+function pintarGanhos() {
+  const p = dados.pro;
+  const ganhos = [...p.chamados.filter((x) => x.status === "fechou").map((x) => ({ dia: diaSP(x.data), v: x.valor })), ...p.avulsos.map((a) => ({ dia: a.data, v: a.valor }))];
+  const mesDe = (dia) => dia.slice(0, 7);
+  const agora = new Date(), mesAt = diaSP(agora).slice(0, 7);
+  const ant = new Date(agora.getFullYear(), agora.getMonth() - 1, 15), mesAnt = diaSP(ant).slice(0, 7);
+  const soma = (m) => ganhos.filter((g) => mesDe(g.dia) === m).reduce((s, g) => s + g.v, 0);
+  $("r-mes").textContent = reais(soma(mesAt));
+  $("r-mes-t").textContent = `ganhos em ${MESES[agora.getMonth()]}`;
+  $("r-ant").textContent = reais(soma(mesAnt));
+  const comValor = ganhos.filter((g) => g.v > 0);
+  $("r-tic").textContent = reais(comValor.length ? Math.round(comValor.reduce((s, g) => s + g.v, 0) / comValor.length) : 0);
+  const marcados = p.chamados.filter((x) => x.status !== "aberto");
+  $("r-taxa").textContent = p.chamados.length ? Math.round((p.chamados.filter((x) => x.status === "fechou").length / p.chamados.length) * 100) + "%" : "0%";
+  // últimos 6 meses
+  const ms = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(agora.getFullYear(), agora.getMonth() - i, 15); ms.push([diaSP(d).slice(0, 7), MESES[d.getMonth()]]); }
+  const mx = Math.max(1, ...ms.map(([m]) => soma(m)));
+  $("meses").innerHTML = ms.map(([m, n]) => `<div class="mes"><span>${n}</span><span class="barra"><i style="width:${(soma(m) / mx) * 100}%"></i></span><b>${reais(soma(m))}</b></div>`).join("");
+  $("l-avulso").innerHTML = p.avulsos.slice().reverse().map((a) => `<div class="it"><span class="ic">📝</span><div class="tx"><b>${esc(a.servico)}</b><span>${a.data.split("-").reverse().join("/")} · por fora da Kiiro</span></div><div class="dir"><b>${reais(a.valor)}</b><button class="x" data-apagar="${esc(a.id)}" aria-label="Apagar">✕</button></div></div>`).join("");
+}
+$("per").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; periodo = +b.dataset.d; $("per").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); pintarPro(); };
+
+// marcar chamado: fechou (com valor) / não fechou
+$("l-pro").addEventListener("click", (e) => {
+  if (e.target.id === "pro-oc") { verOcultosPro = !verOcultosPro; return pintarPro(); }
+  const it = e.target.closest(".it[data-ref]"); if (!it || e.target.closest(".gerir")) return;
+  const aberto = it.nextElementSibling && it.nextElementSibling.classList.contains("gerir");
+  document.querySelectorAll("#l-pro .gerir").forEach((g) => g.remove());
+  if (aberto) return;
+  const x = dados.pro.chamados.find((c) => c.ref === it.dataset.ref);
+  const g = document.createElement("div");
+  g.className = "gerir";
+  g.innerHTML = `<b style="font-size:.82rem">Fechou o serviço com ${esc(x.cliente.split(" ")[0])}?</b>
+    <div class="lin2"><span class="rs"><i>R$</i><input class="in" inputmode="decimal" placeholder="Valor fechado" value="${x.valor ? String(x.valor).replace(".", ",") : ""}"></span><button class="bt zap mini" data-st="fechou">Fechei</button></div>
+    <div class="lin2">${x.status !== "nao" ? `<button class="bt leve mini" data-st="nao">Não foi feito · tirar da lista</button>` : ""}${x.status !== "aberto" ? `<button class="bt leve mini" data-st="aberto">${x.status === "nao" ? "Voltar para a lista" : "Desmarcar"}</button>` : ""}</div>`;
+  it.after(g);
+  g.querySelector("input").focus();
+  g.onclick = async (ev) => {
+    const b = ev.target.closest("[data-st]"); if (!b) return;
+    const valor = g.querySelector("input").value;
+    if (b.dataset.st === "fechou" && !(parseFloat(valor.replace(/\./g, "").replace(",", ".")) > 0)) { g.querySelector("input").focus(); return toast("Coloque o valor que você fechou."); }
+    b.disabled = true;
+    try {
+      await api("chamado", { ref: x.ref, status: b.dataset.st, valor });
+      x.status = b.dataset.st; x.valor = b.dataset.st === "fechou" ? parseFloat(valor.replace(/\./g, "").replace(",", ".")) : 0;
+      pintarPro(); toast(x.status === "fechou" ? "Anotado nos seus ganhos ✓" : x.status === "nao" ? "Tirado da lista ✓" : "Anotado ✓");
+    } catch (err) { toast(err.message); b.disabled = false; }
+  };
+});
+$("av-data").value = diaSP(Date.now());
+$("f-avulso").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const valor = $("av-valor").value;
+  if (!(parseFloat(valor.replace(/\./g, "").replace(",", ".")) > 0)) return toast("Coloque o valor.");
+  try {
+    await api("avulso", { servico: $("av-serv").value, valor, data: $("av-data").value });
+    if (!DEMO) dados = await api("dados");
+    pintarPro(); $("av-serv").value = ""; $("av-valor").value = ""; toast("Lançado ✓");
+  } catch (err) { toast(err.message); }
+});
+$("l-avulso").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-apagar]"); if (!b) return;
+  try { await api("avulso_apagar", { id: b.dataset.apagar }); dados.pro.avulsos = dados.pro.avulsos.filter((a) => a.id !== b.dataset.apagar); pintarPro(); } catch (err) { toast(err.message); }
+});
+
+// ligar ao cadastro
+$("lg-ok").onclick = async () => {
+  $("lg-erro").textContent = "";
+  try { await api("vincular", { whats: $("lg-whats").value }); dados = await api("dados"); pintarPro(); toast("Pronto! Sua conta está ligada ao seu cadastro."); }
+  catch (err) { $("lg-erro").textContent = err.message; }
+};
+$("bt-desligar").onclick = async () => {
+  if (!confirm("Desligar sua conta do seu cadastro de profissional? Seu perfil continua no ar.")) return;
+  try { await api("desvincular"); dados.pro = null; pintarPro(); } catch (err) { toast(err.message); }
+};
+
+// indicar amigos
+document.querySelectorAll("[data-ind]").forEach((b) => b.onclick = () => {
+  const id = sessao.conta.id, site = location.origin;
+  const t = b.dataset.ind === "pro"
+    ? `Oi! Conhece a Kiiro? É um app daqui do Litoral Norte que liga quem precisa de serviço com quem faz. O cadastro de profissional é grátis e os clientes falam direto no seu WhatsApp. Cadastra aqui: ${site}/cadastro.html?r=${id}`
+    : `Oi! Quando precisar de eletricista, diarista, encanador ou outro serviço aqui no Litoral Norte, usa a Kiiro: mostra quem atende na tua cidade, com avaliação de quem já contratou. ${site}/?r=${id}`;
+  location.href = `https://wa.me/?text=${encodeURIComponent(t)}`;
+});
+
+// editar nome
+$("bt-editar").onclick = () => { const f = $("f-editar"); f.hidden = !f.hidden; $("e-nome").value = sessao.conta.nome; $("e-sobrenome").value = sessao.conta.sobrenome; };
+$("f-editar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try { const r = await api("perfil", { nome: $("e-nome").value, sobrenome: $("e-sobrenome").value }); sessao.conta = r.conta; salvarJSON("kiiro-conta", sessao); lembrarNome(r.conta); pintarEu(r.conta); $("f-editar").hidden = true; toast("Salvo ✓"); }
+  catch (err) { $("e-erro").textContent = err.message; }
+});
+
+// foto: recorta quadrada e diminui no próprio celular antes de mandar
+$("av").onclick = () => $("av-arq").click();
+$("av-arq").onchange = async () => {
+  const f = $("av-arq").files[0]; if (!f) return;
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = URL.createObjectURL(f); });
+    const lado = Math.min(img.width, img.height), cv = document.createElement("canvas");
+    cv.width = cv.height = 400;
+    cv.getContext("2d").drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, 400, 400);
+    const foto = cv.toDataURL("image/jpeg", 0.82);
+    const r = DEMO ? { conta: { ...sessao.conta, foto } } : await api("foto", { foto });
+    sessao.conta = r.conta; salvarJSON("kiiro-conta", sessao); pintarEu(r.conta); toast("Foto atualizada ✓");
+  } catch (err) { toast(err.message || "Não deu para usar essa foto."); }
+};
+
+function sair(silencioso) {
+  if (!silencioso && sessao) api("sair").catch(() => {});
+  sessao = null; dados = null;
+  try { localStorage.removeItem("kiiro-conta"); } catch {}
+  $("v-painel").hidden = true; $("v-entrar").hidden = false; trocarPapel("cliente");
+}
+$("bt-sair").onclick = () => sair(false);
+
+/* ===== Prévia (?demo=1): dados de exemplo, nada vai para o servidor ===== */
+function demoApi(acao, corpo) {
+  const conta = { id: "demo123456", login: "5551999990000", tipoLogin: "tel", tel: "5551999990000", nome: corpo.nome || "Ana", sobrenome: corpo.sobrenome || "Souza", foto: "", criado: new Date().toISOString() };
+  if (acao === "criar" || acao === "entrar") return Promise.resolve({ token: "demo", conta: sessao && sessao.conta || conta });
+  if (acao === "dados") {
+    const h = (n, hr = 10) => new Date(Date.now() - n * 864e5 - hr * 36e5).toISOString();
+    const dias = {}; for (let i = 0; i < 90; i++) { const v = Math.max(0, Math.round(4 + 3 * Math.sin(i / 3) + (i < 20 ? 3 : 0) - i / 25 + ((i * 7) % 4))); dias[diaSP(Date.now() - i * 864e5)] = { v, c: Math.round(v * 0.35) }; }
+    const cl = (n, nome, tel, cat, d, st, v, nota) => ({ ref: "r" + n.toString(16).padStart(15, "0"), data: h(d), cliente: nome, tel, categoria: cat, cidade: "Osório", status: st, valor: v, nota });
+    const so = params.get("so"); // prévia: ?so=cliente ou ?so=pro mostra só um dos lados
+    const r = {
+      conta: (sessao && sessao.conta) || conta,
+      cliente: { chamados: 3, avaliados: 2, convidados: 4, lista: [
+        { c: "x1", data: h(2), pro: "Marcos Eletricista", categoria: "Eletricista", cidade: "Osório", avaliacao: null },
+        { c: "x2", data: h(12), pro: "Juliana Limpeza", categoria: "Diarista", cidade: "Tramandaí", avaliacao: { feito: "sim", nota: 5 } },
+        { c: "x3", data: h(40), pro: "Paulo Fretes", categoria: "Frete", cidade: "Osório", avaliacao: { feito: "nao", nota: 0 } },
+      ] },
+      pro: { nome: "Marcos Eletricista", id: "", categoria: "Eletricista", foto: "", nota: 4.8, avaliacoes: 12, dias,
+        avulsos: [{ id: "a1", servico: "Troca de chuveiro (vizinho)", valor: 120, data: diaSP(Date.now() - 5 * 864e5) }],
+        chamados: [
+          cl(1, "Carla M.", "(51) 9••••-4410", "Eletricista", 0, "aberto", 0, 0),
+          cl(2, "Roberto S.", "(51) 9••••-1288", "Eletricista", 1, "fechou", 350, 5),
+          cl(3, "Fernanda L.", "(51) 9••••-9031", "Eletricista", 3, "fechou", 180, 5),
+          cl(4, "João P.", "(51) 9••••-7720", "Eletricista", 6, "nao", 0, 0),
+          cl(5, "Luana R.", "(51) 9••••-3356", "Eletricista", 9, "fechou", 420, 4),
+          cl(6, "Sérgio A.", "(51) 9••••-6612", "Eletricista", 21, "fechou", 260, 5),
+          cl(7, "Patrícia G.", "(51) 9••••-0098", "Eletricista", 38, "fechou", 540, 5),
+          cl(8, "Diego F.", "(51) 9••••-2210", "Eletricista", 52, "fechou", 300, 0),
+          cl(9, "Márcia T.", "(51) 9••••-8877", "Eletricista", 75, "fechou", 690, 5),
+        ] },
+    };
+    if (so === "cliente") r.pro = null;
+    if (so === "pro") { r.cliente.lista = []; r.cliente.chamados = 0; r.cliente.avaliados = 0; }
+    return Promise.resolve(r);
+  }
+  if (acao === "avulso") { dados.pro.avulsos.push({ id: Math.random().toString(16).slice(2, 8), servico: corpo.servico || "Serviço", valor: parseFloat(String(corpo.valor).replace(/\./g, "").replace(",", ".")), data: corpo.data }); return Promise.resolve({ ok: true }); }
+  if (acao === "perfil") return Promise.resolve({ conta: { ...sessao.conta, nome: corpo.nome, sobrenome: corpo.sobrenome } });
+  return Promise.resolve({ ok: true, conta: sessao && sessao.conta });
+}
+
+/* ===== início ===== */
+if (params.get("modo") === "entrar") document.querySelector('[data-modo="entrar"]').click();
+if (DEMO && params.has("logado") && !sessao) sessao = { token: "demo", conta: { id: "demo123456", login: "5551988887777", tipoLogin: "tel", tel: "5551988887777", nome: "Marcos", sobrenome: "Oliveira", foto: "" } };
+if (sessao) abrirPainel(); else $("v-entrar").hidden = false;
+</script>
+</body>
+</html>
