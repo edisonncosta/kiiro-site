@@ -12,7 +12,8 @@
 // O patrocínio do grupo aparece em todos os serviços dele (ex.: Casa e reforma → Eletricista, Pedreiro…).
 // Exclusividade de um serviço só: use o nome do serviço (ex.: "Eletricista"); ele vale antes do grupo.
 // No mapa da página inicial (como no Waze): aparece com o logo na cidade do anúncio ("alvoCidade" ou "cidade"),
-// ou no lugar exato da loja com local: [latitude, longitude] (copie do Google Maps: segure o dedo na loja).
+// no lugar exato da loja com local: [latitude, longitude] (copie do Google Maps: segure o dedo na loja),
+// ou com endereco: "Rua, número, cidade" (o site acha o ponto sozinho).
 // Depois da data "ate", o patrocínio some sozinho e o espaço volta a aparecer como disponível.
 //
 // Exemplo (apague as barras // para ativar):
@@ -24,7 +25,8 @@ window.KIIRO_PATROCINIOS = [
   { categoria: "Transporte e mudança", nome: "Borracharia N.S. Aparecida", cidade: "",
     texto: "Borracharia em geral, auto elétrica, auto peças e acessórios. Socorro: (51) 98138‑6653.",
     botao: "Chamar no WhatsApp", link: "https://wa.me/5551980425261?text=Ol%C3%A1!%20Vi%20voc%C3%AAs%20na%20Kiiro.",
-    logo: "img/patrocinadores/ns-aparecida.jpg", banner: "img/patrocinadores/ns-aparecida-banner.jpg", cor: "#ffffff", ate: "" },
+    logo: "img/patrocinadores/ns-aparecida.jpg", banner: "img/patrocinadores/ns-aparecida-banner.jpg", cor: "#ffffff", ate: "",
+    endereco: "Rodovia ERS-030, 95, Osório" },
 ];
 
 // Mostrar "Este espaço pode ser seu" onde não tem patrocinador?

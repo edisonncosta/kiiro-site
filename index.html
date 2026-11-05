@@ -1657,10 +1657,19 @@ function cartaoPatro(pt, img) {
   contar("patro_ver", pt.nome + " (mapa)");
 }
 document.addEventListener("scroll", () => { const c = $("pp-card"); if (c && window.scrollY > 260) c.remove(); }, { passive: true });
+// endereço → ponto (para patrocinadores com "endereco" em patrocinios.js); guarda no celular
+const geoCache = lerJSON("kiiro-geo", {});
+function buscarGeo(end) {
+  geoCache[end] = null; // evita pedir duas vezes
+  fetch("/.netlify/functions/geo?q=" + encodeURIComponent(end)).then(r => r.ok ? r.json() : {}).then(d => {
+    if (Array.isArray(d.local)) { geoCache[end] = d.local; salvarJSON("kiiro-geo", geoCache); atualizarMapaHome(); }
+  }).catch(() => {});
+}
 function patrocinadoresNoMapa() {
   const lista = [...patroAtivos(), ...(/^deploy-preview-|^localhost$|^127\./.test(location.hostname) ? EXEMPLOS_MAPA : [])];
   return lista.filter(pt => !pt.pausado && (pt.logo || pt.banner) && (!catAtiva || ehInicio(pt) || doServico(pt, catAtiva))).map(pt => {
     if (Array.isArray(pt.local) && pt.local.length === 2) return { pt, xy: pt.local };
+    if (pt.endereco) { const g = geoCache[pt.endereco]; if (g) return { pt, xy: g }; if (g === undefined) buscarGeo(pt.endereco); }
     const c = (window.KIIRO_CIDADES || []).find(x => semAcento(x) === semAcento(pt.alvoCidade || pt.cidade));
     const xy = c && (window.KIIRO_COORD || {})[c];
     return xy ? { pt, xy: [xy[0] + .012, xy[1] - .02] } : null; // um pouco ao lado do pingo da cidade
