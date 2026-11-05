@@ -52,6 +52,7 @@
   .bt.mini{width:auto;display:inline-flex;padding:.5rem .85rem;font-size:.8rem;border-radius:10px;margin:0}
   .bt:disabled{opacity:.55}
   .erro{color:var(--danger);font-size:.82rem;font-weight:600;margin-top:.6rem;min-height:1.1em}
+  .link-esq{display:block;margin:.8rem auto 0;border:0;background:none;font:600 .85rem Poppins,sans-serif;color:var(--ink);text-decoration:underline;cursor:pointer}
   .nota-sem{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.45;margin-top:.9rem}
   .nota-sem b{color:var(--ink)}
 
@@ -154,8 +155,48 @@
         </div>
         <p class="erro" id="f-erro" role="alert"></p>
         <button class="bt sun" id="f-ok" type="submit">Criar minha conta</button>
+        <button class="link-esq" type="button" id="bt-esqueci" hidden>Esqueci minha senha</button>
       </form>
-      <p class="nota-sem">A Kiiro <b>funciona sem conta</b>. A conta só guarda seus chamados e, se você é profissional, mostra visitas, chamados e ganhos.<br>Esqueceu a senha? <a href="https://wa.me/5551991855760?text=Oi%2C%20esqueci%20a%20senha%20da%20minha%20conta%20na%20Kiiro" target="_blank" rel="noopener">Fale com a Kiiro</a>.</p>
+      <p class="nota-sem">A Kiiro <b>funciona sem conta</b>. A conta só guarda seus chamados e, se você é profissional, mostra visitas, chamados e ganhos.</p>
+    </div>
+  </section>
+
+  <!-- ===== Esqueci a senha ===== -->
+  <section id="v-esqueci" hidden>
+    <div class="cx">
+      <h2>Esqueceu a senha?</h2>
+      <p class="sub">A Kiiro manda uma <b>senha provisória</b> no seu WhatsApp. Você entra com ela e cria uma senha nova.</p>
+      <div id="esq-form">
+        <div class="campo"><label for="esq-tel">Seu WhatsApp</label><input class="in" id="esq-tel" type="tel" inputmode="tel" placeholder="(51) 99999-9999"></div>
+        <p class="erro" id="esq-erro"></p>
+        <button class="bt sun" type="button" id="esq-ok">Pedir senha provisória</button>
+      </div>
+      <div id="esq-feito" hidden style="text-align:center;padding:.6rem 0">
+        <div style="font-size:2.2rem">📩</div>
+        <p style="font-weight:700;margin:.3rem 0">Pedido enviado!</p>
+        <p class="sub">Se esse número tem conta, a Kiiro vai te mandar a senha provisória no WhatsApp. Pode levar alguns minutos.</p>
+      </div>
+      <button class="bt leve" type="button" id="esq-volta">Voltar para entrar</button>
+    </div>
+  </section>
+
+  <!-- ===== Criar senha nova (depois de entrar com a provisória) ===== -->
+  <section id="v-trocar" hidden>
+    <div class="cx">
+      <h2>Crie sua senha nova</h2>
+      <p class="sub">Você entrou com a senha provisória. Agora escolha a sua.</p>
+      <form id="f-trocar" novalidate>
+        <div class="campo"><label for="tr-senha">Senha nova</label>
+          <div class="senha-w"><input class="in" id="tr-senha" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"><button class="olho" type="button" data-olho="tr-senha">ver</button></div>
+          <div class="forca" id="tr-forca"><i></i><i></i><i></i><i></i></div>
+          <p class="forca-t">Sua senha precisa ter:</p>
+          <ul class="crit" id="tr-crit">
+            <li data-c="tam">8 caracteres ou mais</li><li data-c="mai">Uma letra maiúscula (A-Z)</li><li data-c="min">Uma letra minúscula (a-z)</li><li data-c="num">Um número (0-9)</li>
+          </ul>
+        </div>
+        <p class="erro" id="tr-erro"></p>
+        <button class="bt sun" type="submit">Salvar senha nova</button>
+      </form>
     </div>
   </section>
 
@@ -293,6 +334,7 @@ async function api(acao, corpo = {}) {
   const r = await fetch("/.netlify/functions/conta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao, token: sessao && sessao.token, ...corpo }) });
   const j = await r.json().catch(() => ({ erro: "Sem conexão. Tente de novo." }));
   if (r.status === 401 && j.erro === "sessao") { sair(true); throw new Error("Sua sessão expirou. Entre de novo."); }
+  if (r.status === 403 && j.erro === "trocar") { mostrarTrocar(); throw new Error("Crie sua senha nova para continuar."); }
   if (!r.ok) throw new Error(j.erro || "Algo deu errado. Tente de novo.");
   return j;
 }
@@ -307,6 +349,7 @@ document.querySelectorAll("[data-modo]").forEach((b) => b.onclick = () => {
   $("f-senha").autocomplete = modoForm === "criar" ? "new-password" : "current-password";
   $("f-senha").placeholder = modoForm === "criar" ? "Crie uma senha forte" : "Sua senha";
   $("f-ok").textContent = modoForm === "criar" ? "Criar minha conta" : "Entrar";
+  $("bt-esqueci").hidden = modoForm !== "entrar";
   $("f-erro").textContent = "";
 });
 $("olho").onclick = () => { const s = $("f-senha"); s.type = s.type === "password" ? "text" : "password"; $("olho").textContent = s.type === "password" ? "ver" : "ocultar"; };
@@ -346,7 +389,9 @@ const fmtTel = (t) => String(t || "").replace(/^55(\d{2})(\d{4,5})(\d{4})$/, "($
 let papel = params.get("ver") === "cliente" ? "cliente" : "pro";
 let periodo = 30;
 async function abrirPainel() {
-  $("v-entrar").hidden = true; $("v-painel").hidden = false;
+  $("v-entrar").hidden = true;
+  if (sessao.conta.trocarSenha) return mostrarTrocar();
+  $("v-trocar").hidden = true; $("v-painel").hidden = false;
   pintarEu(sessao.conta);
   try { dados = await api("dados", { codigos: codigosDoCelular() }); }
   catch (err) { if (!sessao) return; toast(err.message); return; }
@@ -546,6 +591,38 @@ function sair(silencioso) {
 }
 $("bt-sair").onclick = () => sair(false);
 
+/* ===== Esqueci a senha / senha nova ===== */
+$("bt-esqueci").onclick = () => { $("v-entrar").hidden = true; $("v-esqueci").hidden = false; $("esq-tel").value = $("f-login").value; $("esq-form").hidden = false; $("esq-feito").hidden = true; $("esq-erro").textContent = ""; };
+$("esq-volta").onclick = () => { $("v-esqueci").hidden = true; $("v-entrar").hidden = false; };
+$("esq-ok").onclick = async () => {
+  if (!/^\d{10,13}$/.test($("esq-tel").value.replace(/\D/g, ""))) { $("esq-erro").textContent = "Informe seu WhatsApp com DDD."; return $("esq-tel").focus(); }
+  $("esq-ok").disabled = true;
+  try { await api("esqueci", { login: $("esq-tel").value }); $("esq-form").hidden = true; $("esq-feito").hidden = false; $("f-login").value = $("esq-tel").value; }
+  catch (err) { $("esq-erro").textContent = err.message; }
+  $("esq-ok").disabled = false;
+};
+function mostrarTrocar() {
+  ["v-entrar", "v-painel", "v-esqueci"].forEach((id) => ($(id).hidden = true));
+  $("v-trocar").hidden = false; $("titulo").textContent = "Senha nova";
+  setTimeout(() => $("tr-senha").focus(), 100);
+}
+$("tr-senha").addEventListener("input", () => {
+  const s = $("tr-senha").value;
+  $("tr-forca").dataset.n = s ? forca(s) : 0;
+  $("tr-crit").querySelectorAll("li").forEach((li) => li.classList.toggle("ok", CRIT[li.dataset.c](s)));
+});
+document.querySelector('[data-olho="tr-senha"]').onclick = (e) => { const i = $("tr-senha"); i.type = i.type === "password" ? "text" : "password"; e.target.textContent = i.type === "password" ? "ver" : "ocultar"; };
+$("f-trocar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (forca($("tr-senha").value) < 4) { $("tr-crit").classList.add("tentou"); $("tr-erro").textContent = "Falta marcar todos os itens da senha."; return; }
+  try {
+    const r = await api("nova_senha", { senha: $("tr-senha").value });
+    sessao.conta = r.conta; salvarJSON("kiiro-conta", sessao);
+    toast("Senha nova salva ✓"); $("titulo").textContent = "Minha conta";
+    abrirPainel();
+  } catch (err) { $("tr-erro").textContent = err.message; }
+});
+
 /* ===== Prévia (?demo=1): dados de exemplo, nada vai para o servidor ===== */
 function demoApi(acao, corpo) {
   const conta = { id: "demo123456", login: "5551999990000", tipoLogin: "tel", tel: "5551999990000", nome: corpo.nome || "Ana", sobrenome: corpo.sobrenome || "Souza", foto: "", criado: new Date().toISOString() };
@@ -581,12 +658,14 @@ function demoApi(acao, corpo) {
     return Promise.resolve(r);
   }
   if (acao === "avulso") { dados.pro.avulsos.push({ id: Math.random().toString(16).slice(2, 8), servico: corpo.servico || "Serviço", valor: parseFloat(String(corpo.valor).replace(/\./g, "").replace(",", ".")), data: corpo.data }); return Promise.resolve({ ok: true }); }
+  if (acao === "nova_senha") return Promise.resolve({ conta: { ...sessao.conta, trocarSenha: false } });
   if (acao === "perfil") return Promise.resolve({ conta: { ...sessao.conta, nome: corpo.nome, sobrenome: corpo.sobrenome } });
   return Promise.resolve({ ok: true, conta: sessao && sessao.conta });
 }
 
 /* ===== início ===== */
 if (params.get("modo") === "entrar") document.querySelector('[data-modo="entrar"]').click();
+if (DEMO && params.has("provisoria")) sessao = { token: "demo", conta: { id: "demo123456", login: "5551999990000", tipoLogin: "tel", tel: "5551999990000", nome: "Ana", sobrenome: "Souza", foto: "", trocarSenha: true } };
 if (DEMO && params.has("logado") && !sessao) sessao = { token: "demo", conta: { id: "demo123456", login: "5551988887777", tipoLogin: "tel", tel: "5551988887777", nome: "Marcos", sobrenome: "Oliveira", foto: "" } };
 if (sessao) abrirPainel(); else $("v-entrar").hidden = false;
 </script>

@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
-import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats } from "../lib/contas.mjs";
+import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats, novaProvisoria, guardarProvisoria, msgProvisoria } from "../lib/contas.mjs";
 import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -234,6 +234,11 @@ export default async (req, context) => {
       if (c && acao === "ct_soltar" && c.whats) {
         if ((await donoDoWhats(c.whats)) === login) await soltarWhats(c.whats);
         delete c.whats; await salvarConta(c); aviso = "WhatsApp desligado da conta.";
+      }
+      if (c && acao === "ct_senha") {
+        const senha = novaProvisoria();
+        guardarProvisoria(c, senha); await salvarConta(c);
+        return Response.redirect(`https://wa.me/${c.login}?text=${encodeURIComponent(msgProvisoria(c, senha, base))}`, 303);
       }
       if (c && acao === "ct_apagar") { await apagarConta(login); aviso = "Conta apagada. A pessoa pode criar de novo."; }
       return Response.redirect(`${base}/painel${q({ aba: "contas", aviso })}`, 303);
@@ -1032,15 +1037,17 @@ export default async (req, context) => {
     const contas = (await todasContas()).sort((a, b) => (a.criado < b.criado ? 1 : -1));
     const bt = (login, acao, txt, conf) => `<form method="post" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="login" value="${esc(login)}"><button class="b" name="acao" value="${acao}" onclick="return confirm('${conf}')">${txt}</button></form>`;
     const pros = contas.filter((c) => c.whats).length;
-    html = `<p class="obs">${contas.length} ${contas.length === 1 ? "conta" : "contas"} · ${pros} ligada${pros === 1 ? "" : "s"} a profissional. Senhas ficam guardadas só como código (ninguém vê). Esqueceu a senha? Apague a conta e a pessoa cria de novo (os chamados voltam, porque vêm pelo WhatsApp).</p>` +
+    html = `<p class="obs">${contas.length} ${contas.length === 1 ? "conta" : "contas"} · ${pros} ligada${pros === 1 ? "" : "s"} a profissional. Senhas ficam guardadas só como código (ninguém vê). Esqueceu a senha? A pessoa toca em “Esqueci minha senha”, você recebe o aviso 🔑 e manda a senha provisória (ou use o botão abaixo). Ela entra e cria uma nova.</p>` +
       (contas.map((c) => `
         <article>
           <div class="l1"><b>${esc(c.nome)} ${esc(c.sobrenome)}</b><span>${fmt(c.criado)}</span></div>
           <p class="mini">${tel(c.login)} · ${(c.chamadas || []).length} chamados · ${c.convidados || 0} convidados${c.ref ? " · veio por convite" : ""}</p>
+          ${c.provisoria && Date.now() < c.provisoria.ate ? `<p><span class="st pend">🔑 Pediu senha nova ${fmt(c.provisoria.pedida)}</span></p>` : ""}
           ${c.whats ? `<p>🔑 Ligada ao profissional <b>${tel(c.whats)}</b>${c.whats === c.tel ? " (mesmo WhatsApp da conta)" : ""}</p>` : ""}
           <div class="acoes">
             ${c.whats ? bt(c.login, "ct_soltar", "Desligar do profissional", "Desligar esta conta do cadastro de profissional?") : ""}
             ${c.tel ? `<a class="b" href="https://wa.me/${esc(c.tel)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+            <form method="post" target="_blank" style="display:inline"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="login" value="${esc(c.login)}"><button class="b zap" name="acao" value="ct_senha">Mandar senha provisória</button></form>
             ${bt(c.login, "ct_apagar", "Apagar conta", "Apagar esta conta? O histórico de chamadas continua no painel.")}
           </div>
         </article>`).join("") || `<p class="vazio">Ninguém criou conta ainda.</p>`);

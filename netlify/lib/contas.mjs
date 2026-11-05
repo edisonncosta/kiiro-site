@@ -35,6 +35,22 @@ export function confere(senha, conta) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+// senha provisória (esqueci a senha): fácil de digitar, vale 48 h, e quem entra com ela é obrigado a trocar
+export function novaProvisoria() {
+  const n = randomBytes(3).readUIntBE(0, 3) % 9000 + 1000;
+  return `Kiiro${n}`;
+}
+export function guardarProvisoria(conta, senha) {
+  conta.provisoria = { ...hashSenha(senha), ate: Date.now() + 48 * 3600e3, pedida: new Date().toISOString() };
+}
+export function confereProvisoria(senha, conta) {
+  const p = conta.provisoria;
+  return !!(p && Date.now() < p.ate && confere(senha, p));
+}
+// mensagem pronta para mandar no WhatsApp da pessoa
+export const msgProvisoria = (conta, senha, site) =>
+  `Oi, ${conta.nome}! Aqui é da Kiiro 💛\n\nSua senha provisória é: *${senha}*\n\nEntre em ${site}/conta?modo=entrar com seu WhatsApp e essa senha. Logo depois você cria uma senha nova.\n\nSe não foi você que pediu, pode ignorar esta mensagem.`;
+
 export const lerConta = async (login) => (login ? loja().get(k("u", login), { type: "json" }) : null);
 export const salvarConta = (c) => loja().setJSON(k("u", c.login), c);
 
@@ -87,6 +103,7 @@ export async function apagarConta(login) {
 
 // o que o celular/site recebe (nunca o hash)
 export const publica = (c) => ({
+  trocarSenha: !!c.trocarSenha,
   id: c.id, login: c.login, tipoLogin: c.tipoLogin, nome: c.nome, sobrenome: c.sobrenome,
   tel: c.tel || "", foto: c.foto ? `/.netlify/functions/foto?id=${c.foto}` : "", whats: c.whats || "", criado: c.criado,
 });

@@ -12,7 +12,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { enviarPara } from "../lib/push.mjs";
 import {
   normalizarLogin, senhaBoa, hashSenha, confere, lerConta, salvarConta, novaSessao, contaDoToken, fimSessao,
-  donoDoWhats, ligarWhats, soltarWhats, travado, errou, acertou, publica, comPais, telValido, donoDoTel, ligarTel, soltarTel,
+  donoDoWhats, ligarWhats, soltarWhats, travado, errou, acertou, publica, novaProvisoria, guardarProvisoria, confereProvisoria, msgProvisoria, comPais, telValido, donoDoTel, ligarTel, soltarTel,
 } from "../lib/contas.mjs";
 
 const limpa = (s, max = 40) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
@@ -64,10 +64,37 @@ export default async (req) => {
     if (!L) return json(400, { erro: "Confira seu WhatsApp com DDD." });
     if (await travado(L.login)) return json(429, { erro: "Muitas tentativas. Espere 15 minutos e tente de novo." });
     const conta = await lerConta(L.login);
-    if (!conta || !confere(d.senha, conta)) { if (conta) await errou(L.login); return json(401, { erro: "WhatsApp ou senha não conferem." }); }
+    const comProvisoria = !!conta && !confere(d.senha, conta) && confereProvisoria(d.senha, conta);
+    if (!conta || !(comProvisoria || confere(d.senha, conta))) { if (conta) await errou(L.login); return json(401, { erro: "WhatsApp ou senha não conferem." }); }
     await acertou(L.login);
+    if (comProvisoria) { conta.trocarSenha = true; await salvarConta(conta); }
     if (await reivindicar(conta, d.codigos)) await salvarConta(conta);
     return json(200, { token: await novaSessao(conta.login), conta: publica(conta) });
+  }
+
+  // esqueci a senha: gera uma senha provisória e avisa a Kiiro, que manda no WhatsApp da pessoa
+  // (assim a senha só chega em quem tem aquele WhatsApp de verdade)
+  if (acao === "esqueci") {
+    const L = normalizarLogin(d.login);
+    if (!L) return json(400, { erro: "Confira seu WhatsApp com DDD." });
+    const conta = await lerConta(L.login);
+    const resposta = json(200, { ok: true });
+    if (!conta) return resposta; // não conta se a conta existe ou não
+    if (conta.provisoria && Date.now() - new Date(conta.provisoria.pedida) < 10 * 60e3) return resposta; // um pedido a cada 10 min
+    const senha = novaProvisoria();
+    guardarProvisoria(conta, senha);
+    await salvarConta(conta);
+    if (process.env.NTFY_TOPIC) {
+      try {
+        await fetch("https://ntfy.sh/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+          topic: process.env.NTFY_TOPIC, tags: ["key"], priority: 4,
+          title: `🔑 ${conta.nome} ${conta.sobrenome} esqueceu a senha`,
+          message: `Senha provisória: ${senha}\nToque aqui para mandar no WhatsApp dele(a). Também está no painel, aba Contas.`,
+          click: `https://wa.me/${conta.login}?text=${encodeURIComponent(msgProvisoria(conta, senha, origem))}`,
+        }) });
+      } catch {}
+    }
+    return resposta;
   }
 
   // daqui para baixo, só com sessão
@@ -75,6 +102,16 @@ export default async (req) => {
   if (!conta) return json(401, { erro: "sessao" });
 
   if (acao === "sair") { await fimSessao(d.token); return json(200, { ok: true }); }
+
+  // entrou com a senha provisória: precisa criar uma senha nova antes de qualquer outra coisa
+  if (acao === "nova_senha") {
+    if (!senhaBoa(d.senha)) return json(400, { erro: "A senha precisa de 8 caracteres ou mais, com letra maiúscula, minúscula e número." });
+    Object.assign(conta, hashSenha(d.senha));
+    delete conta.provisoria; delete conta.trocarSenha;
+    await salvarConta(conta);
+    return json(200, { conta: publica(conta) });
+  }
+  if (conta.trocarSenha) return json(403, { erro: "trocar" });
 
   if (acao === "perfil") {
     const nome = limpa(d.nome), sobrenome = limpa(d.sobrenome);
