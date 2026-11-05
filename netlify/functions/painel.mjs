@@ -4,6 +4,7 @@
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
+import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TZ = "America/Sao_Paulo";
@@ -111,6 +112,30 @@ export default async (req, context) => {
       if (p && acao === "pd_novo") { await pedidos.setJSON(id, { ...p, status: "novo" }); aviso = "Pedido voltou para abertos."; }
       if (p && acao === "pd_excluir") { await pedidos.delete(id); aviso = "Pedido excluído."; }
       return Response.redirect(`${base}/painel${q({ aba: "pedidos", aviso })}`, 303);
+    }
+    // ----- seus lembretes
+    if (String(acao || "").startsWith("lb_")) {
+      const lista = await lerLembretes();
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      let aviso = "";
+      if (acao === "lb_criar") {
+        const titulo = String(f.get("titulo") || "").trim().slice(0, 80);
+        const data = String(f.get("data") || "");
+        if (!titulo || !/^\d{4}-\d{2}-\d{2}$/.test(data)) aviso = "Coloque o que lembrar e a data.";
+        else {
+          let link = String(f.get("link") || "").trim().slice(0, 300);
+          if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+          lista.push({ id: randomUUID().slice(0, 8), titulo, data, nota: String(f.get("nota") || "").trim().slice(0, 300), link, feito: false, avisos: {} });
+          aviso = "Lembrete criado. Você recebe o aviso no celular um dia antes, às 9h.";
+        }
+      }
+      const l = lista.find((x) => x.id === id);
+      if (l && acao === "lb_feito") { l.feito = true; aviso = "Marcado como feito ✓"; }
+      if (l && acao === "lb_reabrir") { l.feito = false; l.avisos = {}; aviso = "Lembrete reaberto."; }
+      if (l && acao === "lb_apagar") { lista.splice(lista.indexOf(l), 1); aviso = "Lembrete apagado."; }
+      lista.sort((a, b) => String(a.data).localeCompare(String(b.data)));
+      await salvarLembretes(lista);
+      return Response.redirect(`${base}/painel${q({ aba: "lembretes", aviso })}`, 303);
     }
     // ----- avisos no celular (notificações): mandar um aviso para quem ativou
     if (acao === "push_enviar") {
@@ -719,6 +744,49 @@ export default async (req, context) => {
       }).join("") || '<p class="vazio">Nada por aqui ainda.</p>');
   }
 
+  if (aba === "lembretes") {
+    const aviso = url.searchParams.get("aviso");
+    const lista = await lerLembretes();
+    const hj = hojeLb();
+    const dias = (d) => Math.round((new Date(d + "T12:00:00Z") - new Date(hj + "T12:00:00Z")) / 864e5);
+    const quando = (d) => { const n = dias(d); return n < 0 ? `atrasado ${-n} ${n === -1 ? "dia" : "dias"}` : n === 0 ? "hoje" : n === 1 ? "amanhã" : `em ${n} dias`; };
+    const brD = (d) => String(d).split("-").reverse().join("/");
+    const fm = (acao, id, rot, cls = "", conf = "") => `<form method="post" action="/painel" style="display:inline"${conf ? ` onsubmit="return confirm('${conf}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="id" value="${esc(id)}"><button class="b ${cls}" type="submit">${rot}</button></form>`;
+    // vencimentos de anúncios aprovados entram na lista automaticamente
+    let anuncios = [];
+    try { anuncios = Object.values((await getStore("admin").get("anuncios", { type: "json" })) || {}).filter((a) => a && a.ate && !String(a.id).endsWith("-g") && !a.pausado); } catch {}
+    const itens = [
+      ...lista.map((l) => ({ ...l, tipo: "meu" })),
+      ...anuncios.map((a) => ({ id: "an-" + a.id, titulo: `Anúncio de ${a.nome} vence`, data: a.ate, nota: "Combine a renovação e o Pix com a empresa. O aviso de renovação já chega no celular 3 dias antes.", tipo: "anuncio" })),
+    ].sort((a, b) => (a.feito ? 1 : 0) - (b.feito ? 1 : 0) || String(a.data).localeCompare(String(b.data)));
+    const card = (l) => {
+      const n = dias(l.data);
+      const st = l.feito ? `<span class="st bom">Feito ✓</span>` : n < 0 ? `<span class="st ruim">${quando(l.data)}</span>` : n <= 7 ? `<span class="st pend">${quando(l.data)}</span>` : `<span class="st" style="background:#F3ECD4">${quando(l.data)}</span>`;
+      return `<article${l.feito ? ' style="opacity:.6"' : ""}>
+        <div class="l1"><b>${esc(l.titulo)}</b>${st}</div>
+        <p class="mini" style="margin:2px 0 0">📅 ${brD(l.data)}${l.tipo === "anuncio" ? " · da aba Anúncios" : ""}</p>
+        ${l.nota ? `<p>${esc(l.nota)}</p>` : ""}
+        <div class="acoes">
+          ${l.link ? `<a class="b" href="${esc(l.link)}" target="_blank" rel="noopener">Abrir link</a>` : ""}
+          ${l.tipo === "meu" ? (l.feito ? fm("lb_reabrir", l.id, "Reabrir") : fm("lb_feito", l.id, "Marcar como feito", "zap")) + fm("lb_apagar", l.id, "Apagar", "perigo", "Apagar este lembrete?") : `<a class="b" href="${q({ aba: "anuncios" })}">Ver anúncio</a>`}
+        </div>
+      </article>`;
+    };
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
+      <section class="cx"><h3>Novo lembrete</h3>
+        <form class="ed" method="post" action="/painel">
+          <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="lb_criar">
+          <label class="ed-l">O que lembrar<input name="titulo" maxlength="80" required placeholder="Ex.: Renovar o domínio"></label>
+          <label class="ed-l">Data<input name="data" type="date" required min="${hj}"></label>
+          <label class="ed-l">Detalhes <span class="ed-dica">Opcional</span><textarea name="nota" maxlength="300" rows="2"></textarea></label>
+          <label class="ed-l">Link <span class="ed-dica">Opcional. Abre ao tocar no aviso.</span><input name="link" maxlength="300" placeholder="https://"></label>
+          <button class="b zap" type="submit">Criar lembrete</button>
+        </form>
+        <p class="obs">Você recebe no celular (app ntfy) um aviso <b>um dia antes</b> e outro <b>no dia</b>, sempre às 9h.</p>
+      </section>
+      ${itens.map(card).join("") || '<p class="vazio">Nenhum lembrete.</p>'}`;
+  }
+
   if (aba === "avisos") {
     const aviso = url.searchParams.get("aviso");
     let l = [];
@@ -833,7 +901,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
