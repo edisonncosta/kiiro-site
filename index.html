@@ -810,14 +810,14 @@
       <span class="in-lb">Sua nota</span>
       <div class="in-est" id="in-est" role="radiogroup" aria-label="Nota de 1 a 5"></div>
       <p class="in-est-t" id="in-est-t"></p>
-      <span class="in-lb">Como você conhece? <small style="font-weight:400;color:var(--muted)">(opcional)</small></span>
+      <span class="in-lb">Como você conhece?</span>
       <div class="chips">
         <input type="radio" name="in-rel" id="ir1" value="Já contratou"><label for="ir1">Já contratei</label>
         <input type="radio" name="in-rel" id="ir2" value="Vizinho"><label for="ir2">Vizinho</label>
         <input type="radio" name="in-rel" id="ir3" value="Amigo ou família"><label for="ir3">Amigo ou família</label>
         <input type="radio" name="in-rel" id="ir4" value="Trabalhamos juntos"><label for="ir4">Trabalhamos juntos</label>
       </div>
-      <label class="in-lb" for="in-texto">Conte como foi <small style="font-weight:400;color:var(--muted)">(opcional)</small></label>
+      <label class="in-lb" for="in-texto">Conte como foi</label>
       <textarea class="input" id="in-texto" maxlength="400" rows="3" placeholder="Ex.: fez a instalação lá de casa, caprichoso e pontual."></textarea>
       <div class="nome-2"><div><label class="in-lb" for="in-nome">Nome</label>
       <input class="input" id="in-nome" autocomplete="given-name" placeholder="Ex.: Ana"></div>
@@ -1816,6 +1816,8 @@ $("in-form").addEventListener("submit", async e => {
   const texto = $("in-texto").value.trim(), n1 = $("in-nome").value.trim(), sob = $("in-sobrenome").value.trim(), nome = `${n1} ${sob}`.trim(), whats = $("in-whats").value.replace(/\D/g, "");
   const erro = m => $("in-erro").textContent = m;
   if (!notaInd) return erro("Toque nas estrelas para dar sua nota.");
+  if (!rel) return erro("Escolha como você conhece.");
+  if (texto.length < 10) { $("in-texto").focus(); return erro("Conte um pouquinho como foi."); }
   if (n1.length < 2) return erro("Coloque seu nome.");
   if (sob.length < 2) return erro("Coloque seu sobrenome.");
   if (![10, 11, 12, 13].includes(whats.length)) return erro("Coloque seu WhatsApp com DDD.");

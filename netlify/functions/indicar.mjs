@@ -1,5 +1,5 @@
 // Kiiro — avaliação pelo link que o profissional manda (/i/ID): quem já fez serviço ou conhece o trabalho.
-// POST /.netlify/functions/indicar  { profissionalId, profissionalWhatsapp, profissionalNome, nota (1-5), relacao?, texto?, nome, whatsapp }
+// POST /.netlify/functions/indicar  { profissionalId, profissionalWhatsapp, profissionalNome, nota (1-5), relacao, texto, nome, whatsapp }
 // Fica "pendente" até a aprovação no painel (aba Avaliações por link). Aprovada, entra nas avaliações e na nota.
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
@@ -30,7 +30,7 @@ export default async (req) => {
     status: "pendente",
   };
   if (whats.length < 12 || whats.length > 13) return json({ erro: "WhatsApp inválido" }, 400);
-  if (!ind.profissionalId || !ind.nome || !(ind.nota >= 1 && ind.nota <= 5)) return json({ erro: "Dados faltando" }, 400);
+  if (!ind.profissionalId || !ind.nome || !(ind.nota >= 1 && ind.nota <= 5) || !ind.relacao || ind.texto.length < 10) return json({ erro: "Dados faltando" }, 400);
   if (proWhats && whats.endsWith(proWhats.slice(-9))) return json({ erro: "proprio" }, 400);
 
   const store = getStore("indicacoes");
