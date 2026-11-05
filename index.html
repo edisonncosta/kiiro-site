@@ -1493,11 +1493,11 @@ $("in-form").addEventListener("submit", async e => {
 /* ===== Mapa "Atende em": cidades pintadas + onde a pessoa está (a localização fica só no celular) ===== */
 let leafletPronto = null;
 function carregarLeaflet() {
-  if (window.L && window.KIIRO_MAPA) return Promise.resolve();
+  if (window.L) return Promise.resolve();
   if (leafletPronto) return leafletPronto;
   const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "vendor/leaflet/leaflet.css"; document.head.appendChild(css);
   const js = src => new Promise((ok, erro) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
-  leafletPronto = Promise.all([window.L ? null : js("vendor/leaflet/leaflet.js"), window.KIIRO_MAPA ? null : js("cidades-mapa.js")]);
+  leafletPronto = js("vendor/leaflet/leaflet.js");
   return leafletPronto;
 }
 // ponto dentro do contorno da cidade ([lng, lat])
@@ -1505,48 +1505,94 @@ function dentroDe(lat, lng, aneis) {
   return aneis.some(r => { let d = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) d = !d; } return d; });
 }
 const kmEntre = (a, b) => { const x = (b[1] - a[1]) * Math.cos((a[0] + b[0]) / 2 * Math.PI / 180), y = b[0] - a[0]; return Math.sqrt(x * x + y * y) * 111.2; };
-async function montarMapa(p) {
-  const box = $("pf-mapa"); if (!box) return;
-  try { await carregarLeaflet(); } catch { box.parentElement.remove(); return; }
-  if (!document.body.contains(box)) return;
-  const M = window.KIIRO_MAPA || {};
-  const lista = String(p.cidade).split(/\s*,\s*/).filter(Boolean);
-  const todas = lista.includes(window.KIIRO_TODAS);
-  const atendidas = Object.keys(M).filter(c => todas || lista.some(x => semAcento(x) === semAcento(c)));
-  const base = baseDe(p);
+// Google Maps quando houver chave (cidades.js → KIIRO_GOOGLE_MAPS_KEY); senão, mapa aberto (Leaflet + OpenStreetMap)
+let googlePronto = null;
+function carregarGoogle(chave) {
+  if (window.google && google.maps && google.maps.Map) return Promise.resolve();
+  if (googlePronto) return googlePronto;
+  googlePronto = new Promise((ok, erro) => {
+    window.__kiiroMaps = ok;
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(chave)}&callback=__kiiroMaps&loading=async&language=pt-BR&region=BR`;
+    s.onerror = erro; document.head.appendChild(s);
+  });
+  return googlePronto;
+}
+function desenharGoogle(box, M, atendidas, base) {
+  const map = new google.maps.Map(box, { disableDefaultUI: true, zoomControl: false, gestureHandling: "cooperative", clickableIcons: false, keyboardShortcuts: false });
+  const limites = new google.maps.LatLngBounds();
+  const janela = new google.maps.InfoWindow();
+  Object.entries(M).forEach(([c, aneis]) => {
+    const sim = atendidas.includes(c), eBase = base && semAcento(base) === semAcento(c);
+    const paths = aneis.map(r => r.map(([lng, lat]) => ({ lat, lng })));
+    const pol = new google.maps.Polygon({ map, paths, strokeColor: sim ? "#B38B00" : "#8A8A8A", strokeOpacity: sim ? 1 : .5, strokeWeight: sim ? (eBase ? 2.5 : 1.5) : .8,
+      fillColor: sim ? "#FFC800" : "#FFFFFF", fillOpacity: sim ? (eBase ? .6 : .42) : .05 });
+    pol.addListener("click", e => { janela.setContent(`<b style="font-family:Poppins,sans-serif">${esc(c)}</b>${sim ? (eBase ? " · mora aqui" : " · atende") : ""}`); janela.setPosition(e.latLng); janela.open({ map }); });
+    if (sim) paths.flat().forEach(pt => limites.extend(pt));
+  });
+  if (limites.isEmpty()) { limites.extend({ lat: -31.2, lng: -51 }); limites.extend({ lat: -29.2, lng: -49.7 }); }
+  map.fitBounds(limites, 12);
+  return {
+    marcar(lat, lng) {
+      new google.maps.Marker({ map, position: { lat, lng }, clickable: false, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#1E6BFF", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 } });
+      if (kmEntre([lat, lng], [-29.9, -50.2]) < 200) { const l = new google.maps.LatLngBounds(limites.getSouthWest(), limites.getNorthEast()); l.extend({ lat, lng }); map.fitBounds(l, 16); }
+    }
+  };
+}
+function desenharLeaflet(box, M, atendidas, base) {
   const map = L.map(box, { zoomControl: false, attributionControl: true, dragging: !L.Browser.mobile, touchZoom: true, scrollWheelZoom: false, doubleClickZoom: true, tap: false });
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
   L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 16, subdomains: "abcd", attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }).addTo(map);
-  const ll = r => r.map(([x, y]) => [y, x]);
   const camadas = [];
   Object.entries(M).forEach(([c, aneis]) => {
     const sim = atendidas.includes(c), eBase = base && semAcento(base) === semAcento(c);
-    const pol = L.polygon(aneis.map(ll), sim
+    const pol = L.polygon(aneis.map(r => r.map(([x, y]) => [y, x])), sim
       ? { color: "#B38B00", weight: eBase ? 2.5 : 1.5, fillColor: "#FFC800", fillOpacity: eBase ? .7 : .5 }
       : { color: "#8A8A8A", weight: .8, fillColor: "#ffffff", fillOpacity: .15, dashArray: "3 3" }).addTo(map);
     pol.bindTooltip(c + (sim ? (eBase ? " · mora aqui" : " · atende") : ""), { sticky: true, direction: "top" });
     if (sim) camadas.push(pol);
   });
-  map.fitBounds(L.featureGroup(camadas.length ? camadas : []).getBounds().isValid() ? L.featureGroup(camadas).getBounds() : [[-31.2, -51], [-29.2, -49.7]], { padding: [14, 14], maxZoom: 11 });
+  map.fitBounds(camadas.length ? L.featureGroup(camadas).getBounds() : [[-31.2, -51], [-29.2, -49.7]], { padding: [14, 14], maxZoom: 11 });
   setTimeout(() => map.invalidateSize(), 250);
+  return {
+    marcar(lat, lng) {
+      L.marker([lat, lng], { icon: L.divIcon({ className: "", html: '<div class="voce-aqui"></div>', iconSize: [18, 18] }), interactive: false }).addTo(map);
+      if (kmEntre([lat, lng], [-29.9, -50.2]) < 200) map.fitBounds(L.featureGroup([...camadas, L.marker([lat, lng])]).getBounds(), { padding: [18, 18], maxZoom: 11 });
+    }
+  };
+}
+async function montarMapa(p) {
+  const box = $("pf-mapa"); if (!box) return;
+  const chave = window.KIIRO_GOOGLE_MAPS_KEY;
+  let desenhar;
+  try {
+    const contornos = window.KIIRO_MAPA ? null : new Promise((ok, erro) => { const s = document.createElement("script"); s.src = "cidades-mapa.js"; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
+    if (chave) { await Promise.all([carregarGoogle(chave), contornos]); desenhar = desenharGoogle; }
+    else { await Promise.all([carregarLeaflet(), contornos]); desenhar = desenharLeaflet; }
+  } catch {
+    if (chave) { try { await carregarLeaflet(); desenhar = desenharLeaflet; } catch {} }
+    if (!desenhar) { box.parentElement.remove(); return; }
+  }
+  if (!document.body.contains(box)) return;
+  const M = window.KIIRO_MAPA || {};
+  const lista = String(p.cidade).split(/\s*,\s*/).filter(Boolean);
+  const todas = lista.includes(window.KIIRO_TODAS);
+  const atendidas = Object.keys(M).filter(c => todas || lista.some(x => semAcento(x) === semAcento(c)));
+  const mapa = desenhar(box, M, atendidas, baseDe(p));
 
   const nome1 = esc(p.nome.split(" ")[0]);
   const info = $("pf-mapa-info"), bt = $("pf-mapa-eu");
   const mostrar = (lat, lng) => {
-    L.marker([lat, lng], { icon: L.divIcon({ className: "", html: '<div class="voce-aqui"></div>', iconSize: [18, 18] }), interactive: false }).addTo(map);
+    mapa.marcar(lat, lng);
     bt.classList.add("escondido");
     const aqui = Object.keys(M).find(c => dentroDe(lat, lng, M[c]));
     info.classList.remove("escondido", "sim");
-    if (aqui && atendidas.includes(aqui)) { info.classList.add("sim"); info.innerHTML = `📍 Você está em ${esc(aqui)} · ${nome1} atende aí ✓`; }
-    else {
-      const perto = atendidas.map(c => [c, kmEntre([lat, lng], (window.KIIRO_COORD || {})[c] || [lat, lng])]).sort((a, b) => a[1] - b[1])[0];
-      if (!perto) { info.classList.add("escondido"); return; }
-      const km = Math.max(1, Math.round(perto[1]));
-      info.innerHTML = km > 150 ? `📍 Você está longe do Litoral Norte. ${nome1} atende ${atendidas.length > 1 ? "as cidades pintadas" : "em " + esc(perto[0])}.`
-        : `📍 Você está ${aqui ? "em " + esc(aqui) + ", " : ""}a ~${km} km de ${esc(perto[0])}, a cidade mais perto que ${nome1} atende.`;
-    }
-    const grupo = L.featureGroup([...camadas, L.marker([lat, lng])]);
-    if (kmEntre([lat, lng], [-29.9, -50.2]) < 200) map.fitBounds(grupo.getBounds(), { padding: [18, 18], maxZoom: 11 });
+    if (aqui && atendidas.includes(aqui)) { info.classList.add("sim"); info.innerHTML = `📍 Você está em ${esc(aqui)} · ${nome1} atende aí ✓`; return; }
+    const perto = atendidas.map(c => [c, kmEntre([lat, lng], (window.KIIRO_COORD || {})[c] || [lat, lng])]).sort((a, b) => a[1] - b[1])[0];
+    if (!perto) { info.classList.add("escondido"); return; }
+    const km = Math.max(1, Math.round(perto[1]));
+    info.innerHTML = km > 150 ? `📍 Você está longe do Litoral Norte. ${nome1} atende ${atendidas.length > 1 ? "as cidades pintadas" : "em " + esc(perto[0])}.`
+      : `📍 Você está ${aqui ? "em " + esc(aqui) + ", " : ""}a ~${km} km de ${esc(perto[0])}, a cidade mais perto que ${nome1} atende.`;
   };
   const pedir = () => {
     if (!navigator.geolocation) return;

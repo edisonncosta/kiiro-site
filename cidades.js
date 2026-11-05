@@ -26,3 +26,7 @@ window.kiiroKm = function (a, b) {
   const x = (B[1] - A[1]) * Math.cos((A[0] + B[0]) / 2 * Math.PI / 180), y = B[0] - A[0];
   return Math.round(Math.sqrt(x * x + y * y) * 111.2);
 };
+
+// Chave do Google Maps (mapa do perfil). Crie em console.cloud.google.com, ative "Maps JavaScript API"
+// e restrinja a chave ao site (chamakiiro.netlify.app/*). Deixe vazio para usar o mapa aberto (OpenStreetMap).
+window.KIIRO_GOOGLE_MAPS_KEY = "";
