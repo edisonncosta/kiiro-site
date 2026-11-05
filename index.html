@@ -44,6 +44,16 @@
   .topo{position:relative;z-index:30;background:linear-gradient(var(--sun) 0,var(--sun) calc(150px + env(safe-area-inset-top)),var(--paper) calc(150px + env(safe-area-inset-top)));padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
   .topo .link-pro{background:#fff;box-shadow:0 2px 8px rgba(120,90,0,.15)}
   .topo .bt-doe span{box-shadow:0 0 0 2px var(--sun)}
+
+  /* ===== topo ao rolar (estilo 99): mapa sai, pesquisa e categorias ficam fixas ===== */
+  .topo{position:sticky;top:var(--topo-top,0px)}
+  .topo .mapa-home,.topo .hero .onde,.topo .mh-eu{transition:opacity .2s ease}
+  .topo.fixo .mapa-home,.topo.fixo .hero .onde,.topo.fixo .mh-eu{opacity:0;pointer-events:none}
+  .topo.fixo{box-shadow:0 6px 16px rgba(60,45,0,.10)}
+  .topo.fixo .hero .busca{box-shadow:0 2px 10px rgba(60,45,0,.12)}
+  .busca-onde{display:none;flex:none;width:34px;height:34px;margin-left:-.6rem;border:0;border-radius:50%;background:var(--sun-soft);place-items:center;cursor:pointer;padding:0}
+  .busca-onde svg{width:18px;height:18px}
+  .topo.fixo .busca-onde{display:grid}
   /* mapa no topo, no estilo do 99 */
   .hero{position:relative;max-width:640px}
   .mapa-home{height:210px;border-radius:24px;overflow:hidden;background:#E9EEF3;box-shadow:0 6px 22px rgba(90,70,0,.16);z-index:0}
@@ -598,6 +608,7 @@
         <button class="mh-eu" type="button" id="mh-eu" aria-label="Mostrar onde estou"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
       <div class="busca" role="search">
         <svg class="lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <button class="busca-onde" type="button" id="busca-onde" aria-label="Trocar a cidade" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="#FFC800" stroke="#1A1A1A" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="#1A1A1A"/></svg></button>
         <div class="busca-txt">
           <input id="busca" type="search" placeholder="Do que você precisa?" aria-label="Buscar serviço ou nome" enterkeyhint="search">
           <select id="cidade" aria-label="Cidade" autocomplete="off" hidden><option value="">Qualquer cidade · Litoral Norte</option></select>
@@ -2430,6 +2441,24 @@ Promise.all([carregar(), carregarAnuncios()]).then(() => {
   iniciarLocal();
   mostrarBalao();
 });
+
+/* ===== topo ao rolar (estilo 99) ===== */
+(() => {
+  const topo = document.querySelector(".topo"), busca = document.querySelector(".hero .busca");
+  if (!topo || !busca) return;
+  let sobra = 0;
+  const medir = () => {
+    if (topo.classList.contains("fixo") || !topo.offsetParent) return;
+    sobra = Math.max(0, busca.getBoundingClientRect().top - topo.getBoundingClientRect().top - 10);
+    topo.style.setProperty("--topo-top", `calc(${-sobra}px + env(safe-area-inset-top))`);
+  };
+  const ver = () => { if (!sobra) medir(); const fixo = window.scrollY > sobra - 2 && sobra > 0; if (fixo !== topo.classList.contains("fixo")) topo.classList.toggle("fixo", fixo); };
+  medir(); ver();
+  window.addEventListener("scroll", ver, { passive: true });
+  window.addEventListener("resize", () => { topo.classList.remove("fixo"); medir(); ver(); });
+  window.addEventListener("load", () => { medir(); ver(); });
+  $("busca-onde").addEventListener("click", () => $("onde").click());
+})();
 </script>
 </body>
 </html>
