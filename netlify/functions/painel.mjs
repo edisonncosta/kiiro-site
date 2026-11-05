@@ -5,6 +5,7 @@ import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
+import { localDe } from "../lib/local.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TZ = "America/Sao_Paulo";
@@ -68,7 +69,10 @@ export default async (req, context) => {
             texto: String(d.texto || "").slice(0, 90), botao: String(d.botao || "Saber mais").slice(0, 28), link,
             banner, cor: /^#[0-9a-f]{6}$/i.test(d.cor || "") ? d.cor : "#ffffff", ate, contato: String(d.contato || ""),
             formato, meses: String(d.meses || ""), aprovadoEm: new Date().toISOString(), pausado: false,
+            endereco: String(d.endereco || "").slice(0, 200),
           };
+          // ponto no mapa: localização do celular na loja, ou o endereço, ou o destino do botão "localização"
+          base1.local = (await localDe(d.local)) || (await localDe(d.endereco)) || (acaoBt === "localizacao" ? await localDe(destino) : null) || undefined;
           if (formato === "temporada") {
             lista[id] = { ...base1, categoria: "Todos", alvoCidade: "" };
             if (d.grupo) lista[id + "-g"] = { ...base1, id: id + "-g", categoria: String(d.grupo), alvoCidade: "" };
@@ -76,7 +80,7 @@ export default async (req, context) => {
             lista[id] = { ...base1, categoria: porGrupo ? String(d.grupo || "Todos") : "Todos", alvoCidade: naCidade ? String(d.cidade || "") : "" };
           }
           recusados.delete(id);
-          aviso = `Anúncio da ${base1.nome} aprovado! Já aparece no site.`;
+          aviso = `Anúncio da ${base1.nome} aprovado! Já aparece no site.` + (base1.local ? " O logo também está no mapa." : base1.endereco ? " Não achei o endereço no mapa: corrija em 📍 Lugar no mapa." : "");
         }
       }
       if (acao === "an_pausar" && lista[id]) { lista[id].pausado = true; if (lista[id + "-g"]) lista[id + "-g"].pausado = true; aviso = "Anúncio pausado."; }
@@ -85,6 +89,15 @@ export default async (req, context) => {
       if (acao === "an_remover") {
         for (const k of [id, id + "-g"]) { const b = lista[k] && lista[k].banner; if (b) { const fid = b.split("id=")[1]; if (fid) await getStore("fotos").delete(fid); } delete lista[k]; }
         aviso = "Anúncio removido do site.";
+      }
+      if (acao === "an_local" && lista[id]) {
+        const end = String(f.get("endereco") || "").trim().slice(0, 200);
+        if (!end) { for (const k of [id, id + "-g"]) if (lista[k]) { delete lista[k].local; lista[k].endereco = ""; } aviso = "Tirei o logo do mapa."; }
+        else {
+          const c = await localDe(end);
+          if (c) { for (const k of [id, id + "-g"]) if (lista[k]) { lista[k].local = c; lista[k].endereco = end; } aviso = "Lugar no mapa atualizado ✓"; }
+          else aviso = "Não achei esse endereço. Tente com rua e cidade, ou cole o link da loja no Google Maps.";
+        }
       }
       if (acao === "an_recusar") { recusados.add(id); aviso = "Pedido recusado (não aparece mais na lista)."; }
       await admin.setJSON("anuncios", lista);
@@ -545,7 +558,7 @@ export default async (req, context) => {
       return `<article>
         <div class="an-prev"><div class="an-img" style="background-color:${esc(d.cor || "#fff")};background-image:url('${esc(urlArq(d.banner))}')"></div><div class="an-bt"><span>${esc(d.botao || "Saber mais")}</span></div></div>
         <div class="l1" style="margin-top:10px"><b>${esc(d.empresa)}</b><span>${fmt(p.created_at)}</span></div>
-        <p><b>${esc(NOMES[d.formato] || d.formato)}</b>${d.cidade && /cidade/.test(d.formato) ? " · " + esc(d.cidade) : ""}${d.grupo && d.formato !== "cidade" && d.formato !== "inicio" ? " · " + esc(d.grupo) : ""} · ${esc(d.meses || 1)} mês(es)<br>Botão “${esc(d.botao || "")}”: ${esc({ whatsapp: "abre o WhatsApp", localizacao: "mostra a localização", site: "abre o site" }[d.acao] || d.acao)} → ${esc(d.destino)}${d.texto ? `<br>“${esc(d.texto)}”` : ""}</p>
+        <p><b>${esc(NOMES[d.formato] || d.formato)}</b>${d.cidade && /cidade/.test(d.formato) ? " · " + esc(d.cidade) : ""}${d.grupo && d.formato !== "cidade" && d.formato !== "inicio" ? " · " + esc(d.grupo) : ""} · ${esc(d.meses || 1)} mês(es)<br>Botão “${esc(d.botao || "")}”: ${esc({ whatsapp: "abre o WhatsApp", localizacao: "mostra a localização", site: "abre o site" }[d.acao] || d.acao)} → ${esc(d.destino)}${d.texto ? `<br>“${esc(d.texto)}”` : ""}${d.endereco || d.local ? `<br>📍 ${esc(d.endereco || d.local)}` : ""}</p>
         <div class="acoes">
           <a class="b zap" href="${zap}" target="_blank" rel="noopener">Combinar no WhatsApp</a>
           ${fm("an_aprovar", p.id, "✅ Aprovar e pôr no ar", "", `<label class="mini" style="display:inline-flex;gap:6px;align-items:center;margin-right:6px">até <input type="date" name="ate" value="${mais(d.meses)}" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:5px"></label>`)}
@@ -561,6 +574,8 @@ export default async (req, context) => {
         <div class="an-prev"><div class="an-img" style="background-color:${esc(a.cor || "#fff")};background-image:url('${esc(a.banner)}')"></div><div class="an-bt"><span>${esc(a.botao)}</span></div></div>
         <div class="l1" style="margin-top:10px"><b>${esc(a.nome)}</b>${st}</div>
         <p>${esc(NOMES[a.formato] || "")}${a.alvoCidade ? " · " + esc(a.alvoCidade) : ""}${a.categoria && a.categoria !== "Todos" ? " · " + esc(a.categoria) : ""}</p>
+        <p class="mini" style="margin:0 0 6px">${a.local ? `📍 No mapa: ${esc(a.endereco || a.local.join(", "))} · <a href="https://www.google.com/maps?q=${a.local.join(",")}" target="_blank" rel="noopener">conferir</a>` : "📍 Ainda não aparece no mapa"}</p>
+        <details class="editar"><summary class="b">📍 Lugar no mapa</summary>${fm("an_local", a.id, "Salvar lugar", "zap", `<input name="endereco" value="${esc(a.endereco || "")}" placeholder="Endereço ou link do Google Maps" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:7px;width:100%;margin:8px 0">`)}</details>
         <div class="acoes">
           ${a.pausado ? fm("an_retomar", a.id, "Pôr no ar de novo", "zap") : fm("an_pausar", a.id, "Pausar")}
           ${fm("an_prazo", a.id, "Mudar prazo", "", `<input type="date" name="ate" value="${esc(a.ate || mais(1))}" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:5px;margin-right:6px">`)}

@@ -98,6 +98,14 @@
     </div>
 
     <div class="campo">
+      <label for="endereco"><span class="n">📍</span>Endereço da loja <span class="opc">(para aparecer no mapa)</span></label>
+      <input class="input" id="endereco" name="endereco" maxlength="200" placeholder="Rua, número, bairro e cidade" autocomplete="street-address">
+      <input type="hidden" id="local" name="local">
+      <button type="button" class="btn btn-sm" id="aqui" style="margin-top:.5rem;background:#fff;border:1px solid var(--line)">📍 Estou na loja, usar minha localização</button>
+      <p class="opc" id="local-dica" style="margin-top:.4rem">Seu logo aparece nesse ponto do mapa da Kiiro, como no Waze. Também pode colar o link da loja no Google Maps.</p>
+    </div>
+
+    <div class="campo">
       <span class="legenda"><span class="n">2</span>Onde você quer aparecer?</span>
       <div class="fmts" id="fmts">
         <input type="radio" name="formato" id="f1" value="servico_cidade"><label for="f1"><span><b>Serviço na sua cidade</b><small>Ex.: quem procura “Casa e reforma” em Osório</small></span><span class="pr" data-p="servicoCidade"></span></label>
@@ -289,6 +297,18 @@ function corViva(src) {
   });
 }
 
+// endereço: "Estou na loja" pega a localização do celular e preenche o endereço
+$("aqui").addEventListener("click", () => {
+  if (!navigator.geolocation) return;
+  $("aqui").disabled = true; $("aqui").textContent = "Procurando…";
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const la = pos.coords.latitude.toFixed(6), lo = pos.coords.longitude.toFixed(6);
+    $("local").value = `${la}, ${lo}`;
+    try { const r = await fetch(`/.netlify/functions/onde?lat=${la}&lon=${lo}`); const e = r.ok ? await r.json() : {}; if (e.rua || e.cidade) $("endereco").value = [e.rua, e.bairro, e.cidade].filter(Boolean).join(", "); } catch {}
+    $("aqui").textContent = "✓ Localização da loja salva"; $("local-dica").textContent = "Pronto! Seu logo vai aparecer exatamente aí no mapa.";
+  }, () => { $("aqui").disabled = false; $("aqui").textContent = "📍 Estou na loja, usar minha localização"; }, { enableHighAccuracy: true, timeout: 10000 });
+});
+$("endereco").addEventListener("input", () => { $("local").value = ""; });
 $("form").addEventListener("submit", e => {
   const f = formato(), d = $("destino").value.trim(), w = $("contato").value.replace(/\D/g, "");
   let msg = "";
