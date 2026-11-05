@@ -48,6 +48,7 @@
   .hero{position:relative;max-width:640px}
   .mapa-home{height:210px;border-radius:24px;overflow:hidden;background:#E9EEF3;box-shadow:0 6px 22px rgba(90,70,0,.16);z-index:0}
   .mapa-home .leaflet-control-attribution{font-size:8px;background:rgba(255,255,255,.7);margin-bottom:34px !important}
+  .mapa-home .gm-style-cc,.mapa-home a[href^="https://maps.google.com/maps"]{transform:translateY(-34px)}
   .hero .onde{position:absolute;z-index:5;left:.7rem;top:.7rem;max-width:calc(100% - 4.5rem);background:#fff;border-radius:999px;padding:.35rem .8rem .35rem .55rem;box-shadow:0 3px 12px rgba(0,0,0,.14)}
   .hero .onde-txt small{font-size:.62rem}
   .hero .onde-txt b{font-size:.9rem}
@@ -1549,26 +1550,76 @@ $("in-form").addEventListener("submit", async e => {
 });
 
 /* ===== Mapa da página inicial: um pingo por cidade com quantos profissionais moram lá ===== */
-const mh = { map: null, camada: null, eu: null, pronto: false };
+/* Mapa da página inicial: Google Maps (igual ao 99) quando houver chave; senão, OpenStreetMap.
+   Os dois usam o mesmo "adaptador": pino(latlng, html, ancora, aoTocar, z), limpar(), enquadrar(pontos), centralizar(latlng, zoom). */
+const mh = { mapa: null, pinos: [], eu: null, euPos: null, pronto: false };
+const ESTILO_99 = [
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+];
+function adaptadorGoogle(box) {
+  const map = new google.maps.Map(box, { disableDefaultUI: true, gestureHandling: "cooperative", clickableIcons: false, keyboardShortcuts: false, styles: ESTILO_99, center: { lat: -29.85, lng: -50.15 }, zoom: 9 });
+  // marcador com HTML (os pingos e pinos da Kiiro), desenhado por cima do mapa
+  class Html extends google.maps.OverlayView {
+    constructor(ll, html, ancora, aoTocar, z) { super(); this.ll = new google.maps.LatLng(ll[0], ll[1]); this.html = html; this.ancora = ancora; this.aoTocar = aoTocar; this.z = z; }
+    onAdd() {
+      const d = this.div = document.createElement("div");
+      d.style.cssText = `position:absolute;z-index:${this.z || 1};cursor:${this.aoTocar ? "pointer" : "default"}`;
+      d.innerHTML = this.html;
+      if (this.aoTocar) { d.addEventListener("click", e => { e.stopPropagation(); this.aoTocar(); }); }
+      this.getPanes()[this.aoTocar ? "overlayMouseTarget" : "overlayLayer"].appendChild(d);
+    }
+    draw() { const pt = this.getProjection().fromLatLngToDivPixel(this.ll); if (pt && this.div) { this.div.style.left = (pt.x - this.ancora[0]) + "px"; this.div.style.top = (pt.y - this.ancora[1]) + "px"; } }
+    onRemove() { this.div && this.div.remove(); }
+  }
+  return {
+    pino(ll, html, ancora, aoTocar, z) { const m = new Html(ll, html, ancora, aoTocar, z); m.setMap(map); return { remove: () => m.setMap(null) }; },
+    enquadrar(pts) {
+      const b = new google.maps.LatLngBounds(); pts.forEach(([la, lo]) => b.extend({ lat: la, lng: lo }));
+      map.fitBounds(b, { top: 78, bottom: 64, left: 30, right: 30 });
+      google.maps.event.addListenerOnce(map, "idle", () => { if (map.getZoom() > 12) map.setZoom(12); });
+    },
+    centralizar(ll, z) { map.panTo({ lat: ll[0], lng: ll[1] }); map.setZoom(z); },
+  };
+}
+function adaptadorLeaflet(box) {
+  const map = L.map(box, { zoomControl: false, attributionControl: true, dragging: true, touchZoom: true, scrollWheelZoom: false, doubleClickZoom: true, tap: false });
+  map.attributionControl.setPrefix(false);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
+  map.fitBounds([[-30.35, -50.6], [-29.25, -49.7]], { paddingTopLeft: [12, 58], paddingBottomRight: [12, 48] });
+  setTimeout(() => map.invalidateSize(), 300);
+  return {
+    pino(ll, html, ancora, aoTocar, z) {
+      const m = L.marker(ll, { icon: L.divIcon({ className: "", html, iconSize: null, iconAnchor: ancora }), interactive: !!aoTocar, zIndexOffset: (z || 0) * 100 }).addTo(map);
+      if (aoTocar) m.on("click", aoTocar);
+      return m;
+    },
+    enquadrar(pts) { map.fitBounds(L.latLngBounds(pts).pad(.15), { paddingTopLeft: [24, 70], paddingBottomRight: [24, 60], maxZoom: 11 }); },
+    centralizar(ll, z) { map.setView(ll, z, { animate: true }); },
+  };
+}
 async function iniciarMapaHome() {
   const box = $("mapa-home"); if (!box) return;
-  try { await carregarLeaflet(); } catch { box.closest(".hero").classList.add("sem-mapa"); return; }
-  mh.map = L.map(box, { zoomControl: false, attributionControl: true, dragging: true, touchZoom: true, scrollWheelZoom: false, doubleClickZoom: true, tap: false });
-  mh.map.attributionControl.setPrefix(false);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 16, subdomains: "abcd", attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }).addTo(mh.map);
-  mh.camada = L.layerGroup().addTo(mh.map);
-  mh.map.fitBounds([[-30.35, -50.6], [-29.25, -49.7]], { paddingTopLeft: [12, 58], paddingBottomRight: [12, 48] });
+  const chave = window.KIIRO_GOOGLE_MAPS_KEY;
+  try {
+    if (chave) { await carregarGoogle(chave); mh.mapa = adaptadorGoogle(box); }
+    else throw 0;
+  } catch {
+    try { await carregarLeaflet(); mh.mapa = adaptadorLeaflet(box); } catch { box.closest(".hero").classList.add("sem-mapa"); return; }
+  }
   mh.pronto = true;
   const o = lerOnde();
   if (o && typeof o.lat === "number") marcarEuHome(o.lat, o.lon, false);
   atualizarMapaHome();
-  setTimeout(() => mh.map && mh.map.invalidateSize(), 300);
 }
 function marcarEuHome(lat, lon, centralizar = true) {
-  if (!mh.map) return;
+  if (!mh.mapa) return;
   if (mh.eu) mh.eu.remove();
-  mh.eu = L.marker([lat, lon], { icon: L.divIcon({ className: "", html: '<div class="voce-aqui"></div>', iconSize: [18, 18] }), interactive: false, zIndexOffset: 1000 }).addTo(mh.map);
-  if (centralizar) mh.map.setView([lat, lon], 11, { animate: true });
+  mh.euPos = [lat, lon];
+  mh.eu = mh.mapa.pino([lat, lon], '<div class="voce-aqui"></div>', [12, 12], null, 9);
+  if (centralizar) mh.mapa.centralizar([lat, lon], 11);
 }
 function atualizarMapaHome() {
   if (!mh.pronto) return;
@@ -1579,27 +1630,23 @@ function atualizarMapaHome() {
   base.filter(p => (!catAtiva || p.categorias.includes(catAtiva)) && (!soUrgencia || p.urgencia === "Sim") && (!termo || bate(p, termo)))
     .forEach(p => { const b = baseDe(p); const c = (window.KIIRO_CIDADES || []).find(x => semAcento(x) === semAcento(b)); if (c) conta[c] = (conta[c] || 0) + 1; });
   const escolhida = $("cidade").value;
-  mh.camada.clearLayers();
+  mh.pinos.forEach(m => m.remove()); mh.pinos = [];
   Object.entries(conta).forEach(([c, n]) => {
     const xy = (window.KIIRO_COORD || {})[c]; if (!xy) return;
     const on = c === escolhida;
-    const m = L.marker(xy, { icon: L.divIcon({ className: "", html: `<div class="pino-cid${on ? " on" : ""}">${n}</div>`, iconSize: null, iconAnchor: [17, 41] }), title: `${n} ${n > 1 ? "profissionais" : "profissional"} em ${c}`, zIndexOffset: on ? 500 : 0 });
-    m.on("click", () => { usarCidade(on ? "" : c); if (!on) setTimeout(() => $("lista").scrollIntoView({ behavior: "smooth", block: "start" }), 120); });
-    m.bindTooltip(`${c} · ${n} ${n > 1 ? "profissionais" : "profissional"}`, { direction: "top", offset: [0, -40] });
-    m.addTo(mh.camada);
+    mh.pinos.push(mh.mapa.pino(xy, `<div class="pino-cid${on ? " on" : ""}" title="${esc(c)} · ${n} ${n > 1 ? "profissionais" : "profissional"}">${n}</div>`, [17, 41],
+      () => { usarCidade(on ? "" : c); if (!on) setTimeout(() => $("lista").scrollIntoView({ behavior: "smooth", block: "start" }), 120); }, on ? 6 : 5));
   });
   // patrocinadores com lugar no mapa (como no Waze): campo "local: [lat, lon]" ou a cidade do anúncio
   patrocinadoresNoMapa().forEach(({ pt, xy }) => {
     const img = pt.logo || pt.banner;
-    const m = L.marker(xy, { icon: L.divIcon({ className: "", html: `<div class="pino-patro"><span style="background-image:url('${esc(img)}')"></span></div>`, iconSize: [48, 48], iconAnchor: [24, 58], popupAnchor: [0, -52] }), zIndexOffset: 800, title: pt.nome });
-    m.on("click", () => cartaoPatro(pt, img));
-    m.addTo(mh.camada);
+    mh.pinos.push(mh.mapa.pino(xy, `<div class="pino-patro" title="${esc(pt.nome)}"><span style="background-image:url('${esc(img)}')"></span></div>`, [24, 58], () => cartaoPatro(pt, img), 8));
   });
   // na primeira vez, enquadra os pingos (e você), deixando livre o espaço do "Ver profissionais em" e da busca
   if (!mh.enquadrado) {
     const pts = Object.keys(conta).map(c => (window.KIIRO_COORD || {})[c]).filter(Boolean);
-    if (mh.eu) pts.push([mh.eu.getLatLng().lat, mh.eu.getLatLng().lng]);
-    if (pts.length) { mh.map.fitBounds(L.latLngBounds(pts).pad(.15), { paddingTopLeft: [24, 70], paddingBottomRight: [24, 60], maxZoom: 11 }); mh.enquadrado = true; }
+    if (mh.euPos) pts.push(mh.euPos);
+    if (pts.length) { mh.mapa.enquadrar(pts); mh.enquadrado = true; }
   }
 }
 function cartaoPatro(pt, img) {
@@ -1688,7 +1735,7 @@ function desenharGoogle(box, M, atendidas, base) {
 function desenharLeaflet(box, M, atendidas, base) {
   const map = L.map(box, { zoomControl: false, attributionControl: true, dragging: !L.Browser.mobile, touchZoom: true, scrollWheelZoom: false, doubleClickZoom: true, tap: false });
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 16, subdomains: "abcd", attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
   const camadas = [];
   Object.entries(M).forEach(([c, aneis]) => {
     const sim = atendidas.includes(c), eBase = base && semAcento(base) === semAcento(c);
