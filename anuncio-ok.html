@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="estilo.css">
 <script src="patrocinios.js"></script>
 <style>
-  body{background:var(--paper);min-height:100vh;display:grid;place-items:center;padding:1.5rem;text-align:center}
+  body{background:var(--paper);min-height:100vh;display:flex;justify-content:center;padding:1.5rem;text-align:center}
   .ok{width:80px;height:80px;border-radius:50%;background:var(--sun);color:var(--ink);box-shadow:0 0 0 8px var(--sun-soft);display:grid;place-items:center;margin:0 auto 1.2rem}
   .ok svg{width:40px;height:40px}
   h1{font-size:clamp(1.8rem,6vw,2.4rem);font-weight:700;line-height:1.15}
@@ -22,32 +22,42 @@
 </style>
 </head>
 <body>
-  <main>
+  <main style="width:100%;max-width:28rem">
     <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h1>Anúncio enviado!</h1>
-    <p>A Kiiro vai conferir seu anúncio e chamar você no WhatsApp para combinar o pagamento. Depois disso ele entra no ar.</p>
-    <div class="pix" id="pix" hidden>
-      <b>Pague por Pix e o anúncio entra no ar mais rápido</b>
-      <small id="pix-total"></small>
-      <code id="pix-chave"></code>
-      <button class="btn btn-sun" type="button" id="pix-copiar">Copiar chave Pix</button>
-      <small style="margin-top:.6rem">Depois mande o comprovante no WhatsApp da Kiiro. Assim que confirmarmos, seu anúncio vai para o ar.</small>
-    </div>
-    <a class="btn btn-ink" id="comprovante" href="https://wa.me/5551991855760?text=Ol%C3%A1%2C%20Kiiro!%20Enviei%20o%20pedido%20de%20an%C3%BAncio%20e%20vou%20mandar%20o%20comprovante%20do%20Pix." style="margin-bottom:.8rem">Enviar comprovante no WhatsApp</a>
-    <p style="font-size:.85rem;margin-top:.4rem">Dúvidas? Chame a Kiiro no WhatsApp: (51) 99185-5760.</p>
+    <p id="txt">Agora falta só o pagamento. Faça o Pix abaixo e toque em <b>Já paguei</b>. Assim que a Kiiro confirmar, seu anúncio entra no ar.</p>
+    <div id="pagar"><p style="color:var(--muted)">Carregando o Pix…</p></div>
+    <a class="btn btn-line" id="comprovante" href="https://wa.me/5551991855760?text=Ol%C3%A1%2C%20Kiiro!%20Enviei%20o%20pedido%20de%20an%C3%BAncio." style="margin:1.2rem 0 .6rem;width:100%;max-width:26rem">Falar com a Kiiro no WhatsApp</a>
+    <p style="font-size:.85rem;margin:.2rem auto 1rem">Guarde este link para pagar depois: <a id="link-pagar" href="#"></a></p>
     <a class="btn btn-line" href="./">Ver o site</a>
   </main>
+<script src="qrcode.js"></script>
+<script src="pagamento.js"></script>
 <script>
-  const pix = window.KIIRO_PIX || {};
-  const total = new URLSearchParams(location.search).get("total");
-  if (pix.chave) {
-    document.getElementById("pix").hidden = false;
-    document.getElementById("pix-chave").textContent = pix.chave;
-    document.getElementById("pix-total").textContent = (total ? `Total: R$ ${total}` : "") + (pix.titular ? `${total ? " · " : ""}em nome de ${pix.titular}` : "");
-    document.getElementById("pix-copiar").onclick = async (e) => {
-      try { await navigator.clipboard.writeText(pix.chave); e.target.textContent = "Chave copiada! ✓"; } catch { e.target.textContent = "Segure a chave para copiar"; }
-    };
+(async () => {
+  const qs = new URLSearchParams(location.search);
+  const id = qs.get("f") || "";
+  const el = document.getElementById("pagar");
+  const lk = document.getElementById("link-pagar");
+  if (id) { lk.href = "/pagar?f=" + id; lk.textContent = location.host + "/pagar?f=" + id; }
+  let ped = {}; try { ped = JSON.parse(sessionStorage.getItem("kiiro-pedido") || "{}"); } catch {}
+  const demo = qs.get("demo") === "1";
+  if (demo) {
+    const P = window.KIIRO_PRECOS || {}, ch = { servico_cidade: "servicoCidade", cidade: "cidade", servico: "servico", inicio: "inicio", temporada: "temporada" }[ped.formato];
+    const v = parseFloat(String(P[ch] || 10)) * (ped.formato === "temporada" ? 1 : +(ped.meses || 1));
+    return KiiroPagar.montar(el, { id, empresa: ped.empresa || "Sua empresa", valor: v, descricao: "Prévia", periodo: "", vence: "", status: "pendente" }, { demo: true });
   }
+  if (!id) { el.innerHTML = '<p style="color:var(--muted)">Pedido recebido! A Kiiro vai chamar você no WhatsApp para combinar o pagamento.</p>'; return; }
+  try {
+    let r;
+    if (ped.id === id) r = await fetch("/.netlify/functions/fatura", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: "nova", ...ped }) });
+    else r = await fetch("/.netlify/functions/fatura?f=" + encodeURIComponent(id));
+    const f = await r.json(); if (!r.ok) throw new Error(f.erro);
+    KiiroPagar.montar(el, f);
+  } catch {
+    el.innerHTML = '<p style="color:var(--muted)">Pedido recebido! Não deu para gerar o Pix agora: a Kiiro vai chamar você no WhatsApp para combinar o pagamento.</p>';
+  }
+})();
 </script>
 </body>
 </html>

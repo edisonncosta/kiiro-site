@@ -90,6 +90,7 @@
   <!-- O Netlify salva cada envio em Forms > anuncio. Você aprova pelo painel, aba Anúncios. -->
   <form class="caixa" name="anuncio" method="POST" action="anuncio-ok.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="form" novalidate>
     <input type="hidden" name="form-name" value="anuncio">
+    <input type="hidden" name="codigo" id="codigo">
     <p class="escondido-bot"><label>Não preencha: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
     <div class="campo">
@@ -323,10 +324,14 @@ $("form").addEventListener("submit", e => {
   $("erro").textContent = msg;
   if (msg) { e.preventDefault(); return; }
   if (!$("botao").value.trim()) $("botao").value = ACOES[acao()].bt;
-  const v = P[chaveP[f]], m = +$("meses").value;
-  if (typeof v === "number") $("form").action = "anuncio-ok.html?total=" + (v * m);
+  // código do pedido = número da fatura (vai no Pix e aparece no seu extrato)
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let cod = "KI"; for (let i = 0; i < 8; i++) cod += abc[Math.floor(Math.random() * abc.length)];
+  $("codigo").value = cod;
+  try { sessionStorage.setItem("kiiro-pedido", JSON.stringify({ id: cod, empresa: $("empresa").value.trim(), contato: $("contato").value, formato: f, grupo: $("grupo").value, cidade: $("cidade").value, meses: $("meses").value })); } catch {}
+  $("form").action = "anuncio-ok.html?f=" + cod;
   $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
-  if (DEMO) { e.preventDefault(); location.href = "anuncio-ok.html"; }
+  if (DEMO) { e.preventDefault(); location.href = "anuncio-ok.html?demo=1&f=" + cod; }
 });
 </script>
 </body>

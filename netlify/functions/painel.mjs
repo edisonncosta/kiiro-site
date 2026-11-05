@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
+import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TZ = "America/Sao_Paulo";
@@ -32,6 +33,75 @@ export default async (req, context) => {
   if (req.method === "POST") {
     const f = formPost || new FormData();
     const acao = f.get("acao");
+    // ----- pagamentos (faturas dos anúncios)
+    if (String(acao || "").startsWith("pg_")) {
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      const faturas = await lerFaturas();
+      const admin = getStore("admin");
+      const lista = (await admin.get("anuncios", { type: "json" })) || {};
+      const hojeP = diaSP(Date.now());
+      let aviso = "";
+      const fat = faturas[id];
+      if ((acao === "pg_confirmar" || acao === "pg_cortesia") && fat) {
+        const cortesia = acao === "pg_cortesia";
+        fat.status = cortesia ? "cortesia" : "pago"; fat.pagoEm = new Date().toISOString();
+        // renovação já ligada a um anúncio: estende o prazo dele sozinho
+        const an = fat.anuncio && lista[fat.anuncio];
+        if (an && fat.tipo === "renovacao" && !fat.aplicado) {
+          const desde = an.ate && an.ate >= hojeP ? an.ate : hojeP;
+          const ate = somaMeses(desde, fat.meses || 1);
+          for (const k of [fat.anuncio, fat.anuncio + "-g"]) if (lista[k]) { lista[k].ate = ate; lista[k].pausado = false; }
+          fat.aplicado = true;
+          await admin.setJSON("anuncios", lista);
+          aviso = `${cortesia ? "Cortesia registrada 💛" : "Pagamento confirmado ✓"} O anúncio da ${fat.empresa} ficou no ar até ${brF(ate)}.`;
+        } else aviso = cortesia ? `${fat.empresa} marcado como cortesia 💛` : `Pagamento de ${fat.empresa} confirmado ✓`;
+      }
+      if (acao === "pg_reabrir" && fat) { fat.status = "pendente"; delete fat.pagoEm; aviso = "Fatura voltou para Em aberto."; }
+      // lançamento avulso: patrocinador colocado à mão, pagamento feito por fora ou cortesia
+      if (acao === "pg_avulsa") {
+        const empresa = String(f.get("empresa") || "").trim().slice(0, 60);
+        const sit = ["pago", "cortesia", "pendente"].includes(f.get("situacao")) ? f.get("situacao") : "pago";
+        const meses = Math.min(12, Math.max(1, parseInt(f.get("meses"), 10) || 1));
+        const valor = parseFloat(String(f.get("valor") || "").replace(",", ".")) || 0;
+        const inicio = /^\d{4}-\d{2}-\d{2}$/.test(f.get("inicio") || "") ? f.get("inicio") : hojeP;
+        if (!empresa) aviso = "Informe o nome da empresa.";
+        else if (sit !== "cortesia" && !(valor > 0)) aviso = "Informe o valor (ou marque como cortesia).";
+        else {
+          const nid = novoId();
+          faturas[nid] = {
+            id: nid, tipo: "avulsa", empresa, contato: String(f.get("contato") || "").slice(0, 20), formato: "", meses, valor,
+            descricao: String(f.get("descricao") || "").trim().slice(0, 80) || "Patrocínio Kiiro",
+            periodo: `${brF(inicio)} a ${brF(somaDias(somaMeses(inicio, meses), -1))}`, inicio, fim: somaDias(somaMeses(inicio, meses), -1), vence: inicio, anuncio: String(f.get("anuncio") || ""),
+            status: sit, criada: new Date().toISOString(), ...(sit !== "pendente" ? { pagoEm: new Date().toISOString() } : {}),
+          };
+          aviso = sit === "cortesia" ? `Cortesia de ${empresa} registrada 💛` : sit === "pago" ? `Pagamento de ${empresa} registrado ✓` : `Fatura de ${empresa} criada.`;
+        }
+      }
+      if (acao === "pg_cancelar" && fat) { fat.status = "cancelada"; aviso = "Fatura cancelada."; }
+      if (acao === "pg_nova") {
+        const anId = String(f.get("anuncio") || "");
+        const an = lista[anId];
+        const meses = Math.min(12, Math.max(1, parseInt(f.get("meses"), 10) || 1));
+        if (!an) aviso = "Escolha o anúncio.";
+        else {
+          let valor = parseFloat(String(f.get("valor") || "").replace(",", "."));
+          if (!(valor > 0)) valor = valorDe((await lerPrecos(base)).precos, an.formato === "temporada" ? "inicio" : an.formato, meses);
+          const desde = an.ate && an.ate >= hojeP ? somaDias(an.ate, 1) : hojeP;
+          const fim = somaDias(somaMeses(desde, meses), -1);
+          const nid = novoId();
+          faturas[nid] = {
+            id: nid, tipo: "renovacao", anuncio: anId, empresa: an.nome, contato: an.contato || "", formato: an.formato || "", meses, valor,
+            descricao: `${NOMES_F[an.formato] || "Anúncio"}${an.alvoCidade ? " · " + an.alvoCidade : ""}${an.categoria && an.categoria !== "Todos" ? " · " + an.categoria : ""} · renovação`,
+            periodo: `${brF(desde)} a ${brF(fim)}`, inicio: desde, fim, vence: an.ate && an.ate >= hojeP ? an.ate : somaDias(hojeP, 3),
+            status: "pendente", criada: new Date().toISOString(),
+          };
+          aviso = `Fatura de ${reais(valor)} criada para ${an.nome}. Toque em “Cobrar no WhatsApp” para mandar o link.`;
+        }
+      }
+      await salvarFaturas(faturas);
+      const volta = String(f.get("volta") || "").replace(/[^\w-]/g, "");
+      return Response.redirect(`${base}/painel${q({ aba: "pagamentos", ...(volta ? { e: volta } : {}), aviso })}`, 303);
+    }
     // ----- anúncios enviados pelas empresas (form "anuncio")
     if (String(acao || "").startsWith("an_")) {
       const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
@@ -80,6 +150,11 @@ export default async (req, context) => {
             lista[id] = { ...base1, categoria: porGrupo ? String(d.grupo || "Todos") : "Todos", alvoCidade: naCidade ? String(d.cidade || "") : "" };
           }
           recusados.delete(id);
+          if (d.codigo) {
+            const faturas = await lerFaturas();
+            const ft = faturas[String(d.codigo)];
+            if (ft) { ft.anuncio = id; if (ate) { ft.inicio = diaSP(Date.now()); ft.fim = ate; ft.periodo = `${brF(ft.inicio)} a ${brF(ate)}`; } await salvarFaturas(faturas); }
+          }
           aviso = `Anúncio da ${base1.nome} aprovado! Já aparece no site.` + (base1.local ? " O logo também está no mapa." : base1.endereco ? " Não achei o endereço no mapa: corrija em 📍 Lugar no mapa." : "");
         }
       }
@@ -551,13 +626,18 @@ export default async (req, context) => {
     const novos = pedidos.filter((p) => !lista[p.id] && !recusados.has(p.id));
     const fm = (acao, id, rot, cls = "", extra = "", conf = "") => `<form method="post" action="/painel"${conf ? ` onsubmit="return confirm('${conf}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="id" value="${esc(id)}">${extra}<button class="b ${cls}" type="submit">${rot}</button></form>`;
     const aviso = url.searchParams.get("aviso");
+    const faturasA = await lerFaturas();
+    const STP = { pendente: ["pend", "Pix não informado"], informado: ["pend", "💰 Disse que pagou: confira"], pago: ["bom", "Pago ✓"], cortesia: ["bom", "Cortesia 💛"], cancelada: ["ruim", "Fatura cancelada"] };
+    const selo = (ft) => ft ? `<span class="st ${STP[ft.status][0]}">${STP[ft.status][1]}</span>` : "";
     const cardPedido = (p) => {
       const d = p.data || {};
+      const ftP = d.codigo && faturasA[d.codigo];
       const w = String(d.contato || "").replace(/\D/g, "");
       const zap = `https://wa.me/${w.length === 10 || w.length === 11 ? "55" + w : w}?text=${encodeURIComponent(`Olá! Aqui é da Kiiro 💛 Recebemos o pedido de anúncio da ${d.empresa || ""}. Vamos combinar o pagamento para colocar no ar?`)}`;
       return `<article>
         <div class="an-prev"><div class="an-img" style="background-color:${esc(d.cor || "#fff")};background-image:url('${esc(urlArq(d.banner))}')"></div><div class="an-bt"><span>${esc(d.botao || "Saber mais")}</span></div></div>
         <div class="l1" style="margin-top:10px"><b>${esc(d.empresa)}</b><span>${fmt(p.created_at)}</span></div>
+        ${ftP ? `<p style="margin:6px 0">${selo(ftP)} <span class="mini">${reais(ftP.valor)} · fatura ${esc(ftP.id)} · <a href="${q({ aba: "pagamentos" })}">ver pagamentos</a></span></p>` : ""}
         <p><b>${esc(NOMES[d.formato] || d.formato)}</b>${d.cidade && /cidade/.test(d.formato) ? " · " + esc(d.cidade) : ""}${d.grupo && d.formato !== "cidade" && d.formato !== "inicio" ? " · " + esc(d.grupo) : ""} · ${esc(d.meses || 1)} mês(es)<br>Botão “${esc(d.botao || "")}”: ${esc({ whatsapp: "abre o WhatsApp", localizacao: "mostra a localização", site: "abre o site" }[d.acao] || d.acao)} → ${esc(d.destino)}${d.texto ? `<br>“${esc(d.texto)}”` : ""}${d.endereco || d.local ? `<br>📍 ${esc(d.endereco || d.local)}` : ""}</p>
         <div class="acoes">
           <a class="b zap" href="${zap}" target="_blank" rel="noopener">Combinar no WhatsApp</a>
@@ -570,7 +650,7 @@ export default async (req, context) => {
     const cardAtivo = (a) => {
       const venceu = a.ate && a.ate < hoje;
       const st = a.pausado ? `<span class="st pend">Pausado</span>` : venceu ? `<span class="st ruim">Venceu em ${esc(a.ate.split("-").reverse().join("/"))}</span>` : `<span class="st bom">No ar${a.ate ? " até " + esc(a.ate.split("-").reverse().join("/")) : ""}</span>`;
-      return `<article>
+      return `<article id="an-${esc(a.id)}">
         <div class="an-prev"><div class="an-img" style="background-color:${esc(a.cor || "#fff")};background-image:url('${esc(a.banner)}')"></div><div class="an-bt"><span>${esc(a.botao)}</span></div></div>
         <div class="l1" style="margin-top:10px"><b>${esc(a.nome)}</b>${st}</div>
         <p>${esc(NOMES[a.formato] || "")}${a.alvoCidade ? " · " + esc(a.alvoCidade) : ""}${a.categoria && a.categoria !== "Todos" ? " · " + esc(a.categoria) : ""}</p>
@@ -579,17 +659,146 @@ export default async (req, context) => {
         <div class="acoes">
           ${a.pausado ? fm("an_retomar", a.id, "Pôr no ar de novo", "zap") : fm("an_pausar", a.id, "Pausar")}
           ${fm("an_prazo", a.id, "Mudar prazo", "", `<input type="date" name="ate" value="${esc(a.ate || mais(1))}" style="font:13px Poppins;border:1px solid #E1D5AE;border-radius:8px;padding:5px;margin-right:6px">`)}
+          <a class="b" href="${q({ aba: "pagamentos", an: a.id })}">💰 Faturas</a>
           ${a.contato ? `<a class="b" href="https://wa.me/${esc(String(a.contato).replace(/\D/g, "").replace(/^(\d{10,11})$/, "55$1"))}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
           ${fm("an_remover", a.id, "Remover", "perigo", "", "Tirar este anúncio do site?")}
         </div>
       </article>`;
     };
     html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}${erro ? `<p class="aviso ruim">${esc(erro)}</p>` : ""}
-      <section class="cx"><h3>Novos pedidos <small>${novos.length}</small></h3><p class="obs">Combine o pagamento no WhatsApp e só depois aprove. Ao aprovar, o anúncio entra no site em até 1 minuto e sai sozinho na data final.</p></section>
+      <section class="cx"><h3>Novos pedidos <small>${novos.length}</small></h3><p class="obs">Confira o pagamento (selo de cada pedido ou aba Pagamentos) e só depois aprove. Ao aprovar, o anúncio entra no site em até 1 minuto e sai sozinho na data final.</p></section>
       ${novos.map(cardPedido).join("") || '<p class="vazio">Nenhum pedido novo.</p>'}
       <section class="cx"><h3>Anúncios aprovados <small>${ativos.length}</small></h3><p class="obs">Os anúncios que você coloca à mão em patrocinios.js (como o da borracharia) não aparecem aqui.</p></section>
       ${ativos.map(cardAtivo).join("") || '<p class="vazio">Nenhum anúncio aprovado ainda.</p>'}
       <p class="obs">Link para mandar às empresas: <b>${esc(base)}/anunciar</b></p>`;
+  }
+
+  if (aba === "pagamentos") {
+    const faturas = await lerFaturas();
+    const lista = (await getStore("admin").get("anuncios", { type: "json" })) || {};
+    const hoje = diaSP(Date.now());
+    const mesAtual = hoje.slice(0, 7);
+    const todas = Object.values(faturas).sort((a, b) => String(b.criada).localeCompare(String(a.criada)));
+    const so = url.searchParams.get("ver") || "abertas";
+    const anF = url.searchParams.get("an") || "";
+    const doAnuncio = (ft) => !anF || ft.anuncio === anF || ft.pedido === anF;
+    const vencida = (ft) => ft.status === "pendente" && ft.vence && ft.vence < hoje;
+    const soma = (l) => l.reduce((t, x) => t + (+x.valor || 0), 0);
+    const pagasMes = todas.filter((x) => x.status === "pago" && diaSP(x.pagoEm || x.criada).slice(0, 7) === mesAtual);
+    const aConf = todas.filter((x) => x.status === "informado");
+    const abertas = todas.filter((x) => x.status === "pendente");
+    const venc = abertas.filter(vencida);
+    const MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    const nomeMes = (ym) => `${MES[+ym.slice(5, 7) - 1]}/${ym.slice(2, 4)}`;
+    const cortesias = todas.filter((x) => x.status === "cortesia");
+    const filtros = { abertas: (x) => x.status === "informado" || x.status === "pendente", confirmar: (x) => x.status === "informado", pagas: (x) => x.status === "pago", cortesias: (x) => x.status === "cortesia", todas: (x) => x.status !== "cancelada" };
+    const vis = todas.filter((x) => (filtros[so] || filtros.abertas)(x) && doAnuncio(x));
+    const sub = (k, rot, n) => `<a class="aba mini ${so === k ? "on" : ""}" href="${q({ aba: "pagamentos", ver: k, ...(anF ? { an: anF } : {}) })}">${rot}${n !== undefined ? ` <small>${n}</small>` : ""}</a>`;
+    const voltaE = `<input type="hidden" name="volta" value="${esc(url.searchParams.get("e") || "")}">`;
+    const fm = (acao, id, rot, cls = "", conf = "") => `<form method="post" action="/painel"${conf ? ` onsubmit="return confirm('${conf}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="id" value="${esc(id)}">${voltaE}<button class="b ${cls}" type="submit">${rot}</button></form>`;
+    const zapCobrar = (ft) => {
+      let w = String(ft.contato || "").replace(/\D/g, ""); if (w.length === 10 || w.length === 11) w = "55" + w;
+      const msg = `Olá! Aqui é da Kiiro 💛 Segue a fatura do anúncio da ${ft.empresa}: ${ft.descricao}${ft.periodo ? ` (${ft.periodo})` : ""}, no valor de ${reais(ft.valor)}${ft.vence ? `, vence em ${brF(ft.vence)}` : ""}.\n\nPara pagar é só abrir o link, tem o QR Code do Pix:\n${base}/pagar?f=${ft.id}\n\nDepois toque em "Já paguei". Obrigado pela parceria! 🙌`;
+      return w ? `https://wa.me/${w}?text=${encodeURIComponent(msg)}` : "";
+    };
+    const ST = { pendente: (ft) => vencida(ft) ? ["ruim", `Vencida em ${brF(ft.vence)}`] : ["pend", `Em aberto${ft.vence ? " · vence " + brF(ft.vence) : ""}`], informado: () => ["pend", "💰 Disse que pagou"], pago: (ft) => ["bom", `Pago em ${brF(diaSP(ft.pagoEm || ft.criada))}`], cortesia: () => ["bom", "Cortesia 💛 · não entra no recebido"], cancelada: () => ["ruim", "Cancelada"] };
+    const card = (ft) => {
+      const [c, t] = ST[ft.status](ft);
+      const z = zapCobrar(ft);
+      return `<article>
+        <div class="l1"><b>${esc(ft.empresa)}</b><b>${reais(ft.valor)}</b></div>
+        <p>${esc(ft.descricao || "")}${ft.periodo ? `<br><span class="mini">Período: ${esc(ft.periodo)}</span>` : ""}<br><span class="st ${c}">${esc(t)}</span> <span class="mini">· fatura ${esc(ft.id)} · ${ft.tipo === "renovacao" ? "renovação" : ft.tipo === "avulsa" ? "lançado por você" : "1º pagamento"}${ft.anuncio || ft.tipo === "avulsa" ? "" : " · anúncio ainda não aprovado"}</span></p>
+        <div class="acoes">
+          ${ft.status === "informado" ? fm("pg_confirmar", ft.id, "✅ Confirmar recebido", "zap") + fm("pg_reabrir", ft.id, "Não recebi") : ""}
+          ${ft.status === "pendente" ? (z ? `<a class="b zap" href="${z}" target="_blank" rel="noopener">Cobrar no WhatsApp</a>` : "") + fm("pg_confirmar", ft.id, "✅ Marcar como pago", "", "Marcar como pago? Use quando a empresa pagou por fora (Pix, dinheiro…).") : ""}
+          ${ft.status === "pendente" || ft.status === "informado" ? fm("pg_cortesia", ft.id, "🎁 Cortesia", "", "Marcar como cortesia? Não entra no valor recebido.") : ""}
+          ${ft.status === "pago" || ft.status === "cortesia" ? fm("pg_reabrir", ft.id, "Desfazer") : ""}
+          <a class="b" href="${base}/pagar?f=${esc(ft.id)}" target="_blank" rel="noopener">Ver página do Pix</a>
+          ${!["pago", "cortesia", "cancelada"].includes(ft.status) ? fm("pg_cancelar", ft.id, "Cancelar", "perigo", "Cancelar esta fatura?") : ""}
+        </div>
+      </article>`;
+    };
+    // relatório: recebido por mês (últimos 6)
+    const meses = []; { let ym = mesAtual; for (let i = 0; i < 6; i++) { meses.push(ym); const [a, m] = ym.split("-").map(Number); ym = m === 1 ? `${a - 1}-12` : `${a}-${String(m - 1).padStart(2, "0")}`; } }
+    const porMes = meses.map((ym) => { const l = todas.filter((x) => x.status === "pago" && diaSP(x.pagoEm || x.criada).slice(0, 7) === ym); return `<tr><td>${nomeMes(ym)}</td><td>${l.length}</td><td style="text-align:right"><b>${reais(soma(l))}</b></td></tr>`; }).join("");
+    const ativos = Object.values(lista).filter((a) => a && !String(a.id).endsWith("-g"));
+    const aviso = url.searchParams.get("aviso");
+    // um "patrocinador" = um anúncio do painel, ou o nome da empresa nos lançamentos avulsos
+    const slug = (t) => "e-" + String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+    const chaveDe = (ft) => ft.anuncio && lista[ft.anuncio] ? ft.anuncio : slug(ft.empresa);
+    const grupos = {};
+    for (const a of ativos) grupos[a.id] = { k: a.id, nome: a.nome, an: a, fts: [] };
+    for (const ft of todas) { if (ft.status === "cancelada") continue; const k = chaveDe(ft); (grupos[k] ||= { k, nome: ft.empresa, an: null, fts: [] }).fts.push(ft); }
+    const situacao = (g) => {
+      const fts = g.fts;
+      if (fts.some(vencida)) return ["ruim", "Vencida", 0];
+      if (fts.some((x) => x.status === "informado")) return ["pend", "A confirmar", 1];
+      if (fts.some((x) => x.status === "pendente")) return ["pend", "Em aberto", 2];
+      const ok = fts.filter((x) => x.status === "pago" || x.status === "cortesia");
+      if (!ok.length) return ["pend", "Sem fatura", 3];
+      const ult = ok.sort((a, b) => String(b.fim || b.pagoEm).localeCompare(String(a.fim || a.pagoEm)))[0];
+      return ult.status === "cortesia" ? ["bom", "Cortesia", 5] : ["bom", "Em dia", 4];
+    };
+    const pagoAte = (g) => { const ok = g.fts.filter((x) => (x.status === "pago" || x.status === "cortesia") && x.fim).map((x) => x.fim).sort(); return ok.length ? ok[ok.length - 1] : ""; };
+    const emAberto = (g) => soma(g.fts.filter((x) => x.status === "pendente" || x.status === "informado"));
+    const lancados = (rot) => `<a class="b" href="${q({ aba: "pagamentos" })}">${rot}</a>`;
+    const eSel = url.searchParams.get("e") || "";
+    const fmAvulsa = (g) => `<form method="post" action="/painel" class="ed">
+          <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="pg_avulsa">${voltaE}${g && g.an ? `<input type="hidden" name="anuncio" value="${esc(g.an.id)}">` : ""}
+          <label class="ed-l">Empresa<input name="empresa" value="${esc(g ? g.nome : "")}" placeholder="Ex.: Borracharia N.S. Aparecida" required></label>
+          <label class="ed-l">O que é<input name="descricao" placeholder="Ex.: Transporte e mudança · todo o litoral"></label>
+          <div class="ed-g"><label class="ed-l">Situação<select name="situacao"><option value="pago">Pago (recebi por fora)</option><option value="cortesia">Cortesia (grátis)</option><option value="pendente">Em aberto (vou cobrar)</option></select></label>
+          <label class="ed-l">Valor (R$)<input name="valor" inputmode="decimal" placeholder="Ex.: 15"></label></div>
+          <div class="ed-g"><label class="ed-l">Início<input type="date" name="inicio" value="${g && pagoAte(g) && pagoAte(g) >= hoje ? somaDias(pagoAte(g), 1) : hoje}"></label>
+          <label class="ed-l">Meses<select name="meses"><option>1</option><option>2</option><option>3</option><option>6</option><option>12</option></select></label></div>
+          <label class="ed-l">WhatsApp da empresa (opcional)<input name="contato" inputmode="tel" value="${esc((g && g.an && g.an.contato) || "")}" placeholder="(51) 99999-9999"></label>
+          <button class="b zap" type="submit">Lançar</button>
+          <span class="ed-dica">Pago por fora, cortesia (não entra no recebido) ou uma cobrança em aberto.</span>
+        </form>`;
+
+    if (eSel && grupos[eSel]) {
+      // ----- detalhe de um patrocinador
+      const g = grupos[eSel];
+      const [c, t] = situacao(g);
+      const an = g.an;
+      const wpp = String((an && an.contato) || (g.fts.find((x) => x.contato) || {}).contato || "").replace(/\D/g, "").replace(/^(\d{10,11})$/, "55$1");
+      html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
+        <p style="margin:0 0 10px">${lancados("‹ Todos os patrocinadores")}</p>
+        <section class="cx"><div class="l1"><h3 style="margin:0">${esc(g.nome)}</h3><span class="st ${c}">${esc(t)}</span></div>
+          <div class="kpis"><div><b>${pagoAte(g) ? brF(pagoAte(g)) : "—"}</b><span>Pago até</span></div><div><b>${reais(emAberto(g))}</b><span>Em aberto</span></div><div><b>${reais(soma(g.fts.filter((x) => x.status === "pago")))}</b><span>Já pagou no total</span></div></div>
+          ${an ? `<p class="mini" style="margin-top:8px">${esc(NOMES_F[an.formato] || "")}${an.alvoCidade ? " · " + esc(an.alvoCidade) : ""}${an.categoria && an.categoria !== "Todos" ? " · " + esc(an.categoria) : ""} · ${an.pausado ? "pausado" : an.ate ? "no ar até " + brF(an.ate) : "no ar"}</p>` : `<p class="mini" style="margin-top:8px">Patrocinador lançado à mão (fora do formulário do site).</p>`}
+          <div class="acoes">${an ? `<a class="b" href="${q({ aba: "anuncios" })}#an-${esc(an.id)}">✏️ Editar anúncio</a>` : ""}${wpp ? `<a class="b" href="https://wa.me/${esc(wpp)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}</div>
+        </section>
+        <h3 style="margin:16px 4px 8px;font-size:15px">Faturas</h3>
+        ${g.fts.map(card).join("") || '<p class="vazio">Nenhuma fatura ainda.</p>'}
+        ${an ? `<section class="cx"><h3>Cobrar renovação</h3><form method="post" action="/painel" class="ed">
+          <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="pg_nova"><input type="hidden" name="anuncio" value="${esc(an.id)}">${voltaE}
+          <div class="ed-g"><label class="ed-l">Meses<select name="meses"><option>1</option><option>2</option><option>3</option><option>6</option><option>12</option></select></label>
+          <label class="ed-l">Valor (vazio = tabela)<input name="valor" inputmode="decimal" placeholder="Ex.: 15"></label></div>
+          <button class="b zap" type="submit">Criar fatura</button></form></section>` : ""}
+        <details class="cx"><summary style="cursor:pointer;font-weight:600">Lançar pagamento ou cortesia</summary>${fmAvulsa(g)}</details>`;
+    } else {
+      // ----- resumo: uma linha por patrocinador
+      const linhas = Object.values(grupos).map((g) => ({ g, s: situacao(g) })).sort((a, b) => a.s[2] - b.s[2] || a.g.nome.localeCompare(b.g.nome, "pt-BR"));
+      html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
+      <section class="cx"><h3>Pagamentos</h3>
+        <div class="kpis">
+          <div><b>${reais(soma(pagasMes))}</b><span>Recebido em ${nomeMes(mesAtual)}</span></div>
+          <div><b>${aConf.length}</b><span>A confirmar</span></div>
+          <div><b>${reais(soma(abertas))}</b><span>Em aberto (${abertas.length})</span></div>
+          <div><b style="color:${venc.length ? "#B3261E" : "inherit"}">${venc.length}</b><span>Vencidas</span></div>
+          <div><b>${cortesias.length}</b><span>Cortesias</span></div>
+        </div>
+      </section>
+      <section class="cx planilha"><h3>Patrocinadores <small>${linhas.length}</small></h3>
+        ${linhas.length ? `<table><thead><tr><th>Empresa</th><th>Situação</th><th>Pago até</th><th style="text-align:right">Em aberto</th></tr></thead><tbody>
+        ${linhas.map(({ g, s: [c, t] }) => `<tr onclick="location.href=this.dataset.href" data-href="${q({ aba: "pagamentos", e: g.k })}"><td><a href="${q({ aba: "pagamentos", e: g.k })}"><b>${esc(g.nome)}</b></a></td><td><span class="st ${c}">${esc(t)}</span></td><td>${pagoAte(g) ? brF(pagoAte(g)).slice(0, 5) + "/" + pagoAte(g).slice(2, 4) : "—"}</td><td style="text-align:right;white-space:nowrap">${emAberto(g) ? reais(emAberto(g)) : "—"}</td></tr>`).join("")}
+        </tbody></table><p class="obs">Toque numa empresa para ver as faturas, marcar como pago, dar cortesia, cobrar ou editar o anúncio.</p>` : '<p class="obs">Nenhum patrocinador ainda.</p>'}
+      </section>
+      <details class="cx"><summary style="cursor:pointer;font-weight:600">＋ Lançar pagamento ou cortesia</summary>${fmAvulsa(null)}</details>
+      <details class="cx"><summary style="cursor:pointer;font-weight:600">Recebido por mês</summary><table style="margin-top:8px"><thead><tr><th>Mês</th><th>Faturas</th><th style="text-align:right">Total</th></tr></thead><tbody>${porMes}</tbody></table></details>
+      <p class="obs" style="margin:0 4px">Quando a empresa toca em “Já paguei”, chega um aviso no celular e a linha dela fica “A confirmar”. 3 dias antes de um anúncio vencer, a Kiiro cria a fatura de renovação e te avisa com a cobrança pronta.</p>`;
+    }
   }
 
   if (aba === "graficos") {
@@ -877,6 +1086,12 @@ blockquote{margin-top:8px;font-size:14px;color:#5E574A;border-left:3px solid #FF
 .b.zap{background:#FFC800;border-color:#FFC800}
 .b.perigo{border-color:#B3261E;color:#B3261E}
 .vazio{text-align:center;color:#5E574A;padding:40px 0}
+.mini{font-size:12px;color:#6B6455}
+.planilha table td,.planilha table th{padding:9px 6px;border-bottom:1px solid #F3ECD4;font-size:13.5px;text-align:left;vertical-align:middle}
+.planilha tbody tr{cursor:pointer}.planilha tbody tr:hover{background:#FFFAEA}
+.planilha a{color:#1A1A1A;text-decoration:none}
+.planilha .st{font-size:11.5px;padding:2px 8px;white-space:nowrap}
+details.cx summary{list-style:none}details.cx summary::-webkit-details-marker{display:none}
 .foto{display:flex;gap:10px;align-items:flex-end;margin-top:10px}.foto img{width:96px;height:96px;object-fit:cover;border-radius:12px}
 .aviso{background:#FFF3C4;border:1px solid #F0DC92;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:500}
 .aviso.ruim{background:#FFE4DE;border-color:#F3B8AC}
@@ -916,7 +1131,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
