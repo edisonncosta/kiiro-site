@@ -29,6 +29,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@800&text=%E9%BB%84%E8%89%B2&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
+<script>if (/[?&]demo=1\b/.test(location.search)) window.KIIRO_DEMO = true; // modo de teste: profissionais de exemplo</script>
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
 <script src="patrocinios.js"></script>
@@ -1821,7 +1822,10 @@ $("form-chamar").addEventListener("submit", e => {
   guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
   contar("chamar", servico);
   const abrirZap = animarConexao(p);
-  if (DEMO) return abrirZap.then(() => { $("conectando")?.remove(); toast(`No site real, abriria o WhatsApp de ${p.nome} e você receberia o aviso no celular.`); });
+  if (DEMO) return abrirZap.then(() => { // no teste, abre o WhatsApp da própria Kiiro
+    window.location.href = `https://wa.me/${KIIRO_WHATS}?text=${encodeURIComponent(`(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`)}`;
+    setTimeout(() => $("conectando")?.remove(), 2500);
+  });
   const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
