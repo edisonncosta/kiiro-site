@@ -256,6 +256,49 @@
   .vis button{display:grid;place-items:center;width:40px;height:36px;border:0;background:none;border-radius:9px;color:var(--muted);cursor:pointer;padding:0}
   .vis button svg{width:20px;height:20px}
   .vis button.on{background:var(--sun-soft);color:var(--ink);box-shadow:inset 0 0 0 1px #F0DC92}
+  .lista-head{scroll-margin-top:190px}
+  .bt-filtrar{display:inline-flex;align-items:center;gap:.4rem;height:44px;padding:0 .9rem;border:1px solid var(--line);border-radius:12px;background:var(--card);font:500 .9rem Poppins,sans-serif;color:var(--text);cursor:pointer}
+  .bt-filtrar svg{width:20px;height:20px}
+  .bt-filtrar b{font-weight:700}
+  .bt-filtrar.ativo{background:var(--sun-soft);border-color:#F0DC92}
+  .mf-sheet{display:flex;flex-direction:column}
+  .mf-sel{margin:.4rem 0 .9rem}
+  .mf-sel p{font-size:.85rem;color:var(--muted);margin-bottom:.45rem}
+  .mf-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+  .mf-chips button{display:inline-flex;align-items:center;gap:.4rem;border:1px solid #F0DC92;background:var(--sun-soft);border-radius:999px;padding:.35rem .5rem .35rem .8rem;font:500 .82rem Poppins,sans-serif;color:var(--text);cursor:pointer}
+  .mf-chips button span{font-size:.7rem;color:var(--muted)}
+  .mf-secoes{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
+  .mf-sec{background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .mf-sec summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.1rem;cursor:pointer;font-weight:600;font-size:1rem;min-height:56px}
+  .mf-sec summary::-webkit-details-marker{display:none}
+  .mf-sec summary small{display:block;font-weight:500;font-size:.78rem;color:#9A7A00}
+  .mf-sec summary i{flex:none;width:14px;height:14px;position:relative}
+  .mf-sec summary i::before,.mf-sec summary i::after{content:"";position:absolute;left:0;top:6px;width:14px;height:2px;border-radius:2px;background:var(--muted)}
+  .mf-sec summary i::after{transform:rotate(90deg);transition:transform .15s}
+  .mf-sec[open] summary i::after{transform:rotate(0)}
+  .mf-corpo{padding:0 1.1rem 1rem;display:flex;flex-direction:column}
+  .mf-q{margin-bottom:.5rem;min-height:44px}
+  .mf-l{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;cursor:pointer;font-size:.95rem;min-height:44px}
+  .mf-l input{flex:none;width:22px;height:22px;margin:0;accent-color:#E0B000;cursor:pointer}
+  .mf-l em{font-style:normal;font-size:.75rem;color:var(--muted);margin-left:.3rem}
+  .mf-mais{align-self:flex-start;background:none;border:0;padding:.5rem 0;font:500 .9rem Poppins,sans-serif;color:var(--ink);text-decoration:underline;cursor:pointer}
+  .mf-dica{font-size:.78rem;color:var(--muted);margin-top:.3rem}
+  .mf-pe{position:sticky;bottom:calc(-1.8rem - env(safe-area-inset-bottom));background:var(--paper);padding:.8rem 0 .2rem;margin-top:auto}
+  .sw{appearance:none;-webkit-appearance:none;flex:none;width:46px;height:28px;border-radius:999px;background:#E8E2CF;position:relative;cursor:pointer;transition:background .15s;margin:0}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+  .sw:checked{background:var(--sun)}
+  .sw:checked::after{transform:translateX(18px);background:#fff}
+  .sw:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .mf-pe{display:grid;grid-template-columns:1fr 1.4fr;gap:.6rem}
+  .mf-pe .btn{white-space:nowrap}
+  .filtros{display:grid;grid-template-columns:1fr auto auto;gap:.6rem;width:100%}
+  .filtros .vis{grid-column:2;grid-row:1}
+  .filtros .bt-filtrar{grid-column:3;grid-row:1}
+  .filtros .vis{margin-left:0}
+  .chave-urg{grid-column:1/-1;grid-row:2;justify-self:start;display:inline-flex;align-items:center;gap:.6rem;height:44px;padding:0 .7rem 0 .9rem;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer}
+  .cu-ic{font-size:1.1rem}
+  .cu-txt{font:500 .9rem Poppins,sans-serif;color:var(--text)}
+  .chave-urg.on{background:var(--sun-soft);border-color:#F0DC92}
   /* card com foto grande */
   .grid.grande{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.6rem 1.2rem}
   .cg{cursor:pointer;min-width:0}
@@ -639,13 +682,13 @@
     <div class="lista-head">
       <h1 id="titulo">Profissionais <em>perto de você</em><small id="contagem">Carregando…</small></h1>
       <div class="filtros">
-        <button class="filtro" id="filtro-urg" type="button" aria-pressed="false">⚡ Atende urgência</button>
-        <button class="filtro escondido" id="limpar" type="button">Limpar filtros</button>
         <div class="vis" role="group" aria-label="Como ver os profissionais">
           <button type="button" data-vis="areas" aria-label="Por serviço" title="Por serviço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><path d="M3 16h18M3 20h12"/></svg></button>
           <button type="button" data-vis="lista" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><path d="M12 6h9M12 9h6M12 16h9M12 19h6"/></svg></button>
           <button type="button" data-vis="grande" aria-label="Foto grande" title="Foto grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M3 20h12"/></svg></button>
         </div>
+        <label class="chave-urg" id="chave-urg"><span class="cu-ic" aria-hidden="true">⚡</span><span class="cu-txt">Atende urgência</span><input type="checkbox" class="sw" id="sw-urg" aria-label="Mostrar só quem atende urgência"></label>
+        <button class="bt-filtrar" type="button" id="bt-filtrar" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filtrar<b id="filtrar-n"></b></button>
       </div>
     </div>
     <div class="grid" id="lista"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
@@ -701,6 +744,19 @@
 </div>
 
 <!-- Janela: todos os serviços -->
+<div class="modal" id="modal-filtros" role="dialog" aria-modal="true" aria-labelledby="mf-titulo">
+  <div class="sheet alta mf-sheet">
+    <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="mf-fechar">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <h3 id="mf-titulo">Filtros</h3>
+    <div class="mf-sel" id="mf-sel"></div>
+    <div class="mf-secoes" id="mf-secoes"></div>
+    <div class="mf-pe">
+      <button class="btn btn-line" type="button" id="mf-limpar">Limpar</button>
+      <button class="btn btn-ink" type="button" id="mf-ver">Ver profissionais</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="modal-todos" role="dialog" aria-modal="true" aria-labelledby="mt-titulo">
   <div class="sheet alta" id="todos">
     <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="mt-fechar">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -910,7 +966,38 @@ try { if (!sessionStorage.getItem("kiiro-v")) { sessionStorage.setItem("kiiro-v"
 /* ===== Estado ===== */
 let profissionais = [];
 let catAtiva = "";
-let soUrgencia = false;
+// filtros da janela "Filtrar" (no estilo da Zattini: seções que abrem e fecham)
+const filtros = { urg: false, orc: false, fds: false, feriado: false, mei: false, principal: false, nota: 0, exp: [], ordem: "relevancia" };
+const EXPERIENCIAS = ["Menos de 1 ano", "1 a 3 anos", "3 a 5 anos", "Mais de 5 anos"];
+const passaFiltros = p => (!filtros.urg || p.urgencia === "Sim") && (!filtros.orc || p.orcamento === "Sim") &&
+  (!filtros.fds || /fins? de semana/i.test(p.dias || "")) && (!filtros.feriado || /feriado/i.test(p.dias || "")) &&
+  (!filtros.mei || p.mei === "Sim") && (!filtros.principal || /principal/i.test(p.dedicacao || "")) &&
+  (!filtros.nota || (p.avaliacoes >= 3 && p.nota >= filtros.nota)) &&
+  (!filtros.exp.length || filtros.exp.includes(p.experiencia));
+const ORDENS = { relevancia: "Mais relevantes", nota: "Melhor avaliados", avaliacoes: "Mais avaliações", novos: "Novos na Kiiro", nome: "Nome (A–Z)" };
+function ordenar(l) {
+  const o = filtros.ordem;
+  if (o === "nota") return l.sort((a, b) => (b.avaliacoes >= 3 ? b.nota : 0) - (a.avaliacoes >= 3 ? a.nota : 0) || b.avaliacoes - a.avaliacoes);
+  if (o === "avaliacoes") return l.sort((a, b) => (b.avaliacoes || 0) - (a.avaliacoes || 0));
+  if (o === "novos") return l.sort((a, b) => String(b.desde || "").localeCompare(String(a.desde || "")));
+  if (o === "nome") return l.sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
+  return l;
+}
+// o que está escolhido, para "Filtros selecionados" e o número do botão
+function selecionados() {
+  const s = [];
+  if (catAtiva) s.push(["cat", catAtiva]);
+  if ($("cidade").value) s.push(["cidade", $("cidade").value]);
+  if (filtros.urg) s.push(["urg", "Atende urgência"]);
+  if (filtros.orc) s.push(["orc", "Orçamento grátis"]);
+  if (filtros.fds) s.push(["fds", "Fim de semana"]);
+  if (filtros.feriado) s.push(["feriado", "Feriados"]);
+  if (filtros.nota) s.push(["nota", `Nota ${String(filtros.nota).replace(".", ",")} ou mais`]);
+  filtros.exp.forEach(e => s.push(["exp:" + e, e]));
+  if (filtros.mei) s.push(["mei", "Tem MEI"]);
+  if (filtros.principal) s.push(["principal", "Profissão principal"]);
+  return s;
+}
 let modo = "inicio"; // inicio | salvos
 const lerJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
 const salvarJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -1015,14 +1102,18 @@ function render() {
   const termo = semAcento($("busca").value.trim());
   const cidade = $("cidade").value;
   const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
-  const lista = base.filter(p =>
+  const lista = ordenar(base.filter(p =>
     (!catAtiva || p.categorias.includes(catAtiva)) &&
-    (!soUrgencia || p.urgencia === "Sim") &&
+    passaFiltros(p) &&
     (!cidade || atende(p, cidade)) &&
     (!termo || bate(p, termo))
-  );
-  const filtrando = !!(catAtiva || termo || cidade || soUrgencia);
-  $("limpar").classList.toggle("escondido", !filtrando);
+  ));
+  const nf = selecionados().length;
+  const filtrando = !!(termo || nf || filtros.ordem !== "relevancia");
+  $("sw-urg").checked = filtros.urg; $("chave-urg").classList.toggle("on", filtros.urg);
+  if ($("modal-filtros").classList.contains("aberto")) montarFiltros();
+  $("filtrar-n").textContent = nf ? ` (${nf})` : "";
+  $("bt-filtrar").classList.toggle("ativo", nf > 0);
   const n = lista.length;
   if (modo === "salvos") {
     $("titulo").innerHTML = `Seus <em>salvos</em><small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"}` : "Toque no ♡ de um profissional para guardar aqui"}</small>`;
@@ -1082,17 +1173,86 @@ $("busca").addEventListener("input", () => {
 });
 $("cidade").addEventListener("change", () => { salvarJSON("kiiro-cidade", $("cidade").value); render(); });
 $("btn-lupa").addEventListener("click", () => { render(); $("lista").scrollIntoView({ behavior: "smooth", block: "start" }); });
-$("filtro-urg").addEventListener("click", () => {
-  soUrgencia = !soUrgencia;
-  $("filtro-urg").classList.toggle("ativo", soUrgencia);
-  $("filtro-urg").setAttribute("aria-pressed", String(soUrgencia));
+/* ===== Filtrar (janela) ===== */
+const mFil = $("modal-filtros");
+const abertas = new Set(["ordem", "servico", "atend"]);
+const contaFiltrados = () => {
+  const termo = semAcento($("busca").value.trim()), cidade = $("cidade").value;
+  const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
+  return base.filter(p => (!catAtiva || p.categorias.includes(catAtiva)) && passaFiltros(p) && (!cidade || atende(p, cidade)) && (!termo || bate(p, termo))).length;
+};
+function montarFiltros() {
+  const sel = selecionados();
+  $("mf-sel").innerHTML = sel.length
+    ? `<p>Filtros selecionados (${sel.length})</p><div class="mf-chips">${sel.map(([k, t]) => `<button type="button" data-tirar="${esc(k)}" aria-label="Tirar ${esc(t)}">${esc(t)}<span aria-hidden="true">✕</span></button>`).join("")}</div>`
+    : `<p>Nenhum filtro selecionado</p>`;
+  const conta = contaServicos();
+  const servs = Object.keys(conta).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  if (catAtiva && !servs.includes(catAtiva)) servs.unshift(catAtiva);
+  const cid = $("cidade").value;
+  const radio = (nome, v, txt, on, extra = "") => `<label class="mf-l"><input type="radio" name="${nome}" value="${esc(v)}"${on ? " checked" : ""}><span>${esc(txt)}${extra}</span></label>`;
+  const check = (k, txt, on) => `<label class="mf-l"><input type="checkbox" data-k="${esc(k)}"${on ? " checked" : ""}><span>${esc(txt)}</span></label>`;
+  const secao = (id, titulo, corpo, resumo = "") => `<details class="mf-sec" data-sec="${id}"${abertas.has(id) ? " open" : ""}><summary><span>${titulo}${resumo ? `<small>${esc(resumo)}</small>` : ""}</span><i aria-hidden="true"></i></summary><div class="mf-corpo">${corpo}</div></details>`;
+  const muitos = (itens, nome) => itens.length > 6 ? `<input class="input mf-q" type="search" placeholder="Procurar ${nome}" data-q autocomplete="off">` : "";
+  $("mf-secoes").innerHTML =
+    secao("ordem", `Ordenar por`, Object.entries(ORDENS).map(([v, t]) => radio("ordem", v, t, filtros.ordem === v)).join(""), filtros.ordem !== "relevancia" ? ORDENS[filtros.ordem] : "") +
+    secao("servico", "Serviço", muitos(servs, "serviço") + radio("servico", "", "Todos os serviços", !catAtiva) +
+      servs.map(c => radio("servico", c, c, catAtiva === c, conta[c] ? ` <em>${conta[c]}</em>` : "")).join("") +
+      `<button type="button" class="mf-mais" data-ver-todos>Ver todos os serviços</button>`, catAtiva) +
+    secao("cidade", "Cidade", muitos(window.KIIRO_CIDADES || [], "cidade") + radio("cidade", "", "Todo o Litoral Norte", !cid) +
+      (window.KIIRO_CIDADES || []).map(c => radio("cidade", c, c, cid === c)).join(""), cid) +
+    secao("atend", "Atendimento", check("urg", "⚡ Atende urgência", filtros.urg) + check("orc", "Orçamento grátis", filtros.orc) +
+      check("fds", "Atende fim de semana", filtros.fds) + check("feriado", "Atende feriados", filtros.feriado)) +
+    secao("nota", "Avaliação", [[0, "Qualquer nota"], [4.5, "★ 4,5 ou mais"], [4, "★ 4 ou mais"]].map(([v, t]) => radio("nota", v, t, filtros.nota === v)).join("") +
+      `<p class="mf-dica">Conta só quem já tem 3 avaliações ou mais.</p>`) +
+    secao("exp", "Experiência", EXPERIENCIAS.map(e => check("exp:" + e, e, filtros.exp.includes(e))).join("")) +
+    secao("outros", "Outros", check("mei", "Tem MEI (emite nota)", filtros.mei) + check("principal", "É a profissão principal", filtros.principal));
+  const n = contaFiltrados();
+  $("mf-ver").textContent = n ? `Ver ${n} profissiona${n > 1 ? "is" : "l"}` : "Nenhum com esses filtros";
+}
+function tirarFiltro(k) {
+  if (k === "cat") { catAtiva = ""; montarCats(); }
+  else if (k === "cidade") usarCidade("");
+  else if (k === "nota") filtros.nota = 0;
+  else if (k.startsWith("exp:")) filtros.exp = filtros.exp.filter(e => e !== k.slice(4));
+  else filtros[k] = false;
+}
+$("bt-filtrar").addEventListener("click", () => { montarFiltros(); mFil.classList.add("aberto"); $("mf-secoes").closest(".sheet").scrollTop = 0; });
+const fecharFil = () => mFil.classList.remove("aberto");
+$("mf-fechar").addEventListener("click", fecharFil);
+mFil.addEventListener("click", e => {
+  if (e.target === mFil) return fecharFil();
+  const t = e.target.closest("[data-tirar]");
+  if (t) { tirarFiltro(t.dataset.tirar); render(); return; }
+  if (e.target.closest("[data-ver-todos]")) { fecharFil(); abrirTodos(); }
+});
+mFil.addEventListener("toggle", e => { const d = e.target; if (d.dataset && d.dataset.sec) d.open ? abertas.add(d.dataset.sec) : abertas.delete(d.dataset.sec); }, true);
+mFil.addEventListener("input", e => {
+  if (!e.target.matches("[data-q]")) return;
+  const q = semAcento(e.target.value.trim());
+  e.target.closest(".mf-corpo").querySelectorAll(".mf-l").forEach(l => { l.style.display = !q || semAcento(l.textContent).includes(q) ? "" : "none"; });
+});
+mFil.addEventListener("change", e => {
+  const i = e.target;
+  if (i.type === "radio") {
+    if (i.name === "ordem") filtros.ordem = i.value;
+    else if (i.name === "servico") { catAtiva = i.value; if (catAtiva) contar("cat", catAtiva); montarCats(); }
+    else if (i.name === "cidade") usarCidade(i.value);
+    else if (i.name === "nota") filtros.nota = +i.value;
+  } else if (i.dataset.k) {
+    const k = i.dataset.k;
+    if (k.startsWith("exp:")) { const v = k.slice(4); filtros.exp = i.checked ? [...filtros.exp, v] : filtros.exp.filter(x => x !== v); }
+    else filtros[k] = i.checked;
+    if (i.checked) contar("filtro", k);
+  } else return;
   render();
 });
-$("limpar").addEventListener("click", () => {
-  catAtiva = ""; $("busca").value = ""; $("cidade").value = ""; salvarJSON("kiiro-cidade", "");
-  soUrgencia = false; $("filtro-urg").classList.remove("ativo"); $("filtro-urg").setAttribute("aria-pressed", "false");
-  montarCats(); render();
+$("mf-limpar").addEventListener("click", () => {
+  Object.assign(filtros, { urg: false, orc: false, fds: false, feriado: false, mei: false, principal: false, nota: 0, exp: [], ordem: "relevancia" });
+  catAtiva = ""; $("busca").value = ""; montarCats(); render();
 });
+$("sw-urg").addEventListener("change", e => { filtros.urg = e.target.checked; if (filtros.urg) contar("filtro", "urg"); render(); });
+$("mf-ver").addEventListener("click", () => { fecharFil(); document.querySelector(".lista-head").scrollIntoView({ behavior: "smooth", block: "start" }); });
 
 function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
 function corIni(nome) { let h = 0; for (const c of String(nome)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return ["", "c2", "c3"][h % 3]; }
@@ -1646,7 +1806,7 @@ function atualizarMapaHome() {
   const termo = semAcento($("busca").value.trim());
   const base = modo === "salvos" ? profissionais.filter(p => favs.has(String(p.id))) : profissionais;
   const conta = {};
-  base.filter(p => (!catAtiva || p.categorias.includes(catAtiva)) && (!soUrgencia || p.urgencia === "Sim") && (!termo || bate(p, termo)))
+  base.filter(p => (!catAtiva || p.categorias.includes(catAtiva)) && passaFiltros(p) && (!termo || bate(p, termo)))
     .forEach(p => { const b = baseDe(p); const c = (window.KIIRO_CIDADES || []).find(x => semAcento(x) === semAcento(b)); if (c) conta[c] = (conta[c] || 0) + 1; });
   const escolhida = $("cidade").value;
   mh.pinos.forEach(m => m.remove()); mh.pinos = [];
