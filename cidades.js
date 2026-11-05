@@ -29,4 +29,4 @@ window.kiiroKm = function (a, b) {
 
 // Chave do Google Maps (mapa do perfil). Crie em console.cloud.google.com, ative "Maps JavaScript API"
 // e restrinja a chave ao site (chamakiiro.netlify.app/*). Deixe vazio para usar o mapa aberto (OpenStreetMap).
-window.KIIRO_GOOGLE_MAPS_KEY = "";
+window.KIIRO_GOOGLE_MAPS_KEY = "AIzaSyDkEeGEWA7swCNhYqYTshNe1BezKTwiUnA";
