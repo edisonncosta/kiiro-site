@@ -24,6 +24,8 @@
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
+<script src="patrocinios.js"></script>
+<script src="patrocinio-pro.js"></script>
 <style>
   .topo-pag{background:var(--sun);padding:1.6rem 0 2.4rem;border-radius:0 0 28px 28px}
   .topo-pag h1{font-size:clamp(1.8rem,6vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-.02em}
@@ -195,6 +197,7 @@
 
     <p class="erro" id="erro" role="alert"></p>
     <button class="btn btn-ink btn-full" type="submit" id="enviar">Enviar cadastro</button>
+    <div id="patro-pro"></div>
     <p class="fine">Ao enviar, você autoriza a Kiiro a mostrar seu nome, serviços, cidades, foto, descrição, fotos e WhatsApp no site, e concorda com os <a href="termos.html" target="_blank">Termos de uso</a> e a <a href="privacidade.html" target="_blank">Política de privacidade</a>.</p>
   </form>
 </div>
@@ -416,11 +419,23 @@ $("form").addEventListener("submit", e => {
   $("cidade").value = cidades.join(", ");
   $("dias").value = dias.join(", ");
   $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
+  try { sessionStorage.setItem("kiiro-cad", JSON.stringify({ servicos, cidade: $("cid-base").value })); } catch {}
   contar("cad_envio");
   $("enviar").disabled = true;
   $("enviar").textContent = "Enviando…";
   if (DEMO) { e.preventDefault(); location.href = "cadastro-ok.html"; }
 });
+
+// patrocinador do profissional: muda conforme a cidade e os serviços escolhidos
+let ppChave = null;
+function atualizarPatro() {
+  const servs = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value).filter(v => v !== "outro");
+  const c = $("cid-base").value, k = c + "|" + servs.join(",");
+  if (k === ppChave || !window.KiiroPatroPro) return; ppChave = k;
+  KiiroPatroPro.mostrar($("patro-pro"), servs, c);
+}
+$("form").addEventListener("change", atualizarPatro);
+atualizarPatro();
 </script>
 </body>
 </html>

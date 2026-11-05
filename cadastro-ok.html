@@ -31,6 +31,7 @@
     <p>Em poucos minutos seu perfil aparece na lista de profissionais da Kiiro. Fique de olho no WhatsApp.</p>
     <p style="font-size:.85rem;margin-top:-.8rem">Para mudar algo depois, é só preencher o cadastro de novo com o mesmo WhatsApp.</p>
     <a class="btn btn-ink" href="./">Ver profissionais</a>
+    <div id="patro-pro"></div>
     <section class="indique">
       <div class="ic">🔔</div>
       <h2>Saiba na hora quando um cliente te chamar</h2>
@@ -44,6 +45,12 @@
       <a class="btn" id="indique-bt" style="background:var(--sun);color:var(--ink)" target="_blank" rel="noopener">Pedir indicações no WhatsApp</a>
     </section>
   </main>
+  <script src="servicos.js"></script>
+  <script src="patrocinios.js"></script>
+  <script src="patrocinio-pro.js"></script>
+  <script>
+    (function () { let d = {}; try { d = JSON.parse(sessionStorage.getItem("kiiro-cad") || "{}"); } catch {} if (window.KiiroPatroPro) KiiroPatroPro.mostrar(document.getElementById("patro-pro"), d.servicos || [], d.cidade || ""); })();
+  </script>
   <script>
   try {
     const eu = JSON.parse(localStorage.getItem("kiiro-meu-cadastro") || "null");
