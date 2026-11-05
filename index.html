@@ -948,9 +948,16 @@ function montar() {
 }
 
 /* ===== Categorias ===== */
+// só aparecem na fileira os serviços que têm profissional (na cidade escolhida); o resto fica em "Ver todos"
+const contaServicos = () => {
+  const cidade = $("cidade").value, conta = {};
+  profissionais.filter(p => !cidade || atende(p, cidade)).forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
+  return conta;
+};
+let catsCidade = null;
 function montarCats() {
-  const conta = {};
-  profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
+  catsCidade = $("cidade").value;
+  const conta = contaServicos();
   const cats = Object.keys(conta).sort((a, b) => conta[b] - conta[a]);
   if (catAtiva && !cats.includes(catAtiva)) cats.unshift(catAtiva);
   const item = (c, nome) => `<button class="cat ${c === catAtiva ? "ativo" : ""}" type="button" data-c="${esc(c)}" aria-pressed="${c === catAtiva}"><span class="ic">${ico(c || "_todos")}</span>${esc(nome)}</button>`;
@@ -1002,6 +1009,7 @@ function vemDe(p, cidade) {
   return `<p class="vem">🚗 Mora em ${esc(b)}${km !== null ? ` · ~${km} km` : ""}</p>`;
 }
 function render() {
+  if (catsCidade !== null && catsCidade !== $("cidade").value) montarCats(); // trocou a cidade: refaz a fileira
   $("onde-nome").textContent = rotuloOnde();
   atualizarMapaHome();
   const termo = semAcento($("busca").value.trim());
@@ -1833,8 +1841,7 @@ $("modal-foto-av").addEventListener("click", () => $("modal-foto-av").classList.
 
 /* ===== Todos os serviços ===== */
 function abrirTodos() {
-  const conta = {};
-  profissionais.forEach(p => p.categorias.forEach(c => conta[c] = (conta[c] || 0) + 1));
+  const conta = contaServicos();
   const grupos = [...(window.KIIRO_SERVICOS || [])];
   const conhecidos = new Set(grupos.flatMap(g => g.itens));
   const extras = Object.keys(conta).filter(c => !conhecidos.has(c));
