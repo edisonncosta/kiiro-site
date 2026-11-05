@@ -1,6 +1,6 @@
-// Kiiro — indicação de um profissional por quem conhece o trabalho dele (não conta na nota).
-// POST /.netlify/functions/indicar  { profissionalId, profissionalWhatsapp, profissionalNome, relacao, texto, nome, whatsapp }
-// Fica "pendente" até a aprovação no painel (aba Indicações).
+// Kiiro — avaliação pelo link que o profissional manda (/i/ID): quem já fez serviço ou conhece o trabalho.
+// POST /.netlify/functions/indicar  { profissionalId, profissionalWhatsapp, profissionalNome, nota (1-5), relacao?, texto?, nome, whatsapp }
+// Fica "pendente" até a aprovação no painel (aba Avaliações por link). Aprovada, entra nas avaliações e na nota.
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 
@@ -22,6 +22,7 @@ export default async (req) => {
     profissionalId: limpa(d.profissionalId, 40),
     profissionalWhatsapp: proWhats,
     profissionalNome: limpa(d.profissionalNome, 60),
+    nota: Math.round(Number(d.nota)),
     relacao: RELACOES.includes(d.relacao) ? d.relacao : "",
     texto: String(d.texto || "").trim().slice(0, 400),
     nome: limpa(d.nome, 60),
@@ -29,7 +30,7 @@ export default async (req) => {
     status: "pendente",
   };
   if (whats.length < 12 || whats.length > 13) return json({ erro: "WhatsApp inválido" }, 400);
-  if (!ind.profissionalId || !ind.nome || !ind.relacao || ind.texto.length < 8) return json({ erro: "Dados faltando" }, 400);
+  if (!ind.profissionalId || !ind.nome || !(ind.nota >= 1 && ind.nota <= 5)) return json({ erro: "Dados faltando" }, 400);
   if (proWhats && whats.endsWith(proWhats.slice(-9))) return json({ erro: "proprio" }, 400);
 
   const store = getStore("indicacoes");
@@ -43,9 +44,9 @@ export default async (req) => {
     try {
       await fetch("https://ntfy.sh/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
         topic: process.env.NTFY_TOPIC,
-        title: `💬 Nova indicação para ${ind.profissionalNome}`,
-        message: `${ind.nome} (${ind.relacao}): "${ind.texto.slice(0, 160)}"\nAprove no painel, aba Indicações.`,
-        tags: ["speech_balloon"],
+        title: `⭐ Avaliação ${ind.nota}★ para ${ind.profissionalNome} (pelo link)`,
+        message: `${ind.nome}${ind.relacao ? ` (${ind.relacao})` : ""}${ind.texto ? `: "${ind.texto.slice(0, 160)}"` : ""}\nAprove no painel, aba Avaliações por link.`,
+        tags: ["star"],
       }) });
     } catch {}
   }

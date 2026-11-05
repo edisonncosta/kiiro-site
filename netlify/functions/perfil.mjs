@@ -19,34 +19,33 @@ export default async (req) => {
     .filter((a) => (ids.has(a.profissionalId) || (w && a.profissionalWhatsapp === w)) && a.feito === "sim" && a.nota >= 1)
     .sort((a, b) => (a.data < b.data ? 1 : -1));
 
-  const distribuicao = [0, 0, 0, 0, 0];
-  dele.forEach((a) => distribuicao[a.nota - 1]++);
+  // avaliações pelo link do profissional (/i/ID), aprovadas no painel: entram junto com as outras
+  // (as antigas, sem nota, continuam aparecendo como "indicações")
+  let peloLink = [], indicacoes = [];
+  try {
+    const st = getStore("indicacoes");
+    const { blobs: bi } = await st.list();
+    const aprovadas = (await Promise.all(bi.map((b) => st.get(b.key, { type: "json" })))).filter(Boolean)
+      .filter((x) => x.status === "aprovada" && (ids.has(x.profissionalId) || (w && x.profissionalWhatsapp === w)));
+    peloLink = aprovadas.filter((x) => x.nota >= 1 && x.nota <= 5);
+    indicacoes = aprovadas.filter((x) => !x.nota).sort((a, b) => (a.data < b.data ? 1 : -1)).slice(0, 20)
+      .map((x) => ({ nome: nomeCurto(x.nome), relacao: x.relacao, texto: x.texto, data: x.data }));
+  } catch {}
 
-  const avaliacoes = dele.slice(0, 30).map((a) => ({
-    nome: nomeCurto(a.clienteNome || "Cliente"), // nome + inicial do sobrenome (Ana S.)
-    nota: a.nota,
-    comentario: a.comentario || "",
-    foto: a.fotoId ? `/.netlify/functions/foto?id=${a.fotoId}` : "",
-    data: a.data,
-  }));
+  const todasNotas = [
+    ...dele.map((a) => ({ nome: nomeCurto(a.clienteNome || "Cliente"), nota: a.nota, comentario: a.comentario || "", foto: a.fotoId ? `/.netlify/functions/foto?id=${a.fotoId}` : "", data: a.data, tags: a.tags })),
+    ...peloLink.map((x) => ({ nome: nomeCurto(x.nome), nota: x.nota, comentario: x.texto || "", foto: "", data: x.data, relacao: x.relacao || "" })),
+  ].sort((a, b) => (a.data < b.data ? 1 : -1));
+
+  const distribuicao = [0, 0, 0, 0, 0];
+  todasNotas.forEach((a) => distribuicao[a.nota - 1]++);
+  const avaliacoes = todasNotas.slice(0, 30).map(({ tags, ...a }) => a); // nome + inicial do sobrenome (Ana S.)
 
   // o que os clientes destacam (só os pontos positivos aparecem no perfil)
   const BONS = ["⏰ Pontual", "✨ Caprichoso", "💰 Preço justo", "🙂 Educado", "🧹 Deixou tudo limpo", "⚡ Resolveu rápido"];
   const destaques = BONS.map((t) => [t, dele.filter((a) => Array.isArray(a.tags) && a.tags.includes(t)).length]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
 
-  // indicações aprovadas no painel (não contam na nota)
-  let indicacoes = [];
-  try {
-    const st = getStore("indicacoes");
-    const { blobs: bi } = await st.list();
-    const todasInd = (await Promise.all(bi.map((b) => st.get(b.key, { type: "json" })))).filter(Boolean);
-    indicacoes = todasInd
-      .filter((x) => x.status === "aprovada" && (ids.has(x.profissionalId) || (w && x.profissionalWhatsapp === w)))
-      .sort((a, b) => (a.data < b.data ? 1 : -1)).slice(0, 20)
-      .map((x) => ({ nome: nomeCurto(x.nome), relacao: x.relacao, texto: x.texto, data: x.data }));
-  } catch {}
-
-  return json(200, { total: dele.length, distribuicao, avaliacoes, destaques, indicacoes }, { "Cache-Control": "public, max-age=120" });
+  return json(200, { total: todasNotas.length, distribuicao, avaliacoes, destaques, indicacoes }, { "Cache-Control": "public, max-age=120" });
 };
 
 function json(status, body, extra = {}) {

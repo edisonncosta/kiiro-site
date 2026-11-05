@@ -2,14 +2,19 @@
 // Sem pacote externo: usa o jpeg-js (MIT) que está em ./jpeg.
 import decode from "./jpeg/decoder.js";
 import encode from "./jpeg/encoder.js";
-import { MOLDE, SELO, CIRCULO } from "./og-molde.mjs";
+import { MOLDE, SELO as SELO_AV, CIRCULO } from "./og-molde.mjs";
+import { MOLDE as MOLDE_DOE, SELO as SELO_DOE } from "./og-molde-doe.mjs";
 
-let base = null;
-const molde = () => (base ||= decode(Buffer.from(MOLDE, "base64"), { useTArray: true, formatAsRGBA: true }));
-const seloA = Buffer.from(SELO.a, "base64");
+// dois modelos: "avaliacao" (Me avalie na Kiiro) e "doacao" (Apoie a Kiiro)
+const MODELOS = { avaliacao: [MOLDE, SELO_AV], doacao: [MOLDE_DOE, SELO_DOE] };
+const prontos = {};
+function modelo(tipo) {
+  const [m, s] = MODELOS[tipo] || MODELOS.avaliacao;
+  return (prontos[tipo] ||= { m: decode(Buffer.from(m, "base64"), { useTArray: true, formatAsRGBA: true }), SELO: s, seloA: Buffer.from(s.a, "base64") });
+}
 
-export function montarImagem(fotoJpeg) {
-  const m = molde();
+export function montarImagem(fotoJpeg, tipo = "avaliacao") {
+  const { m, SELO, seloA } = modelo(tipo);
   const W = m.width, H = m.height;
   const out = Buffer.from(m.data); // cópia RGBA
   let foto = null;

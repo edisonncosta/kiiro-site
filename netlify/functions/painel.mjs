@@ -198,9 +198,9 @@ export default async (req, context) => {
       const st = getStore("indicacoes");
       const x = id && (await st.get(id, { type: "json" }));
       let aviso = "";
-      if (x && acao === "in_aprovar") { await st.setJSON(id, { ...x, status: "aprovada" }); aviso = "Indicação aprovada. Já aparece no perfil."; }
-      if (x && acao === "in_ocultar") { await st.setJSON(id, { ...x, status: "pendente" }); aviso = "Indicação tirada do perfil."; }
-      if (x && acao === "in_excluir") { await st.delete(id); aviso = "Indicação excluída."; }
+      if (x && acao === "in_aprovar") { await st.setJSON(id, { ...x, status: "aprovada" }); aviso = "Aprovada. Já aparece no perfil."; }
+      if (x && acao === "in_ocultar") { await st.setJSON(id, { ...x, status: "pendente" }); aviso = "Tirada do perfil."; }
+      if (x && acao === "in_excluir") { await st.delete(id); aviso = "Excluída."; }
       return Response.redirect(`${base}/painel${q({ aba: "indicacoes", aviso })}`, 303);
     }
     // ----- pedidos de orçamento (chat do site)
@@ -254,6 +254,15 @@ export default async (req, context) => {
     }
     const w = String(f.get("w") || "").replace(/\D/g, "");
     const admin = getStore("admin");
+    // pedir doação: guarda a data e abre o WhatsApp do profissional com o texto (o link /d/ID mostra a imagem)
+    if (acao === "doacao_pedir" && w) {
+      const texto = String(f.get("texto") || "").trim().slice(0, 1500);
+      const log = (await admin.get("doacoesPedidas", { type: "json" })) || {};
+      (log[w] ||= []).push(new Date().toISOString());
+      log[w] = log[w].slice(-20);
+      await admin.setJSON("doacoesPedidas", log);
+      return Response.redirect(`https://wa.me/${w}?text=${encodeURIComponent(texto)}`, 303);
+    }
     const ocultos = new Set((await admin.get("ocultos", { type: "json" })) || []);
     let aviso = "";
     if (acao === "ocultar" && w) { ocultos.add(w); aviso = "Profissional ocultado do site."; }
@@ -378,7 +387,7 @@ export default async (req, context) => {
       ["Clicaram em “Quero anunciar”", (d) => soma("anuncie_quero", d)],
       ["Abriram o pedido de orçamento", (d) => soma("orc_abrir", d)],
       ["Enviaram pedido de orçamento", (d) => soma("orc_envio", d)],
-      ["Indicações enviadas", (d) => soma("indicar", d)],
+      ["Avaliações por link", (d) => soma("indicar", d)],
       ["Usaram a localização", (d) => soma("local_usar", d)],
       ["Aceitaram ver a cidade sugerida", (d) => soma("local_sim", d)],
     ];
@@ -432,6 +441,8 @@ export default async (req, context) => {
 
   if (aba === "profissionais") {
     let pros = [], erro = "";
+    let doacoesPedidas = {};
+    try { doacoesPedidas = (await getStore("admin").get("doacoesPedidas", { type: "json" })) || {}; } catch {}
     try {
       const r = await fetch(`${base}/.netlify/functions/profissionais?admin=${encodeURIComponent(KEY)}`);
       pros = await r.json();
@@ -497,9 +508,23 @@ export default async (req, context) => {
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
-            <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma indicação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais indicações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir indicações</a>
+            <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma avaliação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais avaliações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir avaliações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
           </div>
+          ${(() => {
+            const nm = String(p.nome).trim(); // empresa ("Borracharia N.S. Aparecida") vai com o nome todo
+            const n1 = nm.length <= 26 && /\b(borracharia|loja|oficina|auto|comércio|comercio|serviços|servicos|ltda|me|mei|cia)\b/i.test(nm) ? nm : nm.split(" ")[0];
+            const pedidos = doacoesPedidas[p.whatsapp] || [];
+            const ultimo = pedidos.length ? pedidos[pedidos.length - 1] : "";
+            const texto = `Oi, ${n1}! Aqui é da Kiiro 💛\n\nQue bom que a Kiiro te ajudou a fechar serviço! A Kiiro é grátis para os profissionais e se mantém com doações.\n\nSe puder, apoie com qualquer valor pelo Pix, leva 1 minuto:\n👉 ${base}/d/${p.id}\n\nMuito obrigado pela parceria! 🙏`;
+            return `<details class="editar doacao"><summary class="b">💛 Pedir doação${ultimo ? ` <small style="font-weight:500">· último ${fmt(ultimo).slice(0, 5)}${pedidos.length > 1 ? ` (${pedidos.length}x)` : ""}</small>` : ""}</summary>
+              <form class="ed" method="post" action="/painel" target="_blank">
+                <input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="doacao_pedir"><input type="hidden" name="w" value="${esc(p.whatsapp)}">
+                <label class="ed-l">Mensagem (dá para mudar antes de mandar)<textarea name="texto" rows="9">${esc(texto)}</textarea></label>
+                <span class="ed-dica">O link ${esc(`${base}/d/${p.id}`)} aparece no WhatsApp com a foto de ${esc(n1)} e o “Apoie a Kiiro”, e abre o Pix de doação no site.</span>
+                <button class="b zap" type="submit">Enviar no WhatsApp</button>
+              </form></details>`;
+          })()}
           <div class="acoes fotos-acoes">
             ${formFoto("foto", "📷 Trocar foto", false)}
             ${formFoto("trabalhos", `🛠️ ${(p.trabalhos || []).length ? "Trocar" : "Adicionar"} fotos de trabalhos`, true)}
@@ -921,15 +946,15 @@ export default async (req, context) => {
       (lista.map(({ k, x }) => `
         <article>
           <div class="l1"><b>Para ${esc(x.profissionalNome)}</b><span>${fmt(x.data)}</span></div>
-          <p><b>${esc(x.nome)}</b> · ${esc(x.relacao)}</p>
-          <blockquote>“${esc(x.texto)}”</blockquote>
+          <p>${x.nota ? `<b style="color:#B38B00">${"★".repeat(x.nota)}${"☆".repeat(5 - x.nota)}</b> ` : "<small>(indicação antiga, sem nota)</small> "}<b>${esc(x.nome)}</b>${x.relacao ? ` · ${esc(x.relacao)}` : ""}</p>
+          ${x.texto ? `<blockquote>“${esc(x.texto)}”</blockquote>` : ""}
           <div class="acoes">
             ${x.status === "aprovada" ? bt(k, "in_ocultar", "Tirar do perfil") : bt(k, "in_aprovar", "Aprovar", "zap")}
             <a class="b" href="https://wa.me/${esc(x.whatsapp)}" target="_blank" rel="noopener">Falar com ${esc(String(x.nome).split(" ")[0])}</a>
-            ${bt(k, "in_excluir", "Excluir", "", "Excluir esta indicação?")}
+            ${bt(k, "in_excluir", "Excluir", "", "Excluir esta avaliação?")}
           </div>
-        </article>`).join("") || `<p class="vazio">${ver === "aprovadas" ? "Nenhuma indicação no perfil ainda." : "Nenhuma indicação para aprovar."}</p>`) +
-      `<p class="obs">Dica: na aba Profissionais, o botão <b>Pedir indicações</b> manda para o profissional um link que ele envia aos clientes antigos.</p>`;
+        </article>`).join("") || `<p class="vazio">${ver === "aprovadas" ? "Nenhuma avaliação por link no perfil ainda." : "Nenhuma avaliação por link para aprovar."}</p>`) +
+      `<p class="obs">Avaliações que chegam pelo link do profissional (/i/…). Aprovadas, aparecem no perfil e contam na nota. Dica: na aba Profissionais, o botão <b>Pedir avaliações</b> manda o link para o profissional enviar aos clientes antigos.</p>`;
   }
 
   if (aba === "pedidos") {
@@ -1162,7 +1187,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Indicações")}${abaLink("chamadas", "Chamadas")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Avaliações por link")}${abaLink("chamadas", "Chamadas")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;

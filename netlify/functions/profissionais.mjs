@@ -61,6 +61,19 @@ export default async (req, context) => {
       n.soma += a.nota; n.qtd++;
     }
 
+    // avaliações pelo link do profissional, aprovadas no painel, também contam na nota
+    try {
+      const sti = getStore("indicacoes");
+      const { blobs: bi } = await sti.list();
+      for (const x of await Promise.all(bi.map((b) => sti.get(b.key, { type: "json" })))) {
+        if (!x || x.status !== "aprovada" || !(x.nota >= 1 && x.nota <= 5)) continue;
+        const w = x.profissionalWhatsapp || whatsDoId[x.profissionalId];
+        if (!w) continue;
+        const n = (notas[w] ||= { soma: 0, qtd: 0 });
+        n.soma += x.nota; n.qtd++;
+      }
+    } catch {}
+
     const aprovados = (APROVADOS || "").split(",").map(soDigitos).filter(Boolean);
     let ocultos = [];
     try { ocultos = (await getStore("admin").get("ocultos", { type: "json" })) || []; } catch {}

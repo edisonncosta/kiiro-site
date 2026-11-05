@@ -1,12 +1,13 @@
-// Kiiro — link para o profissional pedir indicações, com prévia bonita no WhatsApp.
-//   /i/ID            → página com título e imagem do profissional (o WhatsApp lê) e leva a pessoa para indicar
-//   /i/ID/foto.jpg   → a imagem "Me indica na Kiiro" com a foto dele
+// Kiiro — link para o profissional pedir avaliações, com prévia bonita no WhatsApp.
+//   /i/ID            → página com título e imagem do profissional (o WhatsApp lê) e leva a pessoa para avaliar
+//   /i/ID/foto.jpg   → a imagem "Me avalie na Kiiro" com a foto dele
 // ID pode ser o id do cadastro ou "w" + WhatsApp (ex.: /i/w5551999999999).
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
 import { montarImagem } from "../lib/og.mjs";
 
-export const config = { path: ["/i/:id", "/i/:id/foto.jpg"] };
+// /d/ID → o mesmo, mas para pedir doação (abre a janela "Doe" do site)
+export const config = { path: ["/i/:id", "/i/:id/foto.jpg", "/d/:id", "/d/:id/foto.jpg"] };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const hash = (s) => crypto.createHash("sha1").update(String(s)).digest("hex").slice(0, 10);
@@ -24,29 +25,35 @@ export default async (req, context) => {
   const base = url.origin;
   const id = String((context && context.params && context.params.id) || url.pathname.split("/")[2] || "").replace(/[^\w-]/g, "").slice(0, 60);
   const ehImagem = url.pathname.endsWith("/foto.jpg");
+  const doacao = url.pathname.startsWith("/d/");
   const p = id ? await acharPro(base, id) : null;
 
   if (ehImagem) {
     const foto = p && p.foto ? (p.foto.startsWith("/") ? base + p.foto : p.foto) : "";
-    const chave = `${p ? p.id : "kiiro"}-${hash(foto)}`;
+    const chave = `${doacao ? "doe" : "av"}-${p ? p.id : "kiiro"}-${hash(foto)}`; // "av-": imagem nova (avaliação), não reaproveita a antiga
     const st = getStore("og");
     let img = await st.get(chave, { type: "arrayBuffer" }).catch(() => null);
     if (!img) {
       let bytes = null;
       if (foto) { try { const r = await fetch(foto); if (r.ok) bytes = Buffer.from(await r.arrayBuffer()); } catch {} }
-      const pronto = montarImagem(bytes);
+      const pronto = montarImagem(bytes, doacao ? "doacao" : "avaliacao");
       img = pronto.buffer.slice(pronto.byteOffset, pronto.byteOffset + pronto.length);
       try { await st.set(chave, img); } catch {}
     }
     return new Response(img, { headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=86400" } });
   }
 
-  const destino = p ? `/#indicar-${encodeURIComponent(p.id)}` : "/";
-  const nome1 = p ? String(p.nome).trim().split(/\s+/)[0] : "";
+  const destino = doacao ? "/#doe" : p ? `/#indicar-${encodeURIComponent(p.id)}` : "/";
+  // nome inteiro quando é curto (empresa: "Borracharia N.S. Aparecida"); senão nome e sobrenome
+  const partes = p ? String(p.nome).trim().split(/\s+/) : [];
+  const nome = partes.join(" ").length <= 26 ? partes.join(" ") : partes.slice(0, 2).join(" ");
   const serv = p && p.categorias && p.categorias[0] ? p.categorias[0] : "";
-  const titulo = p ? `Indique ${nome1} na Kiiro 💛` : "Kiiro · Profissionais do Litoral Norte";
-  const desc = p ? `${nome1}${serv ? ` (${serv.toLowerCase()})` : ""} pede sua indicação. Conhece o trabalho? Leva 1 minuto.` : "Profissionais perto de você no Litoral Norte do RS.";
-  const imagem = p ? `${base}/i/${encodeURIComponent(p.id)}/foto.jpg?v=${hash(p.foto || "")}` : `${base}/img/og-kiiro.jpg`;
+  const servTxt = serv && !nome.toLowerCase().includes(serv.toLowerCase()) ? ` (${serv.toLowerCase()})` : "";
+  const titulo = doacao ? "Apoie a Kiiro 💛" : p ? `Avalie ${nome} na Kiiro ⭐` : "Kiiro · Profissionais do Litoral Norte";
+  const desc = doacao ? "A Kiiro é grátis para profissionais e se mantém com doações. Qualquer valor ajuda, pelo Pix em 1 minuto."
+    : p ? `${nome}${servTxt} pede sua avaliação. Já fez serviço ou conhece o trabalho? Leva 1 minuto.` : "Profissionais perto de você no Litoral Norte do RS.";
+  const pasta = doacao ? "d" : "i";
+  const imagem = p ? `${base}/${pasta}/${encodeURIComponent(p.id)}/foto.jpg?v=${doacao ? "doe" : "av"}${hash(p.foto || "")}` : `${base}/img/og-kiiro.jpg`;
   const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(titulo)}</title>

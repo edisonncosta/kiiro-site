@@ -364,6 +364,12 @@
   .ind .quem b{display:block;font-size:.85rem}
   .ind .quem span{font-size:.75rem;color:var(--muted)}
   .ind-rel{display:inline-block !important;background:var(--sun-soft);border-radius:999px;padding:.05rem .5rem;font-size:.7rem !important;font-weight:600;color:var(--ink) !important;margin-left:.2rem}
+  .in-est{display:flex;gap:.3rem;margin:.2rem 0 .3rem}
+  .in-est button{border:0;background:none;padding:.1rem;cursor:pointer;line-height:0}
+  .in-est svg{width:42px;height:42px;fill:#fff;stroke:#C9B470;stroke-width:1.4;stroke-linejoin:round;transition:transform .12s}
+  .in-est button.on svg{fill:var(--sun);stroke:#B08A00}
+  .in-est button:active svg{transform:scale(.88)}
+  .in-est-t{font-weight:700;font-size:.85rem;min-height:1.3em;margin-bottom:.3rem}
   .ind-bt{display:block;width:100%;margin-top:.9rem;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:.8rem;font:600 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
   .in-lb{display:block;font-size:.8rem;font-weight:600;margin:1rem 0 .4rem}
   .nome-2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}.nome-2 > *{min-width:0}
@@ -799,30 +805,33 @@
   <div class="sheet alta">
     <div class="sheet-topo"><span class="alca" aria-hidden="true"></span><button class="bt-fechar" type="button" id="in-fechar">Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <form id="in-form" novalidate>
-      <h3 id="in-titulo">Indicar</h3>
+      <h3 id="in-titulo">Avaliar</h3>
       <p class="sub" id="in-sub"></p>
-      <span class="in-lb">De onde você conhece?</span>
+      <span class="in-lb">Sua nota</span>
+      <div class="in-est" id="in-est" role="radiogroup" aria-label="Nota de 1 a 5"></div>
+      <p class="in-est-t" id="in-est-t"></p>
+      <span class="in-lb">Como você conhece? <small style="font-weight:400;color:var(--muted)">(opcional)</small></span>
       <div class="chips">
         <input type="radio" name="in-rel" id="ir1" value="Já contratou"><label for="ir1">Já contratei</label>
         <input type="radio" name="in-rel" id="ir2" value="Vizinho"><label for="ir2">Vizinho</label>
         <input type="radio" name="in-rel" id="ir3" value="Amigo ou família"><label for="ir3">Amigo ou família</label>
         <input type="radio" name="in-rel" id="ir4" value="Trabalhamos juntos"><label for="ir4">Trabalhamos juntos</label>
       </div>
-      <label class="in-lb" for="in-texto">Sua indicação</label>
-      <textarea class="input" id="in-texto" maxlength="400" rows="3" placeholder="Ex.: trabalha lá em casa há 3 anos, de total confiança."></textarea>
+      <label class="in-lb" for="in-texto">Conte como foi <small style="font-weight:400;color:var(--muted)">(opcional)</small></label>
+      <textarea class="input" id="in-texto" maxlength="400" rows="3" placeholder="Ex.: fez a instalação lá de casa, caprichoso e pontual."></textarea>
       <div class="nome-2"><div><label class="in-lb" for="in-nome">Nome</label>
       <input class="input" id="in-nome" autocomplete="given-name" placeholder="Ex.: Ana"></div>
       <div><label class="in-lb" for="in-sobrenome">Sobrenome</label>
       <input class="input" id="in-sobrenome" autocomplete="family-name" placeholder="Ex.: Souza"></div></div>
       <label class="in-lb" for="in-whats">Seu WhatsApp</label>
       <input class="input" id="in-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
-      <p class="in-fine">Aparece seu nome e a inicial do sobrenome (ex.: Ana S.). O WhatsApp não é mostrado, serve só para a Kiiro confirmar que a indicação é real.</p>
+      <p class="in-fine">Aparece seu nome e a inicial do sobrenome (ex.: Ana S.). O WhatsApp não é mostrado, serve só para a Kiiro confirmar que a avaliação é real.</p>
       <p class="erro" id="in-erro" role="alert"></p>
-      <button class="btn btn-full in-go" type="submit" id="in-enviar">Enviar indicação</button>
+      <button class="btn btn-full in-go" type="submit" id="in-enviar">Enviar avaliação</button>
     </form>
     <div class="escondido" id="in-ok" style="text-align:center;padding:1rem 0 .5rem">
       <div style="font-size:2.4rem">💛</div>
-      <h3 style="margin-top:.4rem">Obrigado pela indicação!</h3>
+      <h3 style="margin-top:.4rem">Obrigado pela avaliação!</h3>
       <p class="sub" id="in-ok-txt"></p>
       <button class="btn btn-ink btn-full" type="button" onclick="document.getElementById('modal-ind').classList.remove('aberto')">Voltar ao perfil</button>
     </div>
@@ -1740,7 +1749,7 @@ async function abrirPerfil(id) {
         <div class="est">${estrelasTxt(a.nota)}</div>
         ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ""}
         ${a.foto ? `<button class="ft" type="button" data-ampliar="${esc(a.foto)}" aria-label="Ver foto"><img src="${esc(a.foto)}" alt="Foto do serviço" loading="lazy"></button>` : ""}
-        <div class="quem"><div class="avatar">${esc((a.nome || "?")[0])}</div><div><b>${esc(a.nome)}</b><span>${quando(a.data)}</span></div></div>
+        <div class="quem"><div class="avatar">${esc((a.nome || "?")[0])}</div><div><b>${esc(a.nome)}${a.relacao ? ` <span class="ind-rel">${esc(a.relacao)}</span>` : ""}</b><span>${quando(a.data)}</span></div></div>
       </div>`).join("")}</div>`;
 }
 // o que os clientes destacam (aparece com 3+ avaliações; cada ponto com 2+ menções)
@@ -1757,30 +1766,37 @@ let proIndicar = null;
 function mostrarIndicacoes(p, l) {
   const box = $("pf-inds"); if (!box) return;
   const nome1 = esc(p.nome.split(" ")[0]);
-  box.innerHTML = `<h2>💬 Indicações</h2>
-    <p class="ind-sub">${l.length ? `Pessoas que conhecem o trabalho de ${nome1}. Não contam na nota.` : `Conhece o trabalho de ${nome1}? Seja o primeiro a indicar.`}</p>
+  box.innerHTML = (l.length ? `<h2>💬 Indicações</h2>
+    <p class="ind-sub">Pessoas que conhecem o trabalho de ${nome1}. Não contam na nota.</p>` : `<p class="ind-sub">Já fez serviço com ${nome1} ou conhece o trabalho?</p>`) + `
     ${l.map(x => `<div class="ind">
       <p>“${esc(x.texto)}”</p>
       <div class="quem"><div class="avatar">${esc((x.nome || "?")[0])}</div><div><b>${esc(x.nome)} <span class="ind-rel">${esc(x.relacao)}</span></b><span>${quando(x.data)}</span></div></div>
     </div>`).join("")}
-    <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">💬 Indicar ${nome1}</button>
-    <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}">📣 É ${nome1}? <b>Peça indicações</b></button>`;
+    <button class="ind-bt" type="button" data-indicar="${esc(p.id)}">⭐ Avaliar ${nome1}</button>
+    <button class="bt-pedir-ind" type="button" data-pedir-ind="${esc(p.id)}">📣 É ${nome1}? <b>Peça avaliações</b></button>`;
 }
 function abrirIndicar(id) {
   const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
   proIndicar = p;
   const n1 = p.nome.split(" ")[0];
-  $("in-titulo").textContent = `Indicar ${n1}`;
-  $("in-sub").textContent = `Conhece o trabalho de ${n1}? Conte para quem está procurando.`;
+  $("in-titulo").textContent = `Avaliar ${p.nome.length <= 26 ? p.nome : n1}`;
+  $("in-sub").textContent = `Já fez serviço com ${n1} ou conhece o trabalho? Dê sua nota.`;
+  notaInd = 0; pintarEstInd();
   const eu = lerJSON("kiiro-cliente", {});
   { const [n, s] = partesNome(eu.nome); $("in-nome").value = n; $("in-sobrenome").value = s; } $("in-whats").value = eu.whats || "";
   $("in-texto").value = ""; $("in-erro").textContent = "";
   document.querySelectorAll('input[name=in-rel]').forEach(r => r.checked = false);
   $("in-form").classList.remove("escondido"); $("in-ok").classList.add("escondido");
-  $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação";
+  $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar avaliação";
   $("modal-ind").classList.add("aberto");
 }
 const fecharIndicar = () => $("modal-ind").classList.remove("aberto");
+// estrelas da avaliação pelo link
+let notaInd = 0;
+const ROT_NOTA = ["", "Ruim", "Regular", "Bom", "Muito bom", "Excelente!"];
+$("in-est").innerHTML = [1, 2, 3, 4, 5].map(n => `<button type="button" data-n="${n}" role="radio" aria-label="${n} ${n === 1 ? "estrela" : "estrelas"}"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></svg></button>`).join("");
+function pintarEstInd() { $("in-est").querySelectorAll("button").forEach(b => { b.classList.toggle("on", +b.dataset.n <= notaInd); b.setAttribute("aria-checked", String(+b.dataset.n === notaInd)); }); $("in-est-t").textContent = ROT_NOTA[notaInd]; }
+$("in-est").addEventListener("click", e => { const b = e.target.closest("button[data-n]"); if (!b) return; notaInd = +b.dataset.n; pintarEstInd(); });
 document.addEventListener("click", e => { const b = e.target.closest("[data-indicar]"); if (b) abrirIndicar(b.dataset.indicar); });
 // o próprio profissional pede indicações: link /i/ID mostra a foto dele com o visual da Kiiro no WhatsApp
 document.addEventListener("click", async e => {
@@ -1788,7 +1804,7 @@ document.addEventListener("click", async e => {
   const p = profissionais.find(x => String(x.id) === b.dataset.pedirInd); if (!p) return;
   contar("indicar", "pedir:" + (p.categorias[0] || ""));
   const link = `${location.origin}/i/${encodeURIComponent(p.id)}`;
-  const txt = `Oi! Tudo bem? 😊 Estou na Kiiro, a plataforma de profissionais do Litoral Norte.\n\nVocê que conhece meu trabalho pode me deixar uma indicação? Leva 1 minuto:\n👉 ${link}\n\nAjuda muito, obrigado! 🙏`;
+  const txt = `Oi! Tudo bem? 😊 Estou na Kiiro, a plataforma de profissionais do Litoral Norte.\n\nVocê que já fez serviço comigo ou conhece meu trabalho pode me deixar uma avaliação? Leva 1 minuto:\n👉 ${link}\n\nAjuda muito, obrigado! 🙏`;
   if (DEMO) return toast("No site real, abre o WhatsApp com o link e a imagem: " + link);
   window.location.href = "https://wa.me/?text=" + encodeURIComponent(txt);
 });
@@ -1799,8 +1815,7 @@ $("in-form").addEventListener("submit", async e => {
   const rel = document.querySelector('input[name=in-rel]:checked');
   const texto = $("in-texto").value.trim(), n1 = $("in-nome").value.trim(), sob = $("in-sobrenome").value.trim(), nome = `${n1} ${sob}`.trim(), whats = $("in-whats").value.replace(/\D/g, "");
   const erro = m => $("in-erro").textContent = m;
-  if (!rel) return erro("Escolha de onde você conhece.");
-  if (texto.length < 8) return erro("Escreva um pouquinho sobre o trabalho.");
+  if (!notaInd) return erro("Toque nas estrelas para dar sua nota.");
   if (n1.length < 2) return erro("Coloque seu nome.");
   if (sob.length < 2) return erro("Coloque seu sobrenome.");
   if (![10, 11, 12, 13].includes(whats.length)) return erro("Coloque seu WhatsApp com DDD.");
@@ -1810,16 +1825,17 @@ $("in-form").addEventListener("submit", async e => {
   if (!DEMO) {
     try {
       const r = await fetch("/.netlify/functions/indicar", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profissionalId: proIndicar.id, profissionalWhatsapp: proIndicar.whatsapp, profissionalNome: proIndicar.nome, relacao: rel.value, texto, nome, whatsapp: whats }) });
+        body: JSON.stringify({ profissionalId: proIndicar.id, profissionalWhatsapp: proIndicar.whatsapp, profissionalNome: proIndicar.nome, nota: notaInd, relacao: rel ? rel.value : "", texto, nome, whatsapp: whats }) });
       st = r.status; if (!r.ok) { const j = await r.json().catch(() => ({})); if (j.erro === "proprio") st = 403; }
     } catch {}
   }
-  if (st === 409) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("Você já indicou este profissional. Obrigado!"); }
-  if (st === 403) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("O próprio profissional não pode se indicar 🙂"); }
-  if (st !== 200) { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar indicação"; return erro("Não deu para enviar agora. Tente de novo."); }
+  const volta = () => { $("in-enviar").disabled = false; $("in-enviar").textContent = "Enviar avaliação"; };
+  if (st === 409) { volta(); return erro("Você já avaliou este profissional por aqui. Obrigado!"); }
+  if (st === 403) { volta(); return erro("O próprio profissional não pode se avaliar 🙂"); }
+  if (st !== 200) { volta(); return erro("Não deu para enviar agora. Tente de novo."); }
   contar("indicar", proIndicar.categorias[0]);
   $("in-form").classList.add("escondido"); $("in-ok").classList.remove("escondido");
-  $("in-ok-txt").textContent = `Sua indicação para ${proIndicar.nome.split(" ")[0]} foi enviada. Ela aparece no perfil depois de uma conferida rápida da Kiiro.`;
+  $("in-ok-txt").textContent = `Sua avaliação para ${proIndicar.nome.split(" ")[0]} foi enviada. Ela aparece no perfil depois de uma conferida rápida da Kiiro.`;
 });
 
 /* ===== Mapa da página inicial: um pingo por cidade com quantos profissionais moram lá ===== */
@@ -2732,6 +2748,7 @@ Promise.all([carregar(), carregarAnuncios()]).then(() => {
   const m = location.hash.match(/^#p-([\w-]+)$/);
   if (m) return abrirPerfil(m[1]);
   if (location.hash === "#anuncie") return irPara("anuncie");
+  if (location.hash === "#doe") { try { history.replaceState(null, "", location.pathname + location.search); } catch {} return abrirDoe(); } // link de pedido de doação (/d/ID)
   iniciarLocal();
   mostrarBalao();
 });
