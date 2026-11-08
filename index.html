@@ -364,6 +364,17 @@
   .ind .quem b{display:block;font-size:.85rem}
   .ind .quem span{font-size:.75rem;color:var(--muted)}
   .ind-rel{display:inline-block !important;background:var(--sun-soft);border-radius:999px;padding:.05rem .5rem;font-size:.7rem !important;font-weight:600;color:var(--ink) !important;margin-left:.2rem}
+  .cardapio{margin-top:.6rem}
+  .cd-sec h3{font-size:1.15rem;font-weight:700;padding:1.1rem 0 .7rem;border-bottom:1px solid var(--line)}
+  .cd-item{display:flex;align-items:center;gap:.9rem;width:100%;padding:.95rem 0;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;cursor:pointer;font-family:Poppins,sans-serif;color:var(--ink)}
+  .cd-item:active{background:#FBF4DC}
+  .cd-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem}
+  .cd-tx b{font-size:.98rem;font-weight:600}
+  .cd-tx small{font-size:.8rem;color:var(--muted);line-height:1.35}
+  .cd-tx span{font-size:.85rem;margin-top:.35rem;color:var(--text)}
+  .cd-tx .cd-gratis{color:var(--zap);font-weight:600}
+  .cd-ic{width:68px;height:68px;border-radius:14px;background:var(--sun-soft);display:grid;place-items:center;flex:none;color:#B38B00}
+  .cd-ic svg{width:34px;height:34px}
   .in-est{display:flex;gap:.3rem;margin:.2rem 0 .3rem}
   .in-est button{border:0;background:none;padding:.1rem;cursor:pointer;line-height:0}
   .in-est svg{width:42px;height:42px;fill:#fff;stroke:#C9B470;stroke-width:1.4;stroke-linejoin:round;transition:transform .12s}
@@ -448,6 +459,23 @@
   .ban-img span small b{font-size:.95rem;font-weight:800;color:var(--ink)}
   .ban-bt small{display:block;font-size:.72rem;font-weight:600;margin-top:.2rem;opacity:.8}
   @media (min-width:700px){.patro.ban{min-height:180px}}
+  .patro.nat,.patro.nat.livre{display:block;padding:0;border:0;background:none;box-shadow:none;border-radius:0;text-align:left;min-width:0}
+  .patro.nat b{display:inline;margin:0;font-size:inherit}
+  .nat-pub{display:block;text-align:center;font-size:.78rem;color:var(--muted);margin-bottom:.35rem}
+  .nat-card{display:block;background:#fff;border:1px solid #E3DAC0;border-radius:0;overflow:hidden;box-shadow:none}
+  .nat-img{display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:center/contain no-repeat;border-bottom:1px solid var(--line)}
+  .patro.nat .nat-img b{font-size:1.4rem;font-weight:800;padding:1rem;text-align:center}
+  .nat-img.vazio{background:var(--sun);border-bottom:1px solid rgba(0,0,0,.06);border-radius:0}
+  .nat-img.vazio span{font-weight:800;font-size:1.3rem;color:var(--ink);text-align:center;line-height:1.2}
+  .nat-img.vazio small{display:block;font-size:.8rem;font-weight:500;margin-top:.35rem;color:#4A3D00}
+  .patro.nat .nat-img.vazio small b{display:inline;font-size:inherit;font-weight:700;padding:0;color:#4A3D00}
+  .nat-txt{display:block;padding:.75rem .9rem 0;font-size:.98rem;line-height:1.4;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .nat-rod{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem .85rem}
+  .nat-marca{display:flex;align-items:center;gap:.5rem;min-width:0}
+  .nat-marca img{width:30px;height:30px;border-radius:0;object-fit:contain;border:1px solid var(--line);background:#fff;flex:none}
+  .patro.nat .nat-marca b{display:block;font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nat-cta{font-size:.88rem;font-weight:700;color:#1F5FBF;white-space:nowrap}
+  .nat-cta::after{content:" ›"}
   .patro-roda{grid-column:1/-1;min-width:0}
   .pr-trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.8rem;scrollbar-width:none;padding:2px 2px 14px;margin:-2px -2px -8px}
   .pr-trilho::-webkit-scrollbar{display:none}
@@ -1503,17 +1531,20 @@ const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.a
 // Anúncio em formato de banner: imagem/logo da marca à esquerda, botão à direita
 // Campos: banner (imagem larga, opcional), logo, cor (fundo da imagem), nome, cidade, texto, botao, link
 const corEscura = (c) => { const m = /^#([0-9a-f]{6})$/i.exec(c || ""); if (!m) return false; const n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) < 140; };
+// anúncio no estilo "publicidade" de portal: imagem larga, uma frase, e embaixo o logo e o botão
 function cardPatroDe(pt) {
   const img = pt.banner || pt.logo;
-  const fundo = `background-color:${/^#[0-9a-f]{3,8}$/i.test(pt.cor || "") ? pt.cor : img ? "#fff" : "var(--sun)"};${img ? `background-image:url('${esc(img)}');` : ""}`;
-  if (img) setTimeout(pintarBanners, 0);
-  return `<a class="patro ban" data-nome="${esc(pt.nome)}" ${img ? `data-cor-de="${esc(img)}"` : ""} href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
-    <span class="ban-fundo" aria-hidden="true"${img ? ` style="--fundo-img:url('${esc(img)}')"` : ""}></span>
-    <div class="ban-img${pt.banner ? " cheio" : ""}" style="${fundo}" role="img" aria-label="${esc(pt.nome)}">${img ? "" : `<span style="color:${corEscura(pt.cor) ? "#fff" : "var(--ink)"}">${esc(pt.nome)}</span>`}</div>
-    <div class="ban-dir" aria-label="${esc(pt.nome + (pt.texto ? ": " + pt.texto : ""))}">
-      <span class="ban-bt">${esc(pt.botao || "Saber mais")}</span>
-    </div>
-    <span class="ban-tag">Patrocinado</span>
+  const cor = /^#[0-9a-f]{3,8}$/i.test(pt.cor || "") ? pt.cor : "#fff";
+  return `<a class="patro nat" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
+    <span class="nat-pub">publicidade</span>
+    <span class="nat-card">
+      <span class="nat-img${pt.banner ? " cheio" : ""}" style="background-color:${cor};${img ? `background-image:url('${esc(img)}')` : ""}" role="img" aria-label="${esc(pt.nome)}">${img ? "" : `<b style="color:${corEscura(cor) ? "#fff" : "var(--ink)"}">${esc(pt.nome)}</b>`}</span>
+      ${pt.texto ? `<span class="nat-txt">${esc(pt.texto)}</span>` : ""}
+      <span class="nat-rod">
+        <span class="nat-marca">${pt.logo ? `<img src="${esc(pt.logo)}" alt="" loading="lazy">` : ""}<b>${esc(pt.nome)}</b></span>
+        <span class="nat-cta">${esc(pt.botao || "Saber mais")}</span>
+      </span>
+    </span>
   </a>`;
 }
 /* Fundo automático do banner: pega a cor mais viva da arte do patrocinador e monta um degradê com ela.
@@ -1589,12 +1620,16 @@ function cardPatrocinio() {
   const linha1 = catAtiva ? (grupo || catAtiva) : (cidade ? "Todos os serviços" : "Página inicial");
   const linha2 = cidade ? `em ${cidade}` : catAtiva ? "em todo o Litoral Norte" : "para todo mundo";
   const qs = new URLSearchParams({ formato: fmt, ...(cidade ? { cidade } : {}), ...(grupo ? { grupo } : {}) });
-  return `<a class="patro ban livre" href="anunciar.html?${qs}" data-anunciar="livre">
-    <div class="ban-img"><span>📣 Sua marca aqui<small>${esc(linha1)}<br><b>${esc(linha2)}</b></small></span></div>
-    <div class="ban-dir" aria-label="Anuncie aqui: ${esc(linha1)} ${esc(linha2)}">
-      <span class="ban-bt">Anunciar ${esc(cidade ? "em " + cidade : "aqui")}${typeof v === "number" ? `<small>R$ ${v}/mês</small>` : ""}</span>
-    </div>
-    <span class="ban-tag">Espaço disponível</span>
+  return `<a class="patro nat livre" href="anunciar.html?${qs}" data-anunciar="livre">
+    <span class="nat-pub">publicidade</span>
+    <span class="nat-card">
+      <span class="nat-img vazio"><span>📣 Sua marca aqui<small>${esc(linha1)} · <b>${esc(linha2)}</b></small></span></span>
+      <span class="nat-txt">Apareça para quem procura serviço ${esc(cidade ? "em " + cidade : "no Litoral Norte")}.</span>
+      <span class="nat-rod">
+        <span class="nat-marca"><b>Espaço disponível</b></span>
+        <span class="nat-cta">Anunciar${typeof v === "number" ? ` · R$ ${v}/mês` : ""}</span>
+      </span>
+    </span>
   </a>`;
 }
 // rodízio: troca de patrocinador a cada 4,5 s (para quando a pessoa encosta o dedo)
@@ -1657,6 +1692,22 @@ const quando = iso => { const dias = Math.floor((Date.now() - new Date(iso)) / 8
 const estrelasTxt = n => { const c = Math.round(n); return "★".repeat(c) + `<span>${"★".repeat(5 - c)}</span>`; };
 let telaAntes = "inicio";
 
+// "cardápio" de serviços (estilo app de delivery): uma seção por serviço, um item por pedido comum.
+// Tocar num item chama o profissional já com o pedido escrito.
+function cardapio(p, nome1) {
+  const T = window.KIIRO_TAREFAS || {};
+  const preco = p.orcamento === "Sim" ? `<span class="cd-gratis">Orçamento grátis</span>` : `<span>Valor a combinar</span>`;
+  const secs = catsDe(p).filter(c => (T[c] || []).length).map(c => `
+    <section class="cd-sec">
+      <h3>${esc(c)}</h3>
+      ${T[c].map(t => `<button type="button" class="cd-item" data-chamar="${esc(p.id)}" data-cat="${esc(c)}" data-tarefa="${esc(t)}">
+        <span class="cd-tx"><b>${esc(t)}</b><small>${esc((window.KIIRO_TAREFAS_DESC || {})[t] || "Peça orçamento direto no WhatsApp")}</small>${preco}</span>
+        <span class="cd-ic">${ico(c, 1.6)}</span>
+      </button>`).join("")}
+    </section>`);
+  return secs.length ? `<div class="cardapio">${secs.join("")}</div>` : "";
+}
+
 async function abrirPerfil(id) {
   const p = profissionais.find(x => String(x.id) === String(id)); if (!p) return;
   contar("perfil", catsDe(p)[0]);
@@ -1692,6 +1743,7 @@ async function abrirPerfil(id) {
       ${temNota
         ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
         : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
+      ${cardapio(p, nome1)}
       <hr>
       <div class="linha-host">
         <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
@@ -2145,7 +2197,7 @@ $("mt-busca").addEventListener("input", () => {
 
 /* ===== Chamar ===== */
 const modal = $("modal");
-let escolhido = null;
+let escolhido = null, tarefaSel = "", catSel = "";
 // nome e sobrenome em campos separados (dá mais credibilidade); guardamos o nome completo
 const partesNome = (n) => { const p = String(n || "").trim().split(/\s+/); return [p[0] || "", p.slice(1).join(" ")]; };
 $("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
@@ -2153,8 +2205,9 @@ $("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-chamar]"); if (!b) return;
   escolhido = profissionais.find(p => String(p.id) === b.dataset.chamar); if (!escolhido) return;
+  tarefaSel = b.dataset.tarefa || ""; catSel = b.dataset.cat || "";
   contarPro("pro_clique", escolhido);
-  $("m-sub").textContent = `Para falar com ${escolhido.nome}, informe seu nome, sobrenome e WhatsApp.`;
+  $("m-sub").textContent = tarefaSel ? `Pedido: ${tarefaSel}. Para falar com ${escolhido.nome}, informe seu nome, sobrenome e WhatsApp.` : `Para falar com ${escolhido.nome}, informe seu nome, sobrenome e WhatsApp.`;
   $("c-erro").textContent = "";
   modal.classList.add("aberto");
   (!$("c-nome").value ? $("c-nome") : !$("c-sobrenome").value ? $("c-sobrenome") : $("c-whats")).focus();
@@ -2173,18 +2226,19 @@ $("form-chamar").addEventListener("submit", e => {
   salvarJSON("kiiro-cliente", { nome, whats: $("c-whats").value });
   const p = escolhido;
   fecharChamar();
-  const servico = catsDe(p)[0];
+  const servico = catSel && p.categorias.includes(catSel) ? catSel : catsDe(p)[0];
+  const pedido = tarefaSel ? `para ${tarefaSel.charAt(0).toLowerCase() + tarefaSel.slice(1)}` : `de ${servico.toLowerCase()}`;
   const codigo = novoCodigo();
   guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
   contar("chamar", servico);
   const abrirZap = animarConexao(p);
   if (DEMO) return abrirZap.then(() => { // no teste, abre o WhatsApp da própria Kiiro
-    irParaWhats(KIIRO_WHATS, `(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`);
+    irParaWhats(KIIRO_WHATS, `(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.`);
   });
   const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade, conta: (contaSalva() || {}).token || "" });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
-  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento de ${servico.toLowerCase()}.`;
+  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.`;
   abrirZap.then(() => {
     irParaWhats(p.whatsapp, msg);
   });
