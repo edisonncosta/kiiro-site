@@ -30,7 +30,7 @@ export default async (req, context) => {
 
   if (ehImagem) {
     const foto = p && p.foto ? (p.foto.startsWith("/") ? base + p.foto : p.foto) : "";
-    const chave = `${doacao ? "doe" : "av"}-${p ? p.id : "kiiro"}-${hash(foto)}`; // "av-": imagem nova (avaliação), não reaproveita a antiga
+    const chave = `${doacao ? "doe2" : "av2"}-${p ? p.id : "kiiro"}-${hash(foto)}`; // "2": imagem com o endereço chamakiiro.com.br // "av-": imagem nova (avaliação), não reaproveita a antiga
     const st = getStore("og");
     let img = await st.get(chave, { type: "arrayBuffer" }).catch(() => null);
     if (!img) {
@@ -53,7 +53,7 @@ export default async (req, context) => {
   const desc = doacao ? "A Kiiro é grátis para profissionais e se mantém com doações. Qualquer valor ajuda, pelo Pix em 1 minuto."
     : p ? `${nome}${servTxt} pede sua avaliação. Já fez serviço ou conhece o trabalho? Leva 1 minuto.` : "Profissionais perto de você no Litoral Norte do RS.";
   const pasta = doacao ? "d" : "i";
-  const imagem = p ? `${base}/${pasta}/${encodeURIComponent(p.id)}/foto.jpg?v=${doacao ? "doe" : "av"}${hash(p.foto || "")}` : `${base}/img/og-kiiro.jpg`;
+  const imagem = p ? `${base}/${pasta}/${encodeURIComponent(p.id)}/foto.jpg?v=${doacao ? "doe2" : "av2"}${hash(p.foto || "")}` : `${base}/img/og-kiiro.jpg`;
   const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(titulo)}</title>

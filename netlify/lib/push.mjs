@@ -58,7 +58,7 @@ export function cifrar(texto, p256dh, auth) {
 export async function enviarUm(sub, msg) {
   try {
     const { privada, publica } = await chavesVapid();
-    const site = (process.env.URL || "https://chamakiiro.netlify.app").replace(/\/$/, "");
+    const site = (process.env.URL || "https://chamakiiro.com.br").replace(/\/$/, "");
     const corpo = cifrar(JSON.stringify(msg), sub.keys.p256dh, sub.keys.auth);
     const r = await fetch(sub.endpoint, {
       method: "POST",

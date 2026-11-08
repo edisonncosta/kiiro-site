@@ -12,7 +12,7 @@ const MAX_DIAS = 7;     // não lembra chamadas muito antigas
 const MAX_POR_DIA = 25; // para não lotar o celular
 
 export default async () => {
-  const site = (process.env.URL || "https://chamakiiro.netlify.app").replace(/\/$/, "");
+  const site = (process.env.URL || "https://chamakiiro.com.br").replace(/\/$/, "");
 
   const chamadas = getStore("chamadas");
   const avaliacoes = getStore("avaliacoes");

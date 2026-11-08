@@ -3,4 +3,4 @@ Allow: /
 Disallow: /painel
 Disallow: /.netlify/
 
-Sitemap: https://chamakiiro.netlify.app/sitemap.xml
+Sitemap: https://chamakiiro.com.br/sitemap.xml

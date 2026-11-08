@@ -23,7 +23,7 @@ export async function localDe(texto) {
   }
   const busca = async (q) => {
     const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&accept-language=pt-BR&viewbox=-51.6,-28.9,-49.4,-31.6&q=${encodeURIComponent(q)}`;
-    const r = await fetch(u, { headers: { "User-Agent": "Kiiro/1.0 (https://chamakiiro.netlify.app)" }, signal: AbortSignal.timeout(6000) });
+    const r = await fetch(u, { headers: { "User-Agent": "Kiiro/1.0 (https://chamakiiro.com.br)" }, signal: AbortSignal.timeout(6000) });
     const j = r.ok ? await r.json() : [];
     const c = j[0] ? [Number(j[0].lat), Number(j[0].lon)] : null;
     return c && c.every(Number.isFinite) && noLitoral(c) ? c : null;

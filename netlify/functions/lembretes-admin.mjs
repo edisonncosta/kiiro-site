@@ -8,7 +8,7 @@ const br = (iso) => String(iso).split("-").reverse().join("/");
 
 export default async () => {
   if (!process.env.NTFY_TOPIC) return new Response("sem NTFY_TOPIC");
-  const site = (process.env.URL || "https://chamakiiro.netlify.app").replace(/\/$/, "");
+  const site = (process.env.URL || "https://chamakiiro.com.br").replace(/\/$/, "");
   const hoje = diaSP(), amanha = diaSP(Date.now() + 864e5);
   const lista = await lerLembretes();
   let n = 0, mudou = false;

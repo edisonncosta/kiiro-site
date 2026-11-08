@@ -12,7 +12,7 @@ const br = (iso) => String(iso).split("-").reverse().join("/");
 
 export default async () => {
   if (!process.env.NTFY_TOPIC) return new Response("sem NTFY_TOPIC");
-  const site = (process.env.URL || "https://chamakiiro.netlify.app").replace(/\/$/, "");
+  const site = (process.env.URL || "https://chamakiiro.com.br").replace(/\/$/, "");
   const admin = getStore("admin");
   const lista = (await admin.get("anuncios", { type: "json" })) || {};
   const avisados = (await admin.get("anunciosAvisados", { type: "json" })) || {};
