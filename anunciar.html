@@ -20,6 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://chamakiiro.netlify.app/img/og-anuncie.jpg">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<script>/* aparelho do dono: abrir com ?naocontar=1 para de contar neste navegador/app */ try { if (/[?&]naocontar=1\b/.test(location.search)) { localStorage.setItem("kiiro-nao-contar", "1"); history.replaceState(null, "", location.pathname + location.hash); alert("✓ Este aparelho não entra mais nos números da Kiiro."); } } catch {}</script>
 <link rel="stylesheet" href="estilo.css">
 <script src="cidades.js"></script>
 <script src="servicos.js"></script>
@@ -40,16 +41,20 @@
   select.input{appearance:auto}
   .campo > label.ban-up,.ban-up{display:block;font-weight:400;cursor:pointer}
   .ban-up input{position:absolute;opacity:0;width:1px;height:1px}
-  .previa{display:flex;gap:.7rem;padding:.7rem;min-height:140px;border-radius:26px;position:relative;overflow:hidden;background:var(--sun);box-shadow:0 6px 20px rgba(150,110,0,.18)}
-  .previa > *{position:relative;z-index:1}
-  .previa .pf{position:absolute;inset:0;z-index:0;background:var(--sun)}
-  .previa .pf::before{content:"";position:absolute;inset:-30px;background:var(--fundo-img) center/cover no-repeat;filter:blur(26px) saturate(1.5);opacity:.55;mix-blend-mode:soft-light}
-  .previa .pf::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.28),transparent 60%)}
-  .previa .pi{flex:0 0 56%;background:rgba(255,255,255,.55) center/contain no-repeat;border:1.5px dashed rgba(26,26,26,.25);border-radius:18px;display:grid;place-items:center;text-align:center;font-weight:700;color:#4A3D00;font-size:.85rem;padding:.6rem}
-  .previa .pi.tem{border:0;padding:0}
-  .previa .pd{flex:1;display:flex;align-items:center;justify-content:center}
-  .previa .pb{width:100%;text-align:center;background:#fff;color:var(--ink);border-radius:999px;padding:.8rem .5rem;font-weight:700;font-size:.88rem;box-shadow:0 3px 10px rgba(0,0,0,.12)}
-  .previa .pt{position:absolute;z-index:2;right:1rem;top:.55rem;background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.08rem .55rem;font-size:.6rem;font-weight:600}
+  .previa{display:block}
+  .previa .np{display:block;text-align:center;font-size:.78rem;color:var(--muted);margin-bottom:.35rem}
+  .previa .nc{display:block;background:#fff;border:1px solid #E3DAC0;border-radius:0;overflow:hidden}
+  .previa .ni{display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:#FFF3C4 center/contain no-repeat;border-bottom:1px solid #EFE6C8;font-weight:600;color:#6A5F3E;text-align:center;padding:1rem}
+  .previa .ni.tem{padding:0}
+  .previa .nt{display:block;padding:.75rem .9rem 0;font-size:.98rem;line-height:1.4;color:var(--ink)}
+  .previa .nt.vazio{color:#B5AC93}
+  .previa .nr{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem .85rem}
+  .previa .nm{display:flex;align-items:center;gap:.5rem;min-width:0}
+  .previa .nm i{width:30px;height:30px;border:1px solid #EFE6C8;background:#fff center/contain no-repeat;flex:none;display:none}
+  .previa .nm i.tem{display:block}
+  .previa .nm b{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .previa .nb{font-size:.88rem;font-weight:700;color:#1F5FBF;white-space:nowrap}
+  .previa .nb::after{content:" ›"}
   .ban-dica{display:block;text-align:center;font-size:.8rem;color:var(--muted);margin-top:.5rem}
   .ban-dica{display:block;text-align:center;font-size:.8rem;color:var(--muted);padding:.5rem}
   .linha{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
@@ -130,13 +135,15 @@
 
     <div class="campo">
       <span class="legenda"><span class="n">3</span>Sua arte do anúncio</span>
-      <p class="opc" style="margin:-.2rem 0 .7rem">Uma imagem <b>deitada</b> (mais larga que alta), com logo, oferta e telefone, se quiser. Pode ser só o logo. <b>O fundo do anúncio é criado sozinho com a cor da sua marca.</b></p>
+      <p class="opc" style="margin:-.2rem 0 .7rem">Uma imagem <b>deitada</b> (mais larga que alta), com logo, oferta e telefone, se quiser. Pode ser só o logo. Ela aparece <b>grande no topo do anúncio</b>.</p>
       <label class="ban-up" for="banner">
         <div class="previa" id="pv">
-          <span class="pf" id="pv-fundo" aria-hidden="true"></span>
-          <div class="pi" id="pv-img">Toque para escolher a imagem</div>
-          <div class="pd"><span class="pb" id="pv-bt">Chamar no WhatsApp</span></div>
-          <span class="pt">Patrocinado</span>
+          <span class="np">publicidade</span>
+          <span class="nc">
+            <span class="ni" id="pv-img">📷 Toque para escolher a imagem</span>
+            <span class="nt" id="pv-txt">A frase sobre a empresa aparece aqui</span>
+            <span class="nr"><span class="nm"><i id="pv-logo"></i><b id="pv-nome">Nome da empresa</b></span><span class="nb" id="pv-bt">Chamar no WhatsApp</span></span>
+          </span>
         </div>
         <span class="ban-dica" id="pv-dica">Assim seu anúncio vai aparecer no site</span>
         <input type="file" id="banner" name="banner" accept="image/*">
@@ -160,7 +167,7 @@
     </div>
 
     <div class="campo">
-      <label for="texto"><span class="n">5</span>Uma frase sobre a empresa <span class="opc">(opcional)</span></label>
+      <label for="texto"><span class="n">5</span>Uma frase sobre a empresa <span class="opc">(aparece embaixo da imagem)</span></label>
       <input class="input" id="texto" name="texto" maxlength="90" placeholder="Ex.: Tudo para sua obra, com entrega no mesmo dia.">
     </div>
 
@@ -249,16 +256,16 @@ $("banner").addEventListener("change", async () => {
   const u = URL.createObjectURL(f);
   $("pv-img").style.backgroundImage = `url(${u})`; $("pv-img").textContent = ""; $("pv-img").classList.add("tem");
   $("pv-img").style.backgroundColor = $("cor").value;
-  $("pv-fundo").style.setProperty("--fundo-img", `url(${u})`);
+  $("pv-logo").style.backgroundImage = `url(${u})`; $("pv-logo").classList.add("tem");
   $("pv-dica").textContent = "Toque de novo para trocar a imagem";
-  const c = await corViva(u);
-  if (c) {
-    const mis = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t)), rgb = x => `rgb(${x.join(",")})`;
-    $("pv-fundo").style.background = `linear-gradient(135deg, ${rgb(mis(c, [255, 255, 255], .18))} 0%, ${rgb(c)} 45%, ${rgb(mis(c, [0, 0, 0], .45))} 100%)`;
-    $("pv-bt").style.color = rgb(mis(c, [0, 0, 0], .35));
-    $("pv-dica").textContent = "Fundo criado com a cor da sua marca · toque para trocar a imagem";
-  } else { $("pv-fundo").style.background = ""; $("pv-bt").style.color = ""; }
 });
+// nome e frase aparecem na prévia enquanto a pessoa digita
+function previaTexto() {
+  const t = $("texto").value.trim();
+  $("pv-txt").textContent = t || "A frase sobre a empresa aparece aqui"; $("pv-txt").classList.toggle("vazio", !t);
+  $("pv-nome").textContent = $("empresa").value.trim() || "Nome da empresa";
+}
+$("texto").addEventListener("input", previaTexto); $("empresa").addEventListener("input", previaTexto); previaTexto();
 $("cor").addEventListener("input", () => $("pv-img").style.backgroundColor = $("cor").value);
 // deixa a cor da marca bem viva (média de pixels tende a sair "lavada")
 function vivo([r, g, b]) {

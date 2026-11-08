@@ -451,7 +451,8 @@ export default async (req, context) => {
     const lista = (titulo, itens, vazio) => `<div class="cx"><h3>${titulo}</h3>${itens.length ? `<ol>${itens.map(([k, v]) => `<li><span>${esc(k)}</span><b>${num(v)}</b></li>`).join("")}</ol>` : `<p class="vz">${vazio}</p>`}</div>`;
 
     html = `
-      <section class="cx eu"><div class="eu-l"><b>Este aparelho</b><span id="eu-st">…</span></div><button class="b" type="button" id="eu-bt">…</button></section>
+      <section class="cx eu"><div class="eu-l"><b>Este aparelho</b><span id="eu-st">…</span></div><button class="b" type="button" id="eu-bt">…</button>
+        <p class="obs" style="flex-basis:100%;margin:6px 0 0">Isso vale só para este navegador. Se você também abre a Kiiro pelo <b>ícone na tela inicial</b>, pelo <b>WhatsApp</b> ou pelo <b>Instagram</b>, cada um guarda separado: abra lá, uma vez, o link <b>${esc(base)}/?naocontar=1</b>. <button class="b" type="button" id="eu-copiar" style="margin-top:6px">Copiar link</button></p></section>
       <script>
         (function () {
           const st = document.getElementById("eu-st"), bt = document.getElementById("eu-bt");
@@ -459,6 +460,7 @@ export default async (req, context) => {
           const mostra = () => { const fora = ler(); st.textContent = fora ? "✓ Desligado. Daqui para frente, o que você faz neste celular não entra nos números. O que já foi contado antes continua." : "Suas visitas e testes neste celular estão entrando nos números. Toque abaixo para parar de contar daqui para frente."; bt.textContent = fora ? "Voltar a contar" : "Não contar este celular"; bt.classList.toggle("zap", !fora); };
           bt.onclick = () => { try { ler() ? localStorage.removeItem("kiiro-nao-contar") : localStorage.setItem("kiiro-nao-contar", "1"); } catch {} mostra(); };
           mostra();
+          document.getElementById("eu-copiar").onclick = (e) => { navigator.clipboard && navigator.clipboard.writeText(location.origin + "/?naocontar=1"); e.target.textContent = "Copiado ✓"; };
         })();
       </script>
       <section class="cx"><h3>Números</h3>${tabela}<p class="obs">Visitas contam uma vez por pessoa a cada vez que ela abre o site. A contagem começou no dia em que essa versão subiu.</p></section>
