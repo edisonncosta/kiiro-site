@@ -628,13 +628,24 @@
 
   /* ===== ABAS ===== */
   /* menu flutuante (como o 99): barra branca arredondada, item ativo num círculo amarelo saltado */
-  .abas{position:fixed;left:.9rem;right:.9rem;bottom:calc(.7rem + env(safe-area-inset-bottom));z-index:25;max-width:520px;margin:0 auto;height:66px;background:#fff;border-radius:999px;box-shadow:0 8px 28px rgba(60,45,0,.18),0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-around;align-items:center;padding:0 .5rem}
-  .aba{position:relative;flex:1;height:100%;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;font-size:.66rem;color:var(--muted);font-weight:500;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
-  .aba svg{width:24px;height:24px}
+  /* vidro (como o Instagram): fica menor e mais transparente quando a pessoa desce a tela, e volta ao subir */
+  .abas{position:fixed;left:0;right:0;bottom:calc(.65rem + env(safe-area-inset-bottom));z-index:25;width:calc(100% - 2rem);max-width:440px;margin:0 auto;height:60px;
+    background:rgba(255,255,255,.74);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);
+    border:1px solid rgba(255,255,255,.65);border-radius:999px;box-shadow:0 8px 28px rgba(60,45,0,.16),0 1px 2px rgba(0,0,0,.05);
+    display:flex;justify-content:space-around;align-items:center;padding:0 .4rem;
+    transition:max-width .28s cubic-bezier(.3,.7,.2,1),height .28s cubic-bezier(.3,.7,.2,1),background .28s,bottom .28s}
+  .aba{position:relative;flex:1;height:100%;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.62rem;color:#4A4A4A;font-weight:500;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:font-size .2s,gap .2s}
+  .aba svg{width:23px;height:23px;transition:width .25s,height .25s}
   .aba .pin{color:var(--sun)}
   .aba.ativa{font-size:0;color:var(--ink)}
-  .aba.ativa svg{position:absolute;left:50%;top:50%;width:64px;height:64px;padding:19px;margin:-44px 0 0 -32px;background:var(--sun);border-radius:50%;box-shadow:0 0 0 6px #fff,0 6px 16px rgba(150,110,0,.3);transition:margin .2s}
+  .aba.ativa svg{position:absolute;left:50%;top:50%;width:56px;height:56px;padding:16px;margin:-38px 0 0 -28px;background:var(--sun);border-radius:50%;box-shadow:0 0 0 5px rgba(255,255,255,.9),0 6px 16px rgba(150,110,0,.28);transition:all .28s cubic-bezier(.3,.7,.2,1)}
   .aba.ativa .pin{color:var(--ink)}
+  /* descendo a tela: barra compacta, só ícones, mais transparente */
+  body.abas-mini .abas{max-width:300px;height:50px;background:rgba(255,255,255,.55);bottom:calc(.5rem + env(safe-area-inset-bottom))}
+  body.abas-mini .aba{font-size:0;gap:0}
+  body.abas-mini .aba svg{width:21px;height:21px}
+  body.abas-mini .aba.ativa svg{width:40px;height:40px;padding:10px;margin:-20px 0 0 -20px;box-shadow:0 2px 8px rgba(150,110,0,.25)}
+  @media (prefers-reduced-motion:reduce){.abas,.aba,.aba svg,.aba.ativa svg{transition:none}}
   body.em-perfil .abas{display:none}
 
   /* ===== JANELAS ===== */
@@ -1093,6 +1104,21 @@ function selecionados() {
 let modo = "inicio"; // inicio | salvos
 const lerJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
 const salvarJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+/* ===== Barra de baixo: encolhe ao descer, volta ao subir (como o Instagram) ===== */
+(() => {
+  let ultimo = window.scrollY, pedido = false;
+  addEventListener("scroll", () => {
+    if (pedido) return; pedido = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY, d = y - ultimo;
+      if (y < 80 || d < -8) document.body.classList.remove("abas-mini");
+      else if (d > 8) document.body.classList.add("abas-mini");
+      if (Math.abs(d) > 8 || y < 80) ultimo = y;
+      pedido = false;
+    });
+  }, { passive: true });
+})();
 
 /* ===== Menu lateral e conta (opcional: o site funciona sem) ===== */
 const contaSalva = () => lerJSON("kiiro-conta", null);
