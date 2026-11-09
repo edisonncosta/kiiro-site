@@ -1452,7 +1452,6 @@ const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "
 function seloFoto(p) {
   const temNota = p.avaliacoes >= 3;
   if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">★ Destaque</span>`;
-  if (p.urgencia === "Sim") return `<span class="selo-ft urg">⚡ Atende urgência</span>`;
   if (!temNota) return `<span class="selo-ft novo">Novo na Kiiro</span>`;
   return "";
 }
