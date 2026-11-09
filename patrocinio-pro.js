@@ -28,21 +28,24 @@
     const n = niveis.find((l) => l.length) || [];
     return n.length ? n[Math.floor(Math.random() * n.length)] : null;
   }
+  // mesmo formato do anúncio do site: "publicidade", arte grande, frase, rodapé com logo e botão em texto (pontas retas)
   const CSS = `
   .pp{max-width:34rem;margin:1.6rem auto 0;text-align:left}
-  .pp-rot{font-size:.8rem;color:#6A6A6A;margin:0 0 .45rem .2rem}
+  .pp-rot{font-size:.8rem;color:#6A6A6A;margin:0 0 .6rem .2rem}
   .pp-rot b{color:#1A1A1A}
-  .pp-ban{position:relative;display:flex;gap:.7rem;align-items:stretch;min-height:150px;padding:.7rem;border-radius:10px;overflow:hidden;text-decoration:none;color:#1A1A1A;background:#FFC800;box-shadow:0 6px 20px rgba(150,110,0,.18)}
-  .pp-ban > *{position:relative;z-index:1}
-  .pp-fundo{position:absolute!important;inset:0;z-index:0!important;background:#FFC800}
-  .pp-img{flex:0 0 56%;border-radius:6px;background:#fff center/contain no-repeat;display:grid;place-items:center;padding:.8rem;text-align:center;font-weight:800;font-size:1.15rem;line-height:1.15}
-  .pp-img.cheio{padding:0}
-  .pp-img small{display:block;margin-top:.4rem;font-size:.78rem;font-weight:500;color:#4A3D00}
-  .pp-dir{flex:1;min-width:0;display:flex;align-items:center;justify-content:center}
-  .pp-bt{width:100%;display:grid;place-items:center;text-align:center;background:#fff;color:#1F3FBF;border-radius:6px;padding:.8rem .6rem;font-weight:700;font-size:.9rem;line-height:1.2;box-shadow:0 3px 10px rgba(0,0,0,.12)}
-  .pp-tag{position:absolute!important;z-index:2!important;right:.7rem;top:.5rem;background:rgba(26,26,26,.82);color:#fff;border-radius:3px;padding:.1rem .5rem;font-size:.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  .pp-ban.livre .pp-img{background:rgba(255,255,255,.45);border:1.5px dashed rgba(26,26,26,.25)}
-  .pp-ban.livre .pp-bt{color:#1A1A1A}`;
+  .pp-lacuna{display:inline-block;min-width:7.5em;border-bottom:1.5px dashed #B38B00;color:#B38B00;font-weight:700;text-align:center;line-height:1.2}
+  .pp-pub{display:block;text-align:center;font-size:.78rem;color:#6A6A6A;margin-bottom:.35rem}
+  .pp-card{display:block;background:#fff;border:1px solid #E3DAC0;border-radius:0;overflow:hidden;text-decoration:none;color:#1A1A1A}
+  .pp-img{display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:#fff center/contain no-repeat;border-bottom:1px solid #EFE6C8;text-align:center;font-weight:800;font-size:1.3rem}
+  .pp-img.vazio{background:#FFC800}
+  .pp-img.vazio small{display:block;font-size:.8rem;font-weight:500;margin-top:.35rem;color:#4A3D00}
+  .pp-txt{display:block;padding:.75rem .9rem 0;font-size:.98rem;line-height:1.4}
+  .pp-rod{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem .85rem}
+  .pp-marca{display:flex;align-items:center;gap:.5rem;min-width:0}
+  .pp-marca img{width:30px;height:30px;object-fit:contain;border:1px solid #EFE6C8;background:#fff;flex:none}
+  .pp-marca b{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pp-cta{font-size:.88rem;font-weight:700;color:#1F5FBF;white-space:nowrap}
+  .pp-cta::after{content:" ›"}`;
   function contar(t, k) {
     if (window.KIIRO_DEMO) return;
     try { if (localStorage.getItem("kiiro-nao-contar") === "1") return; } catch {}
@@ -104,27 +107,26 @@
     const p = escolher(await carregar(), servs, cidade);
     if (!p) {
       const onde = cidade ? `de ${esc(cidade)}` : "do Litoral Norte";
-      el.innerHTML = `<div class="pp"><p class="pp-rot">Seu cadastro na Kiiro é <b>grátis</b>.</p>
-        <a class="pp-ban livre" href="anunciar.html${cidade ? "?formato=cidade&cidade=" + encodeURIComponent(cidade) : ""}">
-          <span class="pp-fundo" aria-hidden="true"></span>
-          <span class="pp-img">📣 Sua marca aqui<small>Patrocine os profissionais ${onde}</small></span>
-          <span class="pp-dir"><span class="pp-bt">Quero patrocinar</span></span>
-          <span class="pp-tag">Espaço disponível</span>
+      el.innerHTML = `<div class="pp"><p class="pp-rot">Seu cadastro na Kiiro é <b>grátis</b> graças a <span class="pp-lacuna">sua empresa</span>.</p>
+        <span class="pp-pub">publicidade</span>
+        <a class="pp-card" href="anunciar.html${cidade ? "?formato=cidade&cidade=" + encodeURIComponent(cidade) : ""}">
+          <span class="pp-img vazio"><span>📣 Sua marca aqui<small>Patrocine os profissionais ${onde}</small></span></span>
+          <span class="pp-txt">Sua empresa ajudando quem trabalha na região.</span>
+          <span class="pp-rod"><span class="pp-marca"><b>Espaço disponível</b></span><span class="pp-cta">Quero patrocinar</span></span>
         </a></div>`;
       return;
     }
     const img = p.banner || p.logo || "";
     if (!vistos.has(p.nome)) { vistos.add(p.nome); contar("patro_ver", p.nome); }
-    const fundoImg = /^#[0-9a-f]{3,8}$/i.test(p.cor || "") ? p.cor : "#fff";
+    const cor = /^#[0-9a-f]{3,8}$/i.test(p.cor || "") ? p.cor : "#fff";
     el.innerHTML = `<div class="pp"><p class="pp-rot">Seu cadastro na Kiiro é <b>grátis</b> graças a <b>${esc(p.nome)}</b>.</p>
-      <a class="pp-ban" href="${esc(p.link || "#")}" target="_blank" rel="noopener sponsored" aria-label="${esc(p.nome + (p.texto ? ": " + p.texto : ""))}">
-        <span class="pp-fundo" aria-hidden="true"></span>
-        <span class="pp-img${p.banner ? " cheio" : ""}" style="${img ? `background-color:${fundoImg};background-image:url('${esc(img)}')` : ""}">${img ? "" : esc(p.nome)}</span>
-        <span class="pp-dir"><span class="pp-bt">${esc(p.botao || "Conhecer")}</span></span>
-        <span class="pp-tag">Patrocinado</span>
+      <span class="pp-pub">publicidade</span>
+      <a class="pp-card" href="${esc(p.link || "#")}" target="_blank" rel="noopener sponsored">
+        <span class="pp-img" style="background-color:${cor};${img ? `background-image:url('${esc(img)}')` : ""}" role="img" aria-label="${esc(p.nome)}">${img ? "" : esc(p.nome)}</span>
+        ${p.texto ? `<span class="pp-txt">${esc(p.texto)}</span>` : ""}
+        <span class="pp-rod"><span class="pp-marca">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : ""}<b>${esc(p.nome)}</b></span><span class="pp-cta">${esc(p.botao || "Conhecer")}</span></span>
       </a></div>`;
-    if (img) pintar(el.querySelector(".pp-ban"), img);
-    el.querySelector(".pp-ban").addEventListener("click", () => contar("patro_clique", p.nome));
+    el.querySelector(".pp-card").addEventListener("click", () => contar("patro_clique", p.nome));
   }
   window.KiiroPatroPro = { mostrar };
 })();
