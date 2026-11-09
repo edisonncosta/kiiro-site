@@ -1778,7 +1778,6 @@ async function abrirPerfil(id) {
       </div>
       ${recursos.length ? `<hr><div class="recursos">${recursos.map(([i, t, d]) => `<div class="recurso"><span class="ri">${i}</span><div><b>${esc(t)}</b>${d ? `<span>${esc(d)}</span>` : ""}</div></div>`).join("")}</div>` : ""}
       ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
-      ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
       ${(p.trabalhos || []).length ? `<hr><h2>Trabalhos de ${esc(nome1)}</h2><div class="galeria">${p.trabalhos.map(u => `<button type="button" data-ampliar="${esc(u)}" aria-label="Ver foto do trabalho"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
       <hr><h2>Atende em</h2>
       <div class="pf-mapa-box"><div class="pf-mapa" id="pf-mapa" aria-label="Mapa das cidades que ${esc(nome1)} atende"></div><button class="pf-mapa-eu escondido" type="button" id="pf-mapa-eu">📍 Ver onde estou</button></div>
