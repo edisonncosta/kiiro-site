@@ -376,6 +376,7 @@
   .cd-tx .cd-gratis{color:var(--zap);font-weight:600}
   .cd-ic{width:68px;height:68px;border-radius:14px;background:var(--sun-soft);display:grid;place-items:center;flex:none;color:#B38B00}
   .cd-ic svg{width:34px;height:34px}
+  .pf-faz-desc{max-width:30rem;margin:.45rem auto 0;text-align:center;font-size:inherit;line-height:inherit;color:inherit}
   .in-est{display:flex;gap:.3rem;margin:.2rem 0 .3rem}
   .in-est button{border:0;background:none;padding:.1rem;cursor:pointer;line-height:0}
   .in-est svg{width:42px;height:42px;fill:#fff;stroke:#C9B470;stroke-width:1.4;stroke-linejoin:round;transition:transform .12s}
@@ -1770,13 +1771,13 @@ async function abrirPerfil(id) {
       ${temNota
         ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
         : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
-      ${cardapio(p, nome1)}
       <hr>
       <div class="linha-host">
         <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
         <div><b>${esc(p.nome)}</b><span>${p.desde ? `Na Kiiro desde ${mesAno(p.desde)} · ` : ""}combina tudo direto com você</span></div>
       </div>
       ${recursos.length ? `<hr><div class="recursos">${recursos.map(([i, t, d]) => `<div class="recurso"><span class="ri">${i}</span><div><b>${esc(t)}</b>${d ? `<span>${esc(d)}</span>` : ""}</div></div>`).join("")}</div>` : ""}
+      ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
       ${p.descricao ? `<hr><h2>Sobre o trabalho</h2><p class="sobre">${esc(p.descricao)}</p>` : ""}
       ${(p.trabalhos || []).length ? `<hr><h2>Trabalhos de ${esc(nome1)}</h2><div class="galeria">${p.trabalhos.map(u => `<button type="button" data-ampliar="${esc(u)}" aria-label="Ver foto do trabalho"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
       <hr><h2>Atende em</h2>
