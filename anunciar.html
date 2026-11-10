@@ -119,6 +119,24 @@
   .monte-tit{width:min(600px,100% - 2.5rem);margin:2.4rem auto 1rem}
   .monte-tit h2{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;letter-spacing:-.02em}
   .monte-tit p{color:var(--muted);margin-top:.3rem}
+
+  .hero-cel{margin-top:2rem;display:flex;justify-content:center;position:relative;z-index:1}
+  .hero-cel .fr{width:min(290px,78vw);border:10px solid #2B2B2B;border-radius:40px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.45);transform:rotate(3deg);background:#FFFAEA}
+  .hero-cel img{display:block;width:100%}
+  .hero-cel .bal{position:absolute;left:4%;bottom:18%;background:var(--sun);color:var(--ink);font-weight:700;font-size:.85rem;border-radius:14px;padding:.55rem .85rem;box-shadow:0 10px 24px rgba(0,0,0,.3);transform:rotate(-5deg)}
+  @media(min-width:720px){.ads-hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:2rem}.hero-cel{margin-top:0}}
+  .exemplo{display:grid;gap:1.4rem;margin-top:1.4rem;align-items:center}
+  @media(min-width:720px){.exemplo{grid-template-columns:1fr 1fr}}
+  .ex-ad .np{display:block;text-align:center;font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
+  .ex-ad .nc{display:block;background:#fff;border:1px solid #E3DAC0;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.12)}
+  .ex-ad .ni{display:block;width:100%;aspect-ratio:16/9;background:#fff url(img/patrocinadores/ns-aparecida-banner.jpg) center/contain no-repeat;border-bottom:1px solid #EFE6C8}
+  .ex-ad .nt{display:block;padding:.75rem .9rem 0;font-size:.98rem;line-height:1.4}
+  .ex-ad .nr{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem .85rem}
+  .ex-ad .nm{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.88rem}
+  .ex-ad .nm i{width:30px;height:30px;border:1px solid #EFE6C8;background:#fff url(img/patrocinadores/ns-aparecida.jpg) center/contain no-repeat}
+  .ex-ad .nb{font-size:.9rem;font-weight:700;color:#168A45;white-space:nowrap}
+  .ex-txt li{list-style:none;display:flex;gap:.6rem;margin-top:.7rem;font-weight:500}
+  .ex-txt li::before{content:"✓";flex:none;width:26px;height:26px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-weight:700;font-size:.85rem}
   .flutua{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:50;background:#1A1A1A;color:#FFC800;font-weight:700;font-size:1.05rem;border-radius:16px;padding:.9rem 1.8rem;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.2);transition:opacity .2s,transform .2s;white-space:nowrap}
   .flutua.fora{opacity:0;pointer-events:none;transform:translate(-50%,20px)}
 </style>
@@ -146,10 +164,13 @@
 
 <section class="ads-hero">
   <div class="wrap">
+    <div>
     <span class="tag">KIIRO ADS · PUBLICIDADE LOCAL</span>
     <h1>Sua empresa na frente de quem <em>precisa agora.</em></h1>
     <p>Com a Kiiro, você <b>aparece para quem está procurando serviço no Litoral Norte</b>, na cidade certa, com botão direto para o seu WhatsApp.</p>
     <a class="btn-quero" href="#monte"><span>→</span>Quero anunciar</a>
+    </div>
+    <div class="hero-cel"><div class="fr"><img src="img/anunciar/tela-inicio.jpg" alt="A página inicial da Kiiro no celular, com o espaço de publicidade"></div><span class="bal">📣 Seu anúncio aqui</span></div>
   </div>
 </section>
 
@@ -172,6 +193,17 @@
       <div class="feat"><i>⏱️</i><h3>No momento certo</h3><p>A pessoa está precisando de algo agora. É a hora de maior atenção e intenção.</p></div>
       <div class="feat"><i>💬</i><h3>Direto no WhatsApp</h3><p>Um toque no botão e o cliente já está falando com você, dizendo que viu na Kiiro.</p></div>
       <div class="feat"><i>🗺️</i><h3>Seu logo no mapa</h3><p>Sua loja aparece no mapa da Kiiro, como no Waze, para quem está por perto.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="ads-sec">
+  <div class="wrap">
+    <h2>Assim fica o seu anúncio</h2>
+    <p class="lead">Um anúncio de verdade, de quem já apoia a Kiiro.</p>
+    <div class="exemplo">
+      <div class="ex-ad"><span class="np">publicidade</span><span class="nc"><span class="ni" role="img" aria-label="Arte da Borracharia N.S. Aparecida"></span><span class="nt">Borracharia em geral, auto elétrica, auto peças e acessórios em Osório.</span><span class="nr"><span class="nm"><i></i>N.S. Aparecida</span><span class="nb">Chamar no WhatsApp ›</span></span></span></div>
+      <ul class="ex-txt"><li>A sua arte, grande, no topo do anúncio</li><li>Uma frase sobre a empresa</li><li>Botão para WhatsApp, localização ou Instagram</li><li>Seu logo também no mapa da Kiiro</li></ul>
     </div>
   </div>
 </section>
