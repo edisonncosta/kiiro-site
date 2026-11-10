@@ -111,7 +111,8 @@
   .fmt-nav div{display:flex;gap:.5rem}
   .fmt-nav button{width:46px;height:46px;border-radius:50%;border:0;background:var(--ink);color:var(--sun);font-size:1.2rem;cursor:pointer}
   /* celular desenhado mostrando onde o anúncio aparece */
-  .cel{width:200px;height:380px;margin:0 auto;border:9px solid #1A1A1A;border-radius:34px;background:var(--paper);overflow:hidden;position:relative;padding:.7rem .55rem}
+  .cel{width:220px;margin:0 auto;border:9px solid #1A1A1A;border-radius:34px;background:var(--paper);overflow:hidden;position:relative;box-shadow:0 18px 40px rgba(0,0,0,.15)}
+  .cel img{display:block;width:100%}
   .cel .bar{height:10px;width:60px;background:#1A1A1A;border-radius:99px;margin:0 auto .6rem}
   .cel .lg{height:12px;width:54px;background:#1A1A1A;border-radius:4px;margin-bottom:.5rem}
   .cel .mp{height:70px;border-radius:10px;background:#E6E2D3;position:relative;margin-bottom:.45rem}
@@ -500,13 +501,8 @@ $("form").addEventListener("submit", e => {
   fetch("/.netlify/functions/profissionais").then(r => r.ok ? r.json() : null).then(l => { if (Array.isArray(l) && l.length) $("n-pro").textContent = "+" + l.length; }).catch(() => {});
 
   // celular desenhado: onde o anúncio aparece em cada formato
-  const tela = (onde) => {
-    const ad = (txt, h) => `<div class="ad" style="height:${h}px">${txt}</div>`;
-    const cards = `<div class="cd"><span></span><span></span></div>`;
-    if (onde === "mapa") return `<div class="bar"></div><div class="lg"></div><div class="mp"><i class="pin" style="left:60%;top:22px"></i></div><div class="bs"></div><div class="ln"></div><div class="ln" style="width:60%"></div>${cards}${cards}`;
-    if (onde === "topo") return `<div class="bar"></div><div class="lg"></div><div class="mp"></div><div class="bs"></div>${ad("SUA MARCA<br>AQUI", 92)}${cards}`;
-    return `<div class="bar"></div><div class="lg"></div><div class="bs"></div><div class="ln"></div><div class="ln" style="width:55%"></div>${cards}${ad("SUA MARCA<br>AQUI", 70)}${cards}`;
-  };
+  // tela de verdade da Kiiro, mostrando onde o anúncio aparece em cada formato
+  const tela = (onde) => `<img src="img/anunciar/fmt-${onde === "topo" ? "inicio" : onde}.jpg" alt="Tela da Kiiro mostrando onde o anúncio aparece" loading="lazy">`;
   const F = [
     { v: "servico_cidade", p: "servicoCidade", aba: "Serviço + cidade", t: "Serviço na sua cidade", d: "Aparece para quem procura um grupo de serviços na sua cidade. Ex.: “Casa e reforma” em Osório.", tela: "lista" },
     { v: "cidade", p: "cidade", aba: "Cidade inteira", t: "Sua cidade inteira", d: "Todos os serviços, para quem escolhe a sua cidade na Kiiro.", tela: "lista" },
@@ -535,8 +531,10 @@ $("form").addEventListener("submit", e => {
 
   // botão flutuante some quando o formulário aparece
   const fl = $("flutua");
-  const io = new IntersectionObserver(es => es.forEach(x => fl.classList.toggle("fora", x.isIntersecting)), { threshold: 0.05 });
-  io.observe($("form"));
+  // botão flutuante some perto do formulário e dos botões dos formatos, para não ficar por cima deles
+  const vis = new Set();
+  const io = new IntersectionObserver(es => { es.forEach(x => x.isIntersecting ? vis.add(x.target) : vis.delete(x.target)); fl.classList.toggle("fora", vis.size > 0); }, { threshold: 0.05 });
+  io.observe($("form")); io.observe($("fmt-card"));
   // quem já veio com ?formato= vai direto para o formulário
   if (pedido) setTimeout(() => $("monte").scrollIntoView(), 50);
 })();
