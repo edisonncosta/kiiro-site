@@ -61,6 +61,66 @@
   .total{background:var(--sun-soft);border:1px solid #F0DC92;border-radius:14px;padding:.8rem 1rem;font-weight:600;display:flex;justify-content:space-between;gap:1rem}
   .escondido-bot{position:absolute;left:-9999px}
   .some{display:none}
+
+  /* ===== Página de vendas (estilo "Ads") ===== */
+  .ads-hero{background:var(--ink);color:#fff;padding:2.6rem 0 3rem;position:relative;overflow:hidden}
+  .ads-hero::after{content:"";position:absolute;right:-90px;top:-60px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,0,.28),transparent 65%)}
+  .ads-hero .tag{display:inline-block;background:var(--sun);color:var(--ink);font-weight:700;font-size:.78rem;letter-spacing:.08em;border-radius:999px;padding:.3rem .8rem;margin-bottom:1rem}
+  .ads-hero h1{font-size:clamp(2.2rem,9vw,3.6rem);font-weight:700;line-height:1.02;letter-spacing:-.03em;max-width:12ch}
+  .ads-hero h1 em{font-style:normal;color:var(--sun)}
+  .ads-hero p{margin-top:1rem;font-size:1.08rem;max-width:30rem;color:#E8E2CC}
+  .ads-hero p b{color:#fff}
+  .btn-quero{display:inline-flex;align-items:center;gap:.8rem;margin-top:1.6rem;background:var(--sun);color:var(--ink);font-weight:700;font-size:1.05rem;border-radius:14px;padding:.35rem 1.2rem .35rem .35rem;text-decoration:none}
+  .btn-quero span{width:44px;height:44px;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:1.2rem}
+  .ads-sec{padding:2.6rem 0}
+  .ads-sec h2{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;line-height:1.1;letter-spacing:-.02em}
+  .ads-sec .lead{margin-top:.6rem;font-size:1.05rem;max-width:34rem}
+  .sun-bg{background:var(--sun)}
+  .nums{display:grid;gap:.9rem;margin-top:1.5rem}
+  @media(min-width:720px){.nums{grid-template-columns:repeat(3,1fr)}}
+  .num-card{background:#fff;border-radius:22px;padding:1.4rem 1.4rem 1.5rem}
+  .num-card b{display:block;font-size:2.6rem;font-weight:700;letter-spacing:-.03em;line-height:1}
+  .num-card span{display:block;margin-top:.4rem;font-size:1rem}
+  .feats{display:grid;gap:1.8rem;margin-top:1.8rem;text-align:center}
+  @media(min-width:720px){.feats{grid-template-columns:repeat(2,1fr)}}
+  .feat i{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:16px;background:var(--sun-soft);font-style:normal;font-size:1.6rem}
+  .feat h3{margin-top:.7rem;font-size:1.25rem;font-weight:700}
+  .feat p{margin-top:.3rem;color:var(--muted);max-width:22rem;margin-inline:auto}
+  .fmt-sec{background:#F3F1EA}
+  .fmt-tabs{display:flex;gap:.5rem;overflow-x:auto;margin-top:1.3rem;padding-bottom:.3rem;scrollbar-width:none}
+  .fmt-tabs button{flex:none;border:0;border-radius:999px;padding:.6rem 1.1rem;font:600 .92rem Poppins,sans-serif;background:#fff;color:var(--ink);cursor:pointer}
+  .fmt-tabs button.on{background:var(--sun)}
+  .fmt-card{background:#fff;border-radius:26px;padding:1.4rem;margin-top:1rem;display:grid;gap:1.2rem;align-items:center}
+  @media(min-width:720px){.fmt-card{grid-template-columns:260px 1fr}}
+  .fmt-card h3{font-size:1.35rem;font-weight:700;line-height:1.15}
+  .fmt-card .onde{margin-top:.4rem;color:var(--muted)}
+  .fmt-card .preco{margin-top:.9rem;font-size:1.6rem;font-weight:700}
+  .fmt-card .preco small{font-size:.9rem;font-weight:500;color:var(--muted)}
+  .fmt-card .btn{margin-top:1rem}
+  .fmt-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;font-weight:700}
+  .fmt-nav span small{color:var(--muted);font-weight:500}
+  .fmt-nav div{display:flex;gap:.5rem}
+  .fmt-nav button{width:46px;height:46px;border-radius:50%;border:0;background:var(--ink);color:var(--sun);font-size:1.2rem;cursor:pointer}
+  /* celular desenhado mostrando onde o anúncio aparece */
+  .cel{width:200px;height:380px;margin:0 auto;border:9px solid #1A1A1A;border-radius:34px;background:var(--paper);overflow:hidden;position:relative;padding:.7rem .55rem}
+  .cel .bar{height:10px;width:60px;background:#1A1A1A;border-radius:99px;margin:0 auto .6rem}
+  .cel .lg{height:12px;width:54px;background:#1A1A1A;border-radius:4px;margin-bottom:.5rem}
+  .cel .mp{height:70px;border-radius:10px;background:#E6E2D3;position:relative;margin-bottom:.45rem}
+  .cel .bs{height:18px;border-radius:99px;background:#fff;border:1px solid var(--line);margin-bottom:.45rem}
+  .cel .ln{height:7px;border-radius:4px;background:#E2DCC6;margin:.3rem 0}
+  .cel .cd{display:flex;gap:.35rem;margin-top:.45rem}
+  .cel .cd span{flex:1;height:52px;border-radius:8px;background:#fff;border:1px solid var(--line)}
+  .cel .ad{border-radius:8px;background:var(--sun);border:2px dashed var(--ink);display:grid;place-items:center;font-size:.62rem;font-weight:700;text-align:center;line-height:1.2;color:var(--ink);animation:pisca 1.6s ease-in-out infinite}
+  .cel .pin{position:absolute;width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--sun);border:2px solid var(--ink);animation:pisca 1.6s ease-in-out infinite}
+  @keyframes pisca{50%{box-shadow:0 0 0 5px rgba(255,200,0,.45)}}
+  .comu{background:var(--ink);color:#fff;border-radius:26px;padding:1.6rem;display:flex;gap:1rem;align-items:flex-start}
+  .comu i{font-style:normal;font-size:1.8rem}
+  .comu b{color:var(--sun)}
+  .monte-tit{width:min(600px,100% - 2.5rem);margin:2.4rem auto 1rem}
+  .monte-tit h2{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;letter-spacing:-.02em}
+  .monte-tit p{color:var(--muted);margin-top:.3rem}
+  .flutua{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:50;background:#1A1A1A;color:#FFC800;font-weight:700;font-size:1.05rem;border-radius:16px;padding:.9rem 1.8rem;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.2);transition:opacity .2s,transform .2s;white-space:nowrap}
+  .flutua.fora{opacity:0;pointer-events:none;transform:translate(-50%,20px)}
 </style>
 </head>
 <body>
@@ -80,18 +140,64 @@
 <header class="top">
   <div class="wrap">
     <a href="./" class="logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150" role="img" aria-label="Kiiro"><use href="#wordmark"/></svg></a>
-    <a class="btn btn-line btn-sm" href="./#anuncie">Ver formatos</a>
+    <a class="btn btn-line btn-sm" href="#formatos">Ver formatos</a>
   </div>
 </header>
 
-<section class="topo-pag">
+<section class="ads-hero">
   <div class="wrap">
-    <h1>Monte seu anúncio</h1>
-    <p>Escolha onde aparecer, envie a arte e o contato. A Kiiro confere, combina o pagamento com você e coloca no ar.</p>
+    <span class="tag">KIIRO ADS · PUBLICIDADE LOCAL</span>
+    <h1>Sua empresa na frente de quem <em>precisa agora.</em></h1>
+    <p>Com a Kiiro, você <b>aparece para quem está procurando serviço no Litoral Norte</b>, na cidade certa, com botão direto para o seu WhatsApp.</p>
+    <a class="btn-quero" href="#monte"><span>→</span>Quero anunciar</a>
   </div>
 </section>
 
-<div class="form-wrap">
+<section class="ads-sec sun-bg">
+  <div class="wrap">
+    <h2>Por que anunciar na Kiiro?</h2>
+    <p class="lead">Quem abre a Kiiro já está procurando um serviço. Sua marca aparece nessa hora, perto de quem vai comprar.</p>
+    <div class="nums">
+      <div class="num-card"><b id="n-cid">22</b><span>cidades do Litoral Norte</span></div>
+      <div class="num-card"><b id="n-pro">+15</b><span>profissionais cadastrados</span></div>
+      <div class="num-card"><b id="n-serv">+50</b><span>tipos de serviço</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="ads-sec">
+  <div class="wrap">
+    <div class="feats">
+      <div class="feat"><i>📍</i><h3>Na cidade certa</h3><p>Escolha a cidade e o grupo de serviços. Seu anúncio aparece para quem procura ali.</p></div>
+      <div class="feat"><i>⏱️</i><h3>No momento certo</h3><p>A pessoa está precisando de algo agora. É a hora de maior atenção e intenção.</p></div>
+      <div class="feat"><i>💬</i><h3>Direto no WhatsApp</h3><p>Um toque no botão e o cliente já está falando com você, dizendo que viu na Kiiro.</p></div>
+      <div class="feat"><i>🗺️</i><h3>Seu logo no mapa</h3><p>Sua loja aparece no mapa da Kiiro, como no Waze, para quem está por perto.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="ads-sec fmt-sec" id="formatos">
+  <div class="wrap">
+    <h2>Formatos de anúncio</h2>
+    <p class="lead">Do serviço na sua cidade até a página inicial de todo o litoral.</p>
+    <div class="fmt-tabs" id="fmt-tabs"></div>
+    <div class="fmt-card" id="fmt-card"></div>
+    <div class="fmt-nav"><span id="fmt-pos"></span><div><button type="button" id="fmt-ant" aria-label="Anterior">←</button><button type="button" id="fmt-prox" aria-label="Próximo">→</button></div></div>
+  </div>
+</section>
+
+<section class="ads-sec">
+  <div class="wrap">
+    <div class="comu"><i>💛</i><div><b>A Kiiro é grátis pra quem procura e pra quem trabalha.</b><br>Quem mantém a plataforma no ar são as empresas que anunciam. Anunciando, você aparece para a sua região e ainda ajuda quem trabalha no Litoral Norte.</div></div>
+  </div>
+</section>
+
+<div class="monte-tit" id="monte">
+  <h2>Monte seu anúncio</h2>
+  <p>Escolha onde aparecer, envie a arte e o contato. A Kiiro confere, combina o pagamento com você e coloca no ar.</p>
+</div>
+
+<div class="form-wrap" style="margin-top:0">
   <!-- O Netlify salva cada envio em Forms > anuncio. Você aprova pelo painel, aba Anúncios. -->
   <form class="caixa" name="anuncio" method="POST" action="anuncio-ok.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="form" novalidate>
     <input type="hidden" name="form-name" value="anuncio">
@@ -190,6 +296,7 @@
     <p class="fine">Nada é cobrado agora. A Kiiro confere o anúncio, fala com você no WhatsApp para combinar o pagamento e só então coloca no ar. Ao enviar, você concorda com os <a href="termos.html" target="_blank">Termos de uso</a>.</p>
   </form>
 </div>
+<a class="flutua" id="flutua" href="#monte">↗ Quero anunciar</a>
 
 <script>
 const DEMO = !!window.KIIRO_DEMO;
@@ -340,6 +447,54 @@ $("form").addEventListener("submit", e => {
   $("enviar").disabled = true; $("enviar").textContent = "Enviando…";
   if (DEMO) { e.preventDefault(); location.href = "anuncio-ok.html?demo=1&f=" + cod; }
 });
+
+// ===== Página de vendas: números, formatos e botão flutuante =====
+(function () {
+  const cid = (window.KIIRO_CIDADES || []).length; if (cid) $("n-cid").textContent = cid;
+  const serv = (window.KIIRO_SERVICOS || []).reduce((s, g) => s + g.itens.length, 0); if (serv) $("n-serv").textContent = "+" + serv;
+  fetch("/.netlify/functions/profissionais").then(r => r.ok ? r.json() : null).then(l => { if (Array.isArray(l) && l.length) $("n-pro").textContent = "+" + l.length; }).catch(() => {});
+
+  // celular desenhado: onde o anúncio aparece em cada formato
+  const tela = (onde) => {
+    const ad = (txt, h) => `<div class="ad" style="height:${h}px">${txt}</div>`;
+    const cards = `<div class="cd"><span></span><span></span></div>`;
+    if (onde === "mapa") return `<div class="bar"></div><div class="lg"></div><div class="mp"><i class="pin" style="left:60%;top:22px"></i></div><div class="bs"></div><div class="ln"></div><div class="ln" style="width:60%"></div>${cards}${cards}`;
+    if (onde === "topo") return `<div class="bar"></div><div class="lg"></div><div class="mp"></div><div class="bs"></div>${ad("SUA MARCA<br>AQUI", 92)}${cards}`;
+    return `<div class="bar"></div><div class="lg"></div><div class="bs"></div><div class="ln"></div><div class="ln" style="width:55%"></div>${cards}${ad("SUA MARCA<br>AQUI", 70)}${cards}`;
+  };
+  const F = [
+    { v: "servico_cidade", p: "servicoCidade", aba: "Serviço + cidade", t: "Serviço na sua cidade", d: "Aparece para quem procura um grupo de serviços na sua cidade. Ex.: “Casa e reforma” em Osório.", tela: "lista" },
+    { v: "cidade", p: "cidade", aba: "Cidade inteira", t: "Sua cidade inteira", d: "Todos os serviços, para quem escolhe a sua cidade na Kiiro.", tela: "lista" },
+    { v: "servico", p: "servico", aba: "Serviço no litoral", t: "Serviço em todo o litoral", d: "Um grupo de serviços, em todas as cidades do Litoral Norte.", tela: "lista" },
+    { v: "inicio", p: "inicio", aba: "Página inicial", t: "Página inicial", d: "Para todo mundo que abre a Kiiro, em rodízio com outros parceiros.", tela: "topo" },
+    { v: "temporada", p: "temporada", aba: "Temporada", t: "Pacote Temporada", d: "Dezembro a março, quando o litoral enche: página inicial + um grupo de serviços.", tela: "topo" },
+    { v: "", p: "", aba: "Logo no mapa", t: "Seu logo no mapa", d: "Com o endereço da loja, seu logo aparece no mapa da Kiiro, como no Waze. Vem junto com qualquer formato.", tela: "mapa" },
+  ];
+  let i = 0;
+  $("fmt-tabs").innerHTML = F.map((f, k) => `<button type="button" data-k="${k}">${f.aba}</button>`).join("");
+  function mostra(k) {
+    i = (k + F.length) % F.length; const f = F[i];
+    document.querySelectorAll("#fmt-tabs button").forEach((b, n) => b.classList.toggle("on", n === i));
+    const ab = document.querySelector(`#fmt-tabs button[data-k="${i}"]`), tb = $("fmt-tabs");
+    if (ab) tb.scrollTo({ left: ab.offsetLeft - tb.offsetLeft - 20, behavior: "smooth" });
+    const pr = f.p ? P[f.p] : null;
+    $("fmt-card").innerHTML = `<div class="cel">${tela(f.tela)}</div><div><h3>${f.t}</h3><p class="onde">${f.d}</p>`
+      + (f.p ? `<p class="preco">${typeof pr === "number" ? `R$ ${pr}<small>/mês</small>` : precoTxt(pr)}</p><a class="btn btn-ink" href="#monte" data-esc="${f.v}">Quero esse formato</a>` : `<p class="preco" style="font-size:1.1rem">Incluso no seu anúncio</p><a class="btn btn-ink" href="#monte">Quero anunciar</a>`) + `</div>`;
+    $("fmt-pos").innerHTML = `${String(i + 1).padStart(2, "0")} <small>/ ${String(F.length).padStart(2, "0")}</small>`;
+  }
+  $("fmt-tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) mostra(+b.dataset.k); });
+  $("fmt-ant").addEventListener("click", () => mostra(i - 1));
+  $("fmt-prox").addEventListener("click", () => mostra(i + 1));
+  $("fmt-card").addEventListener("click", e => { const a = e.target.closest("[data-esc]"); if (!a) return; const r = document.querySelector(`input[name=formato][value="${a.dataset.esc}"]`); if (r) { r.checked = true; atualiza(); } });
+  mostra(0);
+
+  // botão flutuante some quando o formulário aparece
+  const fl = $("flutua");
+  const io = new IntersectionObserver(es => es.forEach(x => fl.classList.toggle("fora", x.isIntersecting)), { threshold: 0.05 });
+  io.observe($("form"));
+  // quem já veio com ?formato= vai direto para o formulário
+  if (pedido) setTimeout(() => $("monte").scrollIntoView(), 50);
+})();
 </script>
 </body>
 </html>
