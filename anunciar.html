@@ -83,12 +83,13 @@
   .num-card span{display:block;margin-top:.4rem;font-size:1rem}
 
   .num-card{padding:0;overflow:hidden}
-  .num-card .nimg{height:170px;background:#2A2A2A center/cover no-repeat;position:relative;overflow:hidden}
+  .num-card .nimg{height:200px;background:#2A2A2A center/cover no-repeat;position:relative;overflow:hidden}
   .num-card .ntx{padding:1.2rem 1.4rem 1.4rem}
   .num-card .nimg svg{position:absolute;inset:0;width:100%;height:100%}
   .nchips{position:absolute;inset:0;display:flex;flex-wrap:wrap;gap:.35rem;align-content:center;justify-content:center;padding:.8rem;background:var(--ink)}
   .nchips span{background:#2C2C2C;color:#fff;border-radius:999px;padding:.25rem .65rem;font-size:.72rem;font-weight:600;white-space:nowrap}
   .nchips span:nth-child(3n){background:var(--sun);color:var(--ink)}
+  .rua{display:block;width:100%;border-radius:26px;aspect-ratio:16/9;object-fit:cover;box-shadow:0 18px 40px rgba(0,0,0,.12)}
   .feats{display:grid;gap:1.8rem;margin-top:1.8rem;text-align:center}
   @media(min-width:720px){.feats{grid-template-columns:repeat(2,1fr)}}
   .feat i{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:16px;background:var(--sun-soft);font-style:normal;font-size:1.6rem}
@@ -187,15 +188,18 @@
     <h2>Por que anunciar na Kiiro?</h2>
     <p class="lead">Quem abre a Kiiro já está procurando um serviço. Sua marca aparece nessa hora, perto de quem vai comprar.</p>
     <div class="nums">
-      <div class="num-card"><div class="nimg" id="n-mapa" role="img" aria-label="Mapa com as cidades da Kiiro no Litoral Norte"></div><div class="ntx"><b id="n-cid">22</b><span>cidades do Litoral Norte</span></div></div>
-      <div class="num-card"><div class="nimg" style="background-image:url(img/anunciar/profissionais.jpg)" role="img" aria-label="Profissionais cadastrados na Kiiro"></div><div class="ntx"><b id="n-pro">+15</b><span>profissionais cadastrados</span></div></div>
-      <div class="num-card"><div class="nimg"><div class="nchips" id="n-chips"></div></div><div class="ntx"><b id="n-serv">+50</b><span>tipos de serviço</span></div></div>
+      <div class="num-card"><div class="nimg" style="background-image:url(img/anunciar/cidades.jpg)" role="img" aria-label="Cidade de praia do Litoral Norte vista de cima, com pins da Kiiro"></div><div class="ntx"><b id="n-cid">22</b><span>cidades do Litoral Norte</span></div></div>
+      <div class="num-card"><div class="nimg" style="background-image:url(img/anunciar/eletricista.jpg);background-position:center 30%" role="img" aria-label="Eletricista trabalhando numa casa de praia"></div><div class="ntx"><b id="n-pro">+15</b><span>profissionais cadastrados</span></div></div>
+      <div class="num-card"><div class="nimg" style="background-image:url(img/anunciar/servicos.jpg);background-position:center 28%" role="img" aria-label="Diarista, jardineiro e pintor na frente de uma casa"></div><div class="ntx"><b id="n-serv">+50</b><span>tipos de serviço</span></div></div>
     </div>
   </div>
 </section>
 
 <section class="ads-sec">
   <div class="wrap">
+    <img class="rua" src="img/anunciar/rua.jpg" alt="Rua comercial de cidade de praia com pins da Kiiro sobre as lojas" loading="lazy">
+    <h2 style="margin-top:1.6rem">Anúncios na cidade certa</h2>
+    <p class="lead">Sua loja aparece para quem está perto e procurando, no mapa e na lista de profissionais.</p>
     <div class="feats">
       <div class="feat"><i>📍</i><h3>Na cidade certa</h3><p>Escolha a cidade e o grupo de serviços. Seu anúncio aparece para quem procura ali.</p></div>
       <div class="feat"><i>⏱️</i><h3>No momento certo</h3><p>A pessoa está precisando de algo agora. É a hora de maior atenção e intenção.</p></div>
@@ -493,21 +497,6 @@ $("form").addEventListener("submit", e => {
   const cid = (window.KIIRO_CIDADES || []).length; if (cid) $("n-cid").textContent = cid;
   const serv = (window.KIIRO_SERVICOS || []).reduce((s, g) => s + g.itens.length, 0); if (serv) $("n-serv").textContent = "+" + serv;
 
-  // imagem do mapa: as cidades da Kiiro desenhadas pelas coordenadas, com o litoral e o mar
-  (function () {
-    const C = window.KIIRO_COORD || {}, nomes = Object.keys(C); if (!nomes.length) return;
-    const la = nomes.map(n => C[n][0]), lo = nomes.map(n => C[n][1]);
-    const [a0, a1, o0, o1] = [Math.min(...la), Math.max(...la), Math.min(...lo), Math.max(...lo) + .12];
-    const W = 400, H = 170, px = o => 16 + (o - o0) / (o1 - o0) * (W - 40), py = a => 16 + (a1 - a) / (a1 - a0) * (H - 32);
-    const costa = ["Torres", "Arroio do Sal", "Capão da Canoa", "Xangri-Lá", "Imbé", "Tramandaí", "Cidreira", "Balneário Pinhal", "Mostardas"].filter(n => C[n]);
-    const lin = costa.map(n => `${px(C[n][1] + .05).toFixed(1)},${py(C[n][0]).toFixed(1)}`);
-    const mar = `M${(px(C[costa[0]][1] + .05) + 24).toFixed(1)},0 L${lin.join(" L")} L${px(C[costa.at(-1)][1] + .05).toFixed(1)},${H} L${W},${H} L${W},0Z`;
-    const pts = nomes.map(n => `<circle cx="${px(C[n][1]).toFixed(1)}" cy="${py(C[n][0]).toFixed(1)}" r="4.5" fill="#FFC800" stroke="#1A1A1A" stroke-width="1.5"/>`).join("");
-    const rot = [["Torres", -8, -6], ["Capão da Canoa", -10, -8], ["Osório", -10, 4], ["Tramandaí", 4, 20]].filter(([n]) => C[n]).map(([n, dx, dy]) => `<text x="${(px(C[n][1]) + dx).toFixed(1)}" y="${(py(C[n][0]) + dy).toFixed(1)}" text-anchor="${dx < 0 ? "end" : "start"}" font-family="Poppins" font-size="11" font-weight="600" fill="#fff">${n}</text>`).join("");
-    $("n-mapa").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><rect width="${W}" height="${H}" fill="#2A2A2A"/><path d="${mar}" fill="#7FC3DC"/><polyline points="${lin.join(" ")}" fill="none" stroke="#F4E7B8" stroke-width="3"/>${pts}${rot}<text x="${W - 40}" y="${H - 14}" font-family="Poppins" font-size="12" font-weight="600" fill="#1F5F78">mar</text></svg>`;
-  })();
-  // imagem dos serviços: os nomes dos serviços da Kiiro
-  $("n-chips").innerHTML = (window.KIIRO_SERVICOS || []).flatMap(g => g.itens).slice(0, 11).map(x => `<span>${x}</span>`).join("");
   fetch("/.netlify/functions/profissionais").then(r => r.ok ? r.json() : null).then(l => { if (Array.isArray(l) && l.length) $("n-pro").textContent = "+" + l.length; }).catch(() => {});
 
   // celular desenhado: onde o anúncio aparece em cada formato
