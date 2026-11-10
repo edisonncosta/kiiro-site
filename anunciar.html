@@ -175,7 +175,6 @@
 <section class="ads-hero">
   <div class="wrap">
     <div>
-    <span class="tag">PLATAFORMA COMUNITÁRIA</span>
     <h1>Sua empresa na frente de quem <em>precisa agora.</em></h1>
     <p>Na Kiiro, a plataforma comunitária do Litoral Norte, sua empresa <b>aparece para quem está procurando serviço</b>, com botão direto pro seu WhatsApp.</p>
     <a class="btn-quero" href="#monte"><span>→</span>Quero anunciar</a>
@@ -534,7 +533,7 @@ $("form").addEventListener("submit", e => {
   // botão flutuante some perto do formulário e dos botões dos formatos, para não ficar por cima deles
   const vis = new Set();
   const io = new IntersectionObserver(es => { es.forEach(x => x.isIntersecting ? vis.add(x.target) : vis.delete(x.target)); fl.classList.toggle("fora", vis.size > 0); }, { threshold: 0.05 });
-  io.observe($("form")); io.observe($("fmt-card"));
+  io.observe($("form")); io.observe($("fmt-card")); io.observe(document.querySelector(".btn-quero"));
   // quem já veio com ?formato= vai direto para o formulário
   if (pedido) setTimeout(() => $("monte").scrollIntoView(), 50);
 })();
