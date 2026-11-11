@@ -58,6 +58,13 @@
   #cid-tags button{background:var(--sun-soft);border:1px solid #F2DC8A;border-radius:999px;padding:.3rem .7rem;font:500 .82rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
   #cid-tags button.fora{background:#fff;color:#9A9384;text-decoration:line-through;border-color:var(--line)}
   #cid-tags button.base{font-weight:700;cursor:default}
+  .insta-campo{position:relative;margin-top:.5rem}
+  .insta-campo span{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-weight:600;color:var(--muted)}
+  .insta-campo .input{padding-left:2.1rem}
+  .collab{display:flex;gap:.6rem;align-items:flex-start;margin-top:.8rem;font-size:.92rem;line-height:1.4;cursor:pointer;background:var(--sun-soft);border-radius:12px;padding:.75rem .9rem}
+  .collab span{font-weight:400}.collab b{font-weight:700}
+  .collab input{width:20px;height:20px;flex:none;margin-top:.1rem;accent-color:#1A1A1A}
+  .collab[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -170,6 +177,9 @@
     <div class="campo">
       <label for="whatsapp"><span class="n">7</span>Seu WhatsApp</label>
       <input class="input" type="tel" id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
+      <label for="instagram" style="margin-top:1.1rem;display:block;font-weight:600">Seu Instagram <span class="opc" style="font-weight:400">(opcional)</span></label>
+      <div class="insta-campo"><span>@</span><input class="input" type="text" id="instagram" name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="80" placeholder="seuperfil"></div>
+      <label class="collab" id="collab-box" hidden><input type="checkbox" id="collab" name="collab" value="Sim"> <span>Quero que a Kiiro me marque nos posts e topo fazer <b>collab</b> 🤝</span></label>
     </div>
 
     <div class="campo">
@@ -340,6 +350,19 @@ async function reduzirFoto(arquivo) {
   } finally { URL.revokeObjectURL(url); }
 }
 
+// miniatura quadrada da foto, para a imagem de story na tela final
+let fotoStory = "";
+async function miniFoto(arquivo) {
+  const url = URL.createObjectURL(arquivo);
+  try {
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = url; });
+    const lado = Math.min(img.naturalWidth, img.naturalHeight), t = 480;
+    const c = document.createElement("canvas"); c.width = c.height = t;
+    c.getContext("2d").drawImage(img, (img.naturalWidth - lado) / 2, (img.naturalHeight - lado) / 2, lado, lado, 0, 0, t, t);
+    return c.toDataURL("image/jpeg", 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
+
 $("foto").addEventListener("change", async () => {
   let f = $("foto").files[0];
   if (!f) return;
@@ -352,6 +375,7 @@ $("foto").addEventListener("change", async () => {
     }
   } catch { /* se não der para reduzir, envia a original */ }
   if (f.size > 8 * 1024 * 1024) { $("erro").textContent = "A foto é grande demais. Escolha outra."; $("foto").value = ""; $("foto-txt").textContent = "Escolher foto"; return; }
+  miniFoto(f).then(d => { fotoStory = d; }).catch(() => {});
   $("prev").style.backgroundImage = `url(${URL.createObjectURL(f)})`;
   $("prev").textContent = "";
   $("foto-txt").textContent = "Trocar foto";
@@ -391,6 +415,11 @@ if (!window.DataTransfer) { // celular muito antigo: mostra os 3 campos normais
   $("trab-escolher").remove();
 } else desenharTrab();
 
+// instagram (opcional): limpa o @ e mostra a opção de collab
+function limparInsta(v) { return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@+/, "").replace(/[/?#].*$/, "").replace(/[^A-Za-z0-9._]/g, "").slice(0, 30).toLowerCase(); }
+$("instagram").addEventListener("input", () => { $("collab-box").hidden = !limparInsta($("instagram").value); });
+$("instagram").addEventListener("blur", () => { $("instagram").value = limparInsta($("instagram").value); });
+
 $("form").addEventListener("submit", e => {
   const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);
   const cidades = cidadesAtende().map(([c]) => c).filter(c => !foraCid.has(c)); // a principal vem primeiro
@@ -416,13 +445,17 @@ $("form").addEventListener("submit", e => {
     if (msg.startsWith("Conte")) { $("descricao").focus(); $("descricao").scrollIntoView({ block: "center" }); }
     return;
   }
-  try { localStorage.setItem("kiiro-meu-cadastro", JSON.stringify({ nome: $("nome").value.trim(), whats: whats.length <= 11 ? "55" + whats : whats })); } catch {}
+  const insta = limparInsta($("instagram").value);
+  $("instagram").value = insta;
+  if (!insta) $("collab").checked = false;
+  try { localStorage.setItem("kiiro-meu-cadastro", JSON.stringify({ nome: $("nome").value.trim(), whats: whats.length <= 11 ? "55" + whats : whats, servico: servicos[0] || "", cidade: $("cid-base").value, instagram: insta })); } catch {}
   if (!$("foto").files.length) { e.preventDefault(); pedirFoto(); return; }
 
   $("cidade").value = cidades.join(", ");
   $("dias").value = dias.join(", ");
   $("servico").value = servicos.map(x => x.replace(/,/g, " ")).join(", ");
   try { sessionStorage.setItem("kiiro-cad", JSON.stringify({ servicos, cidade: $("cid-base").value })); } catch {}
+  try { if (fotoStory) sessionStorage.setItem("kiiro-cad-foto", fotoStory); } catch {}
   contar("cad_envio");
   $("enviar").disabled = true;
   $("enviar").textContent = "Enviando…";

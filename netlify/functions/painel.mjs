@@ -551,7 +551,7 @@ export default async (req, context) => {
           <div class="pro-l">
             ${p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy">` : `<span class="ini">${esc(String(p.nome)[0] || "?")}</span>`}
             <div>
-              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""} ${p.editado ? `<span class="st pend">Editado</span>` : ""}
+              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""} ${p.editado ? `<span class="st pend">Editado</span>` : ""} ${p.collab ? `<span class="st bom">Topa collab</span>` : ""}
               <p>${esc((p.categorias || []).join(" · "))}<br>${esc(p.cidade)}</p>
               ${(p.trabalhos || []).length ? `<div class="mini-trab">${p.trabalhos.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</div>` : ""}
               <p class="mini">${p.avaliacoes ? `★ ${String(p.nota).replace(".", ",")} (${p.avaliacoes})` : "Sem avaliações"} · ${conta[p.whatsapp] || 0} chamada${(conta[p.whatsapp] || 0) === 1 ? "" : "s"} · desde ${p.desde ? fmt(p.desde).slice(0, 5) : "–"}${(p.ids || []).length > 1 ? ` · ${(p.ids || []).length} cadastros` : ""}</p>
@@ -560,6 +560,7 @@ export default async (req, context) => {
           <div class="acoes">
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
+            ${p.instagram ? `<a class="b" href="https://instagram.com/${esc(p.instagram)}" target="_blank" rel="noopener">@${esc(p.instagram)}</a>` : ""}
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma avaliação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais avaliações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir avaliações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}

@@ -22,6 +22,14 @@
   .indique h2{font-size:1.15rem;font-weight:700;margin:.7rem 0 .3rem}
   .indique p{margin:0 auto 1rem;font-weight:400;font-size:.9rem;color:var(--muted);line-height:1.5}
   .indique .btn{width:100%}
+  .story{max-width:24rem;margin:2rem auto 0;background:var(--ink);color:#fff;border-radius:22px;padding:1.4rem 1.2rem 1.3rem;text-align:center}
+  .story h2{font-size:1.2rem;font-weight:700;margin:0 0 .3rem;color:#fff}
+  .story p{margin:0 auto 1rem;font-weight:400;font-size:.9rem;color:#E9E2CC;line-height:1.5}
+  .story img{display:block;width:62%;margin:0 auto 1.1rem;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.45);aspect-ratio:9/16;background:var(--sun)}
+  .story .btn{width:100%;background:var(--sun);color:var(--ink)}
+  .story .sec{display:inline-block;margin-top:.8rem;color:#E9E2CC;font-size:.85rem;text-decoration:underline;background:none;border:0;font-family:inherit;cursor:pointer}
+  .story .sec[hidden]{display:none}
+  .story .dica{font-size:.78rem;color:#BDB49A;margin:.9rem 0 0}
 </style>
 </head>
 <body>
@@ -31,6 +39,14 @@
     <p>Em poucos minutos seu perfil aparece na lista de profissionais da Kiiro. Fique de olho no WhatsApp.</p>
     <p style="font-size:.85rem;margin-top:-.8rem">Para mudar algo depois, é só preencher o cadastro de novo com o mesmo WhatsApp.</p>
     <a class="btn btn-ink" href="./">Ver profissionais</a>
+    <section class="story" id="story" hidden>
+      <h2>Conte pra todo mundo 📣</h2>
+      <p>Fizemos uma imagem pra você postar no seu story e avisar seus clientes que agora dá pra te chamar pela Kiiro.</p>
+      <img id="story-img" alt="Imagem para o seu story">
+      <button class="btn" id="story-postar" type="button">Postar no meu story</button>
+      <button class="sec" id="story-baixar" type="button">Baixar imagem</button>
+      <p class="dica" id="story-dica">No Instagram, adicione a figurinha de <b>link</b> com chamakiiro.com.br<span id="story-marca"> e marque a @chamakiiro</span>.</p>
+    </section>
     <div id="patro-pro"></div>
     <section class="indique">
       <div class="ic">🔔</div>
@@ -61,6 +77,84 @@
       document.getElementById("indique").hidden = false;
     }
   } catch {}
+  </script>
+  <script>
+  // imagem "Agora estou na Kiiro" para o story do profissional
+  (async function () {
+    let eu = null; try { eu = JSON.parse(localStorage.getItem("kiiro-meu-cadastro") || "null"); } catch {}
+    if (!eu || !eu.nome) return;
+    let foto = ""; try { foto = sessionStorage.getItem("kiiro-cad-foto") || ""; } catch {}
+    const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d"), SUN = "#FFC800", INK = "#1A1A1A", F = "Poppins, sans-serif";
+    try { await Promise.all(["800 90px Poppins", "700 60px Poppins", "600 40px Poppins"].map(f => document.fonts.load(f))); } catch {}
+    const carregar = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+    const img = await carregar(foto);
+    const cabe = (txt, fonte, max) => { let t = txt; g.font = fonte; while (g.measureText(t).width > max && t.length > 3) t = t.slice(0, -2); return t === txt ? t : t.trim() + "…"; };
+    const tamanho = (txt, peso, maior, max) => { let n = maior; do { g.font = `${peso} ${n}px ${F}`; } while (g.measureText(txt).width > max && (n -= 4) > 30); return g.font; };
+
+    // fundo
+    g.fillStyle = SUN; g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.arc(W - 60, 260, 360, 0, 7); g.fill();
+    g.beginPath(); g.arc(80, H - 330, 300, 0, 7); g.fill();
+
+    // logo
+    g.save(); g.translate(W / 2 - 170, 120);
+    g.strokeStyle = INK; g.lineWidth = 16; g.lineCap = g.lineJoin = "round";
+    g.stroke(new Path2D("M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"));
+    g.beginPath(); g.arc(282, 90, 28, 0, 7); g.stroke();
+    g.fillStyle = INK; g.fill(new Path2D("M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z"));
+    g.fillStyle = SUN; g.beginPath(); g.arc(118, 24, 5, 0, 7); g.arc(166, 24, 5, 0, 7); g.fill();
+    g.restore();
+
+    // título
+    g.fillStyle = INK; g.textAlign = "center"; g.textBaseline = "alphabetic";
+    g.font = `800 112px ${F}`; g.fillText("Agora estou", W / 2, 480);
+    g.fillText("na Kiiro!", W / 2, 600);
+
+    // foto
+    const cy = 950, r = 230;
+    g.fillStyle = "#fff"; g.beginPath(); g.arc(W / 2, cy, r + 18, 0, 7); g.fill();
+    g.save(); g.beginPath(); g.arc(W / 2, cy, r, 0, 7); g.clip();
+    if (img) g.drawImage(img, W / 2 - r, cy - r, r * 2, r * 2);
+    else { g.fillStyle = INK; g.fillRect(W / 2 - r, cy - r, r * 2, r * 2); g.fillStyle = SUN; g.font = `800 220px ${F}`; g.textBaseline = "middle"; g.fillText(eu.nome.trim()[0].toUpperCase(), W / 2, cy + 10); g.textBaseline = "alphabetic"; }
+    g.restore();
+    // selo
+    g.fillStyle = INK; g.beginPath(); g.arc(W / 2 + 170, cy + 170, 62, 0, 7); g.fill();
+    g.strokeStyle = SUN; g.lineWidth = 14; g.beginPath(); g.moveTo(W / 2 + 142, cy + 172); g.lineTo(W / 2 + 162, cy + 192); g.lineTo(W / 2 + 200, cy + 150); g.stroke();
+
+    // nome, serviço, cidade
+    const nome = eu.nome.trim().split(/\s+/).slice(0, 3).join(" ");
+    g.fillStyle = INK;
+    g.font = tamanho(nome, 800, 84, W - 140); g.fillText(nome, W / 2, 1320);
+    const linha = [eu.servico, eu.cidade].filter(Boolean).join(" · ");
+    if (linha) { g.font = `600 48px ${F}`; g.fillText(cabe(linha, `600 48px ${F}`, W - 140), W / 2, 1395); }
+    if (eu.instagram) { g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.7)"; g.fillText("@" + eu.instagram, W / 2, 1460); }
+
+    // cartão de chamada
+    const bx = 90, by = 1540, bw = W - 180, bh = 250;
+    g.fillStyle = INK; g.beginPath(); g.roundRect(bx, by, bw, bh, 44); g.fill();
+    g.fillStyle = "#fff"; g.font = `600 44px ${F}`;
+    const chamada = eu.servico ? `Precisa de ${eu.servico.toLowerCase()}?` : "Precisa de um profissional?";
+    g.fillText(cabe(chamada, `600 44px ${F}`, bw - 80), W / 2, by + 92);
+    g.fillStyle = SUN; g.font = `800 58px ${F}`; g.fillText("Me chama pela Kiiro", W / 2, by + 168);
+    g.fillStyle = "#E9E2CC"; g.font = `600 36px ${F}`; g.fillText("chamakiiro.com.br", W / 2, by + 222);
+
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.9));
+    if (!blob) return;
+    const arquivo = new File([blob], "kiiro-story.jpg", { type: "image/jpeg" });
+    const url = URL.createObjectURL(blob);
+    document.getElementById("story-img").src = url;
+    document.getElementById("story").hidden = false;
+    const baixar = () => { const a = document.createElement("a"); a.href = url; a.download = "kiiro-story.jpg"; document.body.appendChild(a); a.click(); a.remove(); };
+    const bt = document.getElementById("story-postar");
+    const podeCompartilhar = navigator.canShare && navigator.canShare({ files: [arquivo] });
+    if (!podeCompartilhar) { bt.textContent = "Baixar imagem"; document.getElementById("story-baixar").hidden = true; }
+    bt.onclick = async () => {
+      if (!podeCompartilhar) return baixar();
+      try { await navigator.share({ files: [arquivo] }); } catch (e) { if (e && e.name !== "AbortError") baixar(); }
+    };
+    document.getElementById("story-baixar").onclick = baixar;
+  })();
   </script>
 </body>
 </html>

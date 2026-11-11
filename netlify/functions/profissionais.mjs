@@ -111,6 +111,8 @@ export default async (req, context) => {
           dias: curto(d.dias, 80),
           orcamento: curto(d.orcamento),
           mei: curto(d.mei),
+          instagram: curto(String(d.instagram || "").replace(/[^A-Za-z0-9._]/g, ""), 30),
+          collab: curto(d.collab) === "Sim",
           desde: s.created_at || "",
           nota: n ? Math.round((n.soma / n.qtd) * 10) / 10 : 0,
           avaliacoes: n ? n.qtd : 0,
@@ -137,7 +139,8 @@ export default async (req, context) => {
     }
 
     if (admin) return json(200, lista.map((p) => ({ ...p, oculto: ocultosSet.has(p.whatsapp) })), { "Cache-Control": "no-store" });
-    return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp)), { "Cache-Control": "public, max-age=60" });
+    // instagram e collab ficam só para o painel
+    return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp)).map(({ instagram, collab, ...p }) => p), { "Cache-Control": "public, max-age=60" });
   } catch (e) {
     return json(500, { erro: "Falha ao ler cadastros: " + String(e && e.message || e).slice(0, 120) });
   }
