@@ -1697,7 +1697,7 @@ document.addEventListener("click", e => {
 /* ===== Navegação ===== */
 function irPara(t) {
   if (t === "sobre") { contar("sobre"); return abrirBv(); }
-  if (t === "anuncie") contar("anuncie_ver");
+  if (t === "anuncie") { contar("anuncie_ver"); location.href = "anunciar.html"; return; } // a página de anúncio completa (a mesma do link /anunciar)
   document.body.classList.remove("em-perfil");
   $("balao").classList.add("escondido");
   document.querySelectorAll(".tela").forEach(x => x.classList.remove("ativa"));
