@@ -123,11 +123,12 @@
     g.strokeStyle = SUN; g.lineWidth = 14; g.beginPath(); g.moveTo(W / 2 + 142, cy + 172); g.lineTo(W / 2 + 162, cy + 192); g.lineTo(W / 2 + 200, cy + 150); g.stroke();
 
     // nome, serviço, cidade
-    const nome = eu.nome.trim().split(/\s+/).slice(0, 3).join(" ");
+    const pal = eu.nome.trim().split(/\s+/), part = /^(de|da|do|dos|das|e)$/i;
+    let nome = pal.slice(0, 3); while (nome.length > 1 && part.test(nome[nome.length - 1])) nome.pop(); nome = nome.join(" ");
     g.fillStyle = INK;
     g.font = tamanho(nome, 800, 84, W - 140); g.fillText(nome, W / 2, 1320);
     const linha = [eu.servico, eu.cidade].filter(Boolean).join(" · ");
-    if (linha) { g.font = `600 48px ${F}`; g.fillText(cabe(linha, `600 48px ${F}`, W - 140), W / 2, 1395); }
+    if (linha) { g.font = tamanho(linha, 600, 48, W - 140); g.fillText(cabe(linha, g.font, W - 140), W / 2, 1395); }
     if (eu.instagram) { g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.7)"; g.fillText("@" + eu.instagram, W / 2, 1460); }
 
     // cartão de chamada
