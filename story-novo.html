@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Story · novo profissional · Kiiro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--sun:#FFC800;--ink:#1A1A1A;--cream:#FFF8E6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins,sans-serif;background:var(--ink);color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.2rem 1rem 2rem}
+  h1{font-size:1.05rem;font-weight:700;margin:.2rem 0 .9rem;text-align:center}
+  img#prev{width:min(78vw,22rem);aspect-ratio:9/16;border-radius:16px;background:var(--sun);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .bts{width:min(86vw,22rem);margin-top:1rem;display:grid;gap:.6rem}
+  button{font:inherit;font-weight:700;font-size:1rem;border:0;border-radius:14px;padding:.95rem;cursor:pointer}
+  .p{background:var(--sun);color:var(--ink)}
+  .s{background:#2c2c2c;color:#fff}
+  .dica{width:min(86vw,22rem);font-size:.82rem;color:#CFC6AA;line-height:1.5;margin:1rem 0 0}
+  .dica b{color:#fff}
+  .erro{color:#ffb4a8;text-align:center}
+</style>
+</head>
+<body>
+<h1 id="tit">Story de novo profissional</h1>
+<img id="prev" alt="Prévia do story">
+<div class="bts">
+  <button class="p" id="postar" type="button">Postar no story da Kiiro</button>
+  <button class="s" id="baixar" type="button">Baixar imagem</button>
+</div>
+<p class="dica" id="dica"></p>
+<script>
+// Story "Novo na Kiiro" para o Instagram da Kiiro. Aberto pelo painel, com os dados no endereço (#nome=...&serv=...).
+(async function () {
+  const h = new URLSearchParams(location.hash.slice(1));
+  const d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "" };
+  if (!d.nome) { document.body.innerHTML = '<p class="erro">Abra pelo painel, no botão “Story da Kiiro” do profissional.</p>'; return; }
+  document.getElementById("tit").textContent = "Story: " + d.nome.split(" ")[0];
+
+  const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d"), SUN = "#FFC800", INK = "#1A1A1A", F = "Poppins, sans-serif";
+  try { await Promise.all(["800 90px Poppins", "700 60px Poppins", "600 40px Poppins"].map(f => document.fonts.load(f))); } catch {}
+  const carregar = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+  const img = await carregar(d.foto);
+  const cabe = (txt, fonte, max) => { let t = txt; g.font = fonte; while (g.measureText(t).width > max && t.length > 3) t = t.slice(0, -2); return t === txt ? t : t.trim() + "…"; };
+  const tamanho = (txt, peso, maior, max) => { let n = maior; do { g.font = `${peso} ${n}px ${F}`; } while (g.measureText(txt).width > max && (n -= 4) > 30); return g.font; };
+
+  // fundo
+  g.fillStyle = SUN; g.fillRect(0, 0, W, H);
+  g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.arc(W - 60, 300, 360, 0, 7); g.fill();
+  g.beginPath(); g.arc(80, H - 360, 300, 0, 7); g.fill();
+
+  // logo
+  g.save(); g.translate(W / 2 - 170, 110);
+  g.strokeStyle = INK; g.lineWidth = 16; g.lineCap = g.lineJoin = "round";
+  g.stroke(new Path2D("M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"));
+  g.beginPath(); g.arc(282, 90, 28, 0, 7); g.stroke();
+  g.fillStyle = INK; g.fill(new Path2D("M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z"));
+  g.fillStyle = SUN; g.beginPath(); g.arc(118, 24, 5, 0, 7); g.arc(166, 24, 5, 0, 7); g.fill();
+  g.restore();
+
+  // etiqueta + título
+  g.textAlign = "center"; g.textBaseline = "alphabetic";
+  g.font = `700 40px ${F}`; const et = "NOVO NA KIIRO", ew = g.measureText(et).width + 80;
+  g.fillStyle = INK; g.beginPath(); g.roundRect(W / 2 - ew / 2, 290, ew, 76, 38); g.fill();
+  g.fillStyle = SUN; g.fillText(et, W / 2, 343);
+  g.fillStyle = INK; g.font = `800 96px ${F}`;
+  g.fillText("Chegou gente boa", W / 2, 480);
+  g.fillText("na Kiiro!", W / 2, 590);
+
+  // foto
+  const cy = 880, r = 210;
+  g.fillStyle = "#fff"; g.beginPath(); g.arc(W / 2, cy, r + 18, 0, 7); g.fill();
+  g.save(); g.beginPath(); g.arc(W / 2, cy, r, 0, 7); g.clip();
+  if (img) {
+    const lado = Math.min(img.width, img.height), ox = (img.width - lado) / 2, oy = (img.height - lado) * 0.3;
+    g.drawImage(img, ox, oy, lado, lado, W / 2 - r, cy - r, r * 2, r * 2);
+  } else { g.fillStyle = INK; g.fillRect(W / 2 - r, cy - r, r * 2, r * 2); g.fillStyle = SUN; g.font = `800 220px ${F}`; g.textBaseline = "middle"; g.fillText(d.nome.trim()[0].toUpperCase(), W / 2, cy + 10); g.textBaseline = "alphabetic"; }
+  g.restore();
+
+  // nome, serviço, cidade, @
+  const pal = d.nome.trim().split(/\s+/), part = /^(de|da|do|dos|das|e)$/i;
+  let nome = pal.slice(0, 3); while (nome.length > 1 && part.test(nome[nome.length - 1])) nome.pop(); nome = nome.join(" ");
+  g.fillStyle = INK;
+  g.font = tamanho(nome, 800, 84, W - 140); g.fillText(nome, W / 2, 1200);
+  const servs = d.serv.split(/\s*,\s*/).filter(Boolean);
+  const linha = servs.join(" · ");
+  if (linha) { g.font = tamanho(linha, 600, 50, W - 140); g.fillText(cabe(linha, g.font, W - 140), W / 2, 1275); }
+  let y = 1275;
+  if (d.cidade) { y += 62; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText(cabe("📍 " + d.cidade, g.font, W - 140), W / 2, y); }
+  if (d.ig) { y += 58; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText("@" + d.ig, W / 2, y); }
+
+  // cartão de chamada
+  const bx = 90, by = 1460, bw = W - 180, bh = 230;
+  g.fillStyle = INK; g.beginPath(); g.roundRect(bx, by, bw, bh, 44); g.fill();
+  g.fillStyle = "#fff";
+  const chamada = servs[0] ? `Precisa de ${servs[0].toLowerCase()}?` : "Precisa de um profissional?";
+  g.fillText(cabe(chamada, `600 44px ${F}`, bw - 80), W / 2, by + 82);
+  g.fillStyle = SUN; g.font = `800 58px ${F}`; g.fillText("Chama pela Kiiro", W / 2, by + 155);
+  g.fillStyle = "#E9E2CC"; g.font = `600 36px ${F}`; g.fillText("chamakiiro.com.br", W / 2, by + 205);
+
+  const blob = await new Promise(ok => { try { c.toBlob(ok, "image/jpeg", 0.92); } catch { ok(null); } });
+  if (!blob) { document.getElementById("dica").innerHTML = '<span class="erro">Não deu para montar a imagem com essa foto.</span>'; return; }
+  const url = URL.createObjectURL(blob);
+  document.getElementById("prev").src = url;
+  const nomeArq = "kiiro-novo-" + nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-") + ".jpg";
+  const arquivo = new File([blob], nomeArq, { type: "image/jpeg" });
+  const baixar = () => { const a = document.createElement("a"); a.href = url; a.download = nomeArq; document.body.appendChild(a); a.click(); a.remove(); };
+  const podeCompartilhar = !!(navigator.canShare && navigator.canShare({ files: [arquivo] }));
+  const bt = document.getElementById("postar");
+  if (!podeCompartilhar) { bt.textContent = "Baixar imagem"; document.getElementById("baixar").hidden = true; }
+  bt.onclick = async () => { if (!podeCompartilhar) return baixar(); try { await navigator.share({ files: [arquivo] }); } catch {} };
+  document.getElementById("baixar").onclick = baixar;
+  document.getElementById("dica").innerHTML = "No Instagram, escolha <b>Story</b>, adicione a figurinha de <b>link</b> com chamakiiro.com.br" + (d.ig ? " e a de <b>menção</b> com @" + d.ig + " pra aparecer no perfil dele." : ".");
+})();
+</script>
+</body>
+</html>

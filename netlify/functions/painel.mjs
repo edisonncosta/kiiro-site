@@ -26,6 +26,16 @@ export default async (req, context) => {
   const chave = url.searchParams.get("chave") || (formPost && formPost.get("chave"));
   if (!KEY || chave !== KEY) return new Response("Acesso negado", { status: 401 });
   const q = (extra = {}) => "?" + new URLSearchParams({ chave: KEY, ...extra }).toString();
+  // foto do profissional pelo mesmo endereço do site, para o story da Kiiro conseguir desenhar e salvar a imagem
+  if (req.method === "GET" && url.searchParams.get("fotopro")) {
+    try {
+      const alvo = new URL(url.searchParams.get("fotopro"), url.origin);
+      if (alvo.protocol !== "https:" && alvo.origin !== url.origin) throw 0;
+      const r = await fetch(alvo);
+      if (!r.ok) throw 0;
+      return new Response(await r.arrayBuffer(), { headers: { "Content-Type": r.headers.get("content-type") || "image/jpeg", "Cache-Control": "private, max-age=3600" } });
+    } catch { return new Response("Foto não encontrada", { status: 404 }); }
+  }
   const aba = url.searchParams.get("aba") || "resumo";
   const filtro = url.searchParams.get("ver") || "todas";
   const base = url.origin;
@@ -561,6 +571,7 @@ export default async (req, context) => {
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             ${p.instagram ? `<a class="b" href="https://instagram.com/${esc(p.instagram)}" target="_blank" rel="noopener">@${esc(p.instagram)}</a>` : ""}
+            <a class="b" href="${base}/story-novo.html#${esc(new URLSearchParams({ nome: p.nome, serv: (p.categorias || []).join(", "), cidade: p.cidade || "", ig: p.instagram || "", foto: p.foto ? `/painel${q({ fotopro: p.foto })}` : "" }).toString())}" target="_blank" rel="noopener">📣 Story da Kiiro</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma avaliação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais avaliações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir avaliações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
