@@ -39,7 +39,6 @@
   const h = new URLSearchParams(location.hash.slice(1));
   const d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "", w: (h.get("w") || "").replace(/\D/g, "") };
   if (!d.nome) { document.body.innerHTML = '<p class="erro">Abra pelo painel, no botão “Story da Kiiro” do profissional.</p>'; return; }
-  document.getElementById("tit").textContent = "Story: " + d.nome.split(" ")[0];
 
   const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d"), SUN = "#FFC800", INK = "#1A1A1A", F = "Poppins, sans-serif";
@@ -51,11 +50,18 @@
 
   // nome curto (fica fora do desenho para o resto da página usar)
   const pal = d.nome.trim().split(/\s+/), part = /^(de|da|do|dos|das|e)$/i;
+  // nome todo em maiúsculas ou minúsculas ("JOELSO ferri") fica "Joelso Ferri"
+  const capit = w => w.length <= 3 && part.test(w) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  for (let i = 0; i < pal.length; i++) if (pal[i] === pal[i].toUpperCase() || pal[i] === pal[i].toLowerCase()) pal[i] = capit(pal[i]);
   let nome = pal.slice(0, 3); while (nome.length > 1 && part.test(nome[nome.length - 1])) nome.pop(); nome = nome.join(" ");
   const n1 = nome.split(" ")[0];
+  document.getElementById("tit").textContent = "Story: " + n1;
   const nomeArq = m => "kiiro-" + (m === "pro" ? "story-" : "novo-") + nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-") + ".jpg";
   const pronto = {};
-  async function montar(modo) {
+  // uma imagem de cada vez (o desenho usa o mesmo canvas)
+  let fila = Promise.resolve();
+  const montar = modo => (fila = fila.then(() => montar1(modo)));
+  async function montar1(modo) {
     if (pronto[modo]) return pronto[modo];
     const kiiro = modo === "kiiro";
   // fundo
@@ -98,7 +104,12 @@
   const linha = servs.join(" · ");
   if (linha) { g.font = tamanho(linha, 600, 50, W - 140); g.fillText(cabe(linha, g.font, W - 140), W / 2, 1275); }
   let y = 1275;
-  if (d.cidade) { y += 62; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText(cabe("📍 " + d.cidade, g.font, W - 140), W / 2, y); }
+  if (d.cidade) {
+    // muitas cidades: as duas primeiras + "e região"
+    const cs = d.cidade.split(/\s*,\s*/).filter(Boolean);
+    const txtC = cs.length > 2 ? `${cs[0]}, ${cs[1]} e região` : cs.join(" e ");
+    y += 62; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText(cabe("📍 " + txtC, g.font, W - 140), W / 2, y);
+  }
   if (d.ig && kiiro) { y += 58; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText("@" + d.ig, W / 2, y); }
 
   // cartão de chamada
@@ -111,8 +122,9 @@
   g.fillStyle = "#E9E2CC"; g.font = `600 36px ${F}`; g.fillText("chamakiiro.com.br", W / 2, by + 205);
 
     const blob = await new Promise(ok => { try { c.toBlob(ok, "image/jpeg", 0.92); } catch { ok(null); } });
+    const png = modo === "pro" ? await new Promise(ok => { try { c.toBlob(ok, "image/png"); } catch { ok(null); } }) : null; // para copiar e colar no WhatsApp
     if (!blob) return null;
-    return (pronto[modo] = { blob, url: URL.createObjectURL(blob), arquivo: new File([blob], nomeArq(modo), { type: "image/jpeg" }) });
+    return (pronto[modo] = { blob, png, url: URL.createObjectURL(blob), arquivo: new File([blob], nomeArq(modo), { type: "image/jpeg" }) });
   }
 
   const msgPro = `Oi, ${n1}! Aqui é da Kiiro 💛\n\nSeu perfil já está no ar! Fizemos esta imagem pra você postar no seu story e avisar seus clientes que agora dá pra te chamar pela Kiiro.\n\nNo Instagram, coloca a figurinha de link com chamakiiro.com.br e marca a @chamakiiro que a gente reposta 🙌`;
@@ -122,6 +134,7 @@
     atual = modo;
     document.querySelectorAll(".abas button").forEach(b => b.classList.toggle("on", b.dataset.m === modo));
     const r = await montar(modo);
+    if (atual !== modo) return; // trocou de aba enquanto montava
     if (!r) { dica.innerHTML = '<span class="erro">Não deu para montar a imagem com essa foto.</span>'; return; }
     document.getElementById("prev").src = r.url;
     const pode = !!(navigator.canShare && navigator.canShare({ files: [r.arquivo] }));
@@ -129,14 +142,24 @@
     if (modo === "kiiro") {
       bt.textContent = pode ? "Postar no story da Kiiro" : "Baixar imagem";
       dica.innerHTML = "No Instagram, escolha <b>Story</b>, adicione a figurinha de <b>link</b> com chamakiiro.com.br" + (d.ig ? " e a de <b>menção</b> com @" + d.ig + " pra aparecer no perfil dele." : ".");
+      bt.onclick = async () => { if (!pode) return baixar(r); try { await navigator.share({ files: [r.arquivo] }); } catch {} };
     } else {
-      bt.textContent = pode ? "Mandar pra " + n1 + " no WhatsApp" : "Baixar imagem";
-      dica.innerHTML = "Escolha o <b>WhatsApp</b> e a conversa com " + n1 + ". A mensagem explicando vai junto" + (d.w ? ' (se não for, use o botão abaixo).' : ".") + (d.w ? '<br><br><a style="color:#FFC800;font-weight:700" target="_blank" rel="noopener" href="https://wa.me/' + d.w + "?text=" + encodeURIComponent(msgPro) + '">Mandar só a mensagem</a>' : "");
+      const direto = !!(d.w && r.png && navigator.clipboard && window.ClipboardItem);
+      bt.textContent = direto || pode ? "Mandar pra " + n1 + " no WhatsApp" : "Baixar imagem";
+      dica.innerHTML = direto
+        ? "Abre a conversa com " + n1 + " já com a mensagem pronta e a imagem copiada. Lá, <b>toque e segure no campo de mensagem e escolha Colar</b> pra mandar a imagem junto."
+        : "Escolha o <b>WhatsApp</b> e a conversa com " + n1 + ".";
+      bt.onclick = async () => {
+        if (direto) {
+          try { await navigator.clipboard.write([new ClipboardItem({ "image/png": r.png })]); }
+          catch { if (pode) { try { await navigator.share({ files: [r.arquivo], text: msgPro }); } catch {} return; } }
+          location.href = "https://wa.me/" + d.w + "?text=" + encodeURIComponent(msgPro);
+          return;
+        }
+        if (!pode) return baixar(r);
+        try { await navigator.share({ files: [r.arquivo], text: msgPro }); } catch {}
+      };
     }
-    bt.onclick = async () => {
-      if (!pode) return baixar(r);
-      try { await navigator.share(modo === "pro" ? { files: [r.arquivo], text: msgPro } : { files: [r.arquivo] }); } catch {}
-    };
     bb.onclick = () => baixar(r);
   }
   const baixar = r => { const a = document.createElement("a"); a.href = r.url; a.download = r.arquivo.name; document.body.appendChild(a); a.click(); a.remove(); };

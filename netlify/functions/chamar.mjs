@@ -27,6 +27,8 @@ export default async (req) => {
     profissionalNome: limpa(d.profissionalNome),
     categoria: limpa(d.categoria),
     cidade: limpa(d.cidade),
+    descricao: limpa(d.descricao, 300),
+    orcamento: limpa(d.orcamento, 30),
   };
   if (!chamada.clienteNome || !chamada.profissionalNome || !chamada.profissionalId) return new Response("Dados faltando", { status: 400 });
 
@@ -58,7 +60,7 @@ export default async (req) => {
   const zapComTexto = `https://wa.me/${clienteWhats}?text=${encodeURIComponent(texto)}`;
   await avisar({
     title: `${chamada.clienteNome} chamou ${chamada.profissionalNome}`,
-    message: `${chamada.categoria} · ${chamada.cidade}\nCliente: ${tel}\nToque para mandar a mensagem com o link de avaliação.`,
+    message: `${chamada.categoria} · ${chamada.cidade}${chamada.descricao ? `\nPrecisa: ${chamada.descricao}` : ""}${chamada.orcamento ? `\nOrçamento: ${chamada.orcamento}` : ""}\nCliente: ${tel}\nToque para mandar a mensagem com o link de avaliação.`,
     tags: ["bell"],
     click: zapComTexto,
     actions: [

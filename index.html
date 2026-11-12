@@ -386,6 +386,11 @@
   .ind-bt{display:block;width:100%;margin-top:.9rem;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:.8rem;font:600 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
   .in-lb{display:block;font-size:.8rem;font-weight:600;margin:1rem 0 .4rem}
   .nome-2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}.nome-2 > *{min-width:0}
+  .opc{font-weight:400;color:var(--muted);font-size:.85em}
+  #c-desc{resize:vertical;min-height:72px;font-family:inherit}
+  .orc-ch{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.15rem}
+  .orc-ch button{border:1.5px solid #E2DCC8;background:#fff;border-radius:999px;padding:.45rem .8rem;font:500 .85rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .orc-ch button.on{background:var(--sun);border-color:var(--sun);font-weight:600}
   .in-fine{font-size:.74rem;color:var(--muted);margin-top:.5rem;line-height:1.4}
   .in-go{background:var(--sun);color:var(--ink);margin-top:.8rem}
   #in-texto{resize:vertical;min-height:84px}
@@ -811,6 +816,9 @@
     <div class="nome-2"><div class="campo"><label for="c-nome">Nome</label><input class="input" id="c-nome" autocomplete="given-name" placeholder="Ex.: Ana"></div>
     <div class="campo"><label for="c-sobrenome">Sobrenome</label><input class="input" id="c-sobrenome" autocomplete="family-name" placeholder="Ex.: Souza"></div></div>
     <div class="campo"><label for="c-whats">Seu WhatsApp</label><input class="input" id="c-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999"></div>
+    <div class="campo"><label for="c-desc">O que você precisa? <span class="opc">(opcional)</span></label><textarea class="input" id="c-desc" rows="2" maxlength="300" placeholder="Ex.: trocar 3 tomadas e instalar um chuveiro na casa"></textarea></div>
+    <div class="campo"><label id="c-orc-l">Quanto pretende gastar? <span class="opc">(opcional)</span></label>
+      <div class="orc-ch" id="c-orc" role="group" aria-labelledby="c-orc-l"><button type="button">Até R$ 100</button><button type="button">R$ 100 a 300</button><button type="button">R$ 300 a 1.000</button><button type="button">Mais de R$ 1.000</button><button type="button">Ainda não sei</button></div></div>
     <p class="erro" id="c-erro" role="alert"></p>
     <button class="btn btn-sun btn-full" type="submit" id="c-ok"></button>
     <button class="cancelar" type="button" id="c-cancelar">Cancelar</button>
@@ -2228,6 +2236,7 @@ let escolhido = null, tarefaSel = "", catSel = "";
 const partesNome = (n) => { const p = String(n || "").trim().split(/\s+/); return [p[0] || "", p.slice(1).join(" ")]; };
 $("c-ok").innerHTML = icoZap + " Abrir WhatsApp";
 (() => { const c = lerJSON("kiiro-cliente", {}); const [n, s] = partesNome(c.nome); $("c-nome").value = n; $("c-sobrenome").value = s; $("c-whats").value = c.whats || ""; })();
+let ultimoChamado = null;
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-chamar]"); if (!b) return;
   escolhido = profissionais.find(p => String(p.id) === b.dataset.chamar); if (!escolhido) return;
@@ -2235,9 +2244,12 @@ document.addEventListener("click", e => {
   contarPro("pro_clique", escolhido);
   $("m-sub").textContent = tarefaSel ? `Pedido: ${tarefaSel}. Para falar com ${escolhido.nome}, informe seu nome, sobrenome e WhatsApp.` : `Para falar com ${escolhido.nome}, informe seu nome, sobrenome e WhatsApp.`;
   $("c-erro").textContent = "";
+  if (escolhido.id !== ultimoChamado) { $("c-desc").value = ""; $("c-orc").querySelectorAll("button").forEach(x => x.classList.remove("on")); } // pedido novo para outro profissional começa em branco
+  ultimoChamado = escolhido.id;
   modal.classList.add("aberto");
   (!$("c-nome").value ? $("c-nome") : !$("c-sobrenome").value ? $("c-sobrenome") : $("c-whats")).focus();
 });
+$("c-orc").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const on = !b.classList.contains("on"); $("c-orc").querySelectorAll("button").forEach(x => x.classList.remove("on")); b.classList.toggle("on", on); });
 const fecharChamar = () => modal.classList.remove("aberto");
 $("c-cancelar").onclick = fecharChamar;
 modal.addEventListener("click", e => { if (e.target === modal) fecharChamar(); });
@@ -2254,17 +2266,20 @@ $("form-chamar").addEventListener("submit", e => {
   fecharChamar();
   const servico = catSel && p.categorias.includes(catSel) ? catSel : catsDe(p)[0];
   const pedido = tarefaSel ? `para ${tarefaSel.charAt(0).toLowerCase() + tarefaSel.slice(1)}` : `de ${servico.toLowerCase()}`;
+  const desc = $("c-desc").value.replace(/\s+/g, " ").trim().slice(0, 300);
+  const orcamento = ($("c-orc").querySelector("button.on") || {}).textContent || "";
+  const extra = (desc ? `\n\nO que preciso: ${desc}` : "") + (orcamento ? `${desc ? "\n" : "\n\n"}Quanto pretendo gastar: ${orcamento.toLowerCase().replace(/^r\$/, "R$").replace(/ r\$/g, " R$")}` : "");
   const codigo = novoCodigo();
   guardarChamada({ c: codigo, nome: p.nome, cat: servico, t: Date.now() });
   contar("chamar", servico);
   const abrirZap = animarConexao(p);
   if (DEMO) return abrirZap.then(() => { // no teste, abre o WhatsApp da própria Kiiro
-    irParaWhats(KIIRO_WHATS, `(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.`);
+    irParaWhats(KIIRO_WHATS, `(Teste) Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.${extra}`);
   });
-  const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade, conta: (contaSalva() || {}).token || "" });
+  const dados = JSON.stringify({ codigo, clienteNome: nome, clienteWhatsapp: whats, profissionalId: p.id, profissionalWhatsapp: p.whatsapp, profissionalNome: p.nome, categoria: servico, cidade: p.cidade, descricao: desc, orcamento, conta: (contaSalva() || {}).token || "" });
   const ok = navigator.sendBeacon && navigator.sendBeacon("/.netlify/functions/chamar", new Blob([dados], { type: "application/json" }));
   if (!ok) fetch("/.netlify/functions/chamar", { method: "POST", body: dados, keepalive: true }).catch(() => {});
-  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.`;
+  const msg = `Olá, ${p.nome}! Aqui é ${nome}. Vi seu perfil na Kiiro e gostaria de um orçamento ${pedido}.${extra}`;
   abrirZap.then(() => {
     irParaWhats(p.whatsapp, msg);
   });
