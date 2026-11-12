@@ -19,10 +19,14 @@
   .dica{width:min(86vw,22rem);font-size:.82rem;color:#CFC6AA;line-height:1.5;margin:1rem 0 0}
   .dica b{color:#fff}
   .erro{color:#ffb4a8;text-align:center}
+  .abas{display:flex;gap:.4rem;background:#2c2c2c;border-radius:14px;padding:.3rem;margin:0 0 1rem;width:min(86vw,22rem)}
+  .abas button{flex:1;background:none;color:#CFC6AA;font-size:.88rem;padding:.6rem .4rem;border-radius:10px}
+  .abas button.on{background:var(--sun);color:var(--ink)}
 </style>
 </head>
 <body>
 <h1 id="tit">Story de novo profissional</h1>
+<div class="abas"><button type="button" data-m="kiiro" class="on">Pra Kiiro postar</button><button type="button" data-m="pro">Pra ele postar</button></div>
 <img id="prev" alt="Prévia do story">
 <div class="bts">
   <button class="p" id="postar" type="button">Postar no story da Kiiro</button>
@@ -33,7 +37,7 @@
 // Story "Novo na Kiiro" para o Instagram da Kiiro. Aberto pelo painel, com os dados no endereço (#nome=...&serv=...).
 (async function () {
   const h = new URLSearchParams(location.hash.slice(1));
-  const d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "" };
+  const d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "", w: (h.get("w") || "").replace(/\D/g, "") };
   if (!d.nome) { document.body.innerHTML = '<p class="erro">Abra pelo painel, no botão “Story da Kiiro” do profissional.</p>'; return; }
   document.getElementById("tit").textContent = "Story: " + d.nome.split(" ")[0];
 
@@ -45,6 +49,15 @@
   const cabe = (txt, fonte, max) => { let t = txt; g.font = fonte; while (g.measureText(t).width > max && t.length > 3) t = t.slice(0, -2); return t === txt ? t : t.trim() + "…"; };
   const tamanho = (txt, peso, maior, max) => { let n = maior; do { g.font = `${peso} ${n}px ${F}`; } while (g.measureText(txt).width > max && (n -= 4) > 30); return g.font; };
 
+  // nome curto (fica fora do desenho para o resto da página usar)
+  const pal = d.nome.trim().split(/\s+/), part = /^(de|da|do|dos|das|e)$/i;
+  let nome = pal.slice(0, 3); while (nome.length > 1 && part.test(nome[nome.length - 1])) nome.pop(); nome = nome.join(" ");
+  const n1 = nome.split(" ")[0];
+  const nomeArq = m => "kiiro-" + (m === "pro" ? "story-" : "novo-") + nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-") + ".jpg";
+  const pronto = {};
+  async function montar(modo) {
+    if (pronto[modo]) return pronto[modo];
+    const kiiro = modo === "kiiro";
   // fundo
   g.fillStyle = SUN; g.fillRect(0, 0, W, H);
   g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.arc(W - 60, 300, 360, 0, 7); g.fill();
@@ -61,11 +74,11 @@
 
   // etiqueta + título
   g.textAlign = "center"; g.textBaseline = "alphabetic";
-  g.font = `700 40px ${F}`; const et = "NOVO NA KIIRO", ew = g.measureText(et).width + 80;
+  g.font = `700 40px ${F}`; const et = kiiro ? "NOVO NA KIIRO" : "PROFISSIONAL NA KIIRO", ew = g.measureText(et).width + 80;
   g.fillStyle = INK; g.beginPath(); g.roundRect(W / 2 - ew / 2, 290, ew, 76, 38); g.fill();
   g.fillStyle = SUN; g.fillText(et, W / 2, 343);
-  g.fillStyle = INK; g.font = `800 96px ${F}`;
-  g.fillText("Chegou gente boa", W / 2, 480);
+  g.fillStyle = INK; g.font = `800 ${kiiro ? 96 : 112}px ${F}`;
+  g.fillText(kiiro ? "Chegou gente boa" : "Agora estou", W / 2, 480);
   g.fillText("na Kiiro!", W / 2, 590);
 
   // foto
@@ -79,8 +92,6 @@
   g.restore();
 
   // nome, serviço, cidade, @
-  const pal = d.nome.trim().split(/\s+/), part = /^(de|da|do|dos|das|e)$/i;
-  let nome = pal.slice(0, 3); while (nome.length > 1 && part.test(nome[nome.length - 1])) nome.pop(); nome = nome.join(" ");
   g.fillStyle = INK;
   g.font = tamanho(nome, 800, 84, W - 140); g.fillText(nome, W / 2, 1200);
   const servs = d.serv.split(/\s*,\s*/).filter(Boolean);
@@ -88,7 +99,7 @@
   if (linha) { g.font = tamanho(linha, 600, 50, W - 140); g.fillText(cabe(linha, g.font, W - 140), W / 2, 1275); }
   let y = 1275;
   if (d.cidade) { y += 62; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText(cabe("📍 " + d.cidade, g.font, W - 140), W / 2, y); }
-  if (d.ig) { y += 58; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText("@" + d.ig, W / 2, y); }
+  if (d.ig && kiiro) { y += 58; g.font = `600 42px ${F}`; g.fillStyle = "rgba(26,26,26,.75)"; g.fillText("@" + d.ig, W / 2, y); }
 
   // cartão de chamada
   const bx = 90, by = 1460, bw = W - 180, bh = 230;
@@ -96,22 +107,41 @@
   g.fillStyle = "#fff";
   const chamada = servs[0] ? `Precisa de ${servs[0].toLowerCase()}?` : "Precisa de um profissional?";
   g.fillText(cabe(chamada, `600 44px ${F}`, bw - 80), W / 2, by + 82);
-  g.fillStyle = SUN; g.font = `800 58px ${F}`; g.fillText("Chama pela Kiiro", W / 2, by + 155);
+  g.fillStyle = SUN; g.font = `800 58px ${F}`; g.fillText(kiiro ? "Chama pela Kiiro" : "Me chama pela Kiiro", W / 2, by + 155);
   g.fillStyle = "#E9E2CC"; g.font = `600 36px ${F}`; g.fillText("chamakiiro.com.br", W / 2, by + 205);
 
-  const blob = await new Promise(ok => { try { c.toBlob(ok, "image/jpeg", 0.92); } catch { ok(null); } });
-  if (!blob) { document.getElementById("dica").innerHTML = '<span class="erro">Não deu para montar a imagem com essa foto.</span>'; return; }
-  const url = URL.createObjectURL(blob);
-  document.getElementById("prev").src = url;
-  const nomeArq = "kiiro-novo-" + nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-") + ".jpg";
-  const arquivo = new File([blob], nomeArq, { type: "image/jpeg" });
-  const baixar = () => { const a = document.createElement("a"); a.href = url; a.download = nomeArq; document.body.appendChild(a); a.click(); a.remove(); };
-  const podeCompartilhar = !!(navigator.canShare && navigator.canShare({ files: [arquivo] }));
-  const bt = document.getElementById("postar");
-  if (!podeCompartilhar) { bt.textContent = "Baixar imagem"; document.getElementById("baixar").hidden = true; }
-  bt.onclick = async () => { if (!podeCompartilhar) return baixar(); try { await navigator.share({ files: [arquivo] }); } catch {} };
-  document.getElementById("baixar").onclick = baixar;
-  document.getElementById("dica").innerHTML = "No Instagram, escolha <b>Story</b>, adicione a figurinha de <b>link</b> com chamakiiro.com.br" + (d.ig ? " e a de <b>menção</b> com @" + d.ig + " pra aparecer no perfil dele." : ".");
+    const blob = await new Promise(ok => { try { c.toBlob(ok, "image/jpeg", 0.92); } catch { ok(null); } });
+    if (!blob) return null;
+    return (pronto[modo] = { blob, url: URL.createObjectURL(blob), arquivo: new File([blob], nomeArq(modo), { type: "image/jpeg" }) });
+  }
+
+  const msgPro = `Oi, ${n1}! Aqui é da Kiiro 💛\n\nSeu perfil já está no ar! Fizemos esta imagem pra você postar no seu story e avisar seus clientes que agora dá pra te chamar pela Kiiro.\n\nNo Instagram, coloca a figurinha de link com chamakiiro.com.br e marca a @chamakiiro que a gente reposta 🙌`;
+  const bt = document.getElementById("postar"), bb = document.getElementById("baixar"), dica = document.getElementById("dica");
+  let atual = "kiiro";
+  async function mostrar(modo) {
+    atual = modo;
+    document.querySelectorAll(".abas button").forEach(b => b.classList.toggle("on", b.dataset.m === modo));
+    const r = await montar(modo);
+    if (!r) { dica.innerHTML = '<span class="erro">Não deu para montar a imagem com essa foto.</span>'; return; }
+    document.getElementById("prev").src = r.url;
+    const pode = !!(navigator.canShare && navigator.canShare({ files: [r.arquivo] }));
+    bb.hidden = !pode;
+    if (modo === "kiiro") {
+      bt.textContent = pode ? "Postar no story da Kiiro" : "Baixar imagem";
+      dica.innerHTML = "No Instagram, escolha <b>Story</b>, adicione a figurinha de <b>link</b> com chamakiiro.com.br" + (d.ig ? " e a de <b>menção</b> com @" + d.ig + " pra aparecer no perfil dele." : ".");
+    } else {
+      bt.textContent = pode ? "Mandar pra " + n1 + " no WhatsApp" : "Baixar imagem";
+      dica.innerHTML = "Escolha o <b>WhatsApp</b> e a conversa com " + n1 + ". A mensagem explicando vai junto" + (d.w ? ' (se não for, use o botão abaixo).' : ".") + (d.w ? '<br><br><a style="color:#FFC800;font-weight:700" target="_blank" rel="noopener" href="https://wa.me/' + d.w + "?text=" + encodeURIComponent(msgPro) + '">Mandar só a mensagem</a>' : "");
+    }
+    bt.onclick = async () => {
+      if (!pode) return baixar(r);
+      try { await navigator.share(modo === "pro" ? { files: [r.arquivo], text: msgPro } : { files: [r.arquivo] }); } catch {}
+    };
+    bb.onclick = () => baixar(r);
+  }
+  const baixar = r => { const a = document.createElement("a"); a.href = r.url; a.download = r.arquivo.name; document.body.appendChild(a); a.click(); a.remove(); };
+  document.querySelectorAll(".abas button").forEach(b => b.onclick = () => mostrar(b.dataset.m));
+  mostrar(h.get("modo") === "pro" ? "pro" : "kiiro");
 })();
 </script>
 </body>

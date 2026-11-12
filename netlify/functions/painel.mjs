@@ -571,7 +571,7 @@ export default async (req, context) => {
             <a class="b" href="${base}/#p-${esc(p.id)}" target="_blank" rel="noopener">Ver no site</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener">${tel(esc(p.whatsapp))}</a>
             ${p.instagram ? `<a class="b" href="https://instagram.com/${esc(p.instagram)}" target="_blank" rel="noopener">@${esc(p.instagram)}</a>` : ""}
-            <a class="b" href="${base}/story-novo.html#${esc(new URLSearchParams({ nome: p.nome, serv: (p.categorias || []).join(", "), cidade: p.cidade || "", ig: p.instagram || "", foto: p.foto ? `/painel${q({ fotopro: p.foto })}` : "" }).toString())}" target="_blank" rel="noopener">📣 Story da Kiiro</a>
+            <a class="b" href="${base}/story-novo.html#${esc(new URLSearchParams({ nome: p.nome, serv: (p.categorias || []).join(", "), cidade: p.cidade || "", ig: p.instagram || "", w: p.whatsapp || "", foto: p.foto ? `/painel${q({ fotopro: p.foto })}` : "" }).toString())}" target="_blank" rel="noopener">📣 Story da Kiiro</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Pedir atualização</a>
             <a class="b" href="https://wa.me/${esc(p.whatsapp)}?text=${encodeURIComponent(`Oi, ${String(p.nome).split(" ")[0]}! Aqui é da Kiiro 💛\n\nPara seu perfil ganhar mais confiança, manda este link para clientes antigos e conhecidos que já viram seu trabalho. Eles deixam uma avaliação em 1 minuto:\n👉 ${base}/i/${p.id}\n\nQuanto mais avaliações, mais gente te chama!`)}" target="_blank" rel="noopener">Pedir avaliações</a>
             ${p.oculto ? form("mostrar", "Mostrar de novo", "zap") : form("ocultar", "Ocultar do site", "")}
