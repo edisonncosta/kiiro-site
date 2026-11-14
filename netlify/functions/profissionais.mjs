@@ -102,8 +102,9 @@ export default async (req, context) => {
           raio: curto(d.raio, 4),
           whatsapp: whats,
           ids: (idsDoWhats[whats] || [s.id]).slice(0, 10),
-          foto: urlDe(foto),
-          trabalhos: ["trabalho1", "trabalho2", "trabalho3"].map((k) => urlDe(d[k])).filter(Boolean),
+          // pelo próprio site: o link do arquivo no Netlify Forms vence, o nosso não
+          foto: urlDe(foto) ? `/.netlify/functions/foto-pro?id=${s.id}&c=foto` : "",
+          trabalhos: ["trabalho1", "trabalho2", "trabalho3"].filter((k) => urlDe(d[k])).map((k) => `/.netlify/functions/foto-pro?id=${s.id}&c=${k}`),
           descricao: String(d[CAMPOS.descricao] || "").trim().slice(0, 400),
           experiencia: curto(d.experiencia),
           dedicacao: curto(d.dedicacao),
