@@ -298,6 +298,25 @@ export default async (req, context) => {
         const capa = String(f.get("capa") || "");
         let fotos = atuais.filter((x) => !tirar.has(x));
         if (capa && fotos.includes(capa)) fotos = [capa, ...fotos.filter((x) => x !== capa)];
+        // puxar a imagem de divulgação de um link (Sympla, Instagram público, site do evento): vira a capa
+        let avisoImg = "";
+        const puxar = String(f.get("puxar") || "").trim();
+        if (/^https:\/\//.test(puxar)) {
+          try {
+            const H = { "User-Agent": "Mozilla/5.0 (compatible; KiiroBot/1.0; +https://chamakiiro.com.br)" };
+            let r = await fetch(puxar, { headers: H, signal: AbortSignal.timeout(8000) });
+            let tipo = r.headers.get("content-type") || "";
+            if (r.ok && !/^image\//.test(tipo)) {
+              const html = (await r.text()).slice(0, 400000);
+              const m = html.match(/<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) || html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+              if (m) { r = await fetch(new URL(m[1].replace(/&amp;/g, "&"), puxar).href, { headers: H, signal: AbortSignal.timeout(8000) }); tipo = r.headers.get("content-type") || ""; }
+              else r = null;
+            }
+            const b = r && r.ok && /^image\//.test(tipo) ? Buffer.from(await r.arrayBuffer()) : null;
+            if (b && b.length > 2000 && b.length < 4 * 1024 * 1024) { const fid = randomUUID(); await fst.set(fid, b); fotos.unshift(fid); avisoImg = " Imagem puxada do link e colocada como capa."; }
+            else avisoImg = " Não achei imagem nesse link: salve a imagem no celular e use + Adicionar fotos.";
+          } catch { avisoImg = " Não consegui abrir esse link: salve a imagem no celular e use + Adicionar fotos."; }
+        }
         for (const du of f.getAll("nova").map(String)) {
           const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(du); if (!m) continue;
           const b = Buffer.from(m[2], "base64"); if (b.length < 200 || b.length > 3 * 1024 * 1024) continue;
@@ -314,7 +333,7 @@ export default async (req, context) => {
           aviso = "Salvo. Já aparece assim no site.";
         }
         await st.setJSON("publico", pub);
-        return Response.redirect(`${base}/painel${q({ aba: "acontece", ver: "todos", aviso })}`, 303);
+        return Response.redirect(`${base}/painel${q({ aba: "acontece", ver: "todos", aviso: aviso + avisoImg })}`, 303);
       }
       if (acao === "ac_tirar") {
         const tipo = f.get("tipo"), alvo = String(f.get("alvo") || ""), ref = String(f.get("ref") || "");
@@ -1267,7 +1286,8 @@ export default async (req, context) => {
           <p class="ed-l">Fotos <small>(a capa é a que aparece no card)</small></p>
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 10px">${x.fotos.map((r, i) => `<div style="width:110px;font-size:12px"><img src="${fotoSrc(r)}" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:8px;display:block">
             <label><input type="radio" name="capa" value="${esc(r)}" ${i ? "" : "checked"}> Capa</label><br><label><input type="checkbox" name="tirar" value="${esc(r)}"> Tirar</label></div>`).join("") || `<p class="obs">Sem foto: aparece um ícone no lugar.</p>`}</div>
-          <label class="b" style="display:inline-block;cursor:pointer">+ Adicionar fotos<input type="file" accept="image/*" multiple hidden id="ac-novas"></label> <small id="ac-novas-t" class="obs"></small>
+          <label class="ed-l">Puxar imagem de um link <small>(página da Sympla, do evento ou link direto da imagem; vira a capa)</small><input name="puxar" type="url" placeholder="https://www.sympla.com.br/evento/…" value="${esc(x.fotos.length ? "" : (x.fonte && /sympla|blueticket|ingresso|haid\.app|rs\.gov\.br/.test(x.fonte) ? x.fonte : ""))}"></label>
+                    <label class="b" style="display:inline-block;cursor:pointer">+ Adicionar fotos<input type="file" accept="image/*" multiple hidden id="ac-novas"></label> <small id="ac-novas-t" class="obs"></small>
           <div id="ac-novas-v" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
           ${x.id === "novo" ? "" : `<p style="margin-top:12px"><label><input type="checkbox" name="oculto" value="1" ${x.oculto ? "checked" : ""}> Esconder do site</label></p>`}
           <p style="margin-top:14px"><button class="b zap">Salvar</button></p>
