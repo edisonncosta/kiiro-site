@@ -289,6 +289,33 @@ export default async (req, context) => {
         for (const fid of [...(x.fotos || []), ...(x.foto ? [x.foto] : [])]) await fst.delete(fid);
         await st.delete(id); aviso = "Recusado e apagado.";
       }
+      if (acao === "ac_editar") {
+        const alvo = String(f.get("alvo") || "").replace(/[^\w-]/g, ""), qual = f.get("qual") === "lugar" ? "lugar" : "evento";
+        const dataOk = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "");
+        // fotos: a capa primeiro, sem as marcadas para tirar, e as novas no fim
+        const atuais = String(f.get("fotos") || "").split("|").filter(Boolean);
+        const tirar = new Set(f.getAll("tirar").map(String));
+        const capa = String(f.get("capa") || "");
+        let fotos = atuais.filter((x) => !tirar.has(x));
+        if (capa && fotos.includes(capa)) fotos = [capa, ...fotos.filter((x) => x !== capa)];
+        for (const du of f.getAll("nova").map(String)) {
+          const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(du); if (!m) continue;
+          const b = Buffer.from(m[2], "base64"); if (b.length < 200 || b.length > 3 * 1024 * 1024) continue;
+          const fid = randomUUID(); await fst.set(fid, b); fotos.push(fid);
+        }
+        for (const x of tirar) if (/^[a-f0-9-]{36}$/.test(x)) await fst.delete(x);
+        const dados = { nome: campo("nome", 90), cidade: campo("cidade", 40), local: campo("local"), desc: String(f.get("desc") || "").trim().slice(0, 800),
+          hora: campo("hora", 30), dia: dataOk(f.get("dia")), ate: dataOk(f.get("ate")), marcas: f.getAll("marca").map(String).slice(0, 8), fotos, oculto: f.get("oculto") === "1" };
+        if (!dados.nome) aviso = "Coloque o nome.";
+        else if (alvo === "novo") { pub.itens.push({ id: "k-" + randomUUID().slice(0, 8), tipo: qual, ...dados, aprovado: new Date().toISOString() }); aviso = (qual === "lugar" ? "Lugar" : "Evento") + " criado no Acontece."; }
+        else {
+          const it = pub.itens.find((i) => i.id === alvo);
+          if (it) Object.assign(it, dados); else (pub.edits ||= {})[alvo] = dados;
+          aviso = "Salvo. Já aparece assim no site.";
+        }
+        await st.setJSON("publico", pub);
+        return Response.redirect(`${base}/painel${q({ aba: "acontece", ver: "todos", aviso })}`, 303);
+      }
       if (acao === "ac_tirar") {
         const tipo = f.get("tipo"), alvo = String(f.get("alvo") || ""), ref = String(f.get("ref") || "");
         if (tipo === "item") { const it = pub.itens.find((i) => i.id === ref); if (it) { for (const fid of it.fotos || []) await fst.delete(fid); pub.itens = pub.itens.filter((i) => i.id !== ref); } }
@@ -1131,6 +1158,17 @@ export default async (req, context) => {
     const pend = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
     const pub = (await st.get("publico", { type: "json" })) || { itens: [], fotos: {}, coms: {} };
     const ver = filtro === "todas" ? "pendentes" : filtro;
+    // eventos e lugares fixos do site (acontece-dados.js) + os enviados e aprovados, com as edições do painel por cima
+    let baseAc = { eventos: [], lugares: [] }, cidadesAc = [];
+    try { const t = await (await fetch(`${base}/acontece-dados.js`)).text(); baseAc = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)); } catch {}
+    try { const t = await (await fetch(`${base}/cidades.js`)).text(); cidadesAc = JSON.parse(t.match(/KIIRO_CIDADES = (\[[\s\S]*?\])/)[1]); } catch {}
+    const edits = pub.edits || {};
+    const fotoSrc = (r) => (/^img\//.test(r) ? `/${r}` : `/.netlify/functions/acontece-foto?id=${r}`);
+    const todosAc = [
+      ...baseAc.eventos.map((x) => ({ ...x, qual: "evento", fotos: (x.ft || []).filter((r) => /^img\//.test(r)), ...(edits[x.id] || {}), fixo: true })),
+      ...baseAc.lugares.map((x) => ({ ...x, qual: "lugar", fotos: (x.ft || []).filter((r) => /^img\//.test(r)), ...(edits[x.id] || {}), fixo: true })),
+      ...(pub.itens || []).map((x) => ({ ...x, qual: x.tipo })),
+    ].map((x) => ({ ...x, fotos: x.fotos || [] }));
     const nPub = (pub.itens || []).length + Object.values(pub.fotos || {}).flat().length + Object.values(pub.coms || {}).flat().length;
     const sub = (v, t, n) => `<a class="aba mini ${ver === v ? "on" : ""}" href="${q({ aba: "acontece", ver: v })}">${t} <small>${n}</small></a>`;
     const hid = (n, v) => `<input type="hidden" name="${n}" value="${esc(v)}">`;
@@ -1166,6 +1204,54 @@ export default async (req, context) => {
           <div class="acoes">${bt("ac_aprovar", "Aprovar", "zap", hid("id", k))}${bt("ac_recusar", "Recusar", "", hid("id", k), "Recusar e apagar?")}</div>
         </article>`;
       }).join("") || `<p class="vazio">Nada para aprovar no Acontece.</p>`;
+    } else if (ver === "todos") {
+      const edId = url.searchParams.get("ed") || "";
+      const novoQual = edId === "novo-lugar" ? "lugar" : edId === "novo-evento" ? "evento" : "";
+      const x = novoQual ? { id: "novo", qual: novoQual, nome: "", cidade: "", local: "", desc: "", marcas: [], fotos: [] } : todosAc.find((i) => i.id === edId);
+      if (x) {
+        const ev = x.qual === "evento";
+        const MARCAS_AC = ev ? ["Grátis", "Pra crianças", "Música", "Esporte", "Feira", "Comunidade", "Comida", "Festa"] : ["Ponto turístico", "Praia", "Cachoeira", "Pracinha", "Pra crianças", "Parque", "Trilha", "Mirante", "Pôr do sol", "Pet", "Passeio", "Sombra"];
+        for (const m of x.marcas || []) if (!MARCAS_AC.includes(m)) MARCAS_AC.push(m);
+        corpo = `<p><a href="${q({ aba: "acontece", ver: "todos" })}">‹ Voltar para a lista</a></p>
+        <article><form method="post" class="ed" id="ac-ed" enctype="multipart/form-data">${hid("chave", KEY)}${hid("acao", "ac_editar")}${hid("alvo", x.id)}${hid("qual", x.qual)}${hid("fotos", x.fotos.join("|"))}
+          <h3 style="margin-bottom:8px">${x.id === "novo" ? (ev ? "Novo evento" : "Novo lugar") : "Editar " + (ev ? "evento" : "lugar")}</h3>
+          <label class="ed-l">Nome<input name="nome" value="${esc(x.nome)}" required></label>
+          ${ev ? `<label class="ed-l">Dia<input type="date" name="dia" value="${esc(x.dia || "")}"></label><label class="ed-l">Até (se for mais de um dia)<input type="date" name="ate" value="${esc(x.ate || "")}"></label><label class="ed-l">Horário<input name="hora" value="${esc(x.hora || "")}" placeholder="Ex.: 15h ou 18:00"></label>` : ""}
+          <label class="ed-l">Cidade<select name="cidade">${cidadesAc.map((c) => `<option ${c === x.cidade ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+          <label class="ed-l">Local<input name="local" value="${esc(x.local || "")}"></label>
+          <label class="ed-l">Descrição<textarea name="desc" rows="4">${esc(x.desc || "")}</textarea></label>
+          <p class="ed-l" style="margin-top:6px">Marcas</p><div style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:8px">${MARCAS_AC.map((m) => `<label style="font-size:14px"><input type="checkbox" name="marca" value="${esc(m)}" ${(x.marcas || []).includes(m) ? "checked" : ""}> ${esc(m)}</label>`).join("")}</div>
+          <p class="ed-l">Fotos <small>(a capa é a que aparece no card)</small></p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 10px">${x.fotos.map((r, i) => `<div style="width:110px;font-size:12px"><img src="${fotoSrc(r)}" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:8px;display:block">
+            <label><input type="radio" name="capa" value="${esc(r)}" ${i ? "" : "checked"}> Capa</label><br><label><input type="checkbox" name="tirar" value="${esc(r)}"> Tirar</label></div>`).join("") || `<p class="obs">Sem foto: aparece um ícone no lugar.</p>`}</div>
+          <label class="b" style="display:inline-block;cursor:pointer">+ Adicionar fotos<input type="file" accept="image/*" multiple hidden id="ac-novas"></label> <small id="ac-novas-t" class="obs"></small>
+          <div id="ac-novas-v" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+          ${x.id === "novo" ? "" : `<p style="margin-top:12px"><label><input type="checkbox" name="oculto" value="1" ${x.oculto ? "checked" : ""}> Esconder do site</label></p>`}
+          <p style="margin-top:14px"><button class="b zap">Salvar</button></p>
+        </form></article>
+        <script>
+          (function () {
+            const inp = document.getElementById("ac-novas"), f = document.getElementById("ac-ed"), v = document.getElementById("ac-novas-v");
+            const reduzir = (arq) => new Promise((ok, erro) => { const img = new Image(), u = URL.createObjectURL(arq);
+              img.onload = () => { const k = Math.min(1, 1400 / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u); ok(c.toDataURL("image/jpeg", .84)); };
+              img.onerror = () => { URL.revokeObjectURL(u); erro(); }; img.src = u; });
+            inp.addEventListener("change", async () => {
+              document.getElementById("ac-novas-t").textContent = "Preparando…";
+              for (const a of [...inp.files].slice(0, 6)) { try { const d = await reduzir(a); const h = document.createElement("input"); h.type = "hidden"; h.name = "nova"; h.value = d; f.appendChild(h);
+                const im = document.createElement("img"); im.src = d; im.style.cssText = "width:80px;height:80px;object-fit:cover;border-radius:8px"; v.appendChild(im); } catch {} }
+              document.getElementById("ac-novas-t").textContent = "Entram depois que você salvar."; inp.value = "";
+            });
+          })();
+        </script>`;
+      } else {
+        const linha = (i) => `<article style="display:flex;gap:10px;align-items:center;padding:10px">
+          ${i.fotos[0] ? `<img src="${fotoSrc(i.fotos[0])}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none">` : `<span style="width:56px;height:56px;border-radius:8px;background:#F3E7B8;flex:none"></span>`}
+          <div style="flex:1;min-width:0"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(i.nome)}${i.oculto ? " <small>(escondido)</small>" : ""}</b><small>${esc(i.cidade)}${i.dia ? " · " + esc(i.dia.split("-").reverse().join("/")) : ""} · ${i.fotos.length} foto${i.fotos.length === 1 ? "" : "s"}${i.fixo ? "" : " · enviado"}</small></div>
+          <a class="b" href="${q({ aba: "acontece", ver: "todos", ed: i.id })}">Editar</a></article>`;
+        corpo = `<p style="margin:10px 0"><a class="b zap" href="${q({ aba: "acontece", ver: "todos", ed: "novo-evento" })}">+ Novo evento</a> <a class="b" href="${q({ aba: "acontece", ver: "todos", ed: "novo-lugar" })}">+ Novo lugar</a></p>
+          <h3 style="margin:14px 0 8px">Eventos</h3>${todosAc.filter((i) => i.qual === "evento").sort((a, b) => ((a.dia || "") < (b.dia || "") ? -1 : 1)).map(linha).join("")}
+          <h3 style="margin:14px 0 8px">Lugares</h3>${todosAc.filter((i) => i.qual === "lugar").sort((a, b) => a.cidade.localeCompare(b.cidade)).map(linha).join("")}`;
+      }
     } else {
       const its = (pub.itens || []).map((i) => `<article><div class="l1"><b>${i.tipo === "lugar" ? "📍" : "🎉"} ${esc(i.nome)}</b><span>${esc(i.cidade)}${i.dia ? " · " + esc(i.dia.split("-").reverse().join("/")) : ""}</span></div>
         <div class="acoes"><a class="b" href="/acontece.html#${esc(i.id)}" target="_blank">Ver no site</a>${bt("ac_tirar", "Tirar do ar", "", hid("tipo", "item") + hid("ref", i.id), "Tirar do Acontece?")}</div></article>`).join("");
@@ -1174,7 +1260,7 @@ export default async (req, context) => {
         <div class="acoes">${bt("ac_tirar", "Tirar do ar", "", hid("tipo", "com") + hid("alvo", alvo) + hid("ref", c.k), "Tirar este comentário?")}</div></article>`)).join("");
       corpo = (its ? `<h3 style="margin:14px 0 8px">Eventos e lugares</h3>${its}` : "") + (fts ? `<h3 style="margin:14px 0 8px">Fotos</h3><div>${fts}</div>` : "") + (cms ? `<h3 style="margin:14px 0 8px">Comentários</h3>${cms}` : "") || `<p class="vazio">Nada publicado pelo público ainda.</p>`;
     }
-    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}<nav class="abas sub">${sub("pendentes", "Para aprovar", pend.length)}${sub("publicados", "Publicados", nPub)}</nav>${corpo}
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}<nav class="abas sub">${sub("pendentes", "Para aprovar", pend.length)}${sub("publicados", "Enviados pelo público", nPub)}${sub("todos", "Editar tudo", todosAc.length)}</nav>${corpo}
       <p class="obs">O que as pessoas mandam pelo + do Acontece (eventos e lugares), as fotos e os comentários. Só aparece no site depois que você aprova. Você pode corrigir nome, data e local antes de publicar.</p>`;
   }
 

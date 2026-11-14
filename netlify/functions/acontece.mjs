@@ -33,7 +33,7 @@ export default async (req) => {
   if (req.method === "GET") {
     const [pub, cont] = await Promise.all([st.get("publico", { type: "json" }), st.get("contagens", { type: "json" })]);
     const p = pub || {};
-    return json({ itens: p.itens || [], fotos: p.fotos || {}, coms: p.coms || {}, n: cont || {} }, 200, { "Cache-Control": "public, max-age=30" });
+    return json({ itens: p.itens || [], edits: p.edits || {}, fotos: p.fotos || {}, coms: p.coms || {}, n: cont || {} }, 200, { "Cache-Control": "public, max-age=30" });
   }
   if (req.method !== "POST") return new Response("Método não permitido", { status: 405 });
   const ua = req.headers.get("user-agent") || "";
