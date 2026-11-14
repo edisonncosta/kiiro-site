@@ -377,6 +377,7 @@
   .pub-vazio b{display:block;font-size:.9rem}
   .pub-vazio small{display:block;color:var(--muted);margin:.2rem 0 .4rem;font-size:.74rem}
   .pub-vazio em{font-style:normal;font-weight:700;color:#8a6a00;font-size:.82rem}
+  .card .ft[hidden]{display:none !important}
 </style>
 </head>
 <body>
@@ -476,26 +477,10 @@ const G = (a, b) => `linear-gradient(135deg,${a},${b})`;
 const D = (dd, mm) => new Date(2026, mm - 1, dd);
 const dataDe = s => { const [a, m, d] = String(s || "").split("-").map(Number); return a ? new Date(a, m - 1, d) : null; };
 const doDado = x => { const y = { vao: 0, foram: 0, querem: 0, ...x }; if (x.dia) y.d = dataDe(x.dia); if (x.ate) y.ate = dataDe(x.ate); delete y.dia; return y; };
-/* evento sem foto ganha uma foto ilustrativa do tipo dele (Wikimedia Commons), para nenhum card ficar vazio */
-const FOTO_TIPO = {"musica": {"src": "img/acontece/cat-musica.jpg", "autor": "Shixart1985", "lic": "CC BY 2.0", "url": "https://commons.wikimedia.org/wiki/File:A_large_crowd_enjoys_a_music_concert_illuminated_by_colorful_lights_and_a_stunning_stage_display.jpg"}, "festa": {"src": "img/acontece/cat-festa.jpg", "autor": "velkr0 from Vancouver, Canada", "lic": "CC BY 2.0", "url": "https://commons.wikimedia.org/wiki/File:Crowd_2012_Osheaga_festival_at_night_Montreal.jpg"}, "feira": {"src": "img/acontece/cat-feira.jpg", "autor": "Eugenio Hansen, OFS", "lic": "CC BY-SA 2.0", "url": "https://commons.wikimedia.org/wiki/File:Feira_Livre_(Largo_da_Epatur,_Porto_Alegre,_Brasil).jpg"}, "esporte": {"src": "img/acontece/cat-esporte.jpg", "autor": "Gerald England", "lic": "CC BY-SA 2.0", "url": "https://commons.wikimedia.org/wiki/File:Dr_Ron_Hyde_7_Mile_Race_2019,_Early_runners_on_Market_Street_-_geograph.org.uk_-_6516171.jpg"}, "comunidade": {"src": "img/acontece/cat-comunidade.jpg", "autor": "Igor Eliezer Borges", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Banda_tocando_no_Largo_S%C3%A3o_Jo%C3%A3o,_Laranjal_Paulista_-_Festa_de_S%C3%A3o_Jo%C3%A3o_Batista_2022.jpg"}, "natal": {"src": "img/acontece/cat-natal.jpg", "autor": "David Anstiss", "lic": "CC BY-SA 2.0", "url": "https://commons.wikimedia.org/wiki/File:Christmas_Lights_on_Monmouth_Street_-_geograph.org.uk_-_3266331.jpg"}, "reveillon": {"src": "img/acontece/cat-reveillon.jpg", "autor": "MACÍLIO GOMES", "lic": "CC BY 3.0", "url": "https://commons.wikimedia.org/wiki/File:Queima_de_fogos_-_Aterro_da_Praia_de_Iracema_-_1%C2%BA-1-2011_-_panoramio.jpg"}};
-function tipoFoto(x) {
-  const n = (x.nome + " " + (x.desc || "")).toLowerCase();
-  if (/r[ée]veillon|virada|ano novo/.test(n)) return "reveillon";
-  if (/natal|papai noel/.test(n)) return "natal";
-  const m = x.marcas || [];
-  return m.includes("Música") ? "musica" : m.includes("Esporte") ? "esporte" : m.includes("Feira") || m.includes("Comida") ? "feira" : m.includes("Festa") ? "festa" : m.includes("Comunidade") ? "comunidade" : "festa";
-}
-function garantirFoto(L) {
-  for (const x of L) {
-    if (!x.d || (x.ft || []).some(f => /^(img\/|\/\.netlify\/)/.test(f))) continue;
-    const c = FOTO_TIPO[tipoFoto(x)];
-    x.ft = [c.src]; x.creditos = [c]; x.ilustrativa = true;
-  }
-}
 const EVENTOS = ((window.AC_DADOS || {}).eventos || []).map(doDado);
 const LUGARES = ((window.AC_DADOS || {}).lugares || []).map(doDado);
-garantirFoto(EVENTOS);
 const ehFoto = s => /^(img\/|\/\.netlify\/)/.test(s || "");
+const temFoto = x => (x.ft || []).some(ehFoto);
 const bg = s => ehFoto(s) ? `#ddd url('${s}') center/cover no-repeat` : s;
 const FILTROS = { eventos: ["Perto de mim", "Agora", "Hoje", "Fim de semana", "Grátis", "Pra crianças", "Música", "Esporte", "Feira", "Comunidade"], lugares: ["Perto de mim", "Ponto turístico", "Praia", "Cachoeira", "Pracinha", "Pra crianças", "Parque", "Trilha", "Mirante", "Pôr do sol", "Pet"] };
 
@@ -565,7 +550,7 @@ const cat1 = x => x.marcas.find(m => !["Grátis", "Pra crianças"].includes(m)) 
 function cardEv(x) {
   const eu = meus[x.id] === "vou";
   return `<button class="card" type="button" data-id="${x.id}">
-    <div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}
+    <div class="ft"${temFoto(x) ? ` style="background:${bg(x.ft.find(ehFoto))}"` : " hidden"}>
       <span class="tags">${x.marcas.includes("Grátis") ? '<span class="tag gr">Grátis</span>' : ""}${x.marcas.includes("Pra crianças") ? '<span class="tag">${ic("baby")}Crianças</span>' : ""}</span>
       ${agora(x) ? '<span class="agora">● Acontecendo agora</span>' : ""}
     </div>
@@ -577,7 +562,7 @@ function cardEv(x) {
 function cardLu(x) {
   const eu = meus[x.id];
   return `<button class="card" type="button" data-id="${x.id}">
-    <div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}
+    <div class="ft"${temFoto(x) ? ` style="background:${bg(x.ft.find(ehFoto))}"` : " hidden"}>
       <span class="tags">${x.marcas.includes("Pra crianças") ? '<span class="tag">${ic("baby")}Crianças</span>' : ""}${x.marcas.includes("Pet") ? '<span class="tag">${ic("dog")}Pet</span>' : ""}</span>
       <span class="nfotos">${ic("camera")}${x.fotos}</span>
     </div>
@@ -626,7 +611,7 @@ function lista() {
     $("lista").innerHTML = html;
   } else {
     const xs = LUGARES.filter(passa).sort((a, b) => filtro === "Perto de mim" ? km(a) - km(b) : b.foram - a.foram);
-    const tur = !filtro ? LUGARES.filter(x => x.marcas.includes("Ponto turístico") && (!cidade || x.cidade === cidade)) : [];
+    const tur = !filtro ? LUGARES.filter(x => x.marcas.includes("Ponto turístico") && temFoto(x) && (!cidade || x.cidade === cidade)) : [];
     const carrossel = tur.length ? `<h2 class="dia">${ic("compass")}Pontos turísticos</h2><div class="tur">${tur.map(x => `<button type="button" data-id="${x.id}"><div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}${x.fotos ? `<span>${ic("camera")}${x.fotos}</span>` : ""}</div><b>${esc(x.nome)}</b><small>${esc(x.cidade)}${x.foram ? ` · ${x.foram} já foram` : ""}</small></button>`).join("")}</div>` : "";
     $("lista").innerHTML = xs.length ? carrossel + `<h2 class="dia" style="margin-top:1.2rem">${filtro === "Perto de mim" ? `${ic("map-pin")}Até ${RAIO} km de você` : "Mais visitados"}</h2>` + xs.map((x, i) => cardLu(x) + (comPubli(i, xs.length) ? publi(i === 1 ? 0 : (i - 1) / 4) : "")).join("") : `<p class="vazio">Nenhum lugar com esse filtro${cidade ? " em " + esc(cidade) : ""} ainda.<br>Conhece um? Toque em <b>Indicar lugar</b>.</p>`;
   }
@@ -660,9 +645,10 @@ $("m-cid").addEventListener("click", e => { if (e.target.id === "m-cid" || e.tar
 function abrir(id) {
   const x = [...EVENTOS, ...LUGARES].find(y => y.id === id); if (!x) return;
   const ev = !!x.d;
-  const fotos = x.ft.map((f, i) => `<div style="background:${bg(f)}">${ehFoto(f) ? "" : icE(x.em[i] || x.em[0])}</div>`).join("");
-  const nGrade = ev ? (x.ilustrativa ? 0 : x.ft.length) : Math.min(5, x.fotos);
-  const grade = Array.from({ length: nGrade }, (_, i) => `<div style="background:${bg(x.ft[i % x.ft.length])}">${ehFoto(x.ft[i % x.ft.length]) ? "" : icE(x.em[i % x.em.length])}</div>`).join("");
+  const fotos = x.ft.filter(ehFoto).map(f => `<div style="background:${bg(f)}"></div>`).join("");
+  const nGrade = ev ? x.ft.filter(ehFoto).length : Math.min(5, x.fotos);
+  const soFotos = x.ft.filter(ehFoto);
+  const grade = soFotos.length ? Array.from({ length: nGrade }, (_, i) => `<div style="background:${bg(soFotos[i % soFotos.length])}"></div>`).join("") : "";
   const creditos = (x.creditos || []).map(c => `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.autor)}</a> (${esc(c.lic === "Public domain" ? "domínio público" : c.lic)})`).join(", ");
   const mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${x.local}, ${x.cidade}, RS`);
   const compart = "https://wa.me/?text=" + encodeURIComponent(`${ev ? "Bora? " : "Conhece? "}${x.nome}${ev ? " · " + rotDia(x.d) + " " + x.hora : ""} em ${x.cidade}\nhttps://chamakiiro.com.br/acontece#${x.id}`);
@@ -674,8 +660,8 @@ function abrir(id) {
   const nVao = x.vao + (est === "vou" ? 1 : 0), nInt = (x.querem || 0) + (salvo ? 1 : 0), nFor = (x.foram || 0) + (est === "fui" ? 1 : 0);
   $("det").innerHTML = `
     <div class="z-dbar zd-bar"><button type="button" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>${esc(x.nome)}</b><a href="${compart}" target="_blank" rel="noopener" aria-label="Mais opções" class="zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
-    <div class="gal" id="gal">${fotos}</div>
-    ${x.ft.length > 1 ? `<div class="gal-pts" id="pts">${x.ft.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
+    ${fotos ? `<div class="gal" id="gal">${fotos}</div>` : ""}
+    ${x.ft.filter(ehFoto).length > 1 ? `<div class="gal-pts" id="pts">${x.ft.filter(ehFoto).map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
     <div class="dt zd">
       <h2>${esc(x.nome)}</h2>
       ${ev ? `<div class="zd-l">${ic("calendar")}<span>${rotDia(x.d)}${x.ate ? " a " + rotDia(x.ate) : ""}${x.hora ? " · " + esc(x.hora) : ""}</span></div>` : ""}
@@ -696,7 +682,7 @@ function abrir(id) {
       <p class="zd-aviso">Algumas informações podem estar erradas, pois não foram enviadas pelo organizador oficial.${x.fonte ? ` <a href="${esc(x.fonte)}" target="_blank" rel="noopener">Ver fonte</a>` : ""}</p>
       <div class="zd-tags">${tags.map(t => `<span>${esc(t)}</span>`).join("")}</div>
       ${publi([...id].reduce((a, c) => a + c.charCodeAt(0), 0))}
-      ${creditos ? `<p class="por">${x.ilustrativa ? "Imagem ilustrativa: " : "Fotos: "}${creditos}, via Wikimedia Commons</p>` : ""}
+      ${creditos ? `<p class="por">Fotos: ${creditos}, via Wikimedia Commons</p>` : ""}
       <div class="fotos-h zd-h2"><h3 class="z-h zd-h" style="margin:0">Fotos ${ev ? "do evento" : "de quem foi"}</h3><button type="button" data-foto>+ Mandar foto</button></div>
       <div class="grade">${grade}<label class="mais"><input type="file" accept="image/*" hidden data-foto-in><b>+</b>Sua foto</label></div>
       <h3 class="z-h zd-h zd-h2">Comentários (${pubComs.length})</h3>
@@ -708,7 +694,7 @@ function abrir(id) {
   $("m-det").classList.add("aberto");
   $("m-det").dataset.id = id;
   const gal = $("gal"), pts = $("pts");
-  if (pts) gal.addEventListener("scroll", () => { const i = Math.round(gal.scrollLeft / gal.clientWidth); pts.querySelectorAll("i").forEach((p, j) => p.classList.toggle("on", j === i)); });
+  if (pts && gal) gal.addEventListener("scroll", () => { const i = Math.round(gal.scrollLeft / gal.clientWidth); pts.querySelectorAll("i").forEach((p, j) => p.classList.toggle("on", j === i)); });
   history.replaceState(null, "", "#" + id);
 }
 $("lista").addEventListener("click", e => { const c = e.target.closest(".card,.tur button"); if (c) abrir(c.dataset.id); });
@@ -900,7 +886,6 @@ function aplicarServidor(r) {
       if (e.dia) { x.d = dataDe(e.dia); x.ate = dataDe(e.ate) || undefined; }
       if (Array.isArray(e.fotos)) {
         const fs = e.fotos.map(refFoto);
-        if (fs.length) x.ilustrativa = false;
         x.ft = fs.length ? fs : x.ft.filter(f => !ehFoto(f)).concat(x.ft.some(f => !ehFoto(f)) ? [] : [G("#FFD86B", "#E0A800")]);
         if (x.creditos) x.creditos = x.creditos.filter(c => e.fotos.includes(c.src));
       }
@@ -918,7 +903,7 @@ function aplicarServidor(r) {
   for (const [alvo, fs] of Object.entries(r.fotos || {})) {
     const x = [...EVENTOS, ...LUGARES].find(y => y.id === alvo); if (!x || !fs.length) continue;
     const urls = fs.map(fotoUrl).filter(u => !x.ft.includes(u));
-    if (x.ilustrativa) { x.ilustrativa = false; x.creditos = []; x.ft = urls; } else x.ft = x.ft.some(ehFoto) ? [...x.ft, ...urls] : urls; x.fotos = (x.fotos || 0) + urls.length;
+    x.ft = x.ft.some(ehFoto) ? [...x.ft, ...urls] : urls; x.fotos = (x.fotos || 0) + urls.length;
   }
   for (const [id, c] of Object.entries(r.n || {})) {
     const x = [...EVENTOS, ...LUGARES].find(y => y.id === id); if (!x) continue;
@@ -927,7 +912,6 @@ function aplicarServidor(r) {
     x.foram = (x.foram || 0) + Math.max(0, (c.fui || 0) - (meu === "fui" ? 1 : 0));
     x.querem = (x.querem || 0) + Math.max(0, (c.quero || 0) - (salvo ? 1 : 0));
   }
-  garantirFoto(EVENTOS);
   lista();
   if ($("m-det").classList.contains("aberto")) abrir($("m-det").dataset.id);
   else if (location.hash.length > 1) abrir(location.hash.slice(1));
