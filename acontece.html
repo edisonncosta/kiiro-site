@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Acontece no Litoral · Kiiro</title>
+<meta name="description" content="Eventos e lugares do Litoral Norte do RS: feiras, shows, festas, pracinhas e passeios, indicados pela comunidade.">
+<meta property="og:title" content="Acontece no Litoral · Kiiro">
+<meta property="og:description" content="O que fazer no Litoral Norte: eventos da semana e lugares indicados pela comunidade.">
+<meta property="og:image" content="https://chamakiiro.com.br/img/og-kiiro.jpg">
+<meta name="theme-color" content="#FFC800">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="estilo.css">
+<script src="cidades.js"></script>
+<style>
+  body{padding-bottom:6rem}
+  .ac-topo{position:sticky;top:0;z-index:30;background:var(--sun);padding:calc(.7rem + env(safe-area-inset-top)) 1.1rem .9rem}
+  .ac-l1{display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+  .ac-l1 .logo{width:72px}
+  .ac-cid{display:flex;align-items:center;gap:.35rem;border:0;background:rgba(255,255,255,.55);border-radius:999px;padding:.45rem .85rem;font:600 .82rem Poppins,sans-serif;color:var(--ink);cursor:pointer;max-width:60%}
+  .ac-cid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ac-cid svg{width:15px;height:15px;flex:none}
+  .ac-topo h1{font-size:1.55rem;line-height:1.15;font-weight:800;color:var(--ink);margin:.9rem 0 .15rem;letter-spacing:-.01em}
+  .ac-topo p{font-size:.86rem;color:#4a3d00}
+  .seg{display:flex;background:rgba(26,26,26,.08);border-radius:14px;padding:.25rem;margin-top:.9rem}
+  .seg button{flex:1;border:0;background:none;padding:.6rem;border-radius:11px;font:600 .95rem Poppins,sans-serif;color:#4a3d00;cursor:pointer}
+  .seg button.on{background:var(--ink);color:var(--sun)}
+  .ac-chips{display:flex;gap:.45rem;overflow-x:auto;padding:.9rem 1.1rem .3rem;scrollbar-width:none}
+  .ac-chips::-webkit-scrollbar{display:none}
+  .ac-chips button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:.42rem .85rem;font:500 .84rem Poppins,sans-serif;color:var(--ink);cursor:pointer;white-space:nowrap}
+  .ac-chips button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .lista{padding:.4rem 1.1rem 0;max-width:640px;margin:0 auto}
+  .dia{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8A7F5E;margin:1.1rem 0 .55rem}
+  .card{display:block;width:100%;text-align:left;border:0;background:#fff;border-radius:18px;overflow:hidden;margin-bottom:.9rem;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(120,90,0,.07);cursor:pointer;color:var(--ink);font-family:inherit;padding:0}
+  .card .ft{position:relative;height:150px;background:#eee center/cover;display:flex;align-items:center;justify-content:center;font-size:3.4rem}
+  .card .data{font-size:1rem;position:absolute;left:.7rem;top:.7rem;background:#fff;border-radius:12px;padding:.3rem .55rem;text-align:center;line-height:1.05;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .card .data b{display:block;font-size:1.25rem;font-weight:800}
+  .card .data small{font-size:.66rem;font-weight:700;text-transform:uppercase;color:var(--muted)}
+  .card .tags{font-size:1rem;position:absolute;right:.7rem;top:.7rem;display:flex;gap:.3rem}
+  .tag{background:rgba(26,26,26,.78);color:#fff;border-radius:999px;padding:.2rem .55rem;font-size:.7rem;font-weight:600}
+  .tag.gr{background:var(--zap)}
+  .agora{position:absolute;left:.7rem;bottom:.7rem;font-size:.74rem;font-weight:700;background:#E5322D;color:#fff;border-radius:999px;padding:.25rem .65rem}
+  .tur{display:flex;gap:.7rem;overflow-x:auto;scrollbar-width:none;margin:0 -1.1rem;padding:0 1.1rem .3rem}
+  .tur::-webkit-scrollbar{display:none}
+  .tur button{flex:none;width:68%;max-width:250px;border:0;padding:0;border-radius:16px;overflow:hidden;background:#fff;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);box-shadow:0 1px 0 var(--line),0 6px 18px rgba(120,90,0,.07)}
+  .tur .ft{height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+  .tur .ft span{position:absolute;left:.6rem;top:.6rem;font-size:.68rem;font-weight:700;background:rgba(255,255,255,.92);border-radius:999px;padding:.18rem .55rem}
+  .tur b{display:block;font-size:.92rem;padding:.6rem .75rem 0;line-height:1.25}
+  .tur small{display:block;font-size:.76rem;color:var(--muted);padding:0 .75rem .7rem}
+  .card .nfotos{position:absolute;right:.7rem;bottom:.7rem;background:rgba(26,26,26,.7);color:#fff;border-radius:999px;padding:.18rem .5rem;font-size:.7rem;font-weight:600}
+  .card .tx{padding:.8rem .95rem .9rem}
+  .card h3{font-size:1.02rem;font-weight:700;line-height:1.3}
+  .card .onde{font-size:.82rem;color:var(--muted);margin-top:.15rem}
+  .card .rod{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;color:var(--muted)}
+  .avs{display:flex}
+  .avs i{width:22px;height:22px;border-radius:50%;border:2px solid #fff;margin-left:-7px;display:grid;place-items:center;font-style:normal;font-size:.62rem;font-weight:700;color:var(--ink)}
+  .avs i:first-child{margin-left:0}
+  .card .eu{margin-left:auto;font-weight:600;color:var(--zap)}
+  .vazio{text-align:center;color:var(--muted);padding:2.5rem 1rem;font-size:.92rem}
+  .fab{position:fixed;right:1rem;bottom:calc(1.1rem + env(safe-area-inset-bottom));z-index:35;display:flex;align-items:center;gap:.45rem;border:0;background:var(--ink);color:var(--sun);border-radius:999px;padding:.95rem 1.25rem;font:700 .95rem Poppins,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.28);cursor:pointer}
+  .fab svg{width:20px;height:20px}
+  /* janelas */
+  .mod{position:fixed;inset:0;z-index:50;background:rgba(26,26,26,.5);display:none;align-items:flex-end;justify-content:center}
+  .mod.aberto{display:flex}
+  .sh{background:var(--paper);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;padding-bottom:calc(1.4rem + env(safe-area-inset-bottom))}
+  .sh-x{position:sticky;top:0;z-index:2;display:flex;justify-content:flex-end;padding:.6rem .7rem 0;height:0}
+  .sh-x button{width:38px;height:38px;border-radius:50%;border:0;background:rgba(26,26,26,.6);color:#fff;font-size:1.2rem;cursor:pointer}
+  .gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:4px;scrollbar-width:none}
+  .gal::-webkit-scrollbar{display:none}
+  .gal div{flex:none;width:100%;height:230px;scroll-snap-align:start;background:#eee center/cover;display:grid;place-items:center;font-size:5rem}
+  .gal-pts{display:flex;justify-content:center;gap:5px;margin-top:-1.3rem;position:relative}
+  .gal-pts i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6)}
+  .gal-pts i.on{background:#fff}
+  .dt{padding:1.1rem 1.15rem 0}
+  .dt h2{font-size:1.35rem;font-weight:800;line-height:1.2;color:var(--ink)}
+  .dt .lin{display:flex;gap:.6rem;align-items:flex-start;margin-top:.7rem;font-size:.9rem;color:var(--ink)}
+  .dt .lin span{font-size:1.1rem;line-height:1.3}
+  .dt .lin small{display:block;color:var(--muted);font-size:.8rem}
+  .dt .desc{margin-top:.9rem;font-size:.92rem;color:#333;line-height:1.55}
+  .dt .por{margin-top:.8rem;font-size:.76rem;color:var(--muted)}
+  .acao2{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:1.1rem}
+  .bt-v{display:flex;flex-direction:column;align-items:center;gap:.1rem;border:1.5px solid var(--ink);background:#fff;border-radius:14px;padding:.65rem;font:700 .95rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .bt-v small{font-weight:500;font-size:.74rem;color:var(--muted)}
+  .bt-v.on{background:var(--sun);border-color:var(--sun)}
+  .bt-v.on small{color:#4a3d00}
+  .acao3{display:flex;gap:.5rem;margin-top:.6rem}
+  .acao3 a,.acao3 button{flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;border:0;background:#F3ECD3;border-radius:12px;padding:.7rem .4rem;font:600 .82rem Poppins,sans-serif;color:var(--ink);text-decoration:none;cursor:pointer}
+  .fotos-h{display:flex;align-items:center;justify-content:space-between;margin:1.4rem 0 .6rem}
+  .fotos-h h3{font-size:1rem;font-weight:700}
+  .fotos-h button{border:0;background:none;font:600 .85rem Poppins,sans-serif;color:var(--sun-deep);cursor:pointer}
+  .grade{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:14px;overflow:hidden}
+  .grade div{aspect-ratio:1;background:#eee center/cover;display:grid;place-items:center;font-size:2rem}
+  .grade .mais{background:#F3ECD3;font-size:.8rem;font-weight:600;color:var(--ink);cursor:pointer;flex-direction:column;gap:.2rem;display:flex;align-items:center;justify-content:center}
+  .grade .mais b{font-size:1.5rem;line-height:1}
+  /* formulário */
+  .fm{padding:1.3rem 1.15rem 0}
+  .fm h2{font-size:1.3rem;font-weight:800;color:var(--ink)}
+  .fm .sub{font-size:.86rem;color:var(--muted);margin:.2rem 0 .3rem}
+  .fm label{display:block;font-size:.85rem;font-weight:600;margin:.85rem 0 .3rem;color:var(--ink)}
+  .fm label .opc{font-weight:400;color:var(--muted)}
+  .fm input,.fm select,.fm textarea{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:.75rem .85rem;font:400 .95rem Poppins,sans-serif;color:var(--ink)}
+  .fm textarea{min-height:80px;resize:vertical}
+  .fm .dois{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .fm .tipo{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.8rem}
+  .fm .tipo button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:.75rem;font:600 .92rem Poppins,sans-serif;color:var(--ink);cursor:pointer}
+  .fm .tipo button.on{background:var(--sun);border-color:var(--sun)}
+  .fm .marcas{display:flex;flex-wrap:wrap;gap:.45rem}
+  .fm .marcas button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:.42rem .8rem;font:500 .84rem Poppins,sans-serif;cursor:pointer;color:var(--ink)}
+  .fm .marcas button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .fm .up{display:flex;align-items:center;justify-content:center;gap:.5rem;border:1.5px dashed #D9CFA8;border-radius:14px;padding:1rem;font-weight:600;font-size:.9rem;color:var(--ink);cursor:pointer;background:#fff}
+  .fm .env{width:100%;margin-top:1.2rem;border:0;background:var(--ink);color:var(--sun);border-radius:14px;padding:1rem;font:700 1rem Poppins,sans-serif;cursor:pointer}
+  .fm .fine{font-size:.76rem;color:var(--muted);margin-top:.6rem;text-align:center}
+  .so-ev[hidden],.so-lu[hidden]{display:none}
+  .toast{position:fixed;left:50%;bottom:calc(5.5rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:.7rem 1.1rem;border-radius:12px;font-size:.88rem;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;width:max-content;max-width:90vw}
+  .toast.on{opacity:1}
+
+  /* ===== layout no estilo Zone, cores da Kiiro ===== */
+  .z-top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:.7rem;background:var(--paper);padding:calc(.7rem + env(safe-area-inset-top)) 1.1rem .7rem;border-bottom:1px solid var(--line)}
+  .z-top .logo{width:70px}
+  .z-tit{font-weight:700;font-size:.95rem;color:var(--ink);background:var(--sun);border-radius:999px;padding:.12rem .6rem}
+  .z-ic{margin-left:auto;display:flex;gap:.35rem}
+  .z-ic a,.z-ic button{width:40px;height:40px;display:grid;place-items:center;border:0;background:none;color:var(--ink);cursor:pointer}
+  .z-ic svg{width:24px;height:24px}
+  .z-abas{display:flex;gap:1.4rem;padding:.2rem 1.1rem 0;background:var(--paper);border-bottom:1px solid var(--line)}
+  .z-abas button{border:0;background:none;padding:.6rem 0 .55rem;font:600 .98rem Poppins,sans-serif;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer}
+  .z-abas button.on{color:var(--ink);border-bottom-color:var(--sun)}
+  .ac-chips{padding:.85rem 1.1rem .2rem}
+  .ac-chips button{display:flex;align-items:center;gap:.35rem;border:1.5px solid #E4DCC0;background:#fff;padding:.45rem .9rem}
+  .ac-chips button.on{background:var(--ink);border-color:var(--ink);color:var(--sun)}
+  .z-cid{padding:.5rem 1.1rem 0;max-width:640px;margin:0 auto}
+  .ac-cid{background:var(--sun-soft);max-width:none;color:var(--ink);padding:.42rem .8rem}
+  .ac-cid svg{width:14px;height:14px}
+  .z-sec{font-size:1.45rem;font-weight:800;color:var(--ink);margin:.55rem 0 0;letter-spacing:-.01em}
+  .lista .dia{font-size:.8rem;margin:1rem 0 .55rem}
+  .card{background:none;box-shadow:none;border-radius:0;margin-bottom:1.3rem;overflow:visible}
+  .card .ft{height:auto;aspect-ratio:16/9;border-radius:18px;overflow:hidden;font-size:4rem}
+  .card .tx{padding:.6rem .15rem 0}
+  .card h3{font-size:1.08rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .z-cat{display:inline-block;margin-top:.35rem;background:var(--sun-soft);color:#5c4700;border-radius:8px;padding:.15rem .6rem;font-size:.78rem;font-weight:600}
+  .z-rod{display:flex;align-items:center;gap:.6rem;margin-top:.45rem;font-size:.83rem;color:var(--muted)}
+  .z-rod .lc{display:flex;align-items:center;gap:.3rem;min-width:0;flex:1}
+  .z-rod .lc span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .z-rod .lc svg{width:15px;height:15px;flex:none}
+  .z-rod .qd{flex:none;font-weight:600;color:var(--sun-deep)}
+  .z-gente{display:flex;align-items:center;gap:.45rem;margin-top:.45rem;font-size:.78rem;color:var(--muted)}
+  .z-gente .eu{margin-left:auto;font-weight:600;color:var(--zap)}
+  /* detalhe */
+  .sh{max-height:100vh;height:100vh;border-radius:0;max-width:640px}
+  .z-dbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:.6rem;background:var(--paper);padding:calc(.6rem + env(safe-area-inset-top)) .8rem .6rem;border-bottom:1px solid var(--line)}
+  .z-dbar button{width:40px;height:40px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+  .z-dbar svg{width:24px;height:24px}
+  .z-dbar b{flex:1;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .gal div{height:250px}
+  .dt .z-cat{margin-top:0;font-size:.82rem;padding:.3rem .8rem;border-radius:999px;background:var(--sun);color:var(--ink)}
+  .dt h2{font-size:1.65rem;margin-top:.6rem}
+  .z-quando{display:flex;align-items:center;gap:.65rem;margin-top:.7rem;font-size:.95rem;color:var(--ink)}
+  .z-quando svg{width:24px;height:24px;color:var(--sun-deep);flex:none}
+  .z-quando small{display:block;color:var(--muted);font-size:.8rem}
+  .z-acoes{display:flex;align-items:center;gap:.6rem;margin-top:1.1rem;padding-bottom:1.1rem;border-bottom:1px solid var(--line)}
+  .z-conf{flex:1;border:0;border-radius:999px;background:var(--sun);color:var(--ink);font:700 1rem Poppins,sans-serif;padding:.85rem 1rem;cursor:pointer}
+  .z-conf.on{background:var(--ink);color:var(--sun)}
+  .z-conf small{display:block;font-weight:500;font-size:.72rem;opacity:.75}
+  .z-ib{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink);cursor:pointer;flex:none;text-decoration:none}
+  .z-ib svg{width:23px;height:23px}
+  .z-ib.on{color:#E5322D}
+  .z-ib.on svg{fill:#E5322D}
+  .z-h{font-size:1.15rem;font-weight:800;color:var(--ink);margin:1.1rem 0 .4rem}
+  .dt .desc{margin-top:0}
+
+  /* topo com fotos que se mexem (estilo Roolle) */
+  .hero{position:relative;height:calc(300px + env(safe-area-inset-top));overflow:hidden;background:#222;border-radius:0 0 28px 28px}
+  .hp{position:absolute;top:0;bottom:0;overflow:hidden}
+  .hp-a{left:0;width:58%;clip-path:polygon(0 0,100% 0,82% 100%,0 100%)}
+  .hp-b{right:0;width:52%;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
+  .sl{position:absolute;inset:-8%;background:center/cover no-repeat;opacity:0;transition:opacity 1.4s ease}
+  .sl.on{opacity:1;animation:kb 9s ease-in-out infinite alternate}
+  .hp-b .sl.on{animation-name:kb2}
+  @keyframes kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-3%,2%)}}
+  @keyframes kb2{from{transform:scale(1.1) translate(2%,0)}to{transform:scale(1) translate(-2%,-2%)}}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 50%,rgba(26,22,10,.75) 100%);pointer-events:none}
+  .h-voltar{position:absolute;z-index:2;left:1rem;top:calc(.9rem + env(safe-area-inset-top));width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;color:var(--ink)}
+  .h-voltar svg{width:22px;height:22px}
+  .h-tag{position:absolute;z-index:2;right:1rem;top:calc(1rem + env(safe-area-inset-top));background:rgba(26,26,26,.85);color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.06em;border-radius:999px;padding:.45rem .9rem}
+  .h-marca{position:absolute;z-index:2;left:1.2rem;bottom:1.1rem;display:flex;align-items:flex-end;gap:.55rem;color:#fff;--hole:var(--ink)}
+  .h-logo{width:96px;height:auto;color:var(--sun)}
+  .h-marca span{font-weight:800;font-size:2rem;line-height:1;letter-spacing:-.02em;margin-bottom:.12rem}
+  .h-tit{font-size:1.75rem;line-height:1.15;font-weight:800;color:var(--ink);letter-spacing:-.02em;padding:1.1rem 1.15rem .3rem;max-width:640px;margin:0 auto}
+  .z-abas{position:sticky;top:0;z-index:20}
+  @media (prefers-reduced-motion:reduce){.sl.on{animation:none}}
+  /* menu de baixo igual ao do app */
+  .abas{position:fixed;left:0;right:0;bottom:calc(.65rem + env(safe-area-inset-bottom));z-index:25;width:calc(100% - 2rem);max-width:440px;margin:0 auto;height:60px;background:rgba(255,255,255,.74);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);border:1px solid rgba(255,255,255,.65);border-radius:999px;box-shadow:0 8px 28px rgba(60,45,0,.16),0 1px 2px rgba(0,0,0,.05);display:flex;justify-content:space-around;align-items:center;padding:0 .4rem}
+  .aba{position:relative;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.62rem;color:#4A4A4A;font-weight:500;text-decoration:none}
+  .aba svg{width:23px;height:23px}
+  .aba.ativa{font-size:0;color:var(--ink)}
+  .aba.ativa svg{position:absolute;left:50%;top:50%;width:56px;height:56px;padding:16px;margin:-38px 0 0 -28px;background:var(--sun);border-radius:50%;box-shadow:0 0 0 5px rgba(255,255,255,.9),0 6px 16px rgba(150,110,0,.28)}
+  .fab{bottom:calc(5.4rem + env(safe-area-inset-bottom))}
+  body{padding-bottom:8rem}
+
+  /* ===== cards e topo da lista ainda mais no jeito do Zone ===== */
+  .ac-chips{padding-top:1rem}
+  .ac-chips button{border:1.5px solid #DDD5BC;border-radius:12px;padding:.42rem .8rem;font-size:.86rem;color:#4a4a4a;background:#fff}
+  .z-cid{padding-top:.7rem}
+  .ac-cid{background:var(--sun-soft);border-radius:12px;color:#6b5200}
+  .z-sec{font-size:1.5rem;color:#8a6a00;margin-top:.5rem}
+  .lista{padding-top:.6rem}
+  .card{background:#FFF4CF;border-radius:20px;padding:.45rem .45rem .2rem;margin-bottom:1rem}
+  .card .ft{border-radius:16px}
+  .card .tx{padding:.55rem .5rem .6rem}
+  .card h3{font-size:1.06rem;color:#8a6a00;text-transform:uppercase;letter-spacing:.01em}
+  .z-cat{background:#fff;color:#6b5200;border-radius:10px;padding:.2rem .7rem;font-size:.8rem}
+  .z-rod{font-size:.84rem;color:#6a6a6a}
+  .z-rod .qd{color:#8a6a00;font-weight:600}
+  .z-gente{display:none}
+  .card .tags,.card .nfotos{display:none}
+
+  /* ===== versão 3: igual ao Zone ===== */
+  .z-fixo{position:sticky;top:0;z-index:22;background:var(--paper);box-shadow:0 1px 0 var(--line);padding-top:env(safe-area-inset-top)}
+  .z-fixo .z-abas{position:static;border-bottom:0}
+  .z-fixo .ac-chips{padding:.55rem 1.1rem .1rem}
+  .z-linha{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1.1rem .7rem}
+  .bt-mapa{display:grid;place-items:center;border:0;background:none;padding:.2rem;color:var(--ink);cursor:pointer}
+  .bt-mapa svg{width:28px;height:28px}
+  .bt-mapa span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .lista-box{max-width:640px;margin:0 auto;padding:0 1.1rem}
+  .lista-box .z-sec{color:var(--ink);font-size:1.6rem;margin:.9rem 0 .7rem}
+  .lista{padding:0}
+  .card{background:#fff;border-radius:22px;padding:0;overflow:hidden;box-shadow:0 1px 0 var(--line),0 8px 22px rgba(120,90,0,.08);margin-bottom:1.1rem}
+  .card .ft{border-radius:0;aspect-ratio:16/10}
+  .card .tx{padding:.75rem 1rem .9rem}
+  .z-l1{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted)}
+  .z-l1 b{color:var(--sun-deep);font-weight:700}
+  .z-l1 .km{color:var(--ink);font-weight:600}
+  .card h3{text-transform:none;font-size:1.18rem;color:#8a6a00;margin-top:.1rem;letter-spacing:0}
+  .z-rod{margin-top:.35rem}
+  .z-rod .qd{color:var(--ink);font-weight:500}
+  /* mapa */
+  .mapa-box{position:fixed;left:0;right:0;bottom:0;top:var(--mapa-topo,150px);z-index:15}
+  .mapa-box[hidden]{display:none}
+  #mapa{position:absolute;inset:0;background:#e8e2cf}
+  .mp-lista{position:absolute;z-index:500;left:50%;transform:translateX(-50%);bottom:calc(6.2rem + env(safe-area-inset-bottom));display:flex;align-items:center;gap:.45rem;border:0;background:var(--ink);color:var(--sun);border-radius:999px;padding:.75rem 1.2rem;font:700 .95rem Poppins,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+  .mp-lista svg{width:20px;height:20px}
+  .mp-eu{position:absolute;z-index:500;right:1rem;bottom:calc(6rem + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--ink);color:var(--sun);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+  .mp-eu svg{width:22px;height:22px}
+  .mk{width:44px;height:44px;border-radius:14px;background:var(--sun);border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.25);display:grid;place-items:center;font-size:1.25rem}
+  .mk.lu{background:#fff;border-color:var(--sun)}
+  .mk.agora{box-shadow:0 0 0 4px rgba(229,50,45,.35),0 4px 12px rgba(0,0,0,.25)}
+  body.modo-mapa .fab,body.modo-mapa .hero,body.modo-mapa .h-tit{display:none}
+
+  /* ===== versão 4: sem foto no topo e sem cantos arredondados ===== */
+  .z-cab{display:flex;align-items:center;gap:.6rem;padding:.75rem 1.1rem .4rem}
+  .z-logo{width:76px;color:var(--ink);--hole:var(--sun)}
+  .z-logo svg{display:block;width:100%;height:auto}
+  .z-nome{font-weight:800;font-size:1.05rem;color:var(--ink);background:var(--sun);padding:.1rem .5rem}
+  .z-cab .z-ic{margin-left:auto;display:flex;gap:.2rem}
+  .z-cab .z-ic a{width:42px;height:42px;display:grid;place-items:center;color:var(--ink)}
+  .z-cab .z-ic svg{width:25px;height:25px}
+  .z-fixo *,.lista-box *,.mapa-box *,.mod *,.fab,.toast{border-radius:0 !important}
+  .ac-chips button{border-width:1.5px}
+  .card{box-shadow:0 1px 0 var(--line);border:1px solid var(--line)}
+  .mk{border-radius:0 !important}
+  .z-fixo .ac-chips button{border-radius:999px !important;padding:.45rem .95rem}
+  /* cards dos eventos e lugares arredondados, como no Zone */
+  .lista-box .card,.lista-box .tur button{border-radius:20px !important;overflow:hidden}
+  /* ===== modo mapa estilo Zone: mapa na tela toda, filtros flutuando por cima ===== */
+  body.modo-mapa .z-fixo{position:fixed;left:.6rem;right:.6rem;top:calc(.6rem + env(safe-area-inset-top));z-index:30;padding:.55rem 0 .1rem;background:rgba(255,251,235,.45);-webkit-backdrop-filter:blur(8px) saturate(1.3);backdrop-filter:blur(8px) saturate(1.3);box-shadow:0 6px 24px rgba(0,0,0,.12);border-radius:22px !important;overflow:hidden}
+  body.modo-mapa .z-cab{display:none}
+  body.modo-mapa .z-fixo .ac-chips button{background:rgba(255,255,255,.7)}
+  body.modo-mapa .z-fixo .ac-chips button.on{background:var(--ink)}
+  body.modo-mapa .z-fixo .ac-cid{background:rgba(255,236,170,.75)}
+  body.modo-mapa .z-abas{padding-top:0;background:transparent !important}
+  body.modo-mapa .z-fixo .z-linha,body.modo-mapa .z-fixo .ac-chips{background:transparent !important}
+  body.modo-mapa .mapa-box{top:0 !important}
+  .mapa-box .mp-lista{border-radius:999px !important;padding:.8rem 1.3rem;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .mapa-box .mp-eu{border-radius:50% !important;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .mapa-box .mk{border-radius:14px !important;width:46px;height:46px;font-size:1.3rem}
+  .mapa-box .mk.lu{background:#fff;border:3px solid var(--sun)}
+  .mapa-box .mk-n{width:52px;height:52px;border-radius:50% !important;background:var(--ink);color:var(--sun);border:3px solid #fff;display:grid;place-items:center;font:800 1.05rem Poppins,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+  .mapa-box .mk-eu{width:20px;height:20px;border-radius:50% !important;background:#2b7bff;border:3px solid #fff;box-shadow:0 0 0 7px rgba(43,123,255,.22)}
+  .mapa-box .leaflet-control-attribution{border-radius:0 !important}
+  /* ícones de linha */
+  svg.ic{width:1.05em;height:1.05em;flex:none;vertical-align:-.17em;margin-right:.35em;stroke-width:2}
+  .ac-chips button{display:inline-flex;align-items:center}
+  .ac-chips button svg.ic{width:17px;height:17px;margin-right:.4rem;color:var(--ink);opacity:.85}
+  .ac-chips button.on svg.ic{color:var(--sun);opacity:1}
+  .ac-chips .ponto{width:9px;height:9px;border-radius:50% !important;background:#E5322D;margin-right:.45rem;display:inline-block;flex:none}
+  .ft > svg.ic,.gal > div > svg.ic,.grade > div > svg.ic,.tur .ft > svg.ic{width:56px;height:56px;margin:0;color:#fff;stroke-width:1.6;opacity:.95}
+  .mapa-box .mk svg.ic{width:22px;height:22px;margin:0;color:var(--ink);stroke-width:2.2}
+  .mapa-box .mk.lu svg.ic{color:#8a6a00}
+  .tag svg.ic,.nfotos svg.ic,.z-l1 svg.ic{width:14px;height:14px;margin-right:.25rem}
+  h2.dia svg.ic{color:#8a6a00}
+  /* cidade em pílula, como no Zone */
+  .z-fixo .ac-cid{border-radius:999px !important;background:rgba(255,204,0,.26) !important;color:#7a5c00 !important;padding:.38rem .8rem .38rem .65rem;font:700 .86rem Poppins,sans-serif;gap:.3rem;box-shadow:none}
+  .z-fixo .ac-cid svg{width:15px;height:15px}
+  body.modo-mapa .z-fixo .ac-cid{background:rgba(255,204,0,.35) !important}
+  /* filtros só com contorno, fundo transparente (como no Zone) */
+  .z-fixo .ac-chips button{background:transparent !important;border-color:rgba(26,26,26,.18) !important}
+  .z-fixo .ac-chips button.on{background:var(--ink) !important;border-color:var(--ink) !important}
+  body.modo-mapa .z-fixo .ac-chips button{background:rgba(255,255,255,.35) !important}
+  .cid-sh{max-height:78vh;display:flex;flex-direction:column;padding:0 !important}
+  .cid-top{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem .6rem;border-bottom:1px solid var(--line)}
+  .cid-top b{font-size:1.1rem}
+  .cid-top button{border:0;background:none;font-size:1.1rem;cursor:pointer;width:40px;height:40px}
+  .cid-ops{overflow:auto;padding:.3rem 0 calc(1rem + env(safe-area-inset-bottom))}
+  .cid-ops button{display:flex;align-items:center;width:100%;border:0;background:none;padding:.85rem 1.2rem;font:500 1rem Poppins,sans-serif;color:var(--ink);text-align:left;cursor:pointer;border-bottom:1px solid var(--line)}
+  .cid-ops button svg.ic{width:20px;height:20px;margin-right:.75rem;color:#8a6a00}
+  .cid-ops button span{flex:1}
+  .cid-ops button.on{font-weight:700;background:var(--sun-soft)}
+  .cid-ops button svg.ok{color:var(--ink);margin:0}
+  /* ===== detalhe no formato do Zone ===== */
+  .zd-bar b{color:#8a6a00;font-weight:800;font-size:1.08rem}
+  .zd-bar .zd-mais{width:40px;height:40px;display:grid;place-items:center;color:var(--ink)}
+  .zd-bar .zd-mais svg{width:22px;height:22px}
+  .zd h2{color:#8a6a00 !important;font-size:1.75rem !important;line-height:1.15;margin:.7rem 0 .9rem !important}
+  .zd-l{display:flex;gap:.75rem;align-items:flex-start;font-size:1rem;color:var(--ink);margin:.55rem 0;line-height:1.4}
+  .zd-l svg.ic{width:24px;height:24px;margin:0;color:#8a6a00;flex:none}
+  .zd-l em{font-style:normal;color:var(--muted)}
+  .zd-l a{display:inline-block;margin-top:.35rem;color:#8a6a00;text-decoration:underline;text-underline-offset:3px;font-weight:500}
+  .zd-nums{display:flex;gap:1.6rem;margin:1.2rem 0 1rem;font-size:.85rem;color:var(--muted)}
+  .zd-nums div{display:flex;flex-direction:column}
+  .zd-nums b{font-size:1.35rem;color:var(--ink);font-weight:800;line-height:1.2}
+  .zd-nums b.ok{color:#8a6a00}
+  .zd-nums .dir{margin-left:auto;align-items:flex-end}
+  .zd-acoes{display:flex;align-items:center;gap:1rem;padding-bottom:1.2rem;border-bottom:1px solid var(--line)}
+  .mod .zd-conf{border:0;background:rgba(255,204,0,.28);color:#6b5200;font:700 1rem Poppins,sans-serif;padding:.8rem 1.6rem;border-radius:999px !important;cursor:pointer;display:inline-flex;align-items:center}
+  .mod .zd-conf.on{background:var(--ink);color:var(--sun)}
+  .zd-ib{width:46px;height:46px;border:0;background:none;display:grid;place-items:center;color:var(--ink);cursor:pointer}
+  .zd-ib svg{width:30px;height:30px}
+  .zd-ib.on{color:#E5322D}
+  .zd-env{margin-left:auto;color:#8a6a00}
+  .zd-h{color:#8a6a00 !important;font-size:1.35rem !important}
+  .zd-h2{margin-top:1.4rem !important;padding-top:1.2rem;border-top:1px solid var(--line)}
+  .zd-aviso{font-size:.78rem;color:var(--muted);margin-top:.5rem;line-height:1.4}
+  .zd-aviso a{color:inherit;text-decoration:underline}
+  .zd-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .4rem}
+  .mod .zd-tags span{background:rgba(26,26,26,.06);padding:.45rem .9rem;border-radius:999px !important;font-size:.9rem;color:var(--ink)}
+  .mod .zd-com{width:100%;border:0;background:rgba(26,26,26,.06);border-radius:16px !important;padding:.9rem 1rem;font:400 .98rem Poppins,sans-serif;color:var(--ink);resize:none;margin-top:.5rem;overflow:hidden}
+  .zd-com-l{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem}
+  .zd-com-l small{color:var(--muted);font-size:.8rem}
+  .mod .zd-com-l button{border:0;background:var(--ink);color:#fff;font:600 .95rem Poppins,sans-serif;padding:.65rem 1.3rem;border-radius:999px !important;cursor:pointer}
+  .zd-vazio{text-align:center;color:var(--muted);margin:1.8rem 0 1rem}
+  .zd-coms{margin-top:1rem;display:flex;flex-direction:column;gap:.8rem}
+  .zd-coms div{border-bottom:1px solid var(--line);padding-bottom:.7rem}
+  .zd-coms small{margin-left:.5rem;color:var(--muted);font-size:.75rem}
+  .zd-coms p{margin-top:.2rem;font-size:.95rem}
+  /* + redondo como no Zone */
+  .fab-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  button.fab{width:62px;height:62px;padding:0;justify-content:center;border-radius:50% !important;background:var(--sun);color:var(--ink);box-shadow:0 8px 22px rgba(0,0,0,.25)}
+  button.fab svg{width:30px;height:30px;stroke-width:2.6}
+  .dica{position:fixed;inset:0;z-index:34;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;padding:0 1rem calc(10.6rem + env(safe-area-inset-bottom))}
+  .dica[hidden]{display:none}
+  .dica-c{background:#1d1d1d;color:#fff;border-radius:22px;padding:1.1rem 1.2rem .8rem;width:100%;max-width:520px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .dica-c b{display:block;color:var(--sun);font-size:1.15rem;font-weight:800;margin-bottom:.35rem}
+  .dica-c p{font-size:.95rem;line-height:1.45;color:#eee}
+  .dica-c button{display:block;margin:.5rem 0 0 auto;border:0;background:none;color:var(--sun);font:700 1rem Poppins,sans-serif;padding:.4rem .2rem;cursor:pointer}
+  body.com-dica .fab{z-index:36;box-shadow:0 0 0 10px rgba(255,255,255,.12),0 8px 22px rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="wordmark" viewBox="0 0 340 150">
+    <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+      <circle cx="282" cy="90" r="28"/>
+    </g>
+    <path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46ZM166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/>
+    <circle cx="118" cy="24" r="5" fill="var(--sun)"/>
+    <circle cx="166" cy="24" r="5" fill="var(--sun)"/>
+  </symbol>
+</svg>
+
+<div class="z-fixo" id="z-fixo">
+  <header class="z-cab">
+    <a href="./" class="z-logo" aria-label="Kiiro, início"><svg viewBox="0 0 340 150"><use href="#wordmark"/></svg></a>
+    <span class="z-nome">Acontece</span>
+    <div class="z-ic">
+      <a href="avisos.html" aria-label="Avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></a>
+      <a href="https://wa.me/5551991855760" target="_blank" rel="noopener" aria-label="Fale com a Kiiro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4z"/></svg></a>
+    </div>
+  </header>
+  <nav class="z-abas" role="tablist">
+    <button type="button" class="on" data-aba="eventos" role="tab">Eventos</button>
+    <button type="button" data-aba="lugares" role="tab">Lugares</button>
+  </nav>
+  <div class="ac-chips" id="chips"></div>
+  <div class="z-linha">
+    <button class="ac-cid" id="bt-cid" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span id="cid-txt">Todo o Litoral</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="bt-mapa" id="bt-mapa" type="button"><svg id="bt-mapa-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></svg><span id="bt-mapa-t">Mapa</span></button>
+  </div>
+</div>
+<main class="lista-box" id="lista-box"><h2 class="z-sec" id="z-sec">Para você</h2><div class="lista" id="lista"></div></main>
+<section class="mapa-box" id="mapa-box" hidden>
+  <div id="mapa"></div>
+  <button class="mp-lista" id="mp-lista" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Ver lista</button>
+  <button class="mp-eu" id="mp-eu" type="button" aria-label="Onde estou"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 3L3 10.5l7.5 2.9L13.5 21z"/></svg></button>
+</section>
+
+<button class="fab" id="fab" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span id="fab-txt" class="fab-sr">Divulgar evento</span></button>
+<div class="dica" id="dica" hidden><div class="dica-c"><b>Como divulgar um evento</b><p>Toque no + e preencha o nome, a data e o local. Se tiver, mande a foto do cartaz. A Kiiro confere e publica aqui no Acontece.</p><button type="button" id="dica-ok">Entendi</button></div></div>
+
+
+<nav class="abas" aria-label="Menu">
+  <a class="aba" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Explorar</a>
+  <a class="aba" href="./#salvos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Salvos</a>
+  <a class="aba ativa" href="acontece.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M12 13.2l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 15.3l2-.3z" fill="currentColor" stroke="none"/></svg>Acontece</a>
+  <a class="aba" href="anunciar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 9a3 3 0 0 1 0 6M18 6a7 7 0 0 1 0 12"/></svg>Anuncie</a>
+  <a class="aba" href="cadastro.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Sou pro</a>
+</nav>
+<!-- detalhe -->
+<div class="mod" id="m-cid"><div class="sh cid-sh">
+  <div class="cid-top"><b>Escolha a cidade</b><button type="button" data-fechar-cid aria-label="Fechar">✕</button></div>
+  <div class="cid-ops" id="cid-ops"></div>
+</div></div>
+<div class="mod" id="m-det"><div class="sh" id="det"></div></div>
+
+<!-- indicar -->
+<div class="mod" id="m-ind"><div class="sh">
+  <div class="sh-x"><button type="button" data-fechar aria-label="Fechar">×</button></div>
+  <form class="fm" id="f-ind" novalidate>
+    <h2>Indicar na Kiiro</h2>
+    <p class="sub">A Kiiro confere e publica. Leva menos de 1 minuto.</p>
+    <div class="tipo"><button type="button" data-t="evento" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79" /> <path d="M4 3h.01" /> <path d="M22 8h.01" /> <path d="M15 2h.01" /> <path d="M22 20h.01" /> <path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" /> <path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17" /> <path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7" /> <path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z" /></svg>Um evento</button><button type="button" data-t="lugar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></svg>Um lugar</button></div>
+    <label for="i-nome">Nome</label><input id="i-nome" placeholder="Ex.: Feira do Peixe">
+    <div class="so-ev">
+      <div class="dois"><div><label for="i-data">Data</label><input id="i-data" type="date"></div><div><label for="i-hora">Horário</label><input id="i-hora" type="time"></div></div>
+    </div>
+    <div class="dois"><div><label for="i-cid">Cidade</label><select id="i-cid"></select></div><div><label for="i-local">Local</label><input id="i-local" placeholder="Ex.: Praça da Igreja"></div></div>
+    <label for="i-desc">Conte como é <span class="opc">(opcional)</span></label><textarea id="i-desc" placeholder="O que tem, se precisa levar algo, se tem comida…"></textarea>
+    <label>Marque o que combina</label>
+    <div class="marcas" id="i-marcas"></div>
+    <label>Fotos <span class="opc">(até 5)</span></label>
+    <label class="up" style="margin:0"><input type="file" accept="image/*" multiple hidden id="i-fotos"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg><span id="i-fotos-t">Escolher fotos</span></label>
+    <label for="i-zap">Seu WhatsApp <span class="opc">(opcional, só a Kiiro vê)</span></label><input id="i-zap" type="tel" inputmode="tel" placeholder="(51) 99999-9999">
+    <button class="env" type="submit">Enviar para a Kiiro</button>
+    <p class="fine">Indicações de festas de igreja, feiras, escolas, grupos e eventos grátis têm prioridade.</p>
+  </form>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Acontece no Litoral (prévia com dados de exemplo) ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hoje0 = new Date(); hoje0.setHours(0, 0, 0, 0);
+const dia = n => { const d = new Date(hoje0); d.setDate(d.getDate() + n); return d; };
+const proxDow = dow => { const d = new Date(hoje0); d.setDate(d.getDate() + ((dow - d.getDay() + 7) % 7 || 0)); return d; };
+const sab = proxDow(6), dom = new Date(sab.getTime() + 864e5);
+const G = (a, b) => `linear-gradient(135deg,${a},${b})`;
+
+// dados de exemplo: no ar, vêm das indicações aprovadas no painel
+// Eventos reais (conferidos em notícias e sites de ingresso em 14/11/2026). No ar, vêm das indicações aprovadas no painel.
+const D = (dd, mm) => new Date(2026, mm - 1, dd);
+const EVENTOS = [
+  { id: "e-mister", nome: "Final do Mister Rio Grande do Sul 2026", d: D(13, 11), ate: D(14, 11), hora: "Sex e sáb", cidade: "Tramandaí", local: "Hotel Mares do Sul", marcas: ["Grátis", "Comunidade"], ft: [G("#C9B6FF", "#6A4FC9")], em: ["🏆"], vao: 0, foram: 0, desc: "Pelo quinto ano seguido, Tramandaí recebe a final do concurso Mister RS. Entrada gratuita mediante contato prévio com o Hotel Mares do Sul.", por: "Kiiro", fonte: "https://litoralnarede.com.br/tramandai-recebe-a-final-do-mister-rio-grande-do-sul-2026-neste-fim-de-semana" },
+  { id: "e-afro", nome: "1ª Feira Afro e Festival Afropunk", d: D(20, 11), hora: "15h", cidade: "Tramandaí", local: "Centro de Eventos de Tramandaí", marcas: ["Feira", "Música", "Comunidade"], ft: [G("#FFB347", "#C0392B"), G("#F7DC6F", "#B7950B")], em: ["✊🏾", "🎶"], vao: 0, foram: 0, desc: "Feira de afroempreendedoras com produtos, artesanato e saberes, mais shows e apresentações culturais do Festival Afropunk. Apoio da Prefeitura de Tramandaí.", por: "Kiiro", fonte: "https://tramandai.rs.gov.br/noticia/18513" },
+  { id: "e-baggio", nome: "4ª Corrida Baggio Supermercados", d: D(22, 11), hora: "Manhã", cidade: "Torres", local: "Shopping Vesta, Rua Des. Vieira Pires, 270", marcas: ["Esporte", "Pra crianças"], ft: [G("#9FD5FF", "#3A7BD5")], em: ["🏃"], vao: 0, foram: 0, desc: "Corrida de 3 km e 5 km e caminhada de 3 km, com kit infantil. Inscrição paga; retirada de kits no dia 21/11 no próprio local.", por: "Kiiro", fonte: "https://haid.app/en/events/4-corrida-baggio-supermercados-147642" },
+  { id: "e-marcha", nome: "Marcha para Jesus com show de Gabriela Rocha", d: D(13, 12), hora: "15h", cidade: "Tramandaí", local: "Saída em frente à Prefeitura, show na Av. Beira-Mar", marcas: ["Grátis", "Música", "Comunidade"], ft: [G("#AEDFF7", "#2E86C1")], em: ["🙌"], vao: 0, foram: 0, desc: "Concentração às 15h em frente à Prefeitura e caminhada até a Beira-Mar, perto do letreiro Eu Amo Tramandaí. Show gratuito da Gabriela Rocha às 16h30.", por: "Kiiro", fonte: "https://litoralnarede.com.br/marcha-para-jesus-em-tramandai-tera-show-de-gabriela-rocha" },
+  { id: "e-fabric", nome: "FABRIC com ARTBAT", d: D(28, 12), hora: "22h", cidade: "Xangri-Lá", local: "Privilège Sul", marcas: ["Música", "Festa"], ft: [G("#2C3E50", "#8E44AD")], em: ["🎧"], vao: 0, foram: 0, desc: "Festa de música eletrônica das 22h às 7h. Ingressos pela Sympla.", por: "Kiiro", fonte: "https://www.sympla.com.br/evento/fabric/3543209" },
+];
+// Pontos turísticos e lugares conhecidos da região
+const LUGARES = [
+  { id: "t-guarita", ll: [-29.3547, -49.7328], nome: "Parque da Guarita", cidade: "Torres", local: "Final da Av. Beira-Mar", marcas: ["Ponto turístico", "Mirante", "Trilha", "Pôr do sol"], ft: [G("#9AD0F5", "#2D6FA8"), G("#B9E4A0", "#4E9A3A")], em: ["🏞️", "🌊"], foram: 0, querem: 0, fotos: 0, desc: "Falésias de frente para o mar, trilhas curtas e vista para a Ilha dos Lobos. No verão, chegue cedo.", por: "Kiiro" },
+  { id: "t-farol", nome: "Morro do Farol", cidade: "Torres", local: "Centro", marcas: ["Ponto turístico", "Mirante", "Pôr do sol"], ft: [G("#FFC58A", "#D2573B")], em: ["🗼"], foram: 0, querem: 0, fotos: 0, desc: "Mirante com vista da cidade, das praias e do mar. Um dos pontos mais fotografados de Torres.", por: "Kiiro" },
+  { id: "t-itapeva", nome: "Parque Estadual de Itapeva", cidade: "Torres", local: "Praia de Itapeva", marcas: ["Ponto turístico", "Parque", "Trilha"], ft: [G("#C7E9B0", "#6AA84F")], em: ["🌾"], foram: 0, querem: 0, fotos: 0, desc: "Unidade de conservação com dunas, lagoa e vegetação de restinga. Bom para caminhar e observar aves.", por: "Kiiro" },
+  { id: "t-barra", nome: "Barra do Rio Tramandaí", cidade: "Imbé", local: "Molhes da Barra", marcas: ["Ponto turístico", "Passeio", "Pôr do sol", "Pra crianças"], ft: [G("#8FD0F0", "#2A7FB5"), G("#FFD27A", "#F29E38")], em: ["🐬", "🎣"], foram: 0, querem: 0, fotos: 0, desc: "Onde o rio encontra o mar. Dá para ver os botos que ajudam os pescadores a cercar os peixes.", por: "Kiiro" },
+  { id: "l-orla-imbe", nome: "Orla do Rio Tramandaí", cidade: "Imbé", local: "Beira do rio", marcas: ["Pracinha", "Pra crianças", "Passeio"], ft: [G("#B9E4A0", "#5BA84A")], em: ["🛝"], foram: 0, querem: 0, fotos: 0, desc: "Orla revitalizada com pista de caminhada, ciclovia, aparelhos de ginástica e playground.", por: "Kiiro" },
+  { id: "t-plataforma", nome: "Plataforma Marítima", cidade: "Tramandaí", local: "Av. Beira-Mar", marcas: ["Ponto turístico", "Passeio", "Pôr do sol"], ft: [G("#8FD0F0", "#1F618D")], em: ["🌅"], foram: 0, querem: 0, fotos: 0, desc: "Cartão-postal de Tramandaí, avançando mar adentro. É de onde saem os fogos do Réveillon.", por: "Kiiro" },
+  { id: "t-borussia", nome: "Morro da Borússia", cidade: "Osório", local: "Estrada da Borússia", marcas: ["Ponto turístico", "Mirante", "Pôr do sol"], ft: [G("#FFB37A", "#D2573B"), G("#9AB8E8", "#4A5FA8")], em: ["🌄", "🪂"], foram: 0, querem: 0, fotos: 0, desc: "Mirante com vista das lagoas e dos parques eólicos. Ponto de voo livre.", por: "Kiiro" },
+  { id: "t-eolico", nome: "Parque Eólico de Osório", cidade: "Osório", local: "Às margens da BR-101", marcas: ["Ponto turístico", "Passeio"], ft: [G("#D6EAF8", "#5DADE2")], em: ["🌬️"], foram: 0, querem: 0, fotos: 0, desc: "As grandes torres de energia eólica que viraram símbolo de Osório. Bonito de ver no fim da tarde.", por: "Kiiro" },
+  { id: "t-garapia", nome: "Cascata do Garapiá", cidade: "Maquiné", local: "Interior de Maquiné", marcas: ["Ponto turístico", "Trilha", "Parque"], ft: [G("#A9DFBF", "#1E8449")], em: ["💦"], foram: 0, querem: 0, fotos: 0, desc: "Cascata em meio à Mata Atlântica, no caminho entre o mar e a serra. Leve calçado para trilha.", por: "Kiiro" },
+  { id: "t-baronda", nome: "Largo do Baronda", cidade: "Capão da Canoa", local: "Beira-Mar", marcas: ["Ponto turístico", "Passeio"], ft: [G("#FAD7A0", "#CA6F1E")], em: ["🎡"], foram: 0, querem: 0, fotos: 0, desc: "Praça à beira-mar que recebe as grandes feiras e shows de Capão, como o Capão Fest e a Artenorte.", por: "Kiiro" },
+];
+// mais pontos turísticos, um ou mais por cidade das 22 do Litoral Norte
+LUGARES.push(
+  {"id": "t-praia-arroio", "nome": "Praia de Arroio do Sal", "cidade": "Arroio do Sal", "local": "Beira-mar", "marcas": ["Ponto turístico", "Praia"], "em": ["🏖️"], "desc": "Praia mais tranquila do Litoral Norte, com dunas e mar aberto. Boa para quem foge do movimento.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-tunel-verde", "nome": "Túnel Verde", "cidade": "Balneário Pinhal", "local": "RS-040, na chegada a Pinhal", "marcas": ["Ponto turístico", "Passeio"], "em": ["🌳"], "desc": "Trecho da RS-040 em que as árvores se fecham sobre a estrada e formam um túnel. Vale passar devagar e tirar foto com segurança.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-rua-coberta", "nome": "Rua Coberta", "cidade": "Balneário Pinhal", "local": "Centro", "marcas": ["Passeio", "Comunidade"], "em": ["🎪"], "desc": "Espaço coberto no centro de Pinhal que recebe feiras e shows durante a temporada.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-magisterio", "nome": "Praia de Magistério", "cidade": "Balneário Pinhal", "local": "Magistério", "marcas": ["Praia", "Pôr do sol"], "em": ["🌅"], "desc": "Praia calma, com um nascer do sol bonito sobre o mar.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-farol-capao", "nome": "Farol de Capão da Canoa", "cidade": "Capão da Canoa", "local": "Beira-mar", "marcas": ["Ponto turístico", "Passeio"], "em": ["🗼"], "desc": "Farol listrado de preto e branco, perto da praia. Bom ponto para foto e caminhada.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-rio-capivari", "nome": "Rio Capivari", "cidade": "Capivari do Sul", "local": "Junto à ponte", "marcas": ["Passeio", "Pôr do sol"], "em": ["🎣"], "desc": "Margens do rio, boas para pescar e ver o fim de tarde.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-nascente-sinos", "nome": "Nascente do Rio dos Sinos", "cidade": "Caraá", "local": "Interior de Caraá", "marcas": ["Ponto turístico", "Trilha", "Cachoeira"], "em": ["💦"], "desc": "Trilha no meio da mata até a nascente do Rio dos Sinos, com cascatas no caminho. Leve calçado de trilha e água.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-dunas-cidreira", "nome": "Dunas de Cidreira", "cidade": "Cidreira", "local": "Beira-mar", "marcas": ["Ponto turístico", "Praia", "Pôr do sol"], "em": ["🏜️"], "desc": "Dunas altas de areia clara perto do mar, com pequenas lagoas entre elas depois da chuva.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-dom-pedro", "nome": "Vale de Dom Pedro de Alcântara", "cidade": "Dom Pedro de Alcântara", "local": "Centro", "marcas": ["Passeio"], "em": ["🚴"], "desc": "Cidade pequena entre morros e lavouras, no caminho entre a serra e o mar. Boa para pedalar.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-iemanja-imbe", "nome": "Monumento de Iemanjá", "cidade": "Imbé", "local": "Praia de Santa Terezinha", "marcas": ["Ponto turístico", "Comunidade"], "em": ["🌊"], "desc": "Monumento à beira-mar onde acontecem as homenagens a Iemanjá, com flores e oferendas na areia.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-serra-pinto", "nome": "Mirante da Serra do Pinto", "cidade": "Itati", "local": "Rota do Sol (RS-486)", "marcas": ["Ponto turístico", "Mirante"], "em": ["🏔️"], "desc": "Mirante na Rota do Sol com vista da serra. Tem restaurante junto, bom para parar na subida.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-mampituba", "nome": "Vale do Mampituba", "cidade": "Mampituba", "local": "Interior", "marcas": ["Passeio"], "em": ["🌄"], "desc": "Vale verde de lavouras e morros, no interior do Litoral Norte, perto da divisa com Santa Catarina.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-rio-maquine", "nome": "Rio Maquiné", "cidade": "Maquiné", "local": "Barra do Ouro", "marcas": ["Ponto turístico", "Passeio"], "em": ["🏞️"], "desc": "Rio de água limpa entre a mata e os morros. Em dia de calor, é o lugar dos banhos de rio da região.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-morro-forno", "nome": "Morro do Forno", "cidade": "Morrinhos do Sul", "local": "Interior", "marcas": ["Ponto turístico", "Mirante"], "em": ["⛰️"], "desc": "O pico que se vê de longe em Morrinhos do Sul, cercado de lavouras e mata.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-lagoa-peixe", "nome": "Parque Nacional da Lagoa do Peixe", "cidade": "Mostardas", "local": "Lagoa do Peixe", "marcas": ["Ponto turístico", "Parque", "Pôr do sol"], "em": ["🦩"], "desc": "Parque nacional famoso pelas aves migratórias: bandos enormes pousam na lagoa e na praia. Vá com binóculo.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-rio-palmares", "nome": "Beira do Rio Palmares", "cidade": "Palmares do Sul", "local": "Margem do rio", "marcas": ["Passeio", "Pôr do sol"], "em": ["🌳"], "desc": "Margem arborizada com bancos, boa para chimarrão e fim de tarde.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-imbirucu", "nome": "Morro do Imbiruçu", "cidade": "Santo Antônio da Patrulha", "local": "Imbiruçu", "marcas": ["Ponto turístico", "Mirante"], "em": ["🌄"], "desc": "Do alto do morro dá para ver a Lagoa dos Barros e a planície até o litoral.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-lagoa-itapeva", "nome": "Lagoa de Itapeva", "cidade": "Terra de Areia", "local": "Junto à BR-101", "marcas": ["Ponto turístico", "Pôr do sol"], "em": ["🌅"], "desc": "Grande lagoa ao lado da BR-101, com figueiras e um dos pores do sol mais bonitos do Litoral.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-praia-grande", "nome": "Praia Grande", "cidade": "Torres", "local": "Centro", "marcas": ["Praia", "Pôr do sol"], "em": ["🏖️"], "desc": "A praia mais movimentada de Torres, de frente para os morros.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "l-ponte-camaroes", "nome": "Ponte dos Camarões", "cidade": "Tramandaí", "local": "Rio Tramandaí", "marcas": ["Passeio"], "em": ["🦐"], "desc": "Trecho do rio com casas de pescadores e barcos, onde se compra camarão e peixe fresco.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-tres-cachoeiras", "nome": "Arroios de Três Cachoeiras", "cidade": "Três Cachoeiras", "local": "Interior", "marcas": ["Passeio", "Trilha"], "em": ["🌿"], "desc": "Arroios de água limpa e pontes no meio do verde, no interior do município.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-pedra-branca", "nome": "Cachoeira da Pedra Branca", "cidade": "Três Forquilhas", "local": "Interior", "marcas": ["Ponto turístico", "Cachoeira", "Trilha"], "em": ["💦"], "desc": "Cachoeira alta no meio da mata. A estrada até lá é de terra; vá com tempo seco.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"},
+  {"id": "t-praia-xangrila", "nome": "Praia de Xangri-Lá", "cidade": "Xangri-Lá", "local": "Beira-mar", "marcas": ["Praia", "Pôr do sol"], "em": ["🏖️"], "desc": "Praia larga e de mar aberto, com nascer do sol bonito.", "ft": ["#ddd"], "foram": 0, "querem": 0, "fotos": 0, "por": "Kiiro"}
+);
+// fotos livres da Wikimedia Commons (com crédito do autor e licença)
+const FOTOS = {"t-guarita": [{"src": "img/acontece/t-guarita-1.jpg", "autor": "Skyfoto-Marcos Alexandre", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Praia_da_Guarita_Torres_RS.jpg"}, {"src": "img/acontece/t-guarita-2.jpg", "autor": "MTur Destinos", "lic": "Public domain", "url": "https://commons.wikimedia.org/wiki/File:Renato_Soares_Parque_e_praia_da_Guarita_Torres_RS_(40892874891).jpg"}, {"src": "img/acontece/t-guarita-3.jpg", "autor": "Jean ML", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Fal%C3%A9sia_na_Praia_da_Guarita_-_Torres,_RS.jpg"}], "t-farol": [{"src": "img/acontece/t-farol-1.jpg", "autor": "MTur Destinos", "lic": "Public domain", "url": "https://commons.wikimedia.org/wiki/File:Renato_Soares_Morro_do_Farol_e_Prainha_Torres_RS_(40185087744).jpg"}, {"src": "img/acontece/t-farol-2.jpg", "autor": "Fronteira", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Amanhecer_no_Morro_do_Farol,_Torres,_setembro_de_2022_(1).jpg"}, {"src": "img/acontece/t-farol-3.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 3.0 br", "url": "https://commons.wikimedia.org/wiki/File:Morro_do_Farol_em_Torres_001.JPG"}], "t-itapeva": [{"src": "img/acontece/t-itapeva-1.jpg", "autor": "Carlos Souto", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Parque_Estadual_de_Itapeva_Carlos_Souto_(01).jpg"}, {"src": "img/acontece/t-itapeva-2.jpg", "autor": "Rafael Borges Mundim", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Praia_de_Itapeva_no_Parque_Estadual_de_Itapeva.jpg"}, {"src": "img/acontece/t-itapeva-3.jpg", "autor": "Rafael Borges Mundim", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:PE_de_Itapeva_-_RBmundim(001).jpg"}], "t-barra": [{"src": "img/acontece/t-barra-1.jpg", "autor": "Ricardosdag", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Cidade_de_Tramanda%C3%AD_vista_desde_a_foz_do_Rio_Tramanda%C3%AD.jpg"}, {"src": "img/acontece/t-barra-2.jpg", "autor": "Paula Cavalheiro", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Golfinhos.JPG"}, {"src": "img/acontece/t-barra-3.jpg", "autor": "gustavo.kunst", "lic": "Public domain", "url": "https://commons.wikimedia.org/wiki/File:Rio-tramandai01.jpg"}], "t-borussia": [{"src": "img/acontece/t-borussia-1.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 3.0 br", "url": "https://commons.wikimedia.org/wiki/File:Morro_da_Bor%C3%BAssia,_visto_da_cidade_de_Os%C3%B3rio.JPG"}, {"src": "img/acontece/t-borussia-2.jpg", "autor": "Ricardo de Sampaio Dagnino", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Morro_da_Bor%C3%BAssia,_em_Os%C3%B3rio,_Rio_Grande_do_Sul.jpg"}], "t-eolico": [{"src": "img/acontece/t-eolico-1.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 3.0 br", "url": "https://commons.wikimedia.org/wiki/File:Parque_e%C3%B3lico_de_Os%C3%B3rio_07.JPG"}, {"src": "img/acontece/t-eolico-2.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 3.0 br", "url": "https://commons.wikimedia.org/wiki/File:Parque_e%C3%B3lico_de_Os%C3%B3rio_01.JPG"}], "t-garapia": [{"src": "img/acontece/t-garapia-1.jpg", "autor": "Valter Helmuth Goldberg Júnior", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Cachoeira_do_Garapi%C3%A1.jpg"}, {"src": "img/acontece/t-garapia-2.jpg", "autor": "Taylises", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Fotocascatagarapia.jpg"}], "t-praia-arroio": [{"src": "img/acontece/t-praia-arroio-1.jpg", "autor": "Amanari", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Arroio_do_Sal_1.jpg"}], "t-tunel-verde": [{"src": "img/acontece/t-tunel-verde-1.jpg", "autor": "Paulo RS Menezes", "lic": "CC BY 3.0", "url": "https://commons.wikimedia.org/wiki/File:T%C3%BAnel_Verde_-_panoramio.jpg"}, {"src": "img/acontece/t-tunel-verde-2.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 2.5 br", "url": "https://commons.wikimedia.org/wiki/File:Tunel_Verde_01.jpg"}], "l-rua-coberta": [{"src": "img/acontece/l-rua-coberta-1.jpg", "autor": "Fernandojw", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Rua_coberta.jpg"}], "t-magisterio": [{"src": "img/acontece/t-magisterio-1.jpg", "autor": "Raiany Santos", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Amanhecer_em_Praia_de_Magist%C3%A9rio.jpg"}], "t-farol-capao": [{"src": "img/acontece/t-farol-capao-1.jpg", "autor": "Ezarate", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:FaroCapaodaCanoa1-Brasil.jpg"}, {"src": "img/acontece/t-farol-capao-2.jpg", "autor": "Loco085 msg", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Capaodacanoa.JPG"}], "l-rio-capivari": [{"src": "img/acontece/l-rio-capivari-1.jpg", "autor": "Paulo rsmenezes", "lic": "CC BY-SA 3.0 br", "url": "https://commons.wikimedia.org/wiki/File:Rio_Capivar%C3%AD_sob_a_ponte.jpg"}], "t-nascente-sinos": [{"src": "img/acontece/t-nascente-sinos-1.jpg", "autor": "L.grawer", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Cascatinha_do_Rio_dos_Sinos.jpg"}, {"src": "img/acontece/t-nascente-sinos-2.jpg", "autor": "L.grawer", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Cascata_da_Nascente_dos_SInos.jpg"}], "t-dunas-cidreira": [{"src": "img/acontece/t-dunas-cidreira-1.jpg", "autor": "Skyfoto-Marcos Alexandre", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Cidreira.jpg"}], "l-dom-pedro": [{"src": "img/acontece/l-dom-pedro-1.jpg", "autor": "Kaktus Kid", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Dom_Pedro_de_Alc%C3%A2ntara_Vista_A%C3%A9rea.jpg"}], "t-iemanja-imbe": [{"src": "img/acontece/t-iemanja-imbe-1.jpg", "autor": "Dandara Rodrigues Dorneles", "lic": "CC BY 2.0", "url": "https://commons.wikimedia.org/wiki/File:Monumento_de_Iemanj%C3%A1_na_praia_de_Santa_Terezinha,_Imb%C3%A9,_RS.png"}], "t-serra-pinto": [{"src": "img/acontece/t-serra-pinto-1.jpg", "autor": "Larissa Fraga", "lic": "CC BY 3.0", "url": "https://commons.wikimedia.org/wiki/File:Mirante_Serra_do_Pinto_-_panoramio.jpg"}, {"src": "img/acontece/t-serra-pinto-2.jpg", "autor": "Larissa Fraga", "lic": "CC BY 3.0", "url": "https://commons.wikimedia.org/wiki/File:Amanhecer_no_Mirante_da_Serra_do_Pinto_-_panoramio.jpg"}], "l-mampituba": [{"src": "img/acontece/l-mampituba-1.jpg", "autor": "Leandro Réos", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Vista_a%C3%A9rea_de_Mampituba.jpg"}], "t-rio-maquine": [{"src": "img/acontece/t-rio-maquine-1.jpg", "autor": "Cristiano Eluno", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Rio_Maquin%C3%A9_Barra_do_Ouro_Maquin%C3%A9.jpg"}], "t-morro-forno": [{"src": "img/acontece/t-morro-forno-1.jpg", "autor": "Marcelo Lander", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Bico_do_Morro_do_Forno_-_panoramio.jpg"}], "t-lagoa-peixe": [{"src": "img/acontece/t-lagoa-peixe-1.jpg", "autor": "Katia Click", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Revoada!.jpg"}, {"src": "img/acontece/t-lagoa-peixe-2.jpg", "autor": "Katia Click", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Entardecer!.jpg"}], "l-rio-palmares": [{"src": "img/acontece/l-rio-palmares-1.jpg", "autor": "Erico Rechenmacher", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Beira_do_Rio_Palmares_-_panoramio.jpg"}, {"src": "img/acontece/l-rio-palmares-2.jpg", "autor": "Érico Rechenmacher", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Entardecer_-_panoramio_-_%C3%89rico_Rechenmacher.jpg"}], "t-imbirucu": [{"src": "img/acontece/t-imbirucu-1.jpg", "autor": "Fernandoadam", "lic": "CC BY 3.0", "url": "https://commons.wikimedia.org/wiki/File:VISTA_DA_LAGOA_DOS_BARROS_NO_TOPO_DO_MORRO_IMBIRU%C3%87U_-SAP-RS_-_panoramio.jpg"}], "t-lagoa-itapeva": [{"src": "img/acontece/t-lagoa-itapeva-1.jpg", "autor": "Germano Roberto Schüür", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Lagoa_de_Itapeva_-_BR-101_1.jpg"}, {"src": "img/acontece/t-lagoa-itapeva-2.jpg", "autor": "Germano Roberto Schüür", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Lagoa_de_Itapeva_e_adjac%C3%AAncias_13.jpg"}], "t-praia-grande": [{"src": "img/acontece/t-praia-grande-1.jpg", "autor": "NilzinhaSantos", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Praia_e_sol_com_guarita_em_Torres_-_RS.jpg"}], "l-ponte-camaroes": [{"src": "img/acontece/l-ponte-camaroes-1.jpg", "autor": "Sergio Alexandre Korndorfer", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Ponte_dos_camar%C3%B5es.jpg"}], "t-tres-cachoeiras": [{"src": "img/acontece/t-tres-cachoeiras-1.jpg", "autor": "Núbia de Rodrigues Araújo", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Tr%C3%AAs_Cachoeiras_-_RS_(1).jpg"}, {"src": "img/acontece/t-tres-cachoeiras-2.jpg", "autor": "Núbia de Rodrigues Araújo", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Tr%C3%AAs_Cachoeiras_-_RS_(3).jpg"}], "t-pedra-branca": [{"src": "img/acontece/t-pedra-branca-1.jpg", "autor": "C.A.Müller", "lic": "CC BY-SA 3.0", "url": "https://commons.wikimedia.org/wiki/File:Cachoeira_da_Pedra_Branca,_Tr%C3%AAs_Forquilhas_-_RS_-_panoramio.jpg"}], "t-praia-xangrila": [{"src": "img/acontece/t-praia-xangrila-1.jpg", "autor": "Misael Betlinski", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Praia_de_xangri_la_-_10.jpg"}, {"src": "img/acontece/t-praia-xangrila-2.jpg", "autor": "Misael Betlinski", "lic": "CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Xangri_la_rs.jpg"}]};
+LUGARES.forEach(l => { const f = FOTOS[l.id]; if (f) { l.ft = f.map(x => x.src); l.creditos = f; } });
+const ehFoto = s => /^img\//.test(s || "");
+const bg = s => ehFoto(s) ? `#ddd url('${s}') center/cover no-repeat` : s;
+const FILTROS = { eventos: ["Perto de mim", "Agora", "Hoje", "Fim de semana", "Grátis", "Pra crianças", "Música", "Esporte", "Feira", "Comunidade"], lugares: ["Perto de mim", "Ponto turístico", "Praia", "Cachoeira", "Pracinha", "Pra crianças", "Parque", "Trilha", "Mirante", "Pôr do sol", "Pet"] };
+
+const CIDADES = window.KIIRO_CIDADES || [];
+let aba = "eventos", filtro = "", cidade = "";
+const meus = (() => { try { return JSON.parse(localStorage.getItem("kiiro-acontece") || "{}"); } catch { return {}; } })();
+const salvarMeus = () => { try { localStorage.setItem("kiiro-acontece", JSON.stringify(meus)); } catch {} };
+const SEM = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"], MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const rotDia = d => { const n = Math.round((d - hoje0) / 864e5); if (n === 0) return "Hoje"; if (n === 1) return "Amanhã"; const s = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][d.getDay()]; return `${s}, ${d.getDate()}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
+const ehFds = d => d.getTime() === sab.getTime() || d.getTime() === dom.getTime() || (d.getDay() === 5 && (sab - d) <= 864e5);
+const CORES = ["#FFC800", "#FFB3C7", "#A6E3C0", "#A9CCFF", "#FFD8A8"];
+const avs = n => `<span class="avs">${[0, 1, 2].slice(0, Math.min(3, n)).map(i => `<i style="background:${CORES[(n + i) % 5]}">${"ACJMRL"[(n * 7 + i * 3) % 6]}</i>`).join("")}</span>`;
+
+function chips() {
+  $("chips").innerHTML = FILTROS[aba].map(f => `<button type="button" data-f="${esc(f)}" class="${f === filtro ? "on" : ""}">${f === "Agora" ? '<i class="ponto"></i>' : ic(ICO[f])}${esc(f)}</button>`).join("");
+}
+/* ícones de linha (Lucide, ISC) no estilo do Zone, no lugar dos emojis */
+const IC = {"map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" /> <path d=\"M15 5.764v15\" /> <path d=\"M9 3.236v15\" />", "baby": "<path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\" /> <path d=\"M15 12h.01\" /> <path d=\"M19.38 6.813A9 9 0 0 1 20.8 10.2a2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\" /> <path d=\"M9 12h.01\" />", "bike": "<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <path d=\"M12 17.5V14l-3-3 4-3 2 3h2\" />", "bird": "<path d=\"M16 7h.01\" /> <path d=\"M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20\" /> <path d=\"m20 7 2 .5-2 .5\" /> <path d=\"M10 18v3\" /> <path d=\"M14 17.75V21\" /> <path d=\"M7 18a6 6 0 0 0 3.84-10.61\" />", "calendar": "<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />", "calendar-days": "<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M8 13h.01\" /> <path d=\"M12 13h.01\" /> <path d=\"M16 13h.01\" /> <path d=\"M8 17h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M16 17h.01\" />", "camera": "<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />", "castle": "<path d=\"M10 5V3\" /> <path d=\"M14 5V3\" /> <path d=\"M15 21v-3a3 3 0 0 0-6 0v3\" /> <path d=\"M18 3v8\" /> <path d=\"M18 5H6\" /> <path d=\"M22 11H2\" /> <path d=\"M22 9v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9\" /> <path d=\"M6 3v8\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\" />", "dog": "<path d=\"M11.25 16.25h1.5L12 17z\" /> <path d=\"M16 14v.5\" /> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\" /> <path d=\"M8 14v.5\" /> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\" />", "droplets": "<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />", "ferris-wheel": "<circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M12 2v4\" /> <path d=\"m6.8 15-3.5 2\" /> <path d=\"m20.7 7-3.5 2\" /> <path d=\"M6.8 9 3.3 7\" /> <path d=\"m20.7 17-3.5-2\" /> <path d=\"m9 22 3-8 3 8\" /> <path d=\"M8 22h8\" /> <path d=\"M18 18.7a9 9 0 1 0-12 0\" />", "fish": "<path d=\"M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z\" /> <path d=\"M18 12v.5\" /> <path d=\"M16 17.93a9.77 9.77 0 0 1 0-11.86\" /> <path d=\"M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33\" /> <path d=\"M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4\" /> <path d=\"m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98\" />", "footprints": "<path d=\"M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z\" /> <path d=\"M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z\" /> <path d=\"M16 17h4\" /> <path d=\"M4 13h4\" />", "hand-fist": "<path d=\"M12.035 17.012a3 3 0 0 0-3-3l-.311-.002a.72.72 0 0 1-.505-1.229l1.195-1.195A2 2 0 0 1 10.828 11H12a2 2 0 0 0 0-4H9.243a3 3 0 0 0-2.122.879l-2.707 2.707A4.83 4.83 0 0 0 3 14a8 8 0 0 0 8 8h2a8 8 0 0 0 8-8V7a2 2 0 1 0-4 0v2a2 2 0 1 0 4 0\" /> <path d=\"M13.888 9.662A2 2 0 0 0 17 8V5A2 2 0 1 0 13 5\" /> <path d=\"M9 5A2 2 0 1 0 5 5V10\" /> <path d=\"M9 7V4A2 2 0 1 1 13 4V7.268\" />", "hand-heart": "<path d=\"M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16\" /> <path d=\"m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95\" /> <path d=\"m2 15 6 6\" /> <path d=\"m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91\" />", "handshake": "<path d=\"m11 17 2 2a1 1 0 1 0 3-3\" /> <path d=\"m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4\" /> <path d=\"m21 3 1 11h-2\" /> <path d=\"M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3\" /> <path d=\"M3 4h8\" />", "headphones": "<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\" />", "heart": "<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\" />", "leaf": "<path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\" /> <path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\" />", "lighthouse": "<path d=\"M12 3V2\" /> <path d=\"M16.066 16.865 7 22l2-11V6a3 3 0 016 0v5l2 11\" /> <path d=\"m19.792 4.5.866-.5\" /> <path d=\"m19.797 13.5.866.5\" /> <path d=\"M21 9h1\" /> <path d=\"M3 9H2\" /> <path d=\"m4.203 13.5-.866.5\" /> <path d=\"M4.208 4.5 3.342 4\" /> <path d=\"M5.5 22h13\" /> <path d=\"m7.932 16.875 7.377-4.178\" /> <path d=\"M8 11h8\" /> <path d=\"M8 7h8\" />", "map-pin": "<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />", "mic-vocal": "<path d=\"m11 7.601-5.994 8.19a1 1 0 0 0 .1 1.298l.817.818a1 1 0 0 0 1.314.087L15.09 12\" /> <path d=\"M16.5 21.174C15.5 20.5 14.372 20 13 20c-2.058 0-3.928 2.356-6 2-2.072-.356-2.775-3.369-1.5-4.5\" /> <circle cx=\"16\" cy=\"7\" r=\"5\" />", "mountain": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\" />", "mountain-snow": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\" /> <path d=\"M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19\" />", "music": "<path d=\"M21 16V3a1 1 0 0 0-1.28-.96l-10 2.917a1 1 0 0 0-.72.96V19\" /> <circle cx=\"18\" cy=\"16\" r=\"3\" /> <circle cx=\"6\" cy=\"19\" r=\"3\" />", "navigation": "<polygon points=\"3 11 22 2 13 21 11 13 3 11\" />", "party-popper": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /> <path d=\"M4 3h.01\" /> <path d=\"M22 8h.01\" /> <path d=\"M15 2h.01\" /> <path d=\"M22 20h.01\" /> <path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /> <path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /> <path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /> <path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />", "route": "<path d=\"M9 5h8.5a1 1 0 010 7h-11a1 1 0 000 7H15\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <circle cx=\"6\" cy=\"5\" r=\"3\" />", "shopping-basket": "<path d=\"m15 11-1 9\" /> <path d=\"m19 11-4-7\" /> <path d=\"M2 11h20\" /> <path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\" /> <path d=\"M4.5 15.5h15\" /> <path d=\"m5 11 4-7\" /> <path d=\"m9 11 1 9\" />", "shrimp": "<path d=\"M10 2a3.28 3.28 0 003.227 1.798l6.17-.561A1 1 0 1119.614 8H8.5a6.44 6.44 0 00-5.63 9.75A6.5 6.5 0 008.5 21c1.38 0 2-.5 2.5-1\" /> <path d=\"M10 8a8.5 8.5 0 000 8\" /> <path d=\"M11 22c-.5-.5-1.12-1-2.5-1a1 1 0 010-5H12a7 7 0 007-7V8\" /> <path d=\"M13 12h.01\" /> <path d=\"M8 16c-2 0-4.5-4-4-6\" />", "sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /> <path d=\"M20 2v4\" /> <path d=\"M22 4h-4\" /> <circle cx=\"4\" cy=\"20\" r=\"2\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />", "sunrise": "<path d=\"M12 2v8\" /> <path d=\"m4.93 10.93 1.41 1.41\" /> <path d=\"M2 18h2\" /> <path d=\"M20 18h2\" /> <path d=\"m19.07 10.93-1.41 1.41\" /> <path d=\"M22 22H2\" /> <path d=\"m8 6 4-4 4 4\" /> <path d=\"M16 18a4 4 0 0 0-8 0\" />", "sunset": "<path d=\"M12 10V2\" /> <path d=\"m4.93 10.93 1.41 1.41\" /> <path d=\"M2 18h2\" /> <path d=\"M20 18h2\" /> <path d=\"m19.07 10.93-1.41 1.41\" /> <path d=\"M22 22H2\" /> <path d=\"m16 6-4 4-4-4\" /> <path d=\"M16 18a4 4 0 0 0-8 0\" />", "tent": "<path d=\"M3.5 21 14 3\" /> <path d=\"M20.5 21 10 3\" /> <path d=\"M15.5 21 12 15l-3.5 6\" /> <path d=\"M2 21h20\" />", "ticket": "<path d=\"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z\" /> <path d=\"M13 5v2\" /> <path d=\"M13 17v2\" /> <path d=\"M13 11v2\" />", "tree-palm": "<path d=\"M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4\" /> <path d=\"M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3\" /> <path d=\"M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35\" /> <path d=\"M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14\" />", "trees": "<path d=\"M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z\" /> <path d=\"M7 16v6\" /> <path d=\"M13 19v3\" /> <path d=\"M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5\" />", "trophy": "<path d=\"M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2\" /> <path d=\"M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2\" /> <path d=\"M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3\" /> <path d=\"M4 22h16\" /> <path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\" /> <path d=\"M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3\" />", "waves": "<path d=\"M2 12q2.5 2 5 0t5 0 5 0 5 0\" /> <path d=\"M2 19q2.5 2 5 0t5 0 5 0 5 0\" /> <path d=\"M2 5q2.5 2 5 0t5 0 5 0 5 0\" />", "wheat": "<path d=\"M2 22 16 8\" /> <path d=\"M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z\" /> <path d=\"M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z\" /> <path d=\"M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z\" /> <path d=\"M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z\" /> <path d=\"M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z\" /> <path d=\"M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z\" /> <path d=\"M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z\" />", "wind": "<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />"};
+const EMO = {"📍": "map-pin", "📅": "calendar", "🗓️": "calendar-days", "🗓": "calendar-days", "🎟️": "ticket", "👶": "baby", "🎤": "mic-vocal", "🏃": "trophy", "🧺": "shopping-basket", "🤝": "handshake", "🧭": "compass", "🏖️": "tree-palm", "🏖": "tree-palm", "💦": "droplets", "🚶": "footprints", "🛝": "castle", "🌳": "trees", "🥾": "route", "🏔️": "mountain-snow", "🏔": "mountain-snow", "🌅": "sunset", "🐕": "dog", "🎉": "party-popper", "🎧": "headphones", "🏆": "trophy", "✊🏾": "hand-fist", "🎶": "music", "🙌": "hand-heart", "🗼": "lighthouse", "🌾": "wheat", "🐬": "fish", "🪂": "wind", "🌬️": "wind", "🌬": "wind", "🎡": "ferris-wheel", "🎪": "tent", "🏜️": "sun", "🏜": "sun", "🚴": "bike", "⛰️": "mountain", "⛰": "mountain", "🦩": "bird", "🦐": "shrimp", "🌿": "leaf", "🌊": "waves", "🎣": "fish", "🏞️": "trees", "🏞": "trees", "🌄": "sunrise", "📷": "camera", "💛": "heart", "✅": "check", "⭐": "star"};
+const ic = (n, c = "") => IC[n] ? `<svg class="ic ${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>` : "";
+const icE = e => ic(EMO[e] || EMO[(e || "").replace(/\uFE0F/g, "")] || "sparkles");
+
+const ICO = { "Perto de mim": "map-pin", "Hoje": "calendar", "Fim de semana": "calendar-days", "Grátis": "ticket", "Pra crianças": "baby", "Música": "mic-vocal", "Esporte": "trophy", "Feira": "shopping-basket", "Comunidade": "handshake", "Ponto turístico": "compass", "Praia": "tree-palm", "Cachoeira": "droplets", "Passeio": "footprints", "Pracinha": "castle", "Parque": "trees", "Trilha": "route", "Mirante": "mountain-snow", "Pôr do sol": "sunset", "Pet": "dog", "Festa": "party-popper" };
+$("chips").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const f = b.dataset.f;
+  if (f === "Perto de mim" && filtro !== f && !minhaPos) return pedirLocal();
+  filtro = filtro === f ? "" : f; chips(); lista();
+});
+
+/* ----- perto de mim: distância em linha reta até o lugar (ou o centro da cidade dele) ----- */
+let minhaPos = null; const RAIO = 40; // km
+const coordDe = x => x.ll || (window.KIIRO_COORD || {})[x.cidade];
+function km(x) {
+  const c = coordDe(x); if (!minhaPos || !c) return null;
+  const dx = (c[1] - minhaPos[1]) * Math.cos((c[0] + minhaPos[0]) / 2 * Math.PI / 180), dy = c[0] - minhaPos[0];
+  return Math.sqrt(dx * dx + dy * dy) * 111.2;
+}
+const kmTxt = x => { const k = km(x); return k == null ? "" : k < 1 ? "aqui perto" : `a ${Math.round(k)} km`; };
+function pedirLocal() {
+  const usar = (lat, lon) => { minhaPos = [lat, lon]; if (mapa) mapa.setView([lat, lon], 11); filtro = "Perto de mim"; chips(); lista(); };
+  const falhou = () => {
+    if (cidade && (window.KIIRO_COORD || {})[cidade]) { const c = window.KIIRO_COORD[cidade]; cidade = ""; $("cid-txt").textContent = "Todo o Litoral"; usar(c[0], c[1]); return; }
+    aviso("Não deu para pegar sua localização. Escolha sua cidade em “Todo o Litoral” e toque de novo.");
+  };
+  if (!navigator.geolocation) return falhou();
+  aviso("Procurando sua localização…");
+  try { navigator.geolocation.getCurrentPosition(p => usar(p.coords.latitude, p.coords.longitude), falhou, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }); } catch { falhou(); }
+}
+
+function passa(x) {
+  if (cidade && x.cidade !== cidade) return false;
+  if (!filtro) return true;
+  if (filtro === "Perto de mim") { const k = km(x); return k != null && k <= RAIO; }
+  if (filtro === "Agora") return agora(x);
+  if (filtro === "Hoje") return x.d && x.d <= hoje0 && (x.ate || x.d) >= hoje0;
+  if (filtro === "Fim de semana") return x.d && [sab, dom].some(f => x.d <= f && (x.ate || x.d) >= f);
+  return x.marcas.includes(filtro);
+}
+
+function agora(x) { if (!x.d || !x.h || x.d > hoje0 || (x.ate || x.d) < hoje0) return false; const h = new Date().getHours() + new Date().getMinutes() / 60; return h >= x.h[0] && h < x.h[1]; }
+// "16h às 22h" → "16:00 - 22:00" (formato do Zone)
+const horaZ = x => x.h ? `${String(x.h[0]).padStart(2, "0")}:00 - ${String(x.h[1]).padStart(2, "0")}:00` : String(x.hora).replace(/^(\d+)h(\d{2})?$/, (m, h, mi) => h.padStart(2, "0") + ":" + (mi || "00"));
+const dataZ = d => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const cat1 = x => x.marcas.find(m => !["Grátis", "Pra crianças"].includes(m)) || x.marcas[0];
+function cardEv(x) {
+  const eu = meus[x.id] === "vou";
+  return `<button class="card" type="button" data-id="${x.id}">
+    <div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}
+      <span class="tags">${x.marcas.includes("Grátis") ? '<span class="tag gr">Grátis</span>' : ""}${x.marcas.includes("Pra crianças") ? '<span class="tag">${ic("baby")}Crianças</span>' : ""}</span>
+      ${agora(x) ? '<span class="agora">● Acontecendo agora</span>' : ""}
+    </div>
+    <div class="tx"><div class="z-l1"><span>${esc(cat1(x))}${minhaPos ? ` · <b class="km">${kmTxt(x)}</b>` : ""}</span><b>${x.marcas.includes("Grátis") ? "Grátis" : "$"}</b></div><h3>${esc(x.nome)}</h3>
+      <div class="z-rod"><span class="lc">${PIN}<span>${esc(x.local)}, ${esc(x.cidade)}</span></span><span class="qd">${x.ate ? `${x.d.getDate()} a ${dataZ(x.ate)}` : `${dataZ(x.d)} às ${esc(horaZ(x))}`}</span></div>
+      <div class="z-gente">${avs(x.vao)} ${x.vao + (eu ? 1 : 0)} vão${eu ? '<span class="eu">✓ Você vai</span>' : ""}</div></div>
+  </button>`;
+}
+function cardLu(x) {
+  const eu = meus[x.id];
+  return `<button class="card" type="button" data-id="${x.id}">
+    <div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}
+      <span class="tags">${x.marcas.includes("Pra crianças") ? '<span class="tag">${ic("baby")}Crianças</span>' : ""}${x.marcas.includes("Pet") ? '<span class="tag">${ic("dog")}Pet</span>' : ""}</span>
+      <span class="nfotos">${ic("camera")}${x.fotos}</span>
+    </div>
+    <div class="tx"><div class="z-l1"><span>${esc(cat1(x))}${minhaPos ? ` · <b class="km">${kmTxt(x)}</b>` : ""}</span><b>${x.fotos ? ic("camera") + x.fotos : ""}</b></div><h3>${esc(x.nome)}</h3>
+      <div class="z-rod"><span class="lc">${PIN}<span>${esc(x.local)}, ${esc(x.cidade)}</span></span><span class="qd">${x.foram ? x.foram + " já foram" : ""}</span></div>
+      <div class="z-gente">${avs(x.foram)} ${x.foram + (eu === "fui" ? 1 : 0)} já foram · ${x.querem + (eu === "quero" ? 1 : 0)} querem ir${eu ? `<span class="eu">✓ ${eu === "fui" ? "Você já foi" : "Você quer ir"}</span>` : ""}</div></div>
+  </button>`;
+}
+
+function lista() {
+  if (aba === "eventos") {
+    const xs = EVENTOS.filter(x => (x.ate || x.d) >= hoje0).filter(passa).sort((a, b) => filtro === "Perto de mim" ? km(a) - km(b) : a.d - b.d); // eventos que já passaram somem sozinhos
+    if (!xs.length) { $("lista").innerHTML = `<p class="vazio">${filtro === "Perto de mim" ? `Nenhum evento a até ${RAIO} km de você por enquanto.` : `Nenhum evento com esse filtro${cidade ? " em " + esc(cidade) : ""} por enquanto.`}<br>Sabe de algum? Toque em <b>Divulgar evento</b>.</p>`; return; }
+    let html = "", ult = "";
+    for (const x of xs) html += cardEv(x); // como no Zone: sem separar por dia, a data vai no card
+    $("lista").innerHTML = html;
+  } else {
+    const xs = LUGARES.filter(passa).sort((a, b) => filtro === "Perto de mim" ? km(a) - km(b) : b.foram - a.foram);
+    const tur = !filtro ? LUGARES.filter(x => x.marcas.includes("Ponto turístico") && (!cidade || x.cidade === cidade)) : [];
+    const carrossel = tur.length ? `<h2 class="dia">${ic("compass")}Pontos turísticos</h2><div class="tur">${tur.map(x => `<button type="button" data-id="${x.id}"><div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}${x.fotos ? `<span>${ic("camera")}${x.fotos}</span>` : ""}</div><b>${esc(x.nome)}</b><small>${esc(x.cidade)}${x.foram ? ` · ${x.foram} já foram` : ""}</small></button>`).join("")}</div>` : "";
+    $("lista").innerHTML = xs.length ? carrossel + `<h2 class="dia" style="margin-top:1.2rem">${filtro === "Perto de mim" ? `${ic("map-pin")}Até ${RAIO} km de você` : "Mais visitados"}</h2>` + xs.map(cardLu).join("") : `<p class="vazio">Nenhum lugar com esse filtro${cidade ? " em " + esc(cidade) : ""} ainda.<br>Conhece um? Toque em <b>Indicar lugar</b>.</p>`;
+  }
+}
+
+document.querySelector(".z-abas").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  aba = b.dataset.aba; filtro = "";
+  document.querySelectorAll(".z-abas button").forEach(x => x.classList.toggle("on", x === b));
+  $("fab-txt").textContent = aba === "eventos" ? "Divulgar evento" : "Indicar lugar";
+  $("z-sec").textContent = aba === "eventos" ? "Para você" : "Pra conhecer";
+  chips(); lista();
+});
+
+if ($("bt-share")) $("bt-share").onclick = () => { const u = "https://chamakiiro.com.br/acontece"; if (navigator.share) navigator.share({ title: "Acontece no Litoral", url: u }).catch(() => {}); else location.href = "https://wa.me/?text=" + encodeURIComponent("O que fazer no Litoral: " + u); };
+$("bt-cid").onclick = () => {
+  const ops = ["", ...CIDADES];
+  $("cid-ops").innerHTML = ops.map(c => `<button type="button" data-c="${esc(c)}" class="${c === cidade ? "on" : ""}">${ic(c ? "map-pin" : "map")}<span>${esc(c || "Todo o Litoral")}</span>${c === cidade ? ic("check", "ok") : ""}</button>`).join("");
+  $("m-cid").classList.add("aberto");
+  const on = $("cid-ops").querySelector(".on"); if (on) on.scrollIntoView({ block: "center" });
+};
+$("cid-ops").addEventListener("click", e => {
+  const b = e.target.closest("button[data-c]"); if (!b) return;
+  cidade = b.dataset.c; $("cid-txt").textContent = cidade || "Todo o Litoral";
+  if (filtro === "Perto de mim" && cidade) filtro = "";
+  $("m-cid").classList.remove("aberto"); chips(); lista();
+});
+$("m-cid").addEventListener("click", e => { if (e.target.id === "m-cid" || e.target.closest("[data-fechar-cid]")) $("m-cid").classList.remove("aberto"); });
+
+/* ----- detalhe ----- */
+function abrir(id) {
+  const x = [...EVENTOS, ...LUGARES].find(y => y.id === id); if (!x) return;
+  const ev = !!x.d;
+  const fotos = x.ft.map((f, i) => `<div style="background:${bg(f)}">${ehFoto(f) ? "" : icE(x.em[i] || x.em[0])}</div>`).join("");
+  const nGrade = ev ? x.ft.length : Math.min(5, x.fotos);
+  const grade = Array.from({ length: nGrade }, (_, i) => `<div style="background:${bg(x.ft[i % x.ft.length])}">${ehFoto(x.ft[i % x.ft.length]) ? "" : icE(x.em[i % x.em.length])}</div>`).join("");
+  const creditos = (x.creditos || []).map(c => `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.autor)}</a> (${esc(c.lic === "Public domain" ? "domínio público" : c.lic)})`).join(", ");
+  const mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${x.local}, ${x.cidade}, RS`);
+  const compart = "https://wa.me/?text=" + encodeURIComponent(`${ev ? "Bora? " : "Conhece? "}${x.nome}${ev ? " · " + rotDia(x.d) + " " + x.hora : ""} em ${x.cidade}\nhttps://chamakiiro.com.br/acontece#${x.id}`);
+  const est = meus[x.id] || "";
+  const salvo = !!(meus["s-" + x.id]);
+  const CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+  const tags = [...new Set([...x.marcas, x.cidade])].map(t => "#" + t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const coms = ((comentarios || {})[x.id] || []);
+  const nVao = x.vao + (est === "vou" ? 1 : 0), nInt = (x.querem || 0) + (salvo ? 1 : 0), nFor = (x.foram || 0) + (est === "fui" ? 1 : 0);
+  $("det").innerHTML = `
+    <div class="z-dbar zd-bar"><button type="button" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>${esc(x.nome)}</b><a href="${compart}" target="_blank" rel="noopener" aria-label="Mais opções" class="zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
+    <div class="gal" id="gal">${fotos}</div>
+    ${x.ft.length > 1 ? `<div class="gal-pts" id="pts">${x.ft.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
+    <div class="dt zd">
+      <h2>${esc(x.nome)}</h2>
+      ${ev ? `<div class="zd-l">${ic("calendar")}<span>${rotDia(x.d)}${x.ate ? " a " + rotDia(x.ate) : ""} · ${esc(x.hora)}</span></div>` : ""}
+      <div class="zd-l">${ic("map-pin")}<span>${esc(x.local)}, ${esc(x.cidade)}, RS${minhaPos && km(x) != null ? ` <em>· ${kmTxt(x)}</em>` : ""}<br><a href="${mapa}" target="_blank" rel="noopener">Ver no mapa</a></span></div>
+      <div class="zd-nums">
+        ${ev ? `<div><b class="ok">${nVao}</b>Confirmados</div><div><b>${nInt}</b>Interessados</div>`
+             : `<div><b class="ok">${nFor}</b>Já foram</div><div><b>${nInt}</b>Querem ir</div>`}
+        <div class="dir"><b>—</b>Seus amigos</div>
+      </div>
+      <div class="zd-acoes">
+        ${ev ? `<button class="zd-conf ${est === "vou" ? "on" : ""}" data-marca="vou" type="button">${est === "vou" ? ic("check") + "Presença confirmada" : "Confirmar Presença"}</button>`
+             : `<button class="zd-conf ${est === "fui" ? "on" : ""}" data-marca="fui" type="button">${est === "fui" ? ic("check") + "Já fui" : "Já fui"}</button>`}
+        <button class="zd-ib ${salvo ? "on" : ""}" type="button" data-salvar aria-label="${ev ? "Tenho interesse" : "Quero ir"}"><svg viewBox="0 0 24 24" fill="${salvo ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+        <a class="zd-ib zd-env" href="${compart}" target="_blank" rel="noopener" aria-label="Mandar pra alguém"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L2 9.5l8 3.5 3.5 8z"/></svg></a>
+      </div>
+      <h3 class="z-h zd-h">Descrição</h3>
+      <p class="desc">${esc(x.desc)}</p>
+      <p class="zd-aviso">Algumas informações podem estar erradas, pois não foram enviadas pelo organizador oficial.${x.fonte ? ` <a href="${esc(x.fonte)}" target="_blank" rel="noopener">Ver fonte</a>` : ""}</p>
+      <div class="zd-tags">${tags.map(t => `<span>${esc(t)}</span>`).join("")}</div>
+      ${creditos ? `<p class="por">Fotos: ${creditos}, via Wikimedia Commons</p>` : ""}
+      <div class="fotos-h zd-h2"><h3 class="z-h zd-h" style="margin:0">Fotos ${ev ? "do evento" : "de quem foi"}</h3><button type="button" data-foto>+ Mandar foto</button></div>
+      <div class="grade">${grade}<label class="mais"><input type="file" accept="image/*" hidden data-foto-in><b>+</b>Sua foto</label></div>
+      <h3 class="z-h zd-h zd-h2">Comentários (${coms.length})</h3>
+      <textarea class="zd-com" id="zd-com" maxlength="500" rows="1" placeholder="Escreva um comentário..."></textarea>
+      <div class="zd-com-l"><small id="zd-cont">0/500</small><button type="button" data-comentar>Comentar</button></div>
+      ${coms.length ? `<div class="zd-coms">${coms.map(c => `<div><b>Você</b><small>aguardando a Kiiro conferir</small><p>${esc(c)}</p></div>`).join("")}</div>` : `<p class="zd-vazio">Nenhum comentário ainda. Seja o primeiro!</p>`}
+    </div>`;
+  $("m-det").classList.add("aberto");
+  $("m-det").dataset.id = id;
+  const gal = $("gal"), pts = $("pts");
+  if (pts) gal.addEventListener("scroll", () => { const i = Math.round(gal.scrollLeft / gal.clientWidth); pts.querySelectorAll("i").forEach((p, j) => p.classList.toggle("on", j === i)); });
+  history.replaceState(null, "", "#" + id);
+}
+$("lista").addEventListener("click", e => { const c = e.target.closest(".card,.tur button"); if (c) abrir(c.dataset.id); });
+$("det").addEventListener("click", e => {
+  const m = e.target.closest("[data-marca]");
+  if (m) { const id = $("m-det").dataset.id; meus[id] = meus[id] === m.dataset.marca ? "" : m.dataset.marca; salvarMeus(); abrir(id); lista(); if (meus[id]) aviso(m.dataset.marca === "vou" ? "Anotado! A Kiiro te lembra no dia" : "Valeu! Que tal mandar uma foto?"); return; }
+  if (e.target.closest("[data-salvar]")) { const id = $("m-det").dataset.id; meus["s-" + id] = !meus["s-" + id]; salvarMeus(); abrir(id); if (meus["s-" + id]) aviso("Salvo nos seus favoritos"); return; }
+  if (e.target.closest("[data-foto]")) { const inp = $("det").querySelector("[data-foto-in]"); inp && inp.click(); }
+});
+var comentarios = {}; try { comentarios = JSON.parse(localStorage.getItem("kiiro-ac-com") || "{}"); } catch {}
+$("det").addEventListener("input", e => { if (e.target.id === "zd-com") { $("zd-cont").textContent = e.target.value.length + "/500"; e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; } });
+$("det").addEventListener("click", e => {
+  if (!e.target.closest("[data-comentar]")) return;
+  const t = $("zd-com").value.trim(); if (t.length < 2) { aviso("Escreva seu comentário"); return $("zd-com").focus(); }
+  const id = $("m-det").dataset.id; (comentarios[id] = comentarios[id] || []).push(t);
+  try { localStorage.setItem("kiiro-ac-com", JSON.stringify(comentarios)); } catch {}
+  const y = $("det").scrollTop; abrir(id); $("det").scrollTop = y; aviso("Comentário enviado! Aparece para todos depois que a Kiiro conferir.");
+});
+$("det").addEventListener("change", e => { if (e.target.matches("[data-foto-in]") && e.target.files.length) aviso("Foto enviada! Aparece depois que a Kiiro conferir."); });
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-fechar]") || e.target.classList.contains("mod")) { document.querySelectorAll(".mod").forEach(m => m.classList.remove("aberto")); history.replaceState(null, "", location.pathname); }
+});
+
+/* ----- indicar ----- */
+let tipo = "evento";
+const MARCAS = { evento: ["Grátis", "Pra crianças", "Música", "Esporte", "Feira", "Comunidade", "Comida"], lugar: ["Ponto turístico", "Praia", "Cachoeira", "Pracinha", "Pra crianças", "Parque", "Trilha", "Mirante", "Pôr do sol", "Pet", "Sombra"] };
+function formTipo(t) {
+  tipo = t;
+  document.querySelectorAll(".fm .tipo button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  document.querySelector(".so-ev").hidden = t !== "evento";
+  $("i-nome").placeholder = t === "evento" ? "Ex.: Feira do Peixe" : "Ex.: Pracinha da Lagoa";
+  $("i-marcas").innerHTML = MARCAS[t].map(m => `<button type="button">${m}</button>`).join("");
+}
+$("i-cid").innerHTML = CIDADES.map(c => `<option>${esc(c)}</option>`).join("");
+$("i-cid").value = "Tramandaí";
+document.querySelector(".fm .tipo").addEventListener("click", e => { const b = e.target.closest("button"); if (b) formTipo(b.dataset.t); });
+$("i-marcas").addEventListener("click", e => { const b = e.target.closest("button"); if (b) b.classList.toggle("on"); });
+$("i-fotos").addEventListener("change", e => { const n = e.target.files.length; $("i-fotos-t").textContent = n ? `${n} foto${n > 1 ? "s" : ""} escolhida${n > 1 ? "s" : ""}` : "Escolher fotos"; });
+/* dica do + (mostra uma vez só) */
+function verDica() {
+  let vista = false; try { vista = localStorage.getItem("kiiro-ac-dica") === "1"; } catch {}
+  if (vista) return;
+  $("dica").hidden = false; document.body.classList.add("com-dica");
+}
+$("dica-ok").onclick = () => { $("dica").hidden = true; document.body.classList.remove("com-dica"); try { localStorage.setItem("kiiro-ac-dica", "1"); } catch {} };
+$("dica").onclick = e => { if (e.target.id === "dica") $("dica-ok").click(); };
+setTimeout(verDica, 900);
+$("fab").onclick = () => { formTipo(aba === "eventos" ? "evento" : "lugar"); $("m-ind").classList.add("aberto"); };
+$("f-ind").addEventListener("submit", e => {
+  e.preventDefault();
+  if ($("i-nome").value.trim().length < 3) { aviso("Coloque o nome"); return $("i-nome").focus(); }
+  $("m-ind").classList.remove("aberto"); e.target.reset(); $("i-fotos-t").textContent = "Escolher fotos";
+  aviso("Recebido! A Kiiro confere e publica");
+});
+
+let tt; function aviso(t) { $("toast").textContent = t; $("toast").classList.add("on"); clearTimeout(tt); tt = setTimeout(() => $("toast").classList.remove("on"), 2600); }
+
+/* ----- mapa (como o Zone): ícones por tipo, toque abre o evento/lugar ----- */
+let mapa = null, camada = null, modoMapa = false;
+const carregarLeaflet = () => new Promise((ok, erro) => {
+  if (window.L) return ok();
+  const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "vendor/leaflet/leaflet.css"; document.head.appendChild(css);
+  const js = document.createElement("script"); js.src = "vendor/leaflet/leaflet.js"; js.onload = ok; js.onerror = erro; document.head.appendChild(js);
+});
+function pontos() {
+  const xs = (aba === "eventos" ? EVENTOS : LUGARES).filter(passa);
+  const conta = {};
+  return xs.map(x => {
+    const c = x.ll || (window.KIIRO_COORD || {})[x.cidade]; if (!c) return null;
+    const n = (conta[x.cidade] = (conta[x.cidade] || 0) + 1) - 1; // espalha os da mesma cidade
+    return { x, ll: x.ll || [c[0] + Math.sin(n * 2.1) * 0.012 * Math.min(n, 1 + n / 2), c[1] + Math.cos(n * 2.1) * 0.014 * Math.min(n, 1 + n / 2)] };
+  }).filter(Boolean);
+}
+async function desenharMapa() {
+  await carregarLeaflet();
+  if (!mapa) {
+    mapa = L.map("mapa", { zoomControl: false, attributionControl: true }).setView([-29.85, -50.1], 10);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap" }).addTo(mapa);
+  }
+  if (camada) camada.remove();
+  const ps = pontos();
+  camada = L.layerGroup().addTo(mapa);
+  mapa.off("zoomend", agrupar); mapa.on("zoomend", agrupar);
+  mapa._ps = ps;
+  if (ps.length) mapa.fitBounds(L.latLngBounds(ps.map(p => p.ll)), { maxZoom: 13, paddingTopLeft: [30, ($("z-fixo").getBoundingClientRect().bottom || 200) + 20], paddingBottomRight: [30, 170] });
+  agrupar();
+  setTimeout(() => mapa.invalidateSize(), 50);
+}
+/* junta os que ficam colados na tela numa bolinha com o número (toque aproxima) */
+function agrupar() {
+  if (!camada) return; camada.clearLayers();
+  const ps = mapa._ps || [], grupos = [];
+  ps.forEach(p => {
+    const px = mapa.latLngToLayerPoint(p.ll);
+    const g = grupos.find(g => g.px.distanceTo(px) < 66);
+    if (g) g.itens.push(p); else grupos.push({ px, itens: [p] });
+  });
+  grupos.forEach(g => {
+    if (g.itens.length > 1) {
+      const b = L.latLngBounds(g.itens.map(p => p.ll));
+      L.marker(b.getCenter(), { icon: L.divIcon({ className: "", html: `<div class="mk-n">${g.itens.length}</div>`, iconSize: [52, 52], iconAnchor: [26, 26] }) })
+        .on("click", () => mapa.getZoom() >= 15 ? abrir(g.itens[0].x.id) : mapa.fitBounds(b.pad(0.6), { maxZoom: Math.max(mapa.getZoom() + 2, 13) })).addTo(camada);
+    } else {
+      const { x, ll } = g.itens[0];
+      L.marker(ll, { icon: L.divIcon({ className: "", html: `<div class="mk ${x.d ? "" : "lu"} ${x.d && agora(x) ? "agora" : ""}">${ic(ICO[cat1(x)] || (x.d ? "party-popper" : "map-pin"))}</div>`, iconSize: [46, 46], iconAnchor: [23, 23] }) }).on("click", () => abrir(x.id)).addTo(camada);
+    }
+  });
+  if (minhaPos) L.marker(minhaPos, { interactive: false, icon: L.divIcon({ className: "", html: '<div class="mk-eu"></div>', iconSize: [20, 20], iconAnchor: [10, 10] }) }).addTo(camada);
+}
+function trocarModo(m) {
+  modoMapa = m;
+  $("mapa-box").hidden = !m; $("lista-box").hidden = m;
+  document.body.classList.toggle("modo-mapa", m);
+  $("bt-mapa-t").textContent = m ? "Lista" : "Mapa";
+  iconeMapa(m);
+  if (m) { scrollTo(0, 0); requestAnimationFrame(() => { document.documentElement.style.setProperty("--mapa-topo", $("z-fixo").getBoundingClientRect().bottom + "px"); desenharMapa(); }); }
+}
+function iconeMapa(m) {
+  $("bt-mapa-i").innerHTML = m
+    ? '<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1" fill="currentColor"/><circle cx="3.5" cy="12" r="1" fill="currentColor"/><circle cx="3.5" cy="18" r="1" fill="currentColor"/>'
+    : '<path d="M9 4v16M15 6v16M4 6l5-2 6 2 5-2v16l-5 2-6-2-5 2z"/>';
+  $("bt-mapa").setAttribute("aria-label", m ? "Ver lista" : "Ver mapa");
+}
+iconeMapa(false);
+$("bt-mapa").onclick = () => trocarModo(!modoMapa);
+$("mp-lista").onclick = () => trocarModo(false);
+$("mp-eu").onclick = () => { if (!mapa || !navigator.geolocation) return; navigator.geolocation.getCurrentPosition(p => { minhaPos = [p.coords.latitude, p.coords.longitude]; mapa.setView(minhaPos, 12); agrupar(); }, () => aviso("Não deu para achar sua localização")); };
+// filtros e abas também atualizam o mapa
+const listaOriginal = lista;
+lista = function () { listaOriginal(); if (modoMapa) desenharMapa(); };
+
+// fotos do topo: trocam devagar, cada lado no seu tempo
+document.querySelectorAll(".hp").forEach((hp, k) => {
+  const sl = hp.querySelectorAll(".sl"); if (sl.length < 2) return;
+  let i = 0;
+  setTimeout(() => setInterval(() => { sl[i].classList.remove("on"); i = (i + 1) % sl.length; sl[i].classList.add("on"); }, 6000), k * 3000);
+});
+chips(); lista();
+if (location.hash.length > 1) abrir(location.hash.slice(1));
+</script>
+<script src="icones.js" defer></script>
+</body>
+</html>
