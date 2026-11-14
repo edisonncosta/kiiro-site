@@ -264,6 +264,40 @@ export default async (req, context) => {
       if (x && acao === "in_excluir") { await st.delete(id); aviso = "Excluída."; }
       return Response.redirect(`${base}/painel${q({ aba: "indicacoes", aviso })}`, 303);
     }
+    // ----- Acontece: indicações de eventos/lugares, fotos e comentários
+    if (String(acao || "").startsWith("ac_")) {
+      const st = getStore("acontece"), fst = getStore("acontece-fotos");
+      const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
+      const pub = (await st.get("publico", { type: "json" })) || {};
+      pub.itens ||= []; pub.fotos ||= {}; pub.coms ||= {};
+      const campo = (n, max = 120) => String(f.get(n) || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
+      let aviso = "";
+      const x = id.startsWith("p-") ? await st.get(id, { type: "json" }) : null;
+      if (x && acao === "ac_aprovar") {
+        if (x.tipo === "indicacao") {
+          const dia = /^\d{4}-\d{2}-\d{2}$/.test(f.get("dia") || "") ? f.get("dia") : x.dia;
+          const ate = /^\d{4}-\d{2}-\d{2}$/.test(f.get("ate") || "") ? f.get("ate") : "";
+          pub.itens.push({ id: "u-" + id.slice(-8), tipo: x.qual, nome: campo("nome", 90) || x.nome, cidade: campo("cidade", 40) || x.cidade, local: campo("local") || x.local,
+            dia, ate, hora: campo("hora", 30) || x.hora, desc: String(f.get("desc") ?? x.desc).trim().slice(0, 600), marcas: x.marcas || [], fotos: x.fotos || [], aprovado: new Date().toISOString() });
+          aviso = (x.qual === "lugar" ? "Lugar" : "Evento") + " publicado no Acontece.";
+        }
+        if (x.tipo === "foto") { (pub.fotos[x.alvo] ||= []).push(x.foto); aviso = "Foto publicada."; }
+        if (x.tipo === "comentario") { (pub.coms[x.alvo] ||= []).push({ k: id.slice(-8), nome: x.nome, texto: x.texto, data: x.data }); aviso = "Comentário publicado."; }
+        await st.setJSON("publico", pub); await st.delete(id);
+      }
+      if (x && acao === "ac_recusar") {
+        for (const fid of [...(x.fotos || []), ...(x.foto ? [x.foto] : [])]) await fst.delete(fid);
+        await st.delete(id); aviso = "Recusado e apagado.";
+      }
+      if (acao === "ac_tirar") {
+        const tipo = f.get("tipo"), alvo = String(f.get("alvo") || ""), ref = String(f.get("ref") || "");
+        if (tipo === "item") { const it = pub.itens.find((i) => i.id === ref); if (it) { for (const fid of it.fotos || []) await fst.delete(fid); pub.itens = pub.itens.filter((i) => i.id !== ref); } }
+        if (tipo === "foto" && pub.fotos[alvo]) { pub.fotos[alvo] = pub.fotos[alvo].filter((fid) => fid !== ref); await fst.delete(ref); }
+        if (tipo === "com" && pub.coms[alvo]) pub.coms[alvo] = pub.coms[alvo].filter((c) => c.k !== ref);
+        await st.setJSON("publico", pub); aviso = "Tirado do Acontece.";
+      }
+      return Response.redirect(`${base}/painel${q({ aba: "acontece", ver: f.get("ver") || "pendentes", aviso })}`, 303);
+    }
     // ----- pedidos de orçamento (chat do site)
     if (String(acao || "").startsWith("pd_")) {
       const id = String(f.get("id") || "").replace(/[^\w-]/g, "");
@@ -1091,6 +1125,59 @@ export default async (req, context) => {
       `<p class="obs">Avaliações que chegam pelo link do profissional (/i/…). Aprovadas, aparecem no perfil e contam na nota. Dica: na aba Profissionais, o botão <b>Pedir avaliações</b> manda o link para o profissional enviar aos clientes antigos.</p>`;
   }
 
+  if (aba === "acontece") {
+    const st = getStore("acontece");
+    const { blobs } = await st.list({ prefix: "p-" });
+    const pend = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
+    const pub = (await st.get("publico", { type: "json" })) || { itens: [], fotos: {}, coms: {} };
+    const ver = filtro === "todas" ? "pendentes" : filtro;
+    const nPub = (pub.itens || []).length + Object.values(pub.fotos || {}).flat().length + Object.values(pub.coms || {}).flat().length;
+    const sub = (v, t, n) => `<a class="aba mini ${ver === v ? "on" : ""}" href="${q({ aba: "acontece", ver: v })}">${t} <small>${n}</small></a>`;
+    const hid = (n, v) => `<input type="hidden" name="${n}" value="${esc(v)}">`;
+    const bt = (acao, txt, cls = "", extra = "", conf = "") => `<form method="post" style="display:inline"${conf ? ` onsubmit="return confirm('${conf}')"` : ""}>${hid("chave", KEY)}${hid("acao", acao)}${hid("ver", ver)}${extra}<button class="b ${cls}">${txt}</button></form>`;
+    const ft = (fid) => `<a href="/.netlify/functions/acontece-foto?id=${esc(fid)}" target="_blank"><img src="/.netlify/functions/acontece-foto?id=${esc(fid)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:8px"></a>`;
+    const zap = (w) => w ? ` · <a href="https://wa.me/${esc(w.length <= 11 ? "55" + w : w)}" target="_blank" rel="noopener">WhatsApp</a>` : "";
+    const aviso = url.searchParams.get("aviso");
+    let corpo = "";
+    if (ver === "pendentes") {
+      corpo = pend.map(({ k, x }) => {
+        if (x.tipo === "indicacao") return `<article>
+          <div class="l1"><b>${x.qual === "lugar" ? "📍 Lugar indicado" : "🎉 Evento indicado"}</b><span>${fmt(x.data)}</span></div>
+          ${(x.fotos || []).length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${x.fotos.map(ft).join("")}</div>` : `<p class="obs">Sem foto (aparece com um ícone no lugar da foto).</p>`}
+          <form method="post" class="ed">${hid("chave", KEY)}${hid("acao", "ac_aprovar")}${hid("id", k)}${hid("ver", ver)}
+            <label class="ed-l">Nome<input name="nome" value="${esc(x.nome)}"></label>
+            ${x.qual === "evento" ? `<label class="ed-l">Dia<input type="date" name="dia" value="${esc(x.dia)}"></label><label class="ed-l">Até (se for mais de um dia)<input type="date" name="ate"></label><label class="ed-l">Horário<input name="hora" value="${esc(x.hora)}" placeholder="Ex.: 15h"></label>` : ""}
+            <label class="ed-l">Cidade<input name="cidade" value="${esc(x.cidade)}"></label>
+            <label class="ed-l">Local<input name="local" value="${esc(x.local)}"></label>
+            <label class="ed-l">Descrição<textarea name="desc" rows="3">${esc(x.desc)}</textarea></label>
+            <p class="obs">${esc((x.marcas || []).join(" · "))}${zap(x.whatsapp)}</p>
+            <button class="b zap">Aprovar e publicar</button>
+          </form>
+          <div class="acoes">${bt("ac_recusar", "Recusar", "", hid("id", k), "Recusar e apagar?")}</div>
+        </article>`;
+        if (x.tipo === "foto") return `<article>
+          <div class="l1"><b>📷 Foto para ${esc(x.alvoNome || x.alvo)}</b><span>${fmt(x.data)}</span></div>
+          <div style="margin:8px 0">${ft(x.foto)}</div>${x.nome ? `<p class="obs">De ${esc(x.nome)}</p>` : ""}
+          <div class="acoes">${bt("ac_aprovar", "Aprovar", "zap", hid("id", k))}${bt("ac_recusar", "Recusar", "", hid("id", k), "Recusar e apagar?")}</div>
+        </article>`;
+        return `<article>
+          <div class="l1"><b>💬 Comentário em ${esc(x.alvoNome || x.alvo)}</b><span>${fmt(x.data)}</span></div>
+          <p><b>${esc(x.nome)}</b></p><blockquote>“${esc(x.texto)}”</blockquote>
+          <div class="acoes">${bt("ac_aprovar", "Aprovar", "zap", hid("id", k))}${bt("ac_recusar", "Recusar", "", hid("id", k), "Recusar e apagar?")}</div>
+        </article>`;
+      }).join("") || `<p class="vazio">Nada para aprovar no Acontece.</p>`;
+    } else {
+      const its = (pub.itens || []).map((i) => `<article><div class="l1"><b>${i.tipo === "lugar" ? "📍" : "🎉"} ${esc(i.nome)}</b><span>${esc(i.cidade)}${i.dia ? " · " + esc(i.dia.split("-").reverse().join("/")) : ""}</span></div>
+        <div class="acoes"><a class="b" href="/acontece.html#${esc(i.id)}" target="_blank">Ver no site</a>${bt("ac_tirar", "Tirar do ar", "", hid("tipo", "item") + hid("ref", i.id), "Tirar do Acontece?")}</div></article>`).join("");
+      const fts = Object.entries(pub.fotos || {}).flatMap(([alvo, l]) => l.map((fid) => `<div style="display:inline-block;margin:0 8px 10px 0;text-align:center">${ft(fid)}<br><small>${esc(alvo)}</small><br>${bt("ac_tirar", "Tirar", "", hid("tipo", "foto") + hid("alvo", alvo) + hid("ref", fid), "Tirar esta foto?")}</div>`)).join("");
+      const cms = Object.entries(pub.coms || {}).flatMap(([alvo, l]) => l.map((c) => `<article><div class="l1"><b>${esc(c.nome)}</b><span>${esc(alvo)} · ${fmt(c.data)}</span></div><blockquote>“${esc(c.texto)}”</blockquote>
+        <div class="acoes">${bt("ac_tirar", "Tirar do ar", "", hid("tipo", "com") + hid("alvo", alvo) + hid("ref", c.k), "Tirar este comentário?")}</div></article>`)).join("");
+      corpo = (its ? `<h3 style="margin:14px 0 8px">Eventos e lugares</h3>${its}` : "") + (fts ? `<h3 style="margin:14px 0 8px">Fotos</h3><div>${fts}</div>` : "") + (cms ? `<h3 style="margin:14px 0 8px">Comentários</h3>${cms}` : "") || `<p class="vazio">Nada publicado pelo público ainda.</p>`;
+    }
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}<nav class="abas sub">${sub("pendentes", "Para aprovar", pend.length)}${sub("publicados", "Publicados", nPub)}</nav>${corpo}
+      <p class="obs">O que as pessoas mandam pelo + do Acontece (eventos e lugares), as fotos e os comentários. Só aparece no site depois que você aprova. Você pode corrigir nome, data e local antes de publicar.</p>`;
+  }
+
   if (aba === "pedidos") {
     const store = getStore("pedidos");
     const { blobs } = await store.list();
@@ -1324,7 +1411,7 @@ details.editar[open] summary{background:#1A1A1A;color:#FFC800}
 </style></head><body>
 <header><div class="in">
   <h1><i></i>Painel da Kiiro</h1>
-  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Avaliações por link")}${abaLink("chamadas", "Chamadas")}${abaLink("disparos", "Disparos")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
+  <nav class="abas">${abaLink("resumo", "Resumo")}${abaLink("graficos", "Gráficos")}${abaLink("profissionais", "Profissionais")}${abaLink("anuncios", "Anúncios")}${abaLink("pagamentos", "Pagamentos")}${abaLink("acontece", "Acontece")}${abaLink("pedidos", "Pedidos")}${abaLink("indicacoes", "Avaliações por link")}${abaLink("chamadas", "Chamadas")}${abaLink("disparos", "Disparos")}${abaLink("contas", "Contas")}${abaLink("avisos", "Avisos")}${abaLink("lembretes", "Lembretes")}</nav>
 </div></header>
 <main>${html}</main>
 </body></html>`;
