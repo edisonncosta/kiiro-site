@@ -1,0 +1,114 @@
+{
+ "atualizado": "2026-11-14",
+ "eventos": [
+  {
+   "nome": "3º Litoral Grau Moto Fest",
+   "cidade": "Tramandaí",
+   "local": "R. Ernesto Nunes Bandeira, 920",
+   "dia": "2026-11-15",
+   "hora": "08:00",
+   "marcas": [
+    "Esporte"
+   ],
+   "desc": "Encontro de motos com manobras de grau.",
+   "fonte": "https://www.sympla.com.br/eventos/tramandai-rs",
+   "sid": "3litoralgraumotofesttramandai2026-11-15"
+  },
+  {
+   "nome": "Mentes Brilhantes Tour RS 2026",
+   "cidade": "Capão da Canoa",
+   "local": "Casa de Cultura Érico Veríssimo",
+   "dia": "2026-11-16",
+   "hora": "16h às 20h",
+   "marcas": [
+    "Comunidade"
+   ],
+   "desc": "Edição especial do Mentes Brilhantes Tour no Litoral Norte, com palestras.",
+   "fonte": "https://jplitoral.com.br/mentes-brilhantes-tour-2026-acontece-dia-16-de-novembro-em-capao-da-canoa/",
+   "sid": "mentesbrilhantestourrs2026capaodacanoa2026-11-16"
+  },
+  {
+   "nome": "Carreata de Natal da Havan",
+   "cidade": "Tramandaí",
+   "local": "Ruas da cidade",
+   "dia": "2026-11-27",
+   "marcas": [
+    "Grátis",
+    "Pra crianças",
+    "Comunidade"
+   ],
+   "desc": "Caminhões iluminados de Natal passando pela cidade.",
+   "fonte": "https://litoralnarede.com.br/carreata-de-natal-da-havan-passara-por-36-cidades-a-partir-deste-fim-de-semana",
+   "sid": "carreatadenataldahavantramandai2026-11-27"
+  },
+  {
+   "nome": "Carreata de Natal da Havan",
+   "cidade": "Capão da Canoa",
+   "local": "Ruas da cidade",
+   "dia": "2026-11-28",
+   "marcas": [
+    "Grátis",
+    "Pra crianças",
+    "Comunidade"
+   ],
+   "desc": "Caminhões iluminados de Natal passando pela cidade.",
+   "fonte": "https://litoralnarede.com.br/carreata-de-natal-da-havan-passara-por-36-cidades-a-partir-deste-fim-de-semana",
+   "sid": "carreatadenataldahavancapaodacanoa2026-11-28"
+  },
+  {
+   "nome": "Carreata de Natal da Havan",
+   "cidade": "Xangri-Lá",
+   "local": "Ruas da cidade",
+   "dia": "2026-11-28",
+   "marcas": [
+    "Grátis",
+    "Pra crianças",
+    "Comunidade"
+   ],
+   "desc": "Caminhões iluminados de Natal passando pela cidade.",
+   "fonte": "https://litoralnarede.com.br/carreata-de-natal-da-havan-passara-por-36-cidades-a-partir-deste-fim-de-semana",
+   "sid": "carreatadenataldahavanxangrila2026-11-28"
+  },
+  {
+   "nome": "Carreata de Natal da Havan",
+   "cidade": "Torres",
+   "local": "Parada na Praça XV de Novembro",
+   "dia": "2026-11-29",
+   "marcas": [
+    "Grátis",
+    "Pra crianças",
+    "Comunidade"
+   ],
+   "desc": "Caminhões iluminados de Natal, com parada especial na Praça XV de Novembro.",
+   "fonte": "https://jplitoral.com.br/carreata-de-natal-da-havan-passara-por-quatro-cidades-do-litoral-norte/",
+   "sid": "carreatadenataldahavantorres2026-11-29"
+  },
+  {
+   "nome": "GCN Truck Fest",
+   "cidade": "Osório",
+   "local": "Parque de Rodeios e Eventos Jorge Dariva",
+   "dia": "2026-11-28",
+   "ate": "2026-11-29",
+   "marcas": [
+    "Festa"
+   ],
+   "desc": "Festival de caminhões no Parque de Rodeios de Osório.",
+   "fonte": "https://www.sympla.com.br/eventos/tramandai-rs",
+   "sid": "gcntruckfestosorio2026-11-28"
+  },
+  {
+   "nome": "NUY Réveillon 2027",
+   "cidade": "Xangri-Lá",
+   "local": "Nuy Fresh Club, Av. Central, 2060",
+   "dia": "2026-12-31",
+   "hora": "23h55",
+   "marcas": [
+    "Festa",
+    "Música"
+   ],
+   "desc": "Festa de virada até o nascer do sol. Proibido para menores de 18 anos.",
+   "fonte": "https://www.sympla.com.br/evento/nuy-reveillon-2027/3557594",
+   "sid": "nuyreveillon2027xangrila2026-12-31"
+  }
+ ]
+}
