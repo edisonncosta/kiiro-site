@@ -1,0 +1,3 @@
+# Este ramo não publica nada: só guarda as sugestões da busca semanal.
+[build]
+  ignore = "exit 0"
