@@ -1,5 +1,7 @@
 [build]
   publish = "."
+  # o ramo "sugestoes" só guarda a busca semanal de eventos: não publica nada (não gasta créditos)
+  ignore = "[ \"$BRANCH\" = \"sugestoes\" ]"
   functions = "netlify/functions"
 
 # endereços curtos

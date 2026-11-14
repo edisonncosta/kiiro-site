@@ -892,7 +892,7 @@ function aplicarServidor(r) {
     if (it.oculto || [...EVENTOS, ...LUGARES].some(y => y.id === it.id)) continue;
     const ev = it.tipo !== "lugar", c = CORES_U[[...it.id].reduce((a, ch) => a + ch.charCodeAt(0), 0) % CORES_U.length];
     const marcas = it.marcas && it.marcas.length ? it.marcas : [ev ? "Comunidade" : "Passeio"];
-    const x = { id: it.id, nome: it.nome, cidade: it.cidade, local: it.local || it.cidade, marcas, desc: it.desc || "", por: "quem mora aqui", publico: true,
+    const x = { id: it.id, nome: it.nome, cidade: it.cidade, local: it.local || it.cidade, marcas, desc: it.desc || "", por: it.fonte ? "Kiiro" : "quem mora aqui", fonte: it.fonte || "", publico: true,
       ft: (it.fotos || []).length ? it.fotos.map(refFoto) : [G(c[0], c[1])], em: [EMO_DE[marcas.find(m => EMO_DE[m])] || (ev ? "🎉" : "📍")], vao: 0, foram: 0, querem: 0, fotos: (it.fotos || []).length };
     if (ev) { x.d = dataDe(it.dia); x.ate = dataDe(it.ate) || undefined; x.hora = horaTxt(it.hora) || "Confira o horário"; if (!x.d) continue; EVENTOS.push(x); }
     else LUGARES.push(x);

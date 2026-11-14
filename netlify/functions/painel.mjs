@@ -278,7 +278,7 @@ export default async (req, context) => {
           const dia = /^\d{4}-\d{2}-\d{2}$/.test(f.get("dia") || "") ? f.get("dia") : x.dia;
           const ate = /^\d{4}-\d{2}-\d{2}$/.test(f.get("ate") || "") ? f.get("ate") : "";
           pub.itens.push({ id: "u-" + id.slice(-8), tipo: x.qual, nome: campo("nome", 90) || x.nome, cidade: campo("cidade", 40) || x.cidade, local: campo("local") || x.local,
-            dia, ate, hora: campo("hora", 30) || x.hora, desc: String(f.get("desc") ?? x.desc).trim().slice(0, 600), marcas: x.marcas || [], fotos: x.fotos || [], aprovado: new Date().toISOString() });
+            dia, ate, hora: campo("hora", 30) || x.hora, desc: String(f.get("desc") ?? x.desc).trim().slice(0, 600), marcas: x.marcas || [], fotos: x.fotos || [], fonte: x.fonte || "", aprovado: new Date().toISOString() });
           aviso = (x.qual === "lugar" ? "Lugar" : "Evento") + " publicado no Acontece.";
         }
         if (x.tipo === "foto") { (pub.fotos[x.alvo] ||= []).push(x.foto); aviso = "Foto publicada."; }
@@ -1154,6 +1154,39 @@ export default async (req, context) => {
 
   if (aba === "acontece") {
     const st = getStore("acontece");
+    // busca automática semanal: as sugestões ficam no GitHub (ramo "sugestoes") e entram aqui como "para aprovar"
+    try {
+      const r = await fetch("https://raw.githubusercontent.com/edisonncosta/kiiro-site/sugestoes/acontece.json", { signal: AbortSignal.timeout(6000) });
+      if (r.ok) {
+        const sug = (await r.json()).eventos || [];
+        const ja = new Set((await st.get("importados", { type: "json" })) || []);
+        const pubA = (await st.get("publico", { type: "json" })) || {};
+        const norm = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const existe = new Set((pubA.itens || []).map((i) => norm(i.nome) + (i.dia || "")));
+        const hojeI = new Date().toISOString().slice(0, 10);
+        let n = 0;
+        for (const e of sug) {
+          const sid = String(e.sid || norm(e.nome) + (e.dia || "")).slice(0, 80);
+          if (ja.has(sid) || existe.has(norm(e.nome) + (e.dia || "")) || !e.nome || !/^\d{4}-\d{2}-\d{2}$/.test(e.dia || "") || (e.ate || e.dia) < hojeI) { ja.add(sid); continue; }
+          if (n++ >= 20) break;
+          const fotos = [];
+          if (/^https:\/\//.test(e.imagem || "")) {
+            try {
+              const im = await fetch(e.imagem, { signal: AbortSignal.timeout(6000) });
+              const tipo = im.headers.get("content-type") || "";
+              const b = im.ok && /^image\//.test(tipo) ? Buffer.from(await im.arrayBuffer()) : null;
+              if (b && b.length > 2000 && b.length < 3 * 1024 * 1024) { const fid = randomUUID(); await getStore("acontece-fotos").set(fid, b); fotos.push(fid); }
+            } catch {}
+          }
+          await st.setJSON(`p-${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID().slice(0, 8)}`, {
+            tipo: "indicacao", qual: e.tipo === "lugar" ? "lugar" : "evento", nome: String(e.nome).slice(0, 90), cidade: String(e.cidade || "").slice(0, 40), local: String(e.local || "").slice(0, 120),
+            dia: e.dia, ate: /^\d{4}-\d{2}-\d{2}$/.test(e.ate || "") ? e.ate : "", hora: String(e.hora || "").slice(0, 30), desc: String(e.desc || "").slice(0, 600),
+            marcas: Array.isArray(e.marcas) ? e.marcas.slice(0, 8) : [], fonte: /^https?:\/\//.test(e.fonte || "") ? String(e.fonte).slice(0, 300) : "", auto: true, fotos, data: new Date().toISOString(), status: "pendente" });
+          ja.add(sid);
+        }
+        await st.setJSON("importados", [...ja].slice(-2000));
+      }
+    } catch {}
     const { blobs } = await st.list({ prefix: "p-" });
     const pend = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
     const pub = (await st.get("publico", { type: "json" })) || { itens: [], fotos: {}, coms: {} };
@@ -1180,7 +1213,8 @@ export default async (req, context) => {
     if (ver === "pendentes") {
       corpo = pend.map(({ k, x }) => {
         if (x.tipo === "indicacao") return `<article>
-          <div class="l1"><b>${x.qual === "lugar" ? "📍 Lugar indicado" : "🎉 Evento indicado"}</b><span>${fmt(x.data)}</span></div>
+          <div class="l1"><b>${x.auto ? "🔎 Achado pela busca automática" : x.qual === "lugar" ? "📍 Lugar indicado" : "🎉 Evento indicado"}</b><span>${fmt(x.data)}</span></div>
+          ${x.fonte ? `<p class="obs" style="margin:4px 0"><a href="${esc(x.fonte)}" target="_blank" rel="noopener">Ver a fonte ›</a> confira data e local antes de aprovar.</p>` : ""}
           ${(x.fotos || []).length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${x.fotos.map(ft).join("")}</div>` : `<p class="obs">Sem foto (aparece com um ícone no lugar da foto).</p>`}
           <form method="post" class="ed">${hid("chave", KEY)}${hid("acao", "ac_aprovar")}${hid("id", k)}${hid("ver", ver)}
             <label class="ed-l">Nome<input name="nome" value="${esc(x.nome)}"></label>
