@@ -628,10 +628,13 @@ function patrosAc() {
   const ativos = (window.KIIRO_PATROCINIOS || []).filter(p => !p.ate || p.ate >= hoje);
   const ref = cidade || "";
   const km = p => { const de = p.alvoCidade || p.cidade; return ref && de && window.kiiroKm ? (window.kiiroKm(ref, de) ?? 999) : 999; };
-  return ativos.sort((a, b) => km(a) - km(b)).slice(0, 3);
+  const perto = ativos.sort((a, b) => km(a) - km(b)).slice(0, 2);
+  perto.emprestado = true; // não foi contratado para o Acontece: alterna com o "Anuncie aqui"
+  return perto;
 }
 function publi(n) {
-  const ps = patrosAc(), p = ps.length ? ps[n % ps.length] : null;
+  const ps = patrosAc(), roda = ps.emprestado && window.KIIRO_ANUNCIE !== false ? ps.length + 1 : ps.length;
+  const p = ps.length && n % roda < ps.length ? ps[n % roda] : null;
   if (!p) return window.KIIRO_ANUNCIE === false ? "" : `<div class="pub"><div class="pub-r"><span>Publicidade</span></div>
     <a class="pub-c pub-vazio" href="anunciar.html">${ic("megaphone")}<b>Sua marca aqui no Acontece</b><small>Apareça para quem está procurando o que fazer no Litoral${cidade ? " em " + esc(cidade) : ""}.</small><em>Quero anunciar ›</em></a></div>`;
   return `<div class="pub"><div class="pub-r"><span>Continua depois da publicidade</span></div>
@@ -646,13 +649,13 @@ function lista() {
     const xs = EVENTOS.filter(x => (x.ate || x.d) >= hoje0).filter(passa).sort((a, b) => filtro === "Perto de mim" ? km(a) - km(b) : a.d - b.d); // eventos que já passaram somem sozinhos
     if (!xs.length) { $("lista").innerHTML = `<p class="vazio">${filtro === "Perto de mim" ? `Nenhum evento a até ${RAIO} km de você por enquanto.` : `Nenhum evento com esse filtro${cidade ? " em " + esc(cidade) : ""} por enquanto.`}<br>Sabe de algum? Toque em <b>Divulgar evento</b>.</p>`; return; }
     let html = "", ult = "";
-    xs.forEach((x, i) => { html += cardEv(x); if (comPubli(i, xs.length)) html += publi(i); }); // como no Zone: a data vai no card; publicidade entre os cards
+    xs.forEach((x, i) => { html += cardEv(x); if (comPubli(i, xs.length)) html += publi(i === 1 ? 0 : (i - 1) / 4); }); // como no Zone: a data vai no card; publicidade entre os cards
     $("lista").innerHTML = html;
   } else {
     const xs = LUGARES.filter(passa).sort((a, b) => filtro === "Perto de mim" ? km(a) - km(b) : b.foram - a.foram);
     const tur = !filtro ? LUGARES.filter(x => x.marcas.includes("Ponto turístico") && (!cidade || x.cidade === cidade)) : [];
     const carrossel = tur.length ? `<h2 class="dia">${ic("compass")}Pontos turísticos</h2><div class="tur">${tur.map(x => `<button type="button" data-id="${x.id}"><div class="ft" style="background:${bg(x.ft[0])}">${ehFoto(x.ft[0]) ? "" : icE(x.em[0])}${x.fotos ? `<span>${ic("camera")}${x.fotos}</span>` : ""}</div><b>${esc(x.nome)}</b><small>${esc(x.cidade)}${x.foram ? ` · ${x.foram} já foram` : ""}</small></button>`).join("")}</div>` : "";
-    $("lista").innerHTML = xs.length ? carrossel + `<h2 class="dia" style="margin-top:1.2rem">${filtro === "Perto de mim" ? `${ic("map-pin")}Até ${RAIO} km de você` : "Mais visitados"}</h2>` + xs.map((x, i) => cardLu(x) + (comPubli(i, xs.length) ? publi(i) : "")).join("") : `<p class="vazio">Nenhum lugar com esse filtro${cidade ? " em " + esc(cidade) : ""} ainda.<br>Conhece um? Toque em <b>Indicar lugar</b>.</p>`;
+    $("lista").innerHTML = xs.length ? carrossel + `<h2 class="dia" style="margin-top:1.2rem">${filtro === "Perto de mim" ? `${ic("map-pin")}Até ${RAIO} km de você` : "Mais visitados"}</h2>` + xs.map((x, i) => cardLu(x) + (comPubli(i, xs.length) ? publi(i === 1 ? 0 : (i - 1) / 4) : "")).join("") : `<p class="vazio">Nenhum lugar com esse filtro${cidade ? " em " + esc(cidade) : ""} ainda.<br>Conhece um? Toque em <b>Indicar lugar</b>.</p>`;
   }
 }
 

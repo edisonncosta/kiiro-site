@@ -1587,7 +1587,9 @@ function patrociniosDe(c, cidade) {
   if (achou) return achou;
   // sem anúncio para este lugar: mostra o(s) da cidade mais perto, para sempre ter algum anúncio
   const km = x => { const de = x.alvoCidade || x.cidade; return cidade && de && window.kiiroKm ? (window.kiiroKm(cidade, de) ?? 999) : 999; };
-  return a.slice().sort((x, y) => km(x) - km(y)).slice(0, 3);
+  const perto = a.slice().sort((x, y) => km(x) - km(y)).slice(0, 2);
+  perto.emprestado = true; // não foi contratado para este lugar: roda junto com o "Anuncie aqui"
+  return perto;
 }
 function patrocinioDe(c) { return patrociniosDe(c, "")[0]; }
 const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.alvoCidade);
@@ -1669,13 +1671,17 @@ function cardPatrocinio() {
   const cidade = $("cidade").value;
   const lista = patrociniosDe(catAtiva, cidade);
   lista.forEach(pt => { const k = pt.nome + "|" + catAtiva + "|" + cidade; if (!patroVistos.has(k)) { patroVistos.add(k); contar("patro_ver", pt.nome); } });
-  if (lista.length === 1) return cardPatroDe(lista[0]);
-  if (lista.length > 1) return `
+  const cards = lista.map(cardPatroDe);
+  if (lista.emprestado && window.KIIRO_ANUNCIE) cards.push(cardLivre(cidade)); // espaço não vendido: alterna com o "Anuncie aqui"
+  if (cards.length === 1) return cards[0];
+  if (cards.length > 1) return `
     <div class="patro-roda" aria-label="Patrocinadores" aria-roledescription="carrossel">
-      <div class="pr-trilho">${lista.map(cardPatroDe).join("")}</div>
-      <div class="pr-dots">${lista.map((_, i) => `<button type="button" data-pr="${i}" class="${i ? "" : "on"}" aria-label="Patrocinador ${i + 1}"></button>`).join("")}</div>
+      <div class="pr-trilho">${cards.join("")}</div>
+      <div class="pr-dots">${cards.map((_, i) => `<button type="button" data-pr="${i}" class="${i ? "" : "on"}" aria-label="Anúncio ${i + 1}"></button>`).join("")}</div>
     </div>`;
-  if (!window.KIIRO_ANUNCIE) return "";
+  return window.KIIRO_ANUNCIE ? cardLivre(cidade) : "";
+}
+function cardLivre(cidade) {
   const fmt = cidade ? (catAtiva ? "servico_cidade" : "cidade") : (catAtiva ? "servico" : "inicio");
   const grupo = catAtiva ? (GRUPO_NOME[catAtiva] || "") : "";
   const P = window.KIIRO_PRECOS || {};
