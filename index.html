@@ -483,6 +483,28 @@
   .patro.nat .nat-marca b{display:block;font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nat-cta{font-size:.88rem;font-weight:700;color:#1F5FBF;white-space:nowrap}
   .nat-cta::after{content:" ›"}
+  /* publicidade menor, como no Acontece */
+  .patro.nat.livre .nat-card{border:1.5px dashed #D9C88A;background:rgba(255,204,0,.08)}
+  .patro.nat.livre .nat-img.vazio{background:transparent;border:0;padding:.9rem .8rem .2rem}
+  .patro.nat.livre .nat-img.vazio span{font-size:.92rem;color:var(--ink)}
+  .patro.nat.livre .nat-img.vazio small,.patro.nat.livre .nat-img.vazio small b{color:var(--muted)}
+  .patro.nat.livre .nat-txt{text-align:center;color:var(--muted);font-size:.76rem;padding-top:.2rem}
+  .patro.nat.livre .nat-rod{justify-content:center}
+  .patro.nat.livre .nat-marca{display:none}
+  .patro.nat.livre .nat-cta{color:#8a6a00}
+  .patro.nat .nat-pub{display:flex;align-items:center;gap:.7rem;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.55rem}
+  .patro.nat .nat-pub::before,.patro.nat .nat-pub::after{content:"";flex:1;height:1px;background:var(--line)}
+  .patro.nat .nat-card{max-width:290px;margin:0 auto}
+  .patro.nat .nat-img{aspect-ratio:auto;height:150px;background-size:contain}
+  .patro.nat .nat-img.vazio{height:auto;padding:1rem .8rem}
+  .patro.nat .nat-img.vazio span{font-size:1rem}
+  .patro.nat .nat-img.vazio small{font-size:.72rem}
+  .patro.nat .nat-img b{font-size:1.05rem}
+  .nat-txt{padding:.5rem .75rem 0;font-size:.8rem}
+  .nat-rod{padding:.45rem .75rem .55rem}
+  .nat-marca img{width:22px;height:22px}
+  .patro.nat .nat-marca b{font-size:.76rem}
+  .nat-cta{font-size:.8rem}
   .patro-roda{grid-column:1/-1;min-width:0}
   .pr-trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.8rem;scrollbar-width:none;padding:2px 2px 14px;margin:-2px -2px -8px}
   .pr-trilho::-webkit-scrollbar{display:none}
@@ -1561,7 +1583,11 @@ function patrociniosDe(c, cidade) {
   if (cidade) niveis.push(a.filter(x => ehInicio(x) && daCidade(x, cidade)).slice(0, 3));
   if (c) niveis.push(a.filter(x => doServico(x, c) && !x.alvoCidade));
   if (!c) niveis.push(a.filter(x => ehInicio(x) && !x.alvoCidade).slice(0, MAX_INICIO));
-  return niveis.find(n => n.length) || [];
+  const achou = niveis.find(n => n.length);
+  if (achou) return achou;
+  // sem anúncio para este lugar: mostra o(s) da cidade mais perto, para sempre ter algum anúncio
+  const km = x => { const de = x.alvoCidade || x.cidade; return cidade && de && window.kiiroKm ? (window.kiiroKm(cidade, de) ?? 999) : 999; };
+  return a.slice().sort((x, y) => km(x) - km(y)).slice(0, 3);
 }
 function patrocinioDe(c) { return patrociniosDe(c, "")[0]; }
 const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.alvoCidade);

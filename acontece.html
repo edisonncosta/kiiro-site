@@ -621,7 +621,14 @@ function patrosAc() {
   const hoje = new Date().toISOString().slice(0, 10);
   const todos = (window.KIIRO_PATROCINIOS || []).filter(p => p.categoria === "Acontece" && (!p.ate || p.ate >= hoje));
   const daCidade = todos.filter(p => p.alvoCidade && p.alvoCidade === cidade);
-  return daCidade.length ? daCidade : todos.filter(p => !p.alvoCidade);
+  if (daCidade.length) return daCidade;
+  const geral = todos.filter(p => !p.alvoCidade);
+  if (geral.length) return geral;
+  // sem anúncio do Acontece: usa os patrocinadores da Kiiro, da cidade mais perto primeiro (sempre tem algum)
+  const ativos = (window.KIIRO_PATROCINIOS || []).filter(p => !p.ate || p.ate >= hoje);
+  const ref = cidade || "";
+  const km = p => { const de = p.alvoCidade || p.cidade; return ref && de && window.kiiroKm ? (window.kiiroKm(ref, de) ?? 999) : 999; };
+  return ativos.sort((a, b) => km(a) - km(b)).slice(0, 3);
 }
 function publi(n) {
   const ps = patrosAc(), p = ps.length ? ps[n % ps.length] : null;
