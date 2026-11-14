@@ -1170,6 +1170,15 @@ export default async (req, context) => {
           if (ja.has(sid) || existe.has(norm(e.nome) + (e.dia || "")) || !e.nome || !/^\d{4}-\d{2}-\d{2}$/.test(e.dia || "") || (e.ate || e.dia) < hojeI) { ja.add(sid); continue; }
           if (n++ >= 20) break;
           const fotos = [];
+          // sem imagem na sugestão: pega a imagem de divulgação (og:image) da página do evento, se for de venda de ingresso ou da prefeitura
+          if (!e.imagem && /^https:\/\/([\w-]+\.)*(sympla\.com\.br|rs\.gov\.br|haid\.app|corridasderuars\.com\.br|ticketsports\.com\.br|blueticket\.com\.br)\//.test(e.fonte || "")) {
+            try {
+              const pg = await fetch(e.fonte, { signal: AbortSignal.timeout(6000), headers: { "User-Agent": "Mozilla/5.0 (compatible; KiiroBot/1.0; +https://chamakiiro.com.br)" } });
+              const html = pg.ok ? (await pg.text()).slice(0, 300000) : "";
+              const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+              if (m) e.imagem = new URL(m[1].replace(/&amp;/g, "&"), e.fonte).href;
+            } catch {}
+          }
           if (/^https:\/\//.test(e.imagem || "")) {
             try {
               const im = await fetch(e.imagem, { signal: AbortSignal.timeout(6000) });
