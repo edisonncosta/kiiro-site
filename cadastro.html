@@ -373,7 +373,11 @@ $("foto").addEventListener("change", async () => {
     if (menor !== f && window.DataTransfer) {
       const dt = new DataTransfer(); dt.items.add(menor); $("foto").files = dt.files; f = menor;
     }
-  } catch { /* se não der para reduzir, envia a original */ }
+  } catch {
+    // o celular não conseguiu abrir a foto (ex.: formato HEIC no Android): se não abre aqui, não abre para os clientes
+    $("erro").textContent = "Não consegui abrir essa foto. Escolha outra, ou tire um print dela e envie o print.";
+    $("foto").value = ""; $("foto-txt").textContent = "Essa foto não abriu. Escolha outra"; return;
+  }
   if (f.size > 8 * 1024 * 1024) { $("erro").textContent = "A foto é grande demais. Escolha outra."; $("foto").value = ""; $("foto-txt").textContent = "Escolher foto"; return; }
   miniFoto(f).then(d => { fotoStory = d; }).catch(() => {});
   $("prev").style.backgroundImage = `url(${URL.createObjectURL(f)})`;
@@ -405,7 +409,7 @@ $("trab-escolher").addEventListener("change", async () => {
   const novos = [...$("trab-escolher").files].slice(0, 3 - trabalhos.length);
   $("trab-escolher").value = "";
   for (const f of novos) {
-    let g = f; try { g = await reduzirFoto(f); } catch {}
+    let g = f; try { g = await reduzirFoto(f); } catch { $("erro").textContent = "Uma das fotos não abriu. Escolha outra, ou envie um print dela."; continue; }
     if (g.size <= 4 * 1024 * 1024) trabalhos.push(g);
   }
   desenharTrab();
