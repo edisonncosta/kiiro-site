@@ -17,13 +17,12 @@ function igual(a, b) {
   return na === nb || (na.length >= 10 && nb.includes(na)) || (nb.length >= 10 && na.includes(nb));
 }
 
-// tira repetidos dos itens publicados pela busca (fica o primeiro; se o repetido tem foto e o primeiro não, a foto passa)
+// tira repetidos (mesmo id, ou mesmo nome + cidade + datas): fica o primeiro; se o repetido tem foto e o primeiro não, a foto passa
 export function semDuplicados(itens) {
   const fora = [];
   for (const it of itens || []) {
-    const ig = it.auto ? fora.find((o) => igual(o, it)) : null;
+    const ig = fora.find((o) => (o.id && o.id === it.id) || igual(o, it));
     if (ig) { if (!(ig.fotos || []).length && (it.fotos || []).length) ig.fotos = it.fotos; continue; }
-    if (!it.auto) { const ia = fora.findIndex((o) => o.auto && igual(o, it)); if (ia >= 0) { fora[ia] = { ...it, fotos: (it.fotos || []).length ? it.fotos : fora[ia].fotos }; continue; } }
     fora.push(it);
   }
   return fora;

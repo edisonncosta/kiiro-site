@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
-import { publicarSugestoes } from "../lib/acontece-auto.mjs";
+import { publicarSugestoes, semDuplicados } from "../lib/acontece-auto.mjs";
 import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats, novaProvisoria, guardarProvisoria, msgProvisoria } from "../lib/contas.mjs";
 import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
@@ -278,8 +278,8 @@ export default async (req, context) => {
         if (x.tipo === "indicacao") {
           const dia = /^\d{4}-\d{2}-\d{2}$/.test(f.get("dia") || "") ? f.get("dia") : x.dia;
           const ate = /^\d{4}-\d{2}-\d{2}$/.test(f.get("ate") || "") ? f.get("ate") : "";
-          pub.itens.push({ id: "u-" + id.slice(-8), tipo: x.qual, nome: campo("nome", 90) || x.nome, cidade: campo("cidade", 40) || x.cidade, local: campo("local") || x.local,
-            dia, ate, hora: campo("hora", 30) || x.hora, desc: String(f.get("desc") ?? x.desc).trim().slice(0, 600), marcas: x.marcas || [], fotos: x.fotos || [], fonte: x.fonte || "", aprovado: new Date().toISOString() });
+          pub.itens = semDuplicados([...pub.itens, { id: "u-" + id.slice(-8), tipo: x.qual, nome: campo("nome", 90) || x.nome, cidade: campo("cidade", 40) || x.cidade, local: campo("local") || x.local,
+            dia, ate, hora: campo("hora", 30) || x.hora, desc: String(f.get("desc") ?? x.desc).trim().slice(0, 600), marcas: x.marcas || [], fotos: x.fotos || [], fonte: x.fonte || "", aprovado: new Date().toISOString() }]);
           aviso = (x.qual === "lugar" ? "Lugar" : "Evento") + " publicado no Acontece.";
         }
         if (x.tipo === "foto") { (pub.fotos[x.alvo] ||= []).push(x.foto); aviso = "Foto publicada."; }
@@ -1179,6 +1179,7 @@ export default async (req, context) => {
     const { blobs } = await st.list({ prefix: "p-" });
     const pend = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
     const pub = (await st.get("publico", { type: "json" })) || { itens: [], fotos: {}, coms: {} };
+    pub.itens = semDuplicados(pub.itens || []);
     const ver = filtro === "todas" ? "pendentes" : filtro;
     // eventos e lugares fixos do site (acontece-dados.js) + os enviados e aprovados, com as edições do painel por cima
     let baseAc = { eventos: [], lugares: [] }, cidadesAc = [];
