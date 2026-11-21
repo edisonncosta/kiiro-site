@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Kiiro | Profissionais perto de você no Litoral Norte</title>
 <meta name="description" content="Eletricista, diarista, pedreiro, piscineiro e mais no Litoral Norte do RS. Escolha o profissional e chame direto no WhatsApp.">
 <meta name="theme-color" content="#FFC800">
@@ -42,7 +42,9 @@
   .tela.ativa{display:block}
 
   /* ===== TOPO ===== */
-  .topo{position:relative;z-index:30;background:linear-gradient(var(--sun) 0,var(--sun) calc(150px + env(safe-area-inset-top)),var(--paper) calc(150px + env(safe-area-inset-top)));padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
+  .topo{position:relative;z-index:30;background:var(--paper);padding:calc(.7rem + env(safe-area-inset-top)) 1.25rem 0;box-shadow:0 1px 0 var(--line)}
+  /* fundo amarelo de cima com a base arredondada, como no 99 */
+  .topo::before{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;height:calc(170px + env(safe-area-inset-top));background:radial-gradient(130% 100% at 50% 0,var(--sun) 99.5%,transparent 100%);pointer-events:none}
   .topo .link-pro{background:#fff;box-shadow:0 2px 8px rgba(120,90,0,.15)}
   .topo .bt-doe span{box-shadow:0 0 0 2px var(--sun)}
 
@@ -351,8 +353,8 @@
   .mc-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
   .mc-foto .foto-ini{font-size:2.6rem}
   /* selo no canto de baixo da foto (como o "60% OFF" do 99) */
-  .selo-ft{position:absolute;left:.5rem;bottom:.5rem;max-width:calc(100% - 1rem);border-radius:999px;padding:.22rem .65rem;font-size:.72rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-  .selo-ft.dest{background:#1AAD5B;color:#fff}
+  .selo-ft{position:absolute;left:0;top:0;max-width:calc(100% - 1rem);border-radius:0 0 16px 0 !important;padding:.3rem .8rem .32rem .7rem;font-size:.72rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .selo-ft.dest{background:#5CC596;color:#fff}
   .selo-ft.novo{background:var(--ink);color:#fff}
   .selo-ft.urg{background:#fff;color:var(--ink)}
   .mc h3{margin-top:.5rem;font-size:.95rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -523,8 +525,18 @@
   .patro.livre .patro-cta{background:var(--sun);text-decoration:none;border-radius:10px;padding:.4rem .9rem;color:var(--ink)}
 
   /* como funciona + rodapé da home */
-  .como{margin-top:3rem;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:1.5rem}
-  .como h2{font-size:1.15rem;font-weight:600;margin-bottom:1rem}
+  .como{margin-top:2.5rem;background:#F3EEDD;border-radius:26px;padding:1.4rem 1rem 1.2rem}
+  .como h2{font-size:1.35rem;font-weight:800;margin:0 .3rem 1rem}
+  .como-box{background:#fff;border-radius:22px;padding:.8rem}
+  .como-nums{display:flex;align-items:center;justify-content:space-between;background:#FBF7EA;border-radius:16px;padding:1rem .5rem}
+  .como-nums div{flex:1;text-align:center;font-size:.9rem;font-weight:600;color:var(--ink);line-height:1.2}
+  .como-nums b{font-size:1.9rem;font-weight:800;margin-right:.15rem}
+  .como-nums small{display:block;font-size:.72rem;font-weight:500;color:var(--muted);margin-top:.2rem}
+  .como-nums i{flex:none;width:0;height:0;border:7px solid transparent;border-left:9px solid #E6DCBC;border-right:0}
+  .como-atalhos{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem}
+  .como-atalhos>*{position:relative;display:flex;align-items:flex-end;min-height:92px;background:#FBF7EA;border:0;border-radius:16px;padding:.8rem 2.2rem .8rem .9rem;text-align:left;font:600 .95rem Poppins,sans-serif;color:var(--ink);text-decoration:none;cursor:pointer;line-height:1.25}
+  .como-atalhos em{position:absolute;right:.6rem;top:.6rem;width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;font-style:normal;font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .so-leitor{position:absolute !important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .passos{list-style:none;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
   .passos li{display:flex;gap:.9rem;align-items:flex-start}
   .passos .n{width:36px;height:36px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-weight:700;flex:none}
@@ -713,9 +725,59 @@
   .balao .bx{opacity:.6;font-size:.85rem;padding:.35rem .55rem}
   body.em-perfil .balao{display:none}
   @keyframes balao{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+  /* abertura */
+  #abertura{position:fixed;inset:0;z-index:9999;background:var(--sun,#FFC800);display:grid;place-items:center;--hole:var(--sun,#FFC800);color:#1A1A1A;transition:opacity .35s ease}
+  #abertura svg{width:46vw;max-width:260px;height:auto;overflow:visible}
+  #abertura .ab-letras{animation:ab-letras .5s ease-out both}
+  #abertura .ab-elo{opacity:0;animation:ab-elo .25s .55s ease-out forwards}
+  /* os dois pinos caem quicando e depois ficam pulando, como o carregando do 99 */
+  #abertura .ab-pin{transform-box:fill-box;transform-origin:50% 100%;animation:ab-cai .55s cubic-bezier(.3,1.5,.55,1) both,ab-pula .6s .75s ease-in-out infinite}
+  #abertura .p2{animation-delay:.12s,1.05s}
+  @keyframes ab-letras{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+  @keyframes ab-elo{to{opacity:1}}
+  @keyframes ab-cai{0%{transform:translateY(-120px);opacity:0}60%{opacity:1}100%{transform:none}}
+  @keyframes ab-pula{0%,100%{transform:none}40%{transform:translateY(-16px) scaleY(1.05)}70%{transform:translateY(0) scaleY(.92)}}
+  #abertura.saindo{opacity:0}
+  html.abrindo,html.abrindo body{overflow:hidden}
+  @keyframes abre-pulsa{0%{transform:scale(.72);opacity:0}35%{transform:scale(1.08);opacity:1}55%{transform:scale(.97)}75%{transform:scale(1.03)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){#abertura *{animation:none !important;opacity:1 !important}}
+  /* publicidade no formato do 99: cartão largo embaixo da busca, girando sozinho */
+  .pub-topo{margin:.2rem 0 1rem}
+  .pub-topo:empty{display:none}
+  .pub-topo .pr-trilho{gap:.6rem;padding-bottom:4px;margin-bottom:0}
+  .patro.p99{position:relative;display:flex;align-items:stretch;gap:.6rem;min-height:150px;padding:1rem .9rem 1rem 1.1rem;border:0;border-radius:22px;background:linear-gradient(120deg,#FFF6CF,#FFE27A);box-shadow:none;text-decoration:none;color:var(--ink);overflow:hidden}
+  .p99-tx{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.25rem}
+  .p99-tx b{font-size:1.12rem;font-weight:800;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .p99-tx span{font-size:.86rem;line-height:1.3;color:#3A3420;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .p99-tx em{margin-top:.45rem;font-style:normal;font-weight:700;font-size:.82rem;background:#F26A21;color:#fff;border-radius:8px;padding:.32rem .75rem;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .p99-img{flex:none;width:40%;max-width:170px;display:grid;place-items:center}
+  .p99-img i{display:block;width:100%;aspect-ratio:1;max-height:118px;border-radius:16px;background:#fff center/contain no-repeat;box-shadow:0 4px 14px rgba(120,90,0,.18)}
+  .p99-mega svg{width:76px;height:76px;color:#B98A00;transform:rotate(-12deg)}
+  .p99-tag{position:absolute;right:.7rem;top:.5rem;font-size:.6rem;font-weight:600;color:rgba(26,26,26,.45);letter-spacing:.03em}
 </style>
 </head>
 <body>
+<!-- abertura (como no 99): tela amarela com a marca pulsando, uma vez por visita -->
+<div id="abertura" aria-hidden="true"><svg viewBox="0 -40 340 190">
+  <g class="ab-letras" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 22V118M80 62L30 94M48 84L84 118M118 62V118M166 62V118M206 62V118M206 88C206 70 220 62 238 64"/>
+    <circle cx="282" cy="90" r="28"/>
+  </g>
+  <path class="ab-elo" d="M137 24H147" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+  <g class="ab-pin p1"><path d="M118 46C118 46 104 34 104 24A14 14 0 0 1 132 24C132 34 118 46 118 46Z" fill="currentColor"/><circle cx="118" cy="24" r="5" fill="var(--hole)"/></g>
+  <g class="ab-pin p2"><path d="M166 46C166 46 152 34 152 24A14 14 0 0 1 180 24C180 34 166 46 166 46Z" fill="currentColor"/><circle cx="166" cy="24" r="5" fill="var(--hole)"/></g>
+</svg></div>
+<script>
+(function () {
+  const a = document.getElementById("abertura");
+  let vista = false; try { vista = sessionStorage.getItem("kiiro-abertura") === "1"; sessionStorage.setItem("kiiro-abertura", "1"); } catch {}
+  if (vista || /[?&]sem-abertura\b/.test(location.search)) { a.remove(); return; }
+  document.documentElement.classList.add("abrindo");
+  setTimeout(() => { a.classList.add("saindo"); document.documentElement.classList.remove("abrindo"); }, 1700);
+  setTimeout(() => a.remove(), 2100);
+})();
+</script>
+
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="pin2" viewBox="102 8 32 42">
@@ -772,6 +834,7 @@
   </header>
 
   <main class="conteudo">
+    <div class="pub-topo" id="pub-topo"></div>
     <div class="lembrete escondido" id="lembrete" role="region" aria-label="Avaliar atendimento">
       <span class="lembrete-ic" aria-hidden="true">⭐</span>
       <div class="lembrete-txt"><b id="lembrete-titulo">Como foi?</b><span>Sua nota ajuda quem vem depois.</span></div>
@@ -787,26 +850,33 @@
     </div>
 
     <div class="lista-head">
-      <h1 id="titulo">Profissionais <em>perto de você</em><small id="contagem">Carregando…</small></h1>
+      <h1 id="titulo" class="so-leitor">Profissionais <em>perto de você</em><small id="contagem">Carregando…</small></h1>
       <div class="filtros">
         <div class="vis" role="group" aria-label="Como ver os profissionais">
           <button type="button" data-vis="areas" aria-label="Por serviço" title="Por serviço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><path d="M3 16h18M3 20h12"/></svg></button>
           <button type="button" data-vis="lista" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><path d="M12 6h9M12 9h6M12 16h9M12 19h6"/></svg></button>
           <button type="button" data-vis="grande" aria-label="Foto grande" title="Foto grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M3 20h12"/></svg></button>
         </div>
-        <label class="chave-urg" id="chave-urg"><span class="cu-ic" aria-hidden="true">⚡</span><span class="cu-txt">Atende urgência</span><input type="checkbox" class="sw" id="sw-urg" aria-label="Mostrar só quem atende urgência"></label>
         <button class="bt-filtrar" type="button" id="bt-filtrar" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filtrar<b id="filtrar-n"></b></button>
       </div>
     </div>
     <div class="grid" id="lista"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 
     <section class="como" id="como">
-      <h2>Como funciona</h2>
-      <ol class="passos">
-        <li><span class="n">1</span><div><b>Escolha quem chamar</b><span>Veja o serviço, a cidade e a nota de quem já contratou.</span></div></li>
-        <li><span class="n">2</span><div><b>Chame no WhatsApp</b><span>Combine visita, valor e prazo direto com o profissional.</span></div></li>
-        <li><span class="n">3</span><div><b>Conte como foi</b><span>Depois a Kiiro pergunta como foi. Sua nota ajuda quem vem depois.</span></div></li>
-      </ol>
+      <h2>Rápido, fácil e direto</h2>
+      <div class="como-box">
+        <div class="como-nums">
+          <div><b>1</b> busca<small>pelo serviço e cidade</small></div>
+          <i aria-hidden="true"></i>
+          <div><b>1</b> toque<small>para chamar no WhatsApp</small></div>
+          <i aria-hidden="true"></i>
+          <div><b>0</b> taxa<small>para quem contrata</small></div>
+        </div>
+        <div class="como-atalhos">
+          <button type="button" id="como-sobre"><span>O que é a Kiiro?</span><em aria-hidden="true">›</em></button>
+          <a href="cadastro.html"><span>Sou profissional</span><em aria-hidden="true">›</em></a>
+        </div>
+      </div>
     </section>
   </main>
   <footer class="rodape">
@@ -1184,6 +1254,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") abrirMenu(fa
 })();
 $("gv-doe").addEventListener("click", () => { abrirMenu(false); abrirDoe(); });
 $("gv-sobre").addEventListener("click", () => { abrirMenu(false); irPara("sobre"); });
+$("como-sobre").addEventListener("click", () => irPara("sobre"));
 pintarMenu();
 // convite de um amigo (?r=…): guarda para quando a pessoa criar a conta
 (() => { const r = new URLSearchParams(location.search).get("r"); if (r) salvarJSON("kiiro-ref", r.slice(0, 12)); })();
@@ -1305,23 +1376,26 @@ function render() {
   ));
   const nf = selecionados().length;
   const filtrando = !!(termo || nf || filtros.ordem !== "relevancia");
-  $("sw-urg").checked = filtros.urg; $("chave-urg").classList.toggle("on", filtros.urg);
+  if ($("sw-urg")) { $("sw-urg").checked = filtros.urg; $("chave-urg").classList.toggle("on", filtros.urg); }
   if ($("modal-filtros").classList.contains("aberto")) montarFiltros();
   $("filtrar-n").textContent = nf ? ` (${nf})` : "";
   $("bt-filtrar").classList.toggle("ativo", nf > 0);
   const n = lista.length;
   if (modo === "salvos") {
+    $("titulo").classList.remove("so-leitor");
     $("titulo").innerHTML = `Seus <em>salvos</em><small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"}` : "Toque no ♡ de um profissional para guardar aqui"}</small>`;
   } else {
     const oque = catAtiva ? `${esc(catAtiva)}` : "Profissionais";
     const onde = cidade ? `em <em>${esc(cidade)}</em>` : catAtiva ? "no <em>Litoral Norte</em>" : "<em>perto de você</em>";
+    $("titulo").classList.add("so-leitor");
     $("titulo").innerHTML = `${oque} ${onde}<small id="contagem">${n ? `${n} ${n > 1 ? "profissionais" : "profissional"} · chame direto no WhatsApp` : "Nenhum profissional encontrado"}</small>`;
   }
   // Página inicial sem filtro: vitrine com uma fileira por serviço (desliza para o lado)
   document.querySelectorAll(".vis button").forEach(b => { b.classList.toggle("on", b.dataset.vis === visual); b.setAttribute("aria-pressed", String(b.dataset.vis === visual)); });
   $("lista").classList.toggle("grande", visual === "grande");
+  $("pub-topo").innerHTML = modo !== "salvos" ? cardPatrocinio() : "";
   if (visual === "areas" && modo === "inicio" && !filtrando && n) {
-    $("lista").innerHTML = cardPatrocinio() + vitrine(lista);
+    $("lista").innerHTML = vitrine(lista);
     return;
   }
   // com cidade escolhida: primeiro quem mora nela, depois quem vem de perto (mais perto primeiro)
@@ -1340,14 +1414,12 @@ function render() {
     cards.push(...vizinhos.map(fazCard));
     lista.push(...vizinhos);
   }
-  if (cards.length && modo !== "salvos") cards.unshift(cardPatrocinio());
   const servTermo = !catAtiva && termo ? servicosDoTermo(termo)[0] : "";
   const oque = catAtiva || servTermo || (termo ? `“${$("busca").value.trim()}”` : "");
   // sem ninguém nesse serviço: o patrocinador pago continua aparecendo, em cima do aviso
   // sem ninguém nesse serviço: o patrocinador (ou o espaço livre) aparece em cima do aviso
   const ptVazio = !n && modo !== "salvos" && (catAtiva || cidade);
   $("lista").innerHTML = n ? cards.join("") : modo === "salvos" && !base.length ? "" : `
-    ${ptVazio ? cardPatrocinio() : ""}
     <div class="orc-card">
       <span class="orc-ic" aria-hidden="true">📝</span>
       <b>Ainda não temos ${esc(oque ? oque.toLowerCase() : "esse serviço")}${cidade ? " em " + esc(cidade) : ""}</b>
@@ -1396,8 +1468,7 @@ function montarFiltros() {
       `<button type="button" class="mf-mais" data-ver-todos>Ver todos os serviços</button>`, catAtiva) +
     secao("cidade", "Cidade", muitos(window.KIIRO_CIDADES || [], "cidade") + radio("cidade", "", "Todo o Litoral Norte", !cid) +
       (window.KIIRO_CIDADES || []).map(c => radio("cidade", c, c, cid === c)).join(""), cid) +
-    secao("atend", "Atendimento", check("urg", "⚡ Atende urgência", filtros.urg) + check("orc", "Orçamento grátis", filtros.orc) +
-      check("fds", "Atende fim de semana", filtros.fds) + check("feriado", "Atende feriados", filtros.feriado)) +
+    secao("atend", "Atendimento", check("fds", "Atende fim de semana", filtros.fds) + check("feriado", "Atende feriados", filtros.feriado)) +
     secao("nota", "Avaliação", [[0, "Qualquer nota"], [4.5, "★ 4,5 ou mais"], [4, "★ 4 ou mais"]].map(([v, t]) => radio("nota", v, t, filtros.nota === v)).join("") +
       `<p class="mf-dica">Conta só quem já tem 3 avaliações ou mais.</p>`) +
     secao("exp", "Experiência", EXPERIENCIAS.map(e => check("exp:" + e, e, filtros.exp.includes(e))).join("")) +
@@ -1446,7 +1517,7 @@ $("mf-limpar").addEventListener("click", () => {
   Object.assign(filtros, { urg: false, orc: false, fds: false, feriado: false, mei: false, principal: false, nota: 0, exp: [], ordem: "relevancia" });
   catAtiva = ""; $("busca").value = ""; montarCats(); render();
 });
-$("sw-urg").addEventListener("change", e => { filtros.urg = e.target.checked; if (filtros.urg) contar("filtro", "urg"); render(); });
+if ($("sw-urg")) $("sw-urg").addEventListener("change", e => { filtros.urg = e.target.checked; if (filtros.urg) contar("filtro", "urg"); render(); });
 $("mf-ver").addEventListener("click", () => { fecharFil(); document.querySelector(".lista-head").scrollIntoView({ behavior: "smooth", block: "start" }); });
 
 function iniciais(n) { return String(n).trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("").toUpperCase(); }
@@ -1464,8 +1535,6 @@ function card(p) {
   const nota = temNota ? `<span class="nota">${icoEstrela}${notaTxt(p.nota)} <span>(${p.avaliacoes})</span></span>` : `<span class="novo">Novo</span>`;
   const tags = [
     temNota && p.nota >= 4.7 && p.avaliacoes >= 5 && `<span class="tag ouro">★ Destaque</span>`,
-    p.urgencia === "Sim" && `<span class="tag esc">⚡ Urgência</span>`,
-    p.orcamento === "Sim" && `<span class="tag">Orçamento grátis</span>`,
     EXP_CARD[p.experiencia] && `<span class="tag">${EXP_CARD[p.experiencia]}</span>`,
     p.mei === "Sim" && `<span class="tag">MEI</span>`,
   ].filter(Boolean).slice(0, 3).join("");
@@ -1489,8 +1558,8 @@ const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "
 /* ===== Selo na foto + linha "★ 4,9 (27) · Cidade" (cards com foto em cima) ===== */
 function seloFoto(p) {
   const temNota = p.avaliacoes >= 3;
-  if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">★ Destaque</span>`;
-  if (!temNota) return `<span class="selo-ft novo">Novo na Kiiro</span>`;
+  if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">✦ Destaque</span>`;
+  if (!temNota) return `<span class="selo-ft novo">✦ Novo na Kiiro</span>`;
   return "";
 }
 function linhaNotaCidade(p, cidade) {
@@ -1604,18 +1673,13 @@ const patrocinioDoGrupo = g => patroAtivos().find(x => x.categoria === g && !x.a
 const corEscura = (c) => { const m = /^#([0-9a-f]{6})$/i.exec(c || ""); if (!m) return false; const n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) < 140; };
 // anúncio no estilo "publicidade" de portal: imagem larga, uma frase, e embaixo o logo e o botão
 function cardPatroDe(pt) {
+  // formato do 99: cartão largo, texto e botão à esquerda, a arte à direita; gira sozinho com os outros
   const img = pt.banner || pt.logo;
-  const cor = /^#[0-9a-f]{3,8}$/i.test(pt.cor || "") ? pt.cor : "#fff";
-  return `<a class="patro nat" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored">
-    <span class="nat-pub">publicidade</span>
-    <span class="nat-card">
-      <span class="nat-img${pt.banner ? " cheio" : ""}" style="background-color:${cor};${img ? `background-image:url('${esc(img)}')` : ""}" role="img" aria-label="${esc(pt.nome)}">${img ? "" : `<b style="color:${corEscura(cor) ? "#fff" : "var(--ink)"}">${esc(pt.nome)}</b>`}</span>
-      ${pt.texto ? `<span class="nat-txt">${esc(pt.texto)}</span>` : ""}
-      <span class="nat-rod">
-        <span class="nat-marca">${pt.logo ? `<img src="${esc(pt.logo)}" alt="" loading="lazy">` : ""}<b>${esc(pt.nome)}</b></span>
-        <span class="nat-cta">${esc(pt.botao || "Saber mais")}</span>
-      </span>
-    </span>
+  const cor = /^#[0-9a-f]{3,8}$/i.test(pt.cor || "") && pt.cor.toLowerCase() !== "#ffffff" && pt.cor.toLowerCase() !== "#fff" ? pt.cor : "";
+  return `<a class="patro p99" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored"${cor ? ` style="background:${cor}"` : ""}>
+    <span class="p99-tx"><b>${esc(pt.nome)}</b>${pt.texto ? `<span>${esc(pt.texto)}</span>` : ""}<em>${esc(pt.botao || "Saber mais")}</em></span>
+    <span class="p99-img">${img ? `<i style="background-image:url('${esc(img)}')"></i>` : ""}</span>
+    <small class="p99-tag">Patrocinado</small>
   </a>`;
 }
 /* Fundo automático do banner: pega a cor mais viva da arte do patrocinador e monta um degradê com ela.
@@ -1695,16 +1759,10 @@ function cardLivre(cidade) {
   const linha1 = catAtiva ? (grupo || catAtiva) : (cidade ? "Todos os serviços" : "Página inicial");
   const linha2 = cidade ? `em ${cidade}` : catAtiva ? "em todo o Litoral Norte" : "para todo mundo";
   const qs = new URLSearchParams({ formato: fmt, ...(cidade ? { cidade } : {}), ...(grupo ? { grupo } : {}) });
-  return `<a class="patro nat livre" href="anunciar.html?${qs}" data-anunciar="livre">
-    <span class="nat-pub">publicidade</span>
-    <span class="nat-card">
-      <span class="nat-img vazio"><span>📣 Sua marca aqui<small>${esc(linha1)} · <b>${esc(linha2)}</b></small></span></span>
-      <span class="nat-txt">Apareça para quem procura serviço ${esc(cidade ? "em " + cidade : "no Litoral Norte")}.</span>
-      <span class="nat-rod">
-        <span class="nat-marca"><b>Espaço disponível</b></span>
-        <span class="nat-cta">Anunciar${typeof v === "number" ? ` · R$ ${v}/mês` : ""}</span>
-      </span>
-    </span>
+  return `<a class="patro p99 livre" href="anunciar.html?${qs}" data-anunciar="livre">
+    <span class="p99-tx"><b>Sua marca aqui</b><span>Apareça para quem procura serviço ${esc(cidade ? "em " + cidade : "no Litoral Norte")}. ${esc(linha1)} · ${esc(linha2)}.</span><em>Anunciar${typeof v === "number" ? ` · R$ ${v}/mês` : ""}</em></span>
+    <span class="p99-img p99-mega"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 9a3 3 0 0 1 0 6M18 6a7 7 0 0 1 0 12"/></svg></span>
+    <small class="p99-tag">Publicidade</small>
   </a>`;
 }
 // rodízio: troca de patrocinador a cada 4,5 s (para quando a pessoa encosta o dedo)
@@ -1771,7 +1829,7 @@ let telaAntes = "inicio";
 // Tocar num item chama o profissional já com o pedido escrito.
 function cardapio(p, nome1) {
   const T = window.KIIRO_TAREFAS || {};
-  const preco = p.orcamento === "Sim" ? `<span class="cd-gratis">Orçamento grátis</span>` : `<span>Valor a combinar</span>`;
+  const preco = `<span>Valor a combinar</span>`;
   const secs = catsDe(p).filter(c => (T[c] || []).length).map(c => `
     <section class="cd-sec">
       <h3>${esc(c)}</h3>
@@ -1792,9 +1850,7 @@ async function abrirPerfil(id) {
   const nome1 = p.nome.split(" ")[0];
   const exp = p.experiencia ? (p.experiencia === "Menos de 1 ano" ? "Começando na área" : `${p.experiencia} de experiência`) : "";
   const recursos = [
-    p.urgencia === "Sim" && ["⚡", "Atende urgência", "Pode ir no mesmo dia, quando tem agenda."],
     p.dias && ["📅", "Quando atende", p.dias.charAt(0) + p.dias.slice(1).toLowerCase() + "."],
-    p.orcamento && ["📝", p.orcamento === "Sim" ? "Orçamento grátis" : "Orçamento cobrado", p.orcamento === "Sim" ? "Peça a visita e o valor antes de fechar." : "Combine o valor da visita antes."],
     p.dedicacao && ["💼", p.dedicacao === "Uma renda extra" ? "Faz como renda extra" : "É a profissão principal", exp ? exp + "." : ""],
     p.mei === "Sim" && ["📄", "Tem CNPJ / MEI", "Pode emitir nota para empresas e condomínios."],
   ].filter(Boolean);
@@ -1814,7 +1870,7 @@ async function abrirPerfil(id) {
     </div>
     <div class="pf-folha">
       <h1>${esc(p.nome)}</h1>
-      <p class="pf-sub">${esc(catsDe(p).join(" · "))}<br>${esc(exp)}${p.orcamento === "Sim" ? `${exp ? " · " : ""}orçamento grátis` : ""}</p>
+      <p class="pf-sub">${esc(catsDe(p).join(" · "))}<br>${esc(exp)}</p>
       ${temNota
         ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
         : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
@@ -1835,7 +1891,7 @@ async function abrirPerfil(id) {
       <div style="height:1rem"></div>
     </div>
     <div class="rodape-pf">
-      <div><b>${p.orcamento === "Sim" ? "Orçamento grátis" : "Combine o valor"}</b><span>Direto no WhatsApp</span></div>
+      <div><b>Combine o valor</b><span>Direto no WhatsApp</span></div>
       <button class="bt-chamar" type="button" data-chamar="${esc(p.id)}">${icoZap} Chamar ${esc(nome1)}</button>
     </div>`;
   document.querySelectorAll(".tela").forEach(t => t.classList.remove("ativa"));
@@ -2911,5 +2967,40 @@ Promise.all([carregar(), carregarAnuncios()]).then(() => {
 })();
 </script>
 <script src="icones.js" defer></script>
+<script>
+/* sem zoom na página (só o mapa aproxima): o iPhone ignora o user-scalable, então trava o gesto de pinça fora do mapa */
+(function () {
+  const noMapa = e => e.target && e.target.closest && e.target.closest(".leaflet-container, .gm-style, #mapa, #mapa-home");
+  ["gesturestart", "gesturechange"].forEach(t => document.addEventListener(t, e => { if (!noMapa(e)) e.preventDefault(); }, { passive: false }));
+  document.addEventListener("touchmove", e => { if (e.touches.length > 1 && !noMapa(e)) e.preventDefault(); }, { passive: false });
+  document.documentElement.style.touchAction = "manipulation";
+})();
+</script>
+<script>
+/* busca "escrevendo": o texto de dica vai sendo digitado e trocando de exemplo, até a pessoa tocar */
+(function () {
+  const inp = document.getElementById("busca"); if (!inp) return;
+  const frases = ["Do que você precisa?", "Eletricista em Osório", "Diarista para sexta", "Conserto de geladeira", "Pintor em Tramandaí", "Limpeza de piscina", "Encanador urgente", "Frete e mudança"];
+  const fixa = frases[0];
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let f = 0, c = fixa.length, apagando = false, parado = false;
+  const parar = () => { parado = true; inp.placeholder = fixa; };
+  inp.addEventListener("focus", parar);
+  inp.addEventListener("blur", () => { if (!inp.value) { parado = false; setTimeout(passo, 2500); } });
+  function passo() {
+    if (parado || inp.value) return;
+    const t = frases[f];
+    if (!apagando) {
+      c++; inp.placeholder = t.slice(0, c) + (c < t.length ? "|" : "");
+      if (c >= t.length) { apagando = true; return setTimeout(passo, f === 0 ? 2600 : 1600); }
+      return setTimeout(passo, 55 + Math.random() * 45);
+    }
+    c--; inp.placeholder = t.slice(0, Math.max(c, 0));
+    if (c <= 0) { apagando = false; f = (f + 1) % frases.length; return setTimeout(passo, 350); }
+    setTimeout(passo, 28);
+  }
+  inp.placeholder = fixa; apagando = true; setTimeout(passo, 3200);
+})();
+</script>
 </body>
 </html>
