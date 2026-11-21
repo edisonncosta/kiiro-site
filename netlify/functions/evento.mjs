@@ -4,7 +4,7 @@
 // Endereço: POST /.netlify/functions/evento   corpo: {"t":"visita"} ou {"t":"busca","k":"piscina"}
 import { getStore } from "@netlify/blobs";
 
-const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre", "patro_ver", "patro_clique", "local_usar", "local_sim", "orc_abrir", "orc_envio", "indicar", "cidade", "doe_abrir", "doe_valor", "doe_copiar", "ia"]);
+const TIPOS = new Set(["visita", "perfil", "chamar", "busca", "busca_vazia", "cat", "cad_inicio", "cad_envio", "anuncie_ver", "anuncie_quero", "sobre", "patro_ver", "patro_clique", "local_usar", "local_sim", "orc_abrir", "orc_envio", "indicar", "cidade", "doe_abrir", "doe_valor", "doe_copiar", "ia", "convidar", "meta_abrir"]);
 const COM_PALAVRA = { busca: "buscas", busca_vazia: "vazias", cat: "cats", perfil: "perfis", chamar: "chamados", patro_ver: "patro_ver", patro_clique: "patro_clique", cidade: "cidades_esc", doe_valor: "doe_valores", ia: "ia_servicos" };
 const MAX_PALAVRAS = 300;
 const POR_HORA = new Set(["visita", "perfil", "chamar", "cad_envio", "orc_envio"]);

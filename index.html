@@ -356,6 +356,7 @@
   .selo-ft{position:absolute;left:0;top:0;max-width:calc(100% - 1rem);border-radius:0 0 16px 0 !important;padding:.3rem .8rem .32rem .7rem;font-size:.72rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.18)}
   .selo-ft.dest{background:#5CC596;color:#fff}
   .selo-ft.novo{background:var(--ink);color:#fff}
+  .selo-ft.fund{background:linear-gradient(90deg,#1A1A1A,#3a3221);color:var(--sun)}
   .selo-ft.urg{background:#fff;color:var(--ink)}
   .mc h3{margin-top:.5rem;font-size:.95rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .linha-nc{font-size:.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.05rem}
@@ -567,6 +568,9 @@
   .pf-folha h1{font-size:1.6rem;font-weight:600;text-align:center;line-height:1.2}
   .pf-sub{text-align:center;color:var(--muted);font-size:.92rem;margin-top:.5rem;line-height:1.5}
   .pf-novo{display:flex;justify-content:center;margin-top:.8rem}
+  .pf-fund{display:flex;flex-direction:column;align-items:center;gap:.2rem;margin-top:.7rem}
+  .pf-fund span{background:var(--ink);color:var(--sun);font-weight:800;font-size:.85rem;border-radius:999px;padding:.3rem .9rem}
+  .pf-fund small{font-size:.74rem;color:var(--muted)}
   .pf-premio{margin:1.3rem 0 0;background:var(--card);border:1.5px solid var(--sun);border-radius:16px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;text-align:center;padding:.9rem .5rem}
   .pf-premio .sep{width:1px;height:32px;background:var(--line)}
   .pf-premio b{display:block;font-size:1.1rem;font-weight:600}
@@ -754,6 +758,74 @@
   .p99-img i{display:block;width:100%;aspect-ratio:1;max-height:118px;border-radius:16px;background:#fff center/contain no-repeat;box-shadow:0 4px 14px rgba(120,90,0,.18)}
   .p99-mega svg{width:76px;height:76px;color:#B98A00;transform:rotate(-12deg)}
   .p99-tag{position:absolute;right:.7rem;top:.5rem;font-size:.6rem;font-weight:600;color:rgba(26,26,26,.45);letter-spacing:.03em}
+  /* meta de profissionais: placar ao vivo, como contador de inscritos de live */
+  .meta-pro{position:relative;margin:.2rem 0 1.2rem;background:#121212;color:#fff;border-radius:22px;padding:1rem 1rem 1.1rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,200,0,.18)}
+  .meta-pro[hidden]{display:none}
+  .mp-top{display:flex;align-items:center;gap:.55rem;font-size:.8rem}
+  .mp-vivo{display:inline-flex;align-items:center;gap:.35rem;background:#E5322D;color:#fff;font-weight:800;font-size:.66rem;letter-spacing:.08em;border-radius:6px;padding:.2rem .5rem}
+  .mp-vivo::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:mp-pisca 1.1s infinite}
+  .mp-tit{color:#CFC8B3}.mp-tit b{color:var(--sun)}
+  .mp-placar{display:flex;justify-content:center;gap:.35rem;margin:.9rem 0 .8rem}
+  .mp-d{width:62px;height:84px;overflow:hidden;border-radius:12px;background:linear-gradient(#262626 49.5%,#1d1d1d 50.5%);box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06)}
+  .mp-d i{display:flex;flex-direction:column;font-style:normal;transition:transform 1.4s cubic-bezier(.2,.9,.2,1)}
+  .mp-d b{height:84px;display:grid;place-items:center;font-size:3.4rem;font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(255,200,0,.35)}
+  .mp-barra{position:relative;height:16px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden}
+  .mp-barra i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:repeating-linear-gradient(-45deg,var(--sun) 0 10px,#FFD94D 10px 20px);background-size:28px 28px;transition:width 1.4s cubic-bezier(.2,.9,.2,1);animation:mp-listra 1s linear infinite}
+  .mp-barra em{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);font-style:normal;font-size:.62rem;font-weight:800;color:#fff}
+  .meta-pro.vivo .mp-barra i{width:var(--p)}
+  @keyframes mp-listra{to{background-position:28px 0}}
+  .mp-falta{display:flex;justify-content:space-between;margin:.45rem 0 .8rem;font-size:.82rem;color:#CFC8B3}
+  .mp-falta b{color:#fff}
+  .mp-novos{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;background:rgba(123,224,168,.1);border-radius:10px;padding:.45rem .6rem;font-size:.8rem;overflow:hidden}
+  .mp-novos>span{flex:none;color:#7BE0A8;font-weight:800}
+  .mp-roda{position:relative;flex:1;height:1.3em;overflow:hidden}
+  .mp-roda b{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;color:#fff;opacity:0;transform:translateY(100%);transition:.4s}
+  .mp-roda b.on{opacity:1;transform:none}
+  .mp-roda small{font-weight:500;color:#CFC8B3}
+  .mp-fund{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
+  .mp-fund .selo-ft{position:static;flex:none;border-radius:999px !important;box-shadow:0 0 0 1px rgba(255,200,0,.5)}
+  .mp-fund p{font-size:.78rem;color:#CFC8B3;line-height:1.35}.mp-fund b{color:#fff}
+  .mp-bts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .mp-bts>*{display:grid;place-items:center;height:44px;border:0;border-radius:12px;font:700 .9rem Poppins,sans-serif;text-decoration:none;cursor:pointer}
+  .mp-b1{background:var(--sun);color:var(--ink)}
+  .mp-b2{background:rgba(255,255,255,.12);color:#fff}
+  @keyframes mp-pisca{50%{opacity:.25}}
+  /* meta flutuante */
+  .meta-pilula{position:fixed;z-index:27;right:1.6rem;bottom:calc(84px + env(safe-area-inset-bottom));width:min(400px,calc(100% - 3.2rem));overflow:hidden;transition:width .45s cubic-bezier(.3,1,.4,1),padding .45s,transform .55s cubic-bezier(.3,1.35,.5,1),opacity .35s;display:flex;align-items:center;gap:.7rem;height:58px;padding:0 .9rem 0 .4rem;border:0;border-radius:999px;background:#fff;color:var(--ink);font:500 .9rem Poppins,sans-serif;box-shadow:0 8px 26px rgba(60,45,0,.22),0 0 0 1px rgba(0,0,0,.04);cursor:pointer;text-align:left}
+  .meta-pilula[hidden]{display:none}
+  .meta-pilula{transform:translateY(170%);opacity:0}
+  .meta-pilula.dentro{transform:none;opacity:1}
+  .meta-pilula.recolhida{width:58px;padding:0 4px}
+  .meta-pilula.recolhida .mpl-txt,.meta-pilula.recolhida .mpl-seta{opacity:0}
+  .mpl-txt,.mpl-seta{transition:opacity .25s}
+  .mpl-selo{position:relative;flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-content:center;justify-items:center;line-height:1;background:conic-gradient(var(--ink) var(--p,0%),#F1E3A8 0);}
+  .mpl-selo::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--sun)}
+  .mpl-selo b{position:relative;font-size:1.05rem;font-weight:800}
+  .mpl-selo small{position:relative;font-size:.58rem;font-weight:700;margin-top:1px}
+  .mpl-selo::after{content:"";position:absolute;right:1px;top:3px;width:10px;height:10px;border-radius:50%;background:#E5322D;box-shadow:0 0 0 2px #fff;animation:mp-pisca 1.1s infinite}
+  .mpl-txt{position:relative;flex:1;height:1.4em;overflow:hidden}
+  .mpl-txt span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(100%);transition:.45s}
+  .mpl-txt span.on{opacity:1;transform:none}
+  .mpl-txt span.sai{opacity:0;transform:translateY(-100%)}
+  .mpl-txt b{font-weight:700}
+  .mpl-seta{flex:none;font-size:1.5rem;font-weight:700;color:#C99700;line-height:1}
+  .meta-pilula.pulo{animation:mpl-pulo .9s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes mpl-pulo{30%{transform:scale(1.08)}}
+  body.em-perfil .meta-pilula{display:none}
+  body:has(.balao:not(.escondido)) .meta-pilula{opacity:0;pointer-events:none}
+  .meta-alerta{position:fixed;z-index:60;left:50%;top:calc(.7rem + env(safe-area-inset-top));width:calc(100% - 1.6rem);max-width:420px;display:flex;align-items:center;gap:.7rem;padding:.65rem .8rem;background:#121212;color:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(255,200,0,.4);transform:translate(-50%,-140%);transition:transform .45s cubic-bezier(.3,1.4,.5,1);cursor:pointer}
+  .meta-alerta.on{transform:translate(-50%,0)}
+  .ma-mais{flex:none;width:42px;height:42px;border-radius:12px;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:1.05rem}
+  .meta-alerta b{display:block;font-size:.92rem}
+  .meta-alerta small{display:block;font-size:.74rem;color:#CFC8B3;margin-top:.1rem}
+  .meta-folha{position:fixed;inset:0;z-index:70}
+  .meta-folha[hidden]{display:none}
+  .mf-fundo{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .3s}
+  .mf-caixa{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;padding:.6rem .6rem calc(.8rem + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
+  .meta-folha.aberta .mf-fundo{opacity:1}
+  .meta-folha.aberta .mf-caixa{transform:none}
+  .mf-caixa .meta-pro{margin:0}
+  .mf-x{position:absolute;z-index:2;right:1.3rem;top:1.3rem;width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
 </style>
 </head>
 <body>
@@ -901,6 +973,10 @@
   <a class="aba" href="cadastro.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Sou pro</a>
 </nav>
 
+<!-- meta ao vivo: pílula flutuante + alertas "+1" + folha com o placar -->
+<button class="meta-pilula" id="meta-pilula" type="button" hidden aria-label="Ver a meta da Kiiro"><span class="mpl-selo" id="mpl-anel"><b id="mpl-n">0</b><small id="mpl-m">/100</small></span><span class="mpl-txt" id="mpl-txt"></span><span class="mpl-seta" aria-hidden="true">›</span></button>
+<div class="meta-alerta" id="meta-alerta" role="status" aria-live="polite"></div>
+<div class="meta-folha" id="meta-folha" hidden><div class="mf-fundo" data-fechar-meta></div><div class="mf-caixa"><button class="mf-x" type="button" data-fechar-meta aria-label="Fechar">✕</button><div class="meta-pro" id="meta-pro"></div></div></div>
 <div class="balao escondido" id="balao" role="status">
   <button type="button" id="balao-ir">Novo por aqui? <b>Conheça a Kiiro</b> 👋</button>
   <button class="bx" type="button" id="balao-x" aria-label="Fechar">✕</button>
@@ -1556,9 +1632,21 @@ function card(p) {
 const EXP_CARD = { "Menos de 1 ano": "Começando", "1 a 3 anos": "1–3 anos", "3 a 5 anos": "3–5 anos", "Mais de 5 anos": "+5 anos" };
 
 /* ===== Selo na foto + linha "★ 4,9 (27) · Cidade" (cards com foto em cima) ===== */
+/* selo Fundador: os 100 primeiros profissionais da Kiiro (por ordem de entrada) */
+const FUNDADORES_MAX = 100;
+let fundadoresCache = null, fundadoresN = -1;
+function fundadorNum(p) {
+  if (!fundadoresCache || fundadoresN !== profissionais.length) {
+    fundadoresN = profissionais.length;
+    fundadoresCache = new Map(profissionais.slice().sort((a, b) => String(a.desde || "9").localeCompare(String(b.desde || "9")) || String(a.id).localeCompare(String(b.id)))
+      .slice(0, FUNDADORES_MAX).map((x, i) => [x.id, i + 1]));
+  }
+  return fundadoresCache.get(p.id) || 0;
+}
 function seloFoto(p) {
   const temNota = p.avaliacoes >= 3;
   if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">✦ Destaque</span>`;
+  if (fundadorNum(p)) return `<span class="selo-ft fund">✦ Fundador</span>`;
   if (!temNota) return `<span class="selo-ft novo">✦ Novo na Kiiro</span>`;
   return "";
 }
@@ -1874,6 +1962,7 @@ async function abrirPerfil(id) {
       ${temNota
         ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
         : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
+      ${fundadorNum(p) ? `<div class="pf-fund"><span>✦ Fundador da Kiiro</span><small>Um dos ${FUNDADORES_MAX} primeiros profissionais · nº ${fundadorNum(p)}</small></div>` : ""}
       <hr>
       <div class="linha-host">
         <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
@@ -2929,7 +3018,102 @@ function iniciarLocal() {
   if (salva && (window.KIIRO_CIDADES || []).includes(salva) && !$("cidade").value) { $("cidade").value = salva; render(); }
 }
 
+/* ===== Meta de profissionais (ideia do Thiago): contagem rumo aos 100, depois 250, 500… ===== */
+const METAS_PRO = [100, 250, 500, 1000];
+function mostrarMeta() {
+  const box = $("meta-pro"); if (!box) return;
+  const n = profissionais.length, meta = METAS_PRO.find(m => m > n) || n;
+  const pct = Math.min(100, Math.round(n / meta * 100)), falta = meta - n;
+  const vagasFund = Math.max(0, FUNDADORES_MAX - n);
+  const novos = profissionais.slice().sort((a, b) => String(b.desde || "").localeCompare(String(a.desde || ""))).slice(0, 6);
+  const dig = String(n).padStart(String(meta).length, "0").split("");
+  box.innerHTML = `
+    <div class="mp-top"><span class="mp-vivo">AO VIVO</span><span class="mp-tit">Meta da Kiiro · <b>${meta}</b> profissionais</span></div>
+    <div class="mp-placar" aria-label="${n} profissionais cadastrados">${dig.map(d => `<span class="mp-d"><i data-d="${d}">${[0,1,2,3,4,5,6,7,8,9].map(k => `<b>${k}</b>`).join("")}</i></span>`).join("")}</div>
+    <div class="mp-barra" style="--p:${pct}%"><i></i><em>${pct}%</em></div>
+    <div class="mp-falta"><span>Faltam <b>${falta}</b> pra bater a meta</span><span>${n}/${meta}</span></div>
+    ${novos.length ? `<div class="mp-novos"><span>Entrou</span><div class="mp-roda">${novos.map(p => `<b>+1 ${esc(p.nome.split(" ")[0])} <small>${esc(catsDe(p)[0] || "")} · ${esc(baseDe(p) || "")}</small></b>`).join("")}</div></div>` : ""}
+    ${vagasFund ? `<div class="mp-fund"><span class="selo-ft fund">✦ Fundador</span><p>Os <b>${FUNDADORES_MAX} primeiros</b> ganham o selo de Fundador no perfil pra sempre. Restam <b>${vagasFund} vagas</b>.</p></div>` : ""}
+    <div class="mp-bts"><a href="cadastro.html" class="mp-b1">Quero ser Fundador</a><button type="button" class="mp-b2" data-convidar>Convidar alguém</button></div>`;
+  box.hidden = false;
+  const itens = box.querySelectorAll(".mp-roda b"); let k = 0;
+  clearInterval(mostrarMeta.t);
+  if (itens.length) { itens[0].classList.add("on"); if (itens.length > 1) mostrarMeta.t = setInterval(() => { itens[k].classList.remove("on"); k = (k + 1) % itens.length; itens[k].classList.add("on"); }, 2600); }
+  const animar = () => {
+    box.classList.add("vivo");
+    box.querySelectorAll(".mp-d i").forEach((el, i) => setTimeout(() => { el.style.transform = `translateY(-${el.dataset.d * 10}%)`; }, 120 * i));
+  };
+  setTimeout(animar, 250);
+}
+/* a meta "sai pra fora", como o selo do iFood na Black Friday: pílula larga flutuando em cima do menu, com o contador
+   e frases que trocam sozinhas (a meta, quem entrou por último, as vagas de Fundador) */
+function ligarMetaFlutuante() {
+  const n = profissionais.length, meta = METAS_PRO.find(m => m > n) || n, pct = Math.round(n / meta * 100);
+  const pil = $("meta-pilula");
+  $("mpl-n").textContent = n; $("mpl-m").textContent = "/" + meta;
+  $("mpl-anel").style.setProperty("--p", pct + "%");
+  const novos = profissionais.slice().sort((a, b) => String(b.desde || "").localeCompare(String(a.desde || ""))).slice(0, 3);
+  const vagas = Math.max(0, FUNDADORES_MAX - n);
+  const frases = [`<b>Rumo aos ${meta}!</b> Faltam ${meta - n} profissionais`,
+    ...novos.map(p => `<b>+1 ${esc(p.nome.split(" ")[0])}</b> entrou · ${esc(catsDe(p)[0] || "")}`),
+    ...(vagas ? [`<b>${vagas} vagas</b> pro selo de Fundador`] : [])];
+  const tx = $("mpl-txt"); let k = 0;
+  tx.innerHTML = `<span class="on">${frases[0]}</span>`;
+  pil.hidden = false;
+  // o placar sobe sozinho quando a página abre (uma vez por visita), fica uns segundos e desce; depois fica só a pílula
+  let jaViu = false; try { jaViu = sessionStorage.getItem("kiiro-meta-subiu") === "1"; sessionStorage.setItem("kiiro-meta-subiu", "1"); } catch {}
+  clearTimeout(ligarMetaFlutuante.t1); clearTimeout(ligarMetaFlutuante.t2);
+  pil.classList.remove("dentro");
+  if (jaViu) { ligarMetaFlutuante.t1 = setTimeout(() => { pil.classList.add("dentro"); recolherMetaDepois(8000); }, 600); }
+  else {
+    ligarMetaFlutuante.t1 = setTimeout(() => { if (!document.body.classList.contains("em-perfil")) abrirMeta(true); }, 1200);
+    ligarMetaFlutuante.t2 = setTimeout(() => { if (!fecharMeta.mexeu) fecharMeta(); setTimeout(() => pil.classList.add("dentro"), 350); }, 1200 + 6500);
+  }
+  clearInterval(ligarMetaFlutuante.t);
+  ligarMetaFlutuante.t = setInterval(() => {
+    if (document.hidden) return;
+    k = (k + 1) % frases.length;
+    const novo = document.createElement("span"); novo.innerHTML = frases[k];
+    const velho = tx.querySelector(".on"); tx.appendChild(novo);
+    requestAnimationFrame(() => { novo.classList.add("on"); if (velho) { velho.classList.remove("on"); velho.classList.add("sai"); setTimeout(() => velho.remove(), 500); } });
+    if (frases[k].includes("+1")) { pil.classList.add("pulo"); setTimeout(() => pil.classList.remove("pulo"), 900); }
+  }, 3800);
+}
+function abrirMeta(auto) {
+  mostrarMeta(); $("meta-folha").hidden = false; fecharMeta.mexeu = false;
+  requestAnimationFrame(() => $("meta-folha").classList.add("aberta"));
+  contar("meta_abrir", auto ? "auto" : "toque");
+}
+/* como no iFood: a pílula abre, mostra as frases e depois recolhe só na bolinha do contador */
+function recolherMetaDepois(ms) {
+  const pil = $("meta-pilula"); pil.classList.remove("recolhida");
+  clearTimeout(recolherMetaDepois.t); recolherMetaDepois.t = setTimeout(() => pil.classList.add("recolhida"), ms);
+}
+addEventListener("scroll", () => { if (scrollY > 400) $("meta-pilula")?.classList.add("recolhida"); }, { passive: true });
+function fecharMeta() {
+  $("meta-folha").classList.remove("aberta");
+  setTimeout(() => { $("meta-folha").hidden = true; $("meta-pro").classList.remove("vivo"); }, 300);
+  $("meta-pilula").classList.add("dentro");
+  recolherMetaDepois(8000);
+}
+document.addEventListener("click", e => {
+  if (e.target.closest("#meta-pilula")) return abrirMeta();
+  if (e.target.closest("[data-fechar-meta]")) return fecharMeta();
+  if (e.target.closest(".mf-caixa")) fecharMeta.mexeu = true; // tocou no placar: não fecha sozinho
+});
+/* convidar: cada pessoa vira divulgadora (WhatsApp, Instagram, o que tiver no celular) */
+document.addEventListener("click", async e => {
+  if (!e.target.closest("[data-convidar]")) return;
+  const n = profissionais.length, meta = METAS_PRO.find(m => m > n) || n;
+  const url = "https://chamakiiro.com.br/cadastro";
+  const txt = `A Kiiro tá rumo aos ${meta} profissionais do Litoral Norte! Já são ${n}. Se tu trabalha com serviço, entra lá: é grátis, o cliente te chama direto no teu WhatsApp e os ${FUNDADORES_MAX} primeiros ganham o selo de Fundador 💛`;
+  contar("convidar", "meta");
+  if (navigator.share) { try { await navigator.share({ title: "Kiiro", text: txt, url }); return; } catch (er) { if (er && er.name === "AbortError") return; } }
+  window.open("https://wa.me/?text=" + encodeURIComponent(txt + "\n" + url), "_blank", "noopener");
+});
+
 Promise.all([carregar(), carregarAnuncios()]).then(() => {
+  ligarMetaFlutuante();
   iniciarMapaHome();
   const mi = location.hash.match(/^#indicar-([\w-]+)$/);
   if (mi) {
