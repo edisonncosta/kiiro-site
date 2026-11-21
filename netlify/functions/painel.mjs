@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
+import { publicarSugestoes } from "../lib/acontece-auto.mjs";
 import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats, novaProvisoria, guardarProvisoria, msgProvisoria } from "../lib/contas.mjs";
 import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
@@ -1173,48 +1174,8 @@ export default async (req, context) => {
 
   if (aba === "acontece") {
     const st = getStore("acontece");
-    // busca automática semanal: as sugestões ficam no GitHub (ramo "sugestoes") e entram aqui como "para aprovar"
-    try {
-      const r = await fetch("https://raw.githubusercontent.com/edisonncosta/kiiro-site/sugestoes/acontece.json", { signal: AbortSignal.timeout(6000) });
-      if (r.ok) {
-        const sug = (await r.json()).eventos || [];
-        const ja = new Set((await st.get("importados", { type: "json" })) || []);
-        const pubA = (await st.get("publico", { type: "json" })) || {};
-        const norm = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-        const existe = new Set((pubA.itens || []).map((i) => norm(i.nome) + (i.dia || "")));
-        const hojeI = new Date().toISOString().slice(0, 10);
-        let n = 0;
-        for (const e of sug) {
-          const sid = String(e.sid || norm(e.nome) + (e.dia || "")).slice(0, 80);
-          if (ja.has(sid) || existe.has(norm(e.nome) + (e.dia || "")) || !e.nome || !/^\d{4}-\d{2}-\d{2}$/.test(e.dia || "") || (e.ate || e.dia) < hojeI) { ja.add(sid); continue; }
-          if (n++ >= 20) break;
-          const fotos = [];
-          // sem imagem na sugestão: pega a imagem de divulgação (og:image) da página do evento, se for de venda de ingresso ou da prefeitura
-          if (!e.imagem && /^https:\/\/([\w-]+\.)*(sympla\.com\.br|rs\.gov\.br|haid\.app|corridasderuars\.com\.br|ticketsports\.com\.br|blueticket\.com\.br)\//.test(e.fonte || "")) {
-            try {
-              const pg = await fetch(e.fonte, { signal: AbortSignal.timeout(6000), headers: { "User-Agent": "Mozilla/5.0 (compatible; KiiroBot/1.0; +https://chamakiiro.com.br)" } });
-              const html = pg.ok ? (await pg.text()).slice(0, 300000) : "";
-              const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-              if (m) e.imagem = new URL(m[1].replace(/&amp;/g, "&"), e.fonte).href;
-            } catch {}
-          }
-          if (/^https:\/\//.test(e.imagem || "")) {
-            try {
-              const im = await fetch(e.imagem, { signal: AbortSignal.timeout(6000) });
-              const tipo = im.headers.get("content-type") || "";
-              const b = im.ok && /^image\//.test(tipo) ? Buffer.from(await im.arrayBuffer()) : null;
-              if (b && b.length > 2000 && b.length < 3 * 1024 * 1024) { const fid = randomUUID(); await getStore("acontece-fotos").set(fid, b); fotos.push(fid); }
-            } catch {}
-          }
-          await st.setJSON(`p-${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID().slice(0, 8)}`, {
-            tipo: "indicacao", qual: e.tipo === "lugar" ? "lugar" : "evento", nome: String(e.nome).slice(0, 90), cidade: String(e.cidade || "").slice(0, 40), local: String(e.local || "").slice(0, 120),
-            dia: e.dia, ate: /^\d{4}-\d{2}-\d{2}$/.test(e.ate || "") ? e.ate : "", hora: String(e.hora || "").slice(0, 30), desc: String(e.desc || "").slice(0, 600),
-            marcas: Array.isArray(e.marcas) ? e.marcas.slice(0, 8) : [], fonte: /^https?:\/\//.test(e.fonte || "") ? String(e.fonte).slice(0, 300) : "", auto: true, fotos, data: new Date().toISOString(), status: "pendente" });
-          ja.add(sid);
-        }
-        await st.setJSON("importados", [...ja].slice(-2000));
-      }
-    } catch {}
+    // busca automática: os eventos do ramo "sugestoes" são publicados direto, sem aprovar (sem duplicar)
+    try { await publicarSugestoes(base, { forcar: true }); } catch {}
     const { blobs } = await st.list({ prefix: "p-" });
     const pend = (await Promise.all(blobs.map(async (b) => ({ k: b.key, x: await st.get(b.key, { type: "json" }) })))).filter((i) => i.x).sort((a, b) => (a.x.data < b.x.data ? 1 : -1));
     const pub = (await st.get("publico", { type: "json" })) || { itens: [], fotos: {}, coms: {} };

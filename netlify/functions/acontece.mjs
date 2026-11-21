@@ -5,6 +5,7 @@
 // Store "acontece": "publico" (aprovados), "contagens", "p-…" (pendentes). Store "acontece-fotos": as imagens.
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import { publicarSugestoes } from "../lib/acontece-auto.mjs";
 
 const json = (o, s = 200, extra = {}) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json", ...extra } });
 const limpa = (s, max = 80) => String(s || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
@@ -28,9 +29,12 @@ async function guardarFoto(dataUrl) {
   return id;
 }
 
-export default async (req) => {
+export default async (req, context) => {
   const st = getStore("acontece");
   if (req.method === "GET") {
+    // publica os eventos novos da busca automática (no máximo a cada 20 min), sem segurar a resposta
+    const job = publicarSugestoes(new URL(req.url).origin).catch(() => {});
+    if (context?.waitUntil) context.waitUntil(job);
     const [pub, cont] = await Promise.all([st.get("publico", { type: "json" }), st.get("contagens", { type: "json" })]);
     const p = pub || {};
     return json({ itens: p.itens || [], edits: p.edits || {}, fotos: p.fotos || {}, coms: p.coms || {}, n: cont || {} }, 200, { "Cache-Control": "public, max-age=30" });
