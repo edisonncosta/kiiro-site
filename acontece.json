@@ -1,5 +1,5 @@
 {
-  "atualizado": "2026-11-16",
+  "atualizado": "2026-11-21",
   "eventos": [
     {
       "nome": "Mentes Brilhantes Tour RS 2026",
@@ -124,6 +124,131 @@
       "desc": "Festa de virada até o nascer do sol. Proibido para menores de 18 anos.",
       "fonte": "https://www.sympla.com.br/evento/nuy-reveillon-2027/3557594",
       "sid": "nuyreveillon2027xangrila2026-12-31"
+    },
+    {
+      "nome": "Abertura da Temporada de Verão 2026/27",
+      "cidade": "Arroio do Sal",
+      "local": "Rua Coberta e Praça da Emancipação",
+      "dia": "2026-11-21",
+      "ate": "2026-11-22",
+      "marcas": [
+        "Grátis",
+        "Comunidade",
+        "Música",
+        "Feira"
+      ],
+      "desc": "Abertura do verão com feira de artesanato, palco aberto e shows.",
+      "fonte": "https://www.instagram.com/p/Df266O7BHcH/",
+      "sid": "aberturadatemporadadeverao202627arroiodosal20261121"
+    },
+    {
+      "nome": "VI Artenorte – Feira de Artesanato",
+      "cidade": "Capão da Canoa",
+      "local": "Largo do Baronda, Av. Beira-Mar",
+      "dia": "2026-11-20",
+      "ate": "2026-11-22",
+      "hora": "Sáb 10h às 22h, dom 10h às 20h",
+      "marcas": [
+        "Grátis",
+        "Feira",
+        "Comunidade"
+      ],
+      "desc": "Feira com cerca de 140 artesãos do Litoral Norte.",
+      "fonte": "https://fgtas.rs.gov.br/vi-artenorte-ocorrera-de-20-a-22-de-novembro-em-capao-da-canoa",
+      "sid": "viartenortefeiradeartesanatocapaodacanoa20261120"
+    },
+    {
+      "nome": "5º Barra Motos",
+      "cidade": "Imbé",
+      "local": "Guia Corrente",
+      "dia": "2026-11-20",
+      "ate": "2026-11-21",
+      "marcas": [
+        "Grátis",
+        "Música",
+        "Comunidade"
+      ],
+      "desc": "Encontro de motociclistas com shows na beira da barra.",
+      "fonte": "https://www.imbe.rs.gov.br/noticia/28813",
+      "sid": "5obarramotosimbe20261120"
+    },
+    {
+      "nome": "União do Sul 2026",
+      "cidade": "Tramandaí",
+      "local": "Parque Municipal de Eventos",
+      "dia": "2026-11-21",
+      "ate": "2026-11-22",
+      "hora": "Sáb 19h à 1h, dom 8h30 às 18h",
+      "marcas": [
+        "Comunidade",
+        "Música",
+        "Comida"
+      ],
+      "desc": "Encontro com programação no sábado à noite e domingo o dia todo.",
+      "fonte": "https://www.instagram.com/p/Df7-8HOExqS/",
+      "sid": "uniaodosul2026tramandai20261121"
+    },
+    {
+      "nome": "1º American Sul Rodeio Fest",
+      "cidade": "Xangri-Lá",
+      "local": "Parque de Eventos",
+      "dia": "2026-11-19",
+      "ate": "2026-11-22",
+      "hora": "Portões 10h; montarias sáb 20h e dom 17h",
+      "marcas": [
+        "Grátis",
+        "Festa",
+        "Esporte"
+      ],
+      "desc": "Quatro dias de rodeio estilo americano, entrada na arena gratuita.",
+      "fonte": "https://www.instagram.com/p/Df7KjgvkTpn/",
+      "sid": "1oamericansulrodeiofestxangrila20261119"
+    },
+    {
+      "nome": "Festivais de Coros na Catedral",
+      "cidade": "Osório",
+      "local": "Catedral de Osório",
+      "dia": "2026-11-21",
+      "ate": "2026-11-22",
+      "hora": "Sáb 19h30 (coros adultos), dom 15h (infantojuvenis)",
+      "marcas": [
+        "Grátis",
+        "Música",
+        "Pra crianças"
+      ],
+      "desc": "7º Festival Nacional e 1º Internacional de Coros no sábado e 4º Festival de Coros Infantojuvenis no domingo.",
+      "fonte": "https://www.facebook.com/PrefeituraDeOsorio/posts/-os%C3%B3rio-recebe-dois-grandes-festivais-de-coros-neste-final-de-semanaa-m%C3%BAsica-e-o/1599167875585107/",
+      "sid": "festivaisdecorosnacatedralosorio20261121"
+    },
+    {
+      "nome": "Baile no Salão Paroquial de Passinhos",
+      "cidade": "Osório",
+      "local": "Salão Paroquial de Passinhos",
+      "dia": "2026-11-21",
+      "hora": "22h às 5h",
+      "marcas": [
+        "Festa",
+        "Música",
+        "Comunidade"
+      ],
+      "desc": "Baile da comunidade de Passinhos, ingressos na Sympla.",
+      "fonte": "https://www.sympla.com.br/evento/salao-paroquial-de-passinhos-em-osorio-rs-21-11-2026/3642861",
+      "sid": "bailenosalaoparoquialdepassinhososorio20261121"
+    },
+    {
+      "nome": "1ª Marcha para Jesus",
+      "cidade": "Santo Antônio da Patrulha",
+      "local": "Saída da Praça da Valbaru até a Praça da Boa Viagem",
+      "dia": "2026-11-21",
+      "hora": "Concentração 16h30, show 19h30",
+      "marcas": [
+        "Grátis",
+        "Comunidade",
+        "Música"
+      ],
+      "desc": "Primeira Marcha para Jesus da cidade, com show no fim do percurso.",
+      "fonte": "https://www.instagram.com/p/Df28GCiFHZL/",
+      "sid": "1amarchaparajesussantoantoniodapatrulha20261121"
     }
   ]
 }
