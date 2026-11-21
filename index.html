@@ -356,7 +356,8 @@
   .selo-ft{position:absolute;left:0;top:0;max-width:calc(100% - 1rem);border-radius:0 0 16px 0 !important;padding:.3rem .8rem .32rem .7rem;font-size:.72rem;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.18)}
   .selo-ft.dest{background:#5CC596;color:#fff}
   .selo-ft.novo{background:var(--ink);color:#fff}
-  .selo-ft.fund{background:linear-gradient(90deg,#1A1A1A,#3a3221);color:var(--sun)}
+  .selo-ft.fund{background:none !important;box-shadow:none !important;color:#fff;display:inline-flex;align-items:center;gap:.25rem;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+  .coroa{width:1.15em;height:1.15em;flex:none;fill:none;stroke:var(--sun);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}
   .selo-ft.urg{background:#fff;color:var(--ink)}
   .mc h3{margin-top:.5rem;font-size:.95rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .linha-nc{font-size:.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.05rem}
@@ -569,7 +570,8 @@
   .pf-sub{text-align:center;color:var(--muted);font-size:.92rem;margin-top:.5rem;line-height:1.5}
   .pf-novo{display:flex;justify-content:center;margin-top:.8rem}
   .pf-fund{display:flex;flex-direction:column;align-items:center;gap:.2rem;margin-top:.7rem}
-  .pf-fund span{background:var(--ink);color:var(--sun);font-weight:800;font-size:.85rem;border-radius:999px;padding:.3rem .9rem}
+  .pf-fund span{display:inline-flex;align-items:center;gap:.35rem;color:var(--ink);font-weight:800;font-size:.95rem}
+  .pf-fund .coroa{width:1.3em;height:1.3em;stroke:#E0A800;filter:none}
   .pf-fund small{font-size:.74rem;color:var(--muted)}
   .pf-premio{margin:1.3rem 0 0;background:var(--card);border:1.5px solid var(--sun);border-radius:16px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;text-align:center;padding:.9rem .5rem}
   .pf-premio .sep{width:1px;height:32px;background:var(--line)}
@@ -759,14 +761,14 @@
   .p99-mega svg{width:76px;height:76px;color:#B98A00;transform:rotate(-12deg)}
   .p99-tag{position:absolute;right:.7rem;top:.5rem;font-size:.6rem;font-weight:600;color:rgba(26,26,26,.45);letter-spacing:.03em}
   /* meta de profissionais: placar ao vivo, como contador de inscritos de live */
-  .meta-pro{position:relative;margin:.2rem 0 1.2rem;background:#121212;color:#fff;border-radius:22px;padding:1rem 1rem 1.1rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,200,0,.18)}
+  .meta-pro{position:relative;margin:.2rem 0 1.2rem;background:rgba(18,18,18,.62);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);color:#fff;border-radius:22px;padding:1rem 1rem 1.1rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,200,0,.18)}
   .meta-pro[hidden]{display:none}
   .mp-top{display:flex;align-items:center;gap:.55rem;font-size:.8rem}
   .mp-vivo{display:inline-flex;align-items:center;gap:.35rem;background:#E5322D;color:#fff;font-weight:800;font-size:.66rem;letter-spacing:.08em;border-radius:6px;padding:.2rem .5rem}
   .mp-vivo::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:mp-pisca 1.1s infinite}
   .mp-tit{color:#CFC8B3}.mp-tit b{color:var(--sun)}
   .mp-placar{display:flex;justify-content:center;gap:.35rem;margin:.9rem 0 .8rem}
-  .mp-d{width:62px;height:84px;overflow:hidden;border-radius:12px;background:linear-gradient(#262626 49.5%,#1d1d1d 50.5%);box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06)}
+  .mp-d{width:62px;height:84px;overflow:hidden;border-radius:12px;background:linear-gradient(rgba(40,40,40,.7) 49.5%,rgba(28,28,28,.7) 50.5%);box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06)}
   .mp-d i{display:flex;flex-direction:column;font-style:normal;transition:transform 1.4s cubic-bezier(.2,.9,.2,1)}
   .mp-d b{height:84px;display:grid;place-items:center;font-size:3.4rem;font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(255,200,0,.35)}
   .mp-barra{position:relative;height:16px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden}
@@ -783,7 +785,7 @@
   .mp-roda b.on{opacity:1;transform:none}
   .mp-roda small{font-weight:500;color:#CFC8B3}
   .mp-fund{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
-  .mp-fund .selo-ft{position:static;flex:none;border-radius:999px !important;box-shadow:0 0 0 1px rgba(255,200,0,.5)}
+  .mp-fund .selo-ft{position:static;flex:none;padding:0 .2rem 0 0 !important;white-space:nowrap;overflow:visible;max-width:none;color:var(--sun);text-shadow:none;font-size:.85rem}
   .mp-fund p{font-size:.78rem;color:#CFC8B3;line-height:1.35}.mp-fund b{color:#fff}
   .mp-bts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
   .mp-bts>*{display:grid;place-items:center;height:44px;border:0;border-radius:12px;font:700 .9rem Poppins,sans-serif;text-decoration:none;cursor:pointer}
@@ -820,7 +822,7 @@
   .meta-alerta small{display:block;font-size:.74rem;color:#CFC8B3;margin-top:.1rem}
   .meta-folha{position:fixed;inset:0;z-index:70}
   .meta-folha[hidden]{display:none}
-  .mf-fundo{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .3s}
+  .mf-fundo{position:absolute;inset:0;background:rgba(0,0,0,.3);opacity:0;transition:opacity .3s}
   .mf-caixa{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;padding:.6rem .6rem calc(.8rem + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
   .meta-folha.aberta .mf-fundo{opacity:1}
   .meta-folha.aberta .mf-caixa{transform:none}
@@ -1646,7 +1648,7 @@ function fundadorNum(p) {
 function seloFoto(p) {
   const temNota = p.avaliacoes >= 3;
   if (temNota && p.nota >= 4.7 && p.avaliacoes >= 5) return `<span class="selo-ft dest">✦ Destaque</span>`;
-  if (fundadorNum(p)) return `<span class="selo-ft fund">✦ Fundador</span>`;
+  if (fundadorNum(p)) return `<span class="selo-ft fund"><svg class="coroa" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.56 3.27a.5.5 0 0 1 .88 0l2.95 5.6a1 1 0 0 0 1.52.3l4.27-3.67a.5.5 0 0 1 .8.52l-2.83 10.25a1 1 0 0 1-.96.73H5.81a1 1 0 0 1-.96-.73L2.02 6.02a.5.5 0 0 1 .8-.52l4.27 3.67a1 1 0 0 0 1.52-.3z"/><path d="M5 21h14"/></svg>Fundador</span>`;
   if (!temNota) return `<span class="selo-ft novo">✦ Novo na Kiiro</span>`;
   return "";
 }
@@ -1962,7 +1964,7 @@ async function abrirPerfil(id) {
       ${temNota
         ? `<div class="pf-premio"><div><b>${notaTxt(p.nota)}</b><span class="est">${"★".repeat(Math.round(p.nota))}</span></div><span class="sep"></span><div class="ouro">${p.nota >= 4.7 && p.avaliacoes >= 5 ? "🏅 Destaque<br>Kiiro" : "👍 Bem<br>avaliado"}</div><span class="sep"></span><div><b>${p.avaliacoes}</b><span>avaliações</span></div></div>`
         : `<div class="pf-novo"><span class="novo">✨ Novo na Kiiro</span></div>`}
-      ${fundadorNum(p) ? `<div class="pf-fund"><span>✦ Fundador da Kiiro</span><small>Um dos ${FUNDADORES_MAX} primeiros profissionais · nº ${fundadorNum(p)}</small></div>` : ""}
+      ${fundadorNum(p) ? `<div class="pf-fund"><span><svg class="coroa" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.56 3.27a.5.5 0 0 1 .88 0l2.95 5.6a1 1 0 0 0 1.52.3l4.27-3.67a.5.5 0 0 1 .8.52l-2.83 10.25a1 1 0 0 1-.96.73H5.81a1 1 0 0 1-.96-.73L2.02 6.02a.5.5 0 0 1 .8-.52l4.27 3.67a1 1 0 0 0 1.52-.3z"/><path d="M5 21h14"/></svg>Fundador da Kiiro</span><small>Um dos ${FUNDADORES_MAX} primeiros profissionais · nº ${fundadorNum(p)}</small></div>` : ""}
       <hr>
       <div class="linha-host">
         <div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p.nome))}</div>
@@ -3033,7 +3035,7 @@ function mostrarMeta() {
     <div class="mp-barra" style="--p:${pct}%"><i></i><em>${pct}%</em></div>
     <div class="mp-falta"><span>Faltam <b>${falta}</b> pra bater a meta</span><span>${n}/${meta}</span></div>
     ${novos.length ? `<div class="mp-novos"><span>Entrou</span><div class="mp-roda">${novos.map(p => `<b>+1 ${esc(p.nome.split(" ")[0])} <small>${esc(catsDe(p)[0] || "")} · ${esc(baseDe(p) || "")}</small></b>`).join("")}</div></div>` : ""}
-    ${vagasFund ? `<div class="mp-fund"><span class="selo-ft fund">✦ Fundador</span><p>Os <b>${FUNDADORES_MAX} primeiros</b> ganham o selo de Fundador no perfil pra sempre. Restam <b>${vagasFund} vagas</b>.</p></div>` : ""}
+    ${vagasFund ? `<div class="mp-fund"><span class="selo-ft fund"><svg class="coroa" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.56 3.27a.5.5 0 0 1 .88 0l2.95 5.6a1 1 0 0 0 1.52.3l4.27-3.67a.5.5 0 0 1 .8.52l-2.83 10.25a1 1 0 0 1-.96.73H5.81a1 1 0 0 1-.96-.73L2.02 6.02a.5.5 0 0 1 .8-.52l4.27 3.67a1 1 0 0 0 1.52-.3z"/><path d="M5 21h14"/></svg>Fundador</span><p>Os <b>${FUNDADORES_MAX} primeiros</b> ganham o selo de Fundador no perfil pra sempre. Restam <b>${vagasFund} vagas</b>.</p></div>` : ""}
     <div class="mp-bts"><a href="cadastro.html" class="mp-b1">Quero ser Fundador</a><button type="button" class="mp-b2" data-convidar>Convidar alguém</button></div>`;
   box.hidden = false;
   const itens = box.querySelectorAll(".mp-roda b"); let k = 0;
@@ -3064,7 +3066,7 @@ function ligarMetaFlutuante() {
   let jaViu = false; try { jaViu = sessionStorage.getItem("kiiro-meta-subiu") === "1"; sessionStorage.setItem("kiiro-meta-subiu", "1"); } catch {}
   clearTimeout(ligarMetaFlutuante.t1); clearTimeout(ligarMetaFlutuante.t2);
   pil.classList.remove("dentro");
-  if (jaViu) { ligarMetaFlutuante.t1 = setTimeout(() => { pil.classList.add("dentro"); recolherMetaDepois(8000); }, 600); }
+  if (jaViu) { ligarMetaFlutuante.t1 = setTimeout(() => { pil.classList.add("dentro"); recolherMetaDepois(3500); }, 600); }
   else {
     ligarMetaFlutuante.t1 = setTimeout(() => { if (!document.body.classList.contains("em-perfil")) abrirMeta(true); }, 1200);
     ligarMetaFlutuante.t2 = setTimeout(() => { if (!fecharMeta.mexeu) fecharMeta(); setTimeout(() => pil.classList.add("dentro"), 350); }, 1200 + 6500);
@@ -3094,7 +3096,7 @@ function fecharMeta() {
   $("meta-folha").classList.remove("aberta");
   setTimeout(() => { $("meta-folha").hidden = true; $("meta-pro").classList.remove("vivo"); }, 300);
   $("meta-pilula").classList.add("dentro");
-  recolherMetaDepois(8000);
+  recolherMetaDepois(3500);
 }
 document.addEventListener("click", e => {
   if (e.target.closest("#meta-pilula")) return abrirMeta();
