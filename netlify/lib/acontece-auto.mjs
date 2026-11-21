@@ -17,6 +17,18 @@ function igual(a, b) {
   return na === nb || (na.length >= 10 && nb.includes(na)) || (nb.length >= 10 && na.includes(nb));
 }
 
+// tira repetidos dos itens publicados pela busca (fica o primeiro; se o repetido tem foto e o primeiro não, a foto passa)
+export function semDuplicados(itens) {
+  const fora = [];
+  for (const it of itens || []) {
+    const ig = it.auto ? fora.find((o) => igual(o, it)) : null;
+    if (ig) { if (!(ig.fotos || []).length && (it.fotos || []).length) ig.fotos = it.fotos; continue; }
+    if (!it.auto) { const ia = fora.findIndex((o) => o.auto && igual(o, it)); if (ia >= 0) { fora[ia] = { ...it, fotos: (it.fotos || []).length ? it.fotos : fora[ia].fotos }; continue; } }
+    fora.push(it);
+  }
+  return fora;
+}
+
 async function imagemDe(e) {
   let url = /^https:\/\//.test(e.imagem || "") ? e.imagem : "";
   if (!url && /^https:\/\//.test(e.fonte || "")) {
@@ -43,11 +55,13 @@ async function imagemDe(e) {
 export async function publicarSugestoes(base, { forcar = false } = {}) {
   const st = getStore("acontece");
   const agora = Date.now();
-  if (!forcar) {
-    const ult = Number(await st.get("auto-ultima")) || 0;
-    if (agora - ult < 20 * 60 * 1000) return 0; // no máximo a cada 20 min
-  }
-  await st.set("auto-ultima", String(agora));
+  const ult = Number(String((await st.get("auto-ultima")) || "0").split(":")[0]) || 0;
+  // no máximo a cada 20 min; e nunca duas rodadas juntas (trava de 2 min)
+  if (agora - ult < (forcar ? 2 : 20) * 60 * 1000) return 0;
+  const minha = `${agora}:${randomUUID().slice(0, 8)}`;
+  await st.set("auto-ultima", minha);
+  await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1500));
+  if ((await st.get("auto-ultima")) !== minha) return 0; // outra rodada pegou a vez
 
   let sug = [];
   try { const r = await fetch(SUG, { signal: AbortSignal.timeout(6000) }); if (r.ok) sug = (await r.json()).eventos || []; } catch {}
@@ -70,7 +84,13 @@ export async function publicarSugestoes(base, { forcar = false } = {}) {
   const pendAuto = [];
   for (const b of blobs) { const x = await st.get(b.key, { type: "json" }); if (x && x.auto && x.tipo === "indicacao") pendAuto.push({ k: b.key, x }); }
 
-  if (!novos.length && !pendAuto.length) { await st.setJSON("importados", [...ja].slice(-2000)); return 0; }
+  if (!novos.length && !pendAuto.length) {
+    await st.setJSON("importados", [...ja].slice(-2000));
+    const pub0 = (await st.get("publico", { type: "json" })) || {};
+    const limpo = semDuplicados(pub0.itens || []);
+    if (limpo.length !== (pub0.itens || []).length) { pub0.itens = limpo; await st.setJSON("publico", pub0); }
+    return 0;
+  }
 
   const prontos = [];
   for (const { e, sid } of novos) {
@@ -96,6 +116,7 @@ export async function publicarSugestoes(base, { forcar = false } = {}) {
     if (!existe(item)) { pub.itens.push(item); n++; }
     await st.delete(k);
   }
+  pub.itens = semDuplicados(pub.itens);
   await st.setJSON("publico", pub);
   await st.setJSON("importados", [...ja].slice(-2000));
   return n;

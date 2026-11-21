@@ -5,7 +5,7 @@
 // Store "acontece": "publico" (aprovados), "contagens", "p-…" (pendentes). Store "acontece-fotos": as imagens.
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
-import { publicarSugestoes } from "../lib/acontece-auto.mjs";
+import { publicarSugestoes, semDuplicados } from "../lib/acontece-auto.mjs";
 
 const json = (o, s = 200, extra = {}) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json", ...extra } });
 const limpa = (s, max = 80) => String(s || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
@@ -37,7 +37,7 @@ export default async (req, context) => {
     if (context?.waitUntil) context.waitUntil(job);
     const [pub, cont] = await Promise.all([st.get("publico", { type: "json" }), st.get("contagens", { type: "json" })]);
     const p = pub || {};
-    return json({ itens: p.itens || [], edits: p.edits || {}, fotos: p.fotos || {}, coms: p.coms || {}, n: cont || {} }, 200, { "Cache-Control": "public, max-age=30" });
+    return json({ itens: semDuplicados(p.itens || []), edits: p.edits || {}, fotos: p.fotos || {}, coms: p.coms || {}, n: cont || {} }, 200, { "Cache-Control": "public, max-age=30" });
   }
   if (req.method !== "POST") return new Response("Método não permitido", { status: 405 });
   const ua = req.headers.get("user-agent") || "";
