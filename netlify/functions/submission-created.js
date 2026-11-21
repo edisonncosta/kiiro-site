@@ -38,13 +38,30 @@ exports.handler = async (event) => {
         if (c) { c.convidados = (c.convidados || 0) + 1; await st.setJSON(chave, c); }
       } catch {}
     }
+    // topa collab e tem @: já deixa o story da Kiiro pronto para postar com um toque (link vale 7 dias)
+    let linkStory = "";
+    const ig = /(gmail|hotmail|outlook|yahoo|icloud|live|bol|uol|terra)\.?com(\.br)?$|.@./i.test(String(d.instagram || "")) ? "" : String(d.instagram || "").replace(/[^A-Za-z0-9._]/g, "").slice(0, 30);
+    if (String(d.collab || "") === "Sim" && ig && whats) {
+      try {
+        const b = await import("@netlify/blobs");
+        if (b.connectLambda) b.connectLambda(event);
+        const t = require("crypto").randomUUID();
+        const w = whats.length === 10 || whats.length === 11 ? "55" + whats : whats;
+        await b.getStore("admin").setJSON(`storyTok:${t}`, {
+          em: Date.now(), w, ig, nome: String(d.nome || "").trim().slice(0, 80), serv: String(d.servico || "").slice(0, 120), cidade: String(d.cidade || "").slice(0, 200),
+          foto: d.foto && payload.id ? `/.netlify/functions/foto-pro?id=${payload.id}&c=foto` : "",
+        });
+        linkStory = `${process.env.URL || ""}/story-novo.html#t=${t}`;
+      } catch {}
+    }
     if (process.env.NTFY_TOPIC) {
       await fetch("https://ntfy.sh/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topic: process.env.NTFY_TOPIC,
-          title: `🆕 Novo cadastro: ${String(d.nome || "").slice(0, 60)}`,
+          ...(linkStory ? { actions: [{ action: "view", label: "📣 Postar story", url: linkStory, clear: true }] } : {}),
+          title: `🆕 Novo cadastro${linkStory ? " (topa collab)" : ""}: ${String(d.nome || "").slice(0, 60)}`,
           message: `${d.servico || ""} · ${d.cidade || ""}\nWhatsApp: ${d.whatsapp || ""}`,
           tags: ["new"],
           click: whats ? `https://wa.me/${whats.length === 10 || whats.length === 11 ? "55" + whats : whats}` : undefined,

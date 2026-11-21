@@ -19,6 +19,8 @@
   .dica{width:min(86vw,22rem);font-size:.82rem;color:#CFC6AA;line-height:1.5;margin:1rem 0 0}
   .dica b{color:#fff}
   .erro{color:#ffb4a8;text-align:center}
+  .ok{margin:0;text-align:center;font-size:.9rem;line-height:1.45;color:#CFC6AA}.ok b{color:var(--sun)}
+  #auto:disabled{opacity:.6}
   .abas{display:flex;gap:.4rem;background:#2c2c2c;border-radius:14px;padding:.3rem;margin:0 0 1rem;width:min(86vw,22rem)}
   .abas button{flex:1;background:none;color:#CFC6AA;font-size:.88rem;padding:.6rem .4rem;border-radius:10px}
   .abas button.on{background:var(--sun);color:var(--ink)}
@@ -29,6 +31,8 @@
 <div class="abas"><button type="button" data-m="kiiro" class="on">Pra Kiiro postar</button><button type="button" data-m="pro">Pra ele postar</button></div>
 <img id="prev" alt="Prévia do story">
 <div class="bts">
+  <button class="p" id="auto" type="button" hidden>🚀 Publicar no Instagram da Kiiro</button>
+  <p class="ok" id="auto-msg" hidden></p>
   <button class="p" id="postar" type="button">Postar no story da Kiiro</button>
   <button class="s" id="baixar" type="button">Baixar imagem</button>
 </div>
@@ -37,7 +41,18 @@
 // Story "Novo na Kiiro" para o Instagram da Kiiro. Aberto pelo painel, com os dados no endereço (#nome=...&serv=...).
 (async function () {
   const h = new URLSearchParams(location.hash.slice(1));
-  const d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "", w: (h.get("w") || "").replace(/\D/g, "") };
+  let d = { nome: h.get("nome") || "", serv: h.get("serv") || "", cidade: h.get("cidade") || "", ig: (h.get("ig") || "").replace(/[^A-Za-z0-9._]/g, ""), foto: h.get("foto") || "", w: (h.get("w") || "").replace(/\D/g, "") };
+  // link do aviso de cadastro novo (#t=...): busca os dados no site
+  const tok = (h.get("t") || "").replace(/[^a-f0-9-]/g, ""), kAdm = h.get("k") || "";
+  let jaPostado = "";
+  if (tok) {
+    try {
+      const r = await fetch("/.netlify/functions/story-ig?t=" + tok), j = await r.json();
+      if (!r.ok) { document.body.innerHTML = '<p class="erro">' + (j.erro || "Link inválido.") + '</p>'; return; }
+      d = { nome: j.nome || "", serv: j.serv || "", cidade: j.cidade || "", ig: j.ig || "", foto: j.foto || "", w: j.w || "" };
+      jaPostado = j.postado || "";
+    } catch { document.body.innerHTML = '<p class="erro">Sem conexão. Tente de novo.</p>'; return; }
+  }
   if (!d.nome) { document.body.innerHTML = '<p class="erro">Abra pelo painel, no botão “Story da Kiiro” do profissional.</p>'; return; }
 
   const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
@@ -143,7 +158,11 @@
       bt.textContent = pode ? "Postar no story da Kiiro" : "Baixar imagem";
       dica.innerHTML = "No Instagram, escolha <b>Story</b>, adicione a figurinha de <b>link</b> com chamakiiro.com.br" + (d.ig ? " e a de <b>menção</b> com @" + d.ig + " pra aparecer no perfil dele." : ".");
       bt.onclick = async () => { if (!pode) return baixar(r); try { await navigator.share({ files: [r.arquivo] }); } catch {} };
+      autoBt.hidden = !(tok || kAdm);
+      if (tok || kAdm) { bt.className = "s"; bt.textContent = "Postar eu mesmo (com a figurinha)"; }
+      autoBt.onclick = () => publicarAuto(r);
     } else {
+      autoBt.hidden = true; autoMsg.hidden = true; bt.className = "p";
       const direto = !!(d.w && r.png && navigator.clipboard && window.ClipboardItem);
       bt.textContent = direto || pode ? "Mandar pra " + n1 + " no WhatsApp" : "Baixar imagem";
       dica.innerHTML = direto
@@ -161,6 +180,27 @@
       };
     }
     bb.onclick = () => baixar(r);
+  }
+  // publica direto no Instagram da Kiiro, sem abrir o app
+  const autoBt = document.getElementById("auto"), autoMsg = document.getElementById("auto-msg");
+  const quando = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  if (jaPostado) { autoMsg.hidden = false; autoMsg.innerHTML = "✓ Story já postado em " + quando(jaPostado) + "."; }
+  async function publicarAuto(r, deNovo) {
+    autoBt.disabled = true; autoBt.textContent = "Publicando…"; autoMsg.hidden = true;
+    const qs = tok ? "t=" + tok : new URLSearchParams({ k: kAdm, w: d.w, ig: d.ig }).toString();
+    try {
+      const resp = await fetch("/.netlify/functions/story-ig?" + qs + (deNovo ? "&de_novo=1" : ""), { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: r.blob });
+      const j = await resp.json().catch(() => ({}));
+      autoMsg.hidden = false;
+      if (resp.ok) {
+        autoBt.textContent = "✓ Publicado";
+        autoMsg.innerHTML = "<b>Story no ar!</b> " + (j.marcou ? n1 + " foi marcada(o) e vai receber o aviso." : (d.ig ? "Se quiser que " + n1 + " receba o aviso, marque @" + d.ig + " pelo app." : ""));
+        return;
+      }
+      if (resp.status === 409 && !tok && confirm("O story de " + n1 + " já foi postado. Postar de novo?")) return publicarAuto(r, true);
+      autoMsg.innerHTML = '<span class="erro">' + (j.erro || "Não deu certo.") + "</span>";
+    } catch { autoMsg.hidden = false; autoMsg.innerHTML = '<span class="erro">Sem conexão. Tente de novo.</span>'; }
+    autoBt.disabled = false; autoBt.textContent = "🚀 Publicar no Instagram da Kiiro";
   }
   const baixar = r => { const a = document.createElement("a"); a.href = r.url; a.download = r.arquivo.name; document.body.appendChild(a); a.click(); a.remove(); };
   document.querySelectorAll(".abas button").forEach(b => b.onclick = () => mostrar(b.dataset.m));
