@@ -112,7 +112,7 @@ export default async (req, context) => {
           dias: curto(d.dias, 80),
           orcamento: curto(d.orcamento),
           mei: curto(d.mei),
-          instagram: curto(String(d.instagram || "").replace(/[^A-Za-z0-9._]/g, ""), 30),
+          instagram: /(gmail|hotmail|outlook|yahoo|icloud|live|bol|uol|terra)\.?com(\.br)?$|.@./i.test(String(d.instagram || "")) ? "" : curto(String(d.instagram || "").replace(/[^A-Za-z0-9._]/g, ""), 30), // e-mail no lugar do @ não vale
           collab: curto(d.collab) === "Sim",
           desde: s.created_at || "",
           nota: n ? Math.round((n.soma / n.qtd) * 10) / 10 : 0,

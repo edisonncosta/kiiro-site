@@ -65,6 +65,8 @@
   .collab span{font-weight:400}.collab b{font-weight:700}
   .collab input{width:20px;height:20px;flex:none;margin-top:.1rem;accent-color:#1A1A1A}
   .collab[hidden]{display:none}
+  .insta-aviso{margin-top:.5rem;font-size:.88rem;line-height:1.4;color:#B42318;font-weight:600}
+  .insta-aviso[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -179,6 +181,7 @@
       <input class="input" type="tel" id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(51) 99999-9999">
       <label for="instagram" style="margin-top:1.1rem;display:block;font-weight:600">Seu Instagram <span class="opc" style="font-weight:400">(opcional)</span></label>
       <div class="insta-campo"><span>@</span><input class="input" type="text" id="instagram" name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="80" placeholder="seuperfil"></div>
+      <p class="insta-aviso" id="insta-aviso" hidden>Isso parece um e-mail. Aqui vai o seu @ do Instagram (ex.: maria.diarista). Se não tiver Instagram, deixe em branco.</p>
       <label class="collab" id="collab-box" hidden><input type="checkbox" id="collab" name="collab" value="Sim"> <span>Quero que a Kiiro me marque nos posts e topo fazer <b>collab</b> 🤝</span></label>
     </div>
 
@@ -421,8 +424,11 @@ if (!window.DataTransfer) { // celular muito antigo: mostra os 3 campos normais
 
 // instagram (opcional): limpa o @ e mostra a opção de collab
 function limparInsta(v) { return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@+/, "").replace(/[/?#].*$/, "").replace(/[^A-Za-z0-9._]/g, "").slice(0, 30).toLowerCase(); }
-$("instagram").addEventListener("input", () => { $("collab-box").hidden = !limparInsta($("instagram").value); });
-$("instagram").addEventListener("blur", () => { $("instagram").value = limparInsta($("instagram").value); });
+// e-mail no lugar do @ (ex.: fulana@gmail.com ou fulanagmail.com)
+function pareceEmail(v) { v = v.trim().replace(/^@+/, ""); return /.@./.test(v) || /(gmail|hotmail|outlook|yahoo|icloud|live|bol|uol|terra)\.?com(\.br)?$/i.test(v); }
+function checarInsta() { const v = $("instagram").value, mail = pareceEmail(v); $("insta-aviso").hidden = !mail; $("collab-box").hidden = mail || !limparInsta(v); return mail; }
+$("instagram").addEventListener("input", checarInsta);
+$("instagram").addEventListener("blur", () => { if (!checarInsta()) $("instagram").value = limparInsta($("instagram").value); });
 
 $("form").addEventListener("submit", e => {
   const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);
@@ -443,10 +449,12 @@ $("form").addEventListener("submit", e => {
   else if (!marcado("mei")) msg = "Diga se tem CNPJ ou MEI.";
   else if (whats.length < 10 || whats.length > 11) msg = "Confira o WhatsApp com DDD.";
   else if ($("descricao").value.trim().length < MIN_DESC) msg = `Conte um pouco mais sobre o seu trabalho (pelo menos ${MIN_DESC} letras).`;
+  else if (checarInsta()) msg = "No campo Instagram vai o seu @, não o e-mail. Se não tiver Instagram, deixe em branco.";
   $("erro").textContent = msg;
   if (msg) {
     e.preventDefault();
     if (msg.startsWith("Conte")) { $("descricao").focus(); $("descricao").scrollIntoView({ block: "center" }); }
+    if (msg.startsWith("No campo Instagram")) { $("instagram").focus(); $("instagram").scrollIntoView({ block: "center" }); }
     return;
   }
   const insta = limparInsta($("instagram").value);
