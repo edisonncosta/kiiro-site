@@ -3069,7 +3069,7 @@ function ligarMetaFlutuante() {
   if (jaViu) { ligarMetaFlutuante.t1 = setTimeout(() => { pil.classList.add("dentro"); recolherMetaDepois(3500); }, 600); }
   else {
     ligarMetaFlutuante.t1 = setTimeout(() => { if (!document.body.classList.contains("em-perfil")) abrirMeta(true); }, 1200);
-    ligarMetaFlutuante.t2 = setTimeout(() => { if (!fecharMeta.mexeu) fecharMeta(); setTimeout(() => pil.classList.add("dentro"), 350); }, 1200 + 6500);
+    
   }
   clearInterval(ligarMetaFlutuante.t);
   ligarMetaFlutuante.t = setInterval(() => {
@@ -3081,8 +3081,11 @@ function ligarMetaFlutuante() {
     if (frases[k].includes("+1")) { pil.classList.add("pulo"); setTimeout(() => pil.classList.remove("pulo"), 900); }
   }, 3800);
 }
+/* o placar sempre baixa sozinho; se a pessoa mexer nele, o tempo recomeça */
+function fecharMetaDepois(ms) { clearTimeout(fecharMetaDepois.t); fecharMetaDepois.t = setTimeout(() => { if (!$("meta-folha").hidden) fecharMeta(); }, ms); }
 function abrirMeta(auto) {
-  mostrarMeta(); $("meta-folha").hidden = false; fecharMeta.mexeu = false;
+  mostrarMeta(); $("meta-folha").hidden = false;
+  fecharMetaDepois(auto ? 6500 : 9000);
   requestAnimationFrame(() => $("meta-folha").classList.add("aberta"));
   contar("meta_abrir", auto ? "auto" : "toque");
 }
@@ -3101,7 +3104,7 @@ function fecharMeta() {
 document.addEventListener("click", e => {
   if (e.target.closest("#meta-pilula")) return abrirMeta();
   if (e.target.closest("[data-fechar-meta]")) return fecharMeta();
-  if (e.target.closest(".mf-caixa")) fecharMeta.mexeu = true; // tocou no placar: não fecha sozinho
+  if (e.target.closest(".mf-caixa")) fecharMetaDepois(9000); // mexeu no placar: dá mais tempo antes de baixar
 });
 /* convidar: cada pessoa vira divulgadora (WhatsApp, Instagram, o que tiver no celular) */
 document.addEventListener("click", async e => {
