@@ -28,26 +28,94 @@ export function semDuplicados(itens) {
   return fora;
 }
 
-async function imagemDe(e) {
-  let url = /^https:\/\//.test(e.imagem || "") ? e.imagem : "";
-  if (!url && /^https:\/\//.test(e.fonte || "")) {
-    try {
-      const insta = /instagram\.com|facebook\.com/.test(e.fonte);
-      const pg = await fetch(e.fonte, { signal: AbortSignal.timeout(6000), headers: { "User-Agent": insta ? "facebookexternalhit/1.1" : "Mozilla/5.0 (compatible; KiiroBot/1.0; +https://chamakiiro.com.br)" } });
-      const html = pg.ok ? (await pg.text()).slice(0, 400000) : "";
-      const m = html.match(/<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-      if (m) url = new URL(m[1].replace(/&amp;/g, "&"), e.fonte).href;
-    } catch {}
-  }
-  if (!url) return null;
+const UA_BOT = "Mozilla/5.0 (compatible; KiiroBot/1.0; +https://chamakiiro.com.br)";
+const ehRede = (u) => /instagram\.com|facebook\.com|fb\.me/.test(u);
+
+// acha a imagem de divulgação dentro do HTML: og:image, twitter:image, image_src ou o "image" do JSON-LD
+function imagemNoHtml(html, base) {
+  const ms = [
+    /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+    /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+    /"image"\s*:\s*(?:\[\s*)?(?:\{[^}]*?"url"\s*:\s*)?"(https?:[^"]+)"/i,
+  ];
+  for (const re of ms) { const m = html.match(re); if (m) { try { return new URL(m[1].replace(/&amp;/g, "&").replace(/\\\//g, "/"), base).href; } catch {} } }
+  return "";
+}
+
+async function baixar(url, min = 8000) {
   try {
-    const im = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    const im = await fetch(url, { signal: AbortSignal.timeout(7000), headers: { "User-Agent": UA_BOT } });
     const tipo = im.headers.get("content-type") || "";
     const b = im.ok && /^image\//.test(tipo) ? Buffer.from(await im.arrayBuffer()) : null;
     // imagem muito pequena costuma ser logo/ícone, não a divulgação
-    if (b && b.length > 8000 && b.length < 4 * 1024 * 1024) { const fid = randomUUID(); await getStore("acontece-fotos").set(fid, b); return fid; }
-  } catch {}
+    return b && b.length > min && b.length < 4 * 1024 * 1024 ? b : null;
+  } catch { return null; }
+}
+
+// Microlink abre a página num navegador de verdade (pega imagem de página feita em JavaScript) e tira o print quando não há arte.
+async function microlink(fonte, print) {
+  const q = print
+    ? `screenshot=true&meta=false&viewport.width=1080&viewport.height=1080&waitForTimeout=1500`
+    : `meta=true`;
+  try {
+    const r = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(fonte)}&${q}`, { signal: AbortSignal.timeout(print ? 15000 : 9000) });
+    const j = r.ok ? await r.json() : null;
+    return (print ? j?.data?.screenshot?.url : j?.data?.image?.url) || "";
+  } catch { return ""; }
+}
+
+// Ordem: 1) imagem que a busca já trouxe  2) arte do link (og:image etc.)  3) Instagram em tamanho grande
+// 4) arte lida por navegador (Microlink)  5) print da página do evento (não em Instagram/Facebook, que mostram tela de login)
+async function imagemDe(e, { print = false } = {}) {
+  const fontes = [e.fonte, ...(Array.isArray(e.fontes) ? e.fontes : [])].filter((u) => /^https:\/\//.test(u || ""));
+  const tentar = [];
+  if (/^https:\/\//.test(e.imagem || "")) tentar.push(async () => baixar(e.imagem));
+  for (const f of fontes) {
+    tentar.push(async () => {
+      try {
+        const pg = await fetch(f, { signal: AbortSignal.timeout(7000), headers: { "User-Agent": ehRede(f) ? "facebookexternalhit/1.1" : UA_BOT } });
+        const u = pg.ok ? imagemNoHtml((await pg.text()).slice(0, 600000), f) : "";
+        return u ? baixar(u) : null;
+      } catch { return null; }
+    });
+    const post = f.match(/instagram\.com\/(?:[\w.]+\/)?(p|reel)\/([\w-]+)/);
+    if (post) tentar.push(async () => baixar(`https://www.instagram.com/p/${post[2]}/media/?size=l`));
+  }
+  for (const f of fontes) tentar.push(async () => { const u = await microlink(f, false); return u ? baixar(u) : null; });
+  if (print) for (const f of fontes.filter((u) => !ehRede(u))) tentar.push(async () => { const u = await microlink(f, true); return u ? baixar(u, 15000) : null; });
+  for (const t of tentar) {
+    const b = await t();
+    if (b) { const fid = randomUUID(); await getStore("acontece-fotos").set(fid, b); return fid; }
+  }
   return null;
+}
+
+// Para os eventos que já estão no ar sem imagem: tenta de novo (até 4 vezes por evento, a última com print da página).
+// Roda a cada 10 min pela função agendada, com limite de tempo para não estourar.
+export async function completarImagens({ ate = 20000 } = {}) {
+  const st = getStore("acontece"), t0 = Date.now();
+  const pub0 = (await st.get("publico", { type: "json" })) || {};
+  const hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+  const tent = (await st.get("img-tentativas", { type: "json" })) || {};
+  const faltam = (pub0.itens || []).filter((i) => !(i.fotos || []).length && i.fonte && (i.ate || i.dia || "9999") >= hoje && (tent[i.id] || 0) < 4);
+  const achou = {};
+  for (const it of faltam) {
+    if (Date.now() - t0 > ate) break;
+    tent[it.id] = (tent[it.id] || 0) + 1;
+    const fid = await imagemDe(it, { print: tent[it.id] >= 2 });
+    if (fid) achou[it.id] = fid;
+  }
+  await st.setJSON("img-tentativas", tent);
+  if (!Object.keys(achou).length) return 0;
+  // lê de novo na hora de gravar e só preenche quem continua sem foto
+  const pub = (await st.get("publico", { type: "json" })) || {};
+  let n = 0;
+  for (const i of pub.itens || []) if (achou[i.id] && !(i.fotos || []).length) { i.fotos = [achou[i.id]]; n++; }
+  await st.setJSON("publico", pub);
+  return n;
 }
 
 // base = endereço do site (para ler acontece-dados.js). Retorna quantos publicou.
@@ -96,7 +164,8 @@ export async function publicarSugestoes(base, { forcar = false } = {}) {
     const fid = await imagemDe(e);
     prontos.push({ sid, item: { id: "a-" + randomUUID().slice(0, 8), tipo: e.tipo === "lugar" ? "lugar" : "evento", nome: String(e.nome).slice(0, 90), cidade: String(e.cidade || "").slice(0, 40),
       local: String(e.local || "").slice(0, 120), dia: e.dia, ate: dataOk(e.ate) ? e.ate : "", hora: String(e.hora || "").slice(0, 30), desc: String(e.desc || "").slice(0, 600),
-      marcas: Array.isArray(e.marcas) ? e.marcas.slice(0, 8) : [], fotos: fid ? [fid] : [], fonte: /^https?:\/\//.test(e.fonte || "") ? String(e.fonte).slice(0, 300) : "", auto: true, aprovado: new Date().toISOString() } });
+      marcas: Array.isArray(e.marcas) ? e.marcas.slice(0, 8) : [], fotos: fid ? [fid] : [], fonte: /^https?:\/\//.test(e.fonte || "") ? String(e.fonte).slice(0, 300) : "",
+      fontes: (Array.isArray(e.fontes) ? e.fontes : []).filter((u) => /^https:\/\//.test(u || "")).slice(0, 4).map((u) => String(u).slice(0, 300)), auto: true, aprovado: new Date().toISOString() } });
   }
 
   // lê o publicado de novo bem na hora de gravar, para não duplicar nem perder o que entrou no meio
