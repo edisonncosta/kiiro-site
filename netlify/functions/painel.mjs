@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { enviarPara, inscricoes } from "../lib/push.mjs";
 import { lerLembretes, salvarLembretes, diaSP as hojeLb } from "../lib/lembretes.mjs";
 import { localDe } from "../lib/local.mjs";
-import { publicarSugestoes, semDuplicados } from "../lib/acontece-auto.mjs";
+import { publicarSugestoes, semDuplicados, completarImagens } from "../lib/acontece-auto.mjs";
 import { todasContas, apagarConta, lerConta, salvarConta, donoDoWhats, soltarWhats, novaProvisoria, guardarProvisoria, msgProvisoria } from "../lib/contas.mjs";
 import { lerFaturas, salvarFaturas, lerPrecos, valorDe, novoId, somaMeses, somaDias, br as brF, reais, NOMES as NOMES_F } from "../lib/faturas.mjs";
 
@@ -289,6 +289,11 @@ export default async (req, context) => {
       if (x && acao === "ac_recusar") {
         for (const fid of [...(x.fotos || []), ...(x.foto ? [x.foto] : [])]) await fst.delete(fid);
         await st.delete(id); aviso = "Recusado e apagado.";
+      }
+      if (acao === "ac_imagens") {
+        // botão "Buscar imagens agora": roda já a busca de imagem dos eventos no ar sem foto (o resto continua a cada 10 min)
+        const r = await completarImagens({ ate: 6000, forcar: true }).catch(() => ({ achou: 0, faltam: 0 }));
+        return Response.redirect(`${base}/painel${q({ aba: "acontece", ver: "todos", aviso: `Achei imagem para ${r.achou} evento(s). ${r.faltam ? `Ainda faltam ${r.faltam}: toque de novo ou espere, ele segue sozinho a cada 10 min.` : "Nenhum evento no ar sem imagem."}` })}`, 303);
       }
       if (acao === "ac_editar") {
         const alvo = String(f.get("alvo") || "").replace(/[^\w-]/g, ""), qual = f.get("qual") === "lugar" ? "lugar" : "evento";
@@ -1285,7 +1290,7 @@ export default async (req, context) => {
         <div class="acoes">${bt("ac_tirar", "Tirar do ar", "", hid("tipo", "com") + hid("alvo", alvo) + hid("ref", c.k), "Tirar este comentário?")}</div></article>`)).join("");
       corpo = (its ? `<h3 style="margin:14px 0 8px">Eventos e lugares</h3>${its}` : "") + (fts ? `<h3 style="margin:14px 0 8px">Fotos</h3><div>${fts}</div>` : "") + (cms ? `<h3 style="margin:14px 0 8px">Comentários</h3>${cms}` : "") || `<p class="vazio">Nada publicado pelo público ainda.</p>`;
     }
-    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}<nav class="abas sub">${sub("pendentes", "Para aprovar", pend.length)}${sub("publicados", "Enviados pelo público", nPub)}${sub("todos", "Editar tudo", todosAc.length)}</nav>${corpo}
+    html = `${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}<nav class="abas sub">${sub("pendentes", "Para aprovar", pend.length)}${sub("publicados", "Enviados pelo público", nPub)}${sub("todos", "Editar tudo", todosAc.length)}</nav>${(() => { const n = todosAc.filter((x) => !x.fixo && !x.fotos.length && !x.oculto && (x.fonte || (x.fontes || []).length)).length; return n ? `<div class="acoes" style="margin:8px 0 12px">${bt("ac_imagens", `🖼️ Buscar imagens agora (${n} sem imagem)`, "zap")}</div>` : ""; })()}${corpo}
       <p class="obs">O que as pessoas mandam pelo + do Acontece (eventos e lugares), as fotos e os comentários. Só aparece no site depois que você aprova. Você pode corrigir nome, data e local antes de publicar.</p>`;
   }
 

@@ -69,7 +69,7 @@ async function microlink(fonte, print) {
 
 // Ordem: 1) imagem que a busca já trouxe  2) arte do link (og:image etc.)  3) Instagram em tamanho grande
 // 4) arte lida por navegador (Microlink)  5) print da página do evento (não em Instagram/Facebook, que mostram tela de login)
-async function imagemDe(e, { print = false } = {}) {
+async function imagemDe(e, { print = false, limite = 0 } = {}) {
   const fontes = [e.fonte, ...(Array.isArray(e.fontes) ? e.fontes : [])].filter((u) => /^https:\/\//.test(u || ""));
   const tentar = [];
   if (/^https:\/\//.test(e.imagem || "")) tentar.push(async () => baixar(e.imagem));
@@ -87,6 +87,7 @@ async function imagemDe(e, { print = false } = {}) {
   for (const f of fontes) tentar.push(async () => { const u = await microlink(f, false); return u ? baixar(u) : null; });
   if (print) for (const f of fontes.filter((u) => !ehRede(u))) tentar.push(async () => { const u = await microlink(f, true); return u ? baixar(u, 15000) : null; });
   for (const t of tentar) {
+    if (limite && Date.now() > limite) break;
     const b = await t();
     if (b) { const fid = randomUUID(); await getStore("acontece-fotos").set(fid, b); return fid; }
   }
@@ -95,27 +96,27 @@ async function imagemDe(e, { print = false } = {}) {
 
 // Para os eventos que já estão no ar sem imagem: tenta de novo (até 4 vezes por evento, a última com print da página).
 // Roda a cada 10 min pela função agendada, com limite de tempo para não estourar.
-export async function completarImagens({ ate = 20000 } = {}) {
+export async function completarImagens({ ate = 20000, forcar = false } = {}) {
   const st = getStore("acontece"), t0 = Date.now();
   const pub0 = (await st.get("publico", { type: "json" })) || {};
   const hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
   const tent = (await st.get("img-tentativas", { type: "json" })) || {};
-  const faltam = (pub0.itens || []).filter((i) => !(i.fotos || []).length && i.fonte && (i.ate || i.dia || "9999") >= hoje && (tent[i.id] || 0) < 4);
-  const achou = {};
+  const semFoto = (pub0.itens || []).filter((i) => !(i.fotos || []).length && (i.fonte || (i.fontes || []).length) && (i.ate || i.dia || "9999") >= hoje);
+  // no botão do painel (forcar) tenta todos; sozinho, no máximo 4 vezes cada
+  const faltam = semFoto.filter((i) => forcar || (tent[i.id] || 0) < 4).sort((a, b) => (tent[a.id] || 0) - (tent[b.id] || 0));
+  let achou = 0;
   for (const it of faltam) {
     if (Date.now() - t0 > ate) break;
     tent[it.id] = (tent[it.id] || 0) + 1;
-    const fid = await imagemDe(it, { print: tent[it.id] >= 2 });
-    if (fid) achou[it.id] = fid;
+    await st.setJSON("img-tentativas", tent);
+    const fid = await imagemDe(it, { print: forcar || tent[it.id] >= 2, limite: t0 + ate });
+    if (!fid) continue;
+    // grava na hora (se a função for cortada por tempo, o que já achou fica salvo); só preenche quem continua sem foto
+    const pub = (await st.get("publico", { type: "json" })) || {};
+    const alvo = (pub.itens || []).find((i) => i.id === it.id && !(i.fotos || []).length);
+    if (alvo) { alvo.fotos = [fid]; await st.setJSON("publico", pub); achou++; }
   }
-  await st.setJSON("img-tentativas", tent);
-  if (!Object.keys(achou).length) return 0;
-  // lê de novo na hora de gravar e só preenche quem continua sem foto
-  const pub = (await st.get("publico", { type: "json" })) || {};
-  let n = 0;
-  for (const i of pub.itens || []) if (achou[i.id] && !(i.fotos || []).length) { i.fotos = [achou[i.id]]; n++; }
-  await st.setJSON("publico", pub);
-  return n;
+  return { achou, faltam: semFoto.length - achou };
 }
 
 // base = endereço do site (para ler acontece-dados.js). Retorna quantos publicou.
