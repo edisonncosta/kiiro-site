@@ -1,5 +1,7 @@
 [build]
   publish = "."
+  # ramo "instagram" só guarda as imagens dos posts: nunca publica (não gasta créditos do Netlify)
+  ignore = "exit 0"
   functions = "netlify/functions"
 
 # endereços curtos
