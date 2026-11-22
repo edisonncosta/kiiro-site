@@ -16,8 +16,11 @@ async function acharPro(base, id) {
   let pros = [];
   try { pros = await (await fetch(`${base}/.netlify/functions/profissionais`)).json(); } catch {}
   if (!Array.isArray(pros)) return null;
-  const w = /^w\d{10,13}$/.test(id) ? id.slice(1) : "";
-  return pros.find((p) => w ? String(p.whatsapp || "").endsWith(w.slice(-9)) : String(p.id) === id || (p.ids || []).map(String).includes(id)) || null;
+  // "w" + WhatsApp: aceita com ou sem 55 e com ou sem o 9 da frente (o número errado mais comum é sem o 9).
+  // Compara DDD + os últimos 8 dígitos, que é o que identifica o celular.
+  const chave = (n) => { let d = String(n || "").replace(/\D/g, ""); if (d.length >= 12 && d.startsWith("55")) d = d.slice(2); return d.length >= 10 ? d.slice(0, 2) + d.slice(-8) : ""; };
+  const w = /^w\d{10,13}$/.test(id) ? chave(id.slice(1)) : "";
+  return pros.find((p) => w ? chave(p.whatsapp) === w : String(p.id) === id || (p.ids || []).map(String).includes(id)) || null;
 }
 
 export default async (req, context) => {
