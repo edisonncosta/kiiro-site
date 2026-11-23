@@ -47,9 +47,27 @@ function imagemNoHtml(html, base) {
   return "";
 }
 
+// alguns sites recusam robô: se der erro com o nome da Kiiro, tenta de novo como navegador comum
+const UA_NAV = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
+async function pegar(url, ua, ms = 7000) {
+  try { const r = await fetch(url, { signal: AbortSignal.timeout(ms), headers: { "User-Agent": ua, "Accept-Language": "pt-BR,pt;q=0.9" } }); if (r.ok) return r; } catch {}
+  if (ua === UA_NAV) return null;
+  try { const r = await fetch(url, { signal: AbortSignal.timeout(ms), headers: { "User-Agent": UA_NAV, "Accept-Language": "pt-BR,pt;q=0.9" } }); return r.ok ? r : null; } catch { return null; }
+}
+// site em WordPress com "The Events Calendar" (ex.: corridasderuars.com.br/evento/<nome>/): a imagem do evento vem pela API do próprio site
+async function imagemTribe(f) {
+  const m = f.match(/^(https:\/\/[^/]+)\/evento\/([^/?#]+)\/?/);
+  if (!m) return null;
+  const r = await pegar(`${m[1]}/wp-json/tribe/events/v1/events/by-slug/${m[2]}`, UA_BOT);
+  let j = null; try { j = r ? await r.json() : null; } catch {}
+  const u = j?.image?.url || j?.image?.sizes?.large?.url || "";
+  return u ? baixar(u) : null;
+}
+
 async function baixar(url, min = 8000) {
   try {
-    const im = await fetch(url, { signal: AbortSignal.timeout(7000), headers: { "User-Agent": UA_BOT } });
+    const im = await pegar(url, UA_BOT);
+    if (!im) return null;
     const tipo = im.headers.get("content-type") || "";
     const b = im.ok && /^image\//.test(tipo) ? Buffer.from(await im.arrayBuffer()) : null;
     // imagem muito pequena costuma ser logo/ícone, não a divulgação
@@ -114,14 +132,16 @@ async function printSympla(fonte) {
 // Ordem: 1) imagem que a busca já trouxe  2) arte do link (og:image etc.)  3) Instagram em tamanho grande
 // 4) arte lida por navegador (Microlink)  5) print da página do evento (não em Instagram/Facebook, que mostram tela de login)
 async function imagemDe(e, { print = false, limite = 0 } = {}) {
-  const fontes = [e.fonte, ...(Array.isArray(e.fontes) ? e.fontes : [])].filter((u) => /^https:\/\//.test(u || ""));
+  // páginas de lista (ex.: .../eventos/) não servem: a imagem delas não é do evento
+  const fontes = [e.fonte, ...(Array.isArray(e.fontes) ? e.fontes : [])].filter((u) => /^https:\/\//.test(u || "") && !/\/(eventos|agenda)\/?(\?.*)?$/i.test(u));
   const tentar = [];
   if (/^https:\/\//.test(e.imagem || "")) tentar.push(async () => baixar(e.imagem));
   for (const f of fontes) {
+    tentar.push(async () => imagemTribe(f));
     tentar.push(async () => {
       try {
-        const pg = await fetch(f, { signal: AbortSignal.timeout(7000), headers: { "User-Agent": ehRede(f) ? "facebookexternalhit/1.1" : UA_BOT } });
-        const u = pg.ok ? imagemNoHtml((await pg.text()).slice(0, 600000), f) : "";
+        const pg = await pegar(f, ehRede(f) ? "facebookexternalhit/1.1" : UA_BOT);
+        const u = pg ? imagemNoHtml((await pg.text()).slice(0, 600000), f) : "";
         return u ? baixar(u) : null;
       } catch { return null; }
     });
@@ -146,7 +166,7 @@ export async function completarImagens({ ate = 20000, forcar = false, base = "ht
   const st = getStore("acontece"), t0 = Date.now();
   const pub0 = (await st.get("publico", { type: "json" })) || {};
   const hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
-  const tent = (await st.get("img-tentativas", { type: "json" })) || {};
+  const tent = (await st.get("img-tentativas-2", { type: "json" })) || {};
   const semFoto = (pub0.itens || []).filter((i) => !(i.fotos || []).length && (i.fonte || (i.fontes || []).length) && (i.ate || i.dia || "9999") >= hoje);
   // eventos fixos da base (acontece-dados.js) sem foto: a imagem achada vai para as edições (pub.edits[id].fotos)
   try {
@@ -165,7 +185,7 @@ export async function completarImagens({ ate = 20000, forcar = false, base = "ht
   for (const it of faltam) {
     if (Date.now() - t0 > ate) break;
     tent[it.id] = (tent[it.id] || 0) + 1;
-    await st.setJSON("img-tentativas", tent);
+    await st.setJSON("img-tentativas-2", tent);
     const fid = await imagemDe(it, { print: forcar || tent[it.id] >= 2, limite: t0 + ate });
     if (!fid) continue;
     // grava na hora (se a função for cortada por tempo, o que já achou fica salvo); só preenche quem continua sem foto
