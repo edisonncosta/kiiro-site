@@ -142,12 +142,23 @@ async function imagemDe(e, { print = false, limite = 0 } = {}) {
 
 // Para os eventos que já estão no ar sem imagem: tenta de novo (até 4 vezes por evento, a última com print da página).
 // Roda a cada 10 min pela função agendada, com limite de tempo para não estourar.
-export async function completarImagens({ ate = 20000, forcar = false } = {}) {
+export async function completarImagens({ ate = 20000, forcar = false, base = "https://chamakiiro.com.br" } = {}) {
   const st = getStore("acontece"), t0 = Date.now();
   const pub0 = (await st.get("publico", { type: "json" })) || {};
   const hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
   const tent = (await st.get("img-tentativas", { type: "json" })) || {};
   const semFoto = (pub0.itens || []).filter((i) => !(i.fotos || []).length && (i.fonte || (i.fontes || []).length) && (i.ate || i.dia || "9999") >= hoje);
+  // eventos fixos da base (acontece-dados.js) sem foto: a imagem achada vai para as edições (pub.edits[id].fotos)
+  try {
+    const t = await (await fetch(`${base}/acontece-dados.js`, { signal: AbortSignal.timeout(6000) })).text();
+    const evs = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)).eventos || [];
+    for (const x of evs) {
+      const ed = (pub0.edits || {})[x.id] || {};
+      if (ed.oculto || (ed.fotos || []).length || (x.ft || []).some((f) => /^img\//.test(f))) continue;
+      if (!/^https:\/\//.test(x.fonte || "") || (ed.ate || ed.dia || x.ate || x.dia || "9999") < hoje) continue;
+      semFoto.push({ id: x.id, fonte: x.fonte, fixo: true });
+    }
+  } catch {}
   // no botão do painel (forcar) tenta todos; sozinho, no máximo 4 vezes cada
   const faltam = semFoto.filter((i) => forcar || (tent[i.id] || 0) < 4).sort((a, b) => (tent[a.id] || 0) - (tent[b.id] || 0));
   let achou = 0;
@@ -159,6 +170,11 @@ export async function completarImagens({ ate = 20000, forcar = false } = {}) {
     if (!fid) continue;
     // grava na hora (se a função for cortada por tempo, o que já achou fica salvo); só preenche quem continua sem foto
     const pub = (await st.get("publico", { type: "json" })) || {};
+    if (it.fixo) {
+      const ed = ((pub.edits ||= {})[it.id] ||= {});
+      if (!(ed.fotos || []).length) { ed.fotos = [fid]; await st.setJSON("publico", pub); achou++; }
+      continue;
+    }
     const alvo = (pub.itens || []).find((i) => i.id === it.id && !(i.fotos || []).length);
     if (alvo) { alvo.fotos = [fid]; await st.setJSON("publico", pub); achou++; }
   }

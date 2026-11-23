@@ -5,6 +5,6 @@ export const config = { schedule: "*/10 * * * *" };
 export default async () => {
   const t0 = Date.now();
   const n = await publicarSugestoes(process.env.URL || "https://chamakiiro.com.br", { forcar: true }).catch(() => 0);
-  const f = (await completarImagens({ ate: Math.max(4000, 24000 - (Date.now() - t0)) }).catch(() => ({ achou: 0 }))).achou;
+  const f = (await completarImagens({ ate: Math.max(4000, 24000 - (Date.now() - t0)), base: process.env.URL || "https://chamakiiro.com.br" }).catch(() => ({ achou: 0 }))).achou;
   return new Response(`publicados: ${n} · imagens achadas: ${f}`);
 };
