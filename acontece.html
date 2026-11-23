@@ -317,6 +317,8 @@
   .cid-ops button svg.ok{color:var(--ink);margin:0}
   /* ===== detalhe no formato do Zone ===== */
   .zd-bar b{color:#8a6a00;font-weight:800;font-size:1.08rem}
+  .z-dbar .zd-volta{width:40px;height:40px;flex:none;border-radius:50% !important;background:rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,0,0,.18);color:#007AFF}
+  .z-dbar .zd-volta svg{width:18px;height:18px}
   .zd-bar .zd-mais{width:40px;height:40px;display:grid;place-items:center;color:var(--ink)}
   .zd-bar .zd-mais svg{width:22px;height:22px}
   .zd h2{color:#8a6a00 !important;font-size:1.75rem !important;line-height:1.15;margin:.7rem 0 .9rem !important}
@@ -663,7 +665,7 @@ function abrir(id) {
   const coms = ((comentarios || {})[x.id] || []), pubComs = ((servidor && servidor.coms) || {})[x.id] || [];
   const nVao = x.vao + (est === "vou" ? 1 : 0), nInt = (x.querem || 0) + (salvo ? 1 : 0), nFor = (x.foram || 0) + (est === "fui" ? 1 : 0);
   $("det").innerHTML = `
-    <div class="z-dbar zd-bar"><button type="button" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>${esc(x.nome)}</b><a href="${compart}" target="_blank" rel="noopener" aria-label="Mais opções" class="zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
+    <div class="z-dbar zd-bar"><button type="button" class="zd-volta" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><b>${esc(x.nome)}</b><a href="${compart}" target="_blank" rel="noopener" aria-label="Mais opções" class="zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
     ${fotos ? `<div class="gal" id="gal">${fotos}</div>` : ""}
     ${x.ft.filter(ehFoto).length > 1 ? `<div class="gal-pts" id="pts">${x.ft.filter(ehFoto).map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
     <div class="dt zd">
@@ -699,8 +701,16 @@ function abrir(id) {
   $("m-det").dataset.id = id;
   const gal = $("gal"), pts = $("pts");
   if (pts && gal) gal.addEventListener("scroll", () => { const i = Math.round(gal.scrollLeft / gal.clientWidth); pts.querySelectorAll("i").forEach((p, j) => p.classList.toggle("on", j === i)); });
-  history.replaceState(null, "", "#" + id);
+  // cria um passo no histórico: o "voltar" do celular fecha o evento e volta pra lista (não sai do Acontece)
+  if (history.state && history.state.det) history.replaceState({ det: id }, "", "#" + id);
+  else history.pushState({ det: id }, "", "#" + id);
 }
+function fecharModais() { document.querySelectorAll(".mod").forEach(m => m.classList.remove("aberto")); }
+addEventListener("popstate", () => {
+  const id = history.state && history.state.det;
+  if (id) { if ($("m-det").dataset.id !== id || !$("m-det").classList.contains("aberto")) abrir(id); }
+  else fecharModais();
+});
 $("lista").addEventListener("click", e => { const c = e.target.closest(".card,.tur button"); if (c) abrir(c.dataset.id); });
 $("det").addEventListener("click", e => {
   const m = e.target.closest("[data-marca]");
@@ -739,7 +749,10 @@ $("det").addEventListener("change", async e => {
   e.target.value = "";
 });
 document.addEventListener("click", e => {
-  if (e.target.closest("[data-fechar]") || e.target.classList.contains("mod")) { document.querySelectorAll(".mod").forEach(m => m.classList.remove("aberto")); history.replaceState(null, "", location.pathname); }
+  if (e.target.closest("[data-fechar]") || e.target.classList.contains("mod")) {
+    if (history.state && history.state.det) history.back(); // volta um passo: fecha o evento e fica na lista, no mesmo lugar
+    else { fecharModais(); history.replaceState(null, "", location.pathname + location.search); }
+  }
 });
 
 /* ----- indicar ----- */
@@ -866,7 +879,9 @@ document.querySelectorAll(".hp").forEach((hp, k) => {
   setTimeout(() => setInterval(() => { sl[i].classList.remove("on"); i = (i + 1) % sl.length; sl[i].classList.add("on"); }, 6000), k * 3000);
 });
 chips(); lista();
-if (location.hash.length > 1) abrir(location.hash.slice(1));
+// link direto de um evento (#id): a lista fica "atrás" dele, então o voltar cai no Acontece
+// (no próximo tique: o resto do script, como "servidor", precisa estar pronto antes de abrir)
+if (location.hash.length > 1) { const h = location.hash.slice(1); history.replaceState(null, "", location.pathname + location.search); setTimeout(() => abrir(h), 0); }
 
 /* ----- dados reais: o que o público mandou (aprovado no painel), fotos, comentários e contagens ----- */
 const API = "/.netlify/functions/acontece";
@@ -921,7 +936,7 @@ function aplicarServidor(r) {
   }
   lista();
   if ($("m-det").classList.contains("aberto")) abrir($("m-det").dataset.id);
-  else if (location.hash.length > 1) abrir(location.hash.slice(1));
+  else if (location.hash.length > 1 && !(history.state && history.state.det)) { const h = location.hash.slice(1); history.replaceState(null, "", location.pathname + location.search); abrir(h); }
 }
 fetch(API).then(r => r.ok ? r.json() : null).then(r => r && aplicarServidor(r)).catch(() => {});
 const mandar = (d) => fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) }).then(r => r.ok ? r.json() : r.json().then(j => Promise.reject(j))).catch(e => Promise.reject(e || {}));
