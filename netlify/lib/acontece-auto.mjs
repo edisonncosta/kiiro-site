@@ -121,7 +121,8 @@ export async function completarImagens({ ate = 20000, forcar = false } = {}) {
 
 // base = endereço do site (para ler acontece-dados.js). Retorna quantos publicou.
 export async function publicarSugestoes(base, { forcar = false } = {}) {
-  const st = getStore("acontece");
+  // consistência forte: a trava abaixo grava e relê na hora; com a leitura "eventual" ela via o valor antigo e desistia sempre
+  const st = getStore({ name: "acontece", consistency: "strong" });
   const agora = Date.now();
   const ult = Number(String((await st.get("auto-ultima")) || "0").split(":")[0]) || 0;
   // no máximo a cada 20 min; e nunca duas rodadas juntas (trava de 2 min)
@@ -160,9 +161,10 @@ export async function publicarSugestoes(base, { forcar = false } = {}) {
     return 0;
   }
 
-  const prontos = [];
+  // imagens com limite de tempo (a função agendada é cortada em ~30 s); as que faltarem, completarImagens busca depois
+  const prontos = [], limImg = Date.now() + 6000;
   for (const { e, sid } of novos) {
-    const fid = await imagemDe(e);
+    const fid = Date.now() < limImg ? await imagemDe(e, { limite: limImg }) : null;
     prontos.push({ sid, item: { id: "a-" + randomUUID().slice(0, 8), tipo: e.tipo === "lugar" ? "lugar" : "evento", nome: String(e.nome).slice(0, 90), cidade: String(e.cidade || "").slice(0, 40),
       local: String(e.local || "").slice(0, 120), dia: e.dia, ate: dataOk(e.ate) ? e.ate : "", hora: String(e.hora || "").slice(0, 30), desc: String(e.desc || "").slice(0, 600),
       marcas: Array.isArray(e.marcas) ? e.marcas.slice(0, 8) : [], fotos: fid ? [fid] : [], fonte: /^https?:\/\//.test(e.fonte || "") ? String(e.fonte).slice(0, 300) : "",
