@@ -317,8 +317,12 @@
   .cid-ops button svg.ok{color:var(--ink);margin:0}
   /* ===== detalhe no formato do Zone ===== */
   .zd-bar b{color:#8a6a00;font-weight:800;font-size:1.08rem}
-  .z-dbar .zd-volta{width:40px;height:40px;flex:none;border-radius:50% !important;background:rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,0,0,.18);color:#007AFF}
-  .z-dbar .zd-volta svg{width:18px;height:18px}
+  /* bolinhas por cima da foto, fixas: aparecem sempre, mesmo rolando o evento */
+  .zd-flut{position:fixed;z-index:6;top:calc(.8rem + env(safe-area-inset-top));left:max(.9rem,calc(50% - 320px + .9rem));right:max(.9rem,calc(50% - 320px + .9rem));display:flex;justify-content:space-between;pointer-events:none}
+  .zd-flut .zd-volta{pointer-events:auto;width:40px;height:40px;border:0;border-radius:50% !important;padding:0 !important;background:rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,0,0,.18);color:#007AFF;display:grid;place-items:center;cursor:pointer}
+  .zd-flut .zd-volta svg{width:18px;height:18px}
+  .zd-flut .zd-mais{color:var(--ink)}
+  .dt.sem-ft{padding-top:calc(4rem + env(safe-area-inset-top))}
   .zd-bar .zd-mais{width:40px;height:40px;display:grid;place-items:center;color:var(--ink)}
   .zd-bar .zd-mais svg{width:22px;height:22px}
   .zd h2{color:#8a6a00 !important;font-size:1.75rem !important;line-height:1.15;margin:.7rem 0 .9rem !important}
@@ -665,10 +669,10 @@ function abrir(id) {
   const coms = ((comentarios || {})[x.id] || []), pubComs = ((servidor && servidor.coms) || {})[x.id] || [];
   const nVao = x.vao + (est === "vou" ? 1 : 0), nInt = (x.querem || 0) + (salvo ? 1 : 0), nFor = (x.foram || 0) + (est === "fui" ? 1 : 0);
   $("det").innerHTML = `
-    <div class="z-dbar zd-bar"><button type="button" class="zd-volta" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><b>${esc(x.nome)}</b><a href="${compart}" target="_blank" rel="noopener" aria-label="Mais opções" class="zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
+    <div class="zd-flut"><button type="button" class="zd-volta" data-fechar aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><a href="${compart}" target="_blank" rel="noopener" aria-label="Mandar pra alguém" class="zd-volta zd-mais"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></a></div>
     ${fotos ? `<div class="gal" id="gal">${fotos}</div>` : ""}
     ${x.ft.filter(ehFoto).length > 1 ? `<div class="gal-pts" id="pts">${x.ft.filter(ehFoto).map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
-    <div class="dt zd">
+    <div class="dt zd${fotos ? "" : " sem-ft"}">
       <h2>${esc(x.nome)}</h2>
       ${ev ? `<div class="zd-l">${ic("calendar")}<span>${rotDia(x.d)}${x.ate ? " a " + rotDia(x.ate) : ""}${x.hora ? " · " + esc(x.hora) : ""}</span></div>` : ""}
       <div class="zd-l">${ic("map-pin")}<span>${esc(x.local)}, ${esc(x.cidade)}, RS${minhaPos && km(x) != null ? ` <em>· ${kmTxt(x)}</em>` : ""}<br><a href="${mapa}" target="_blank" rel="noopener">Ver no mapa</a></span></div>
