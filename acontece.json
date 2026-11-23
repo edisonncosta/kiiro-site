@@ -1,32 +1,36 @@
 {
-  "atualizado": "2026-11-21",
+  "atualizado": "2026-11-23",
   "eventos": [
     {
-      "nome": "Mentes Brilhantes Tour RS 2026",
-      "cidade": "Capão da Canoa",
-      "local": "Casa de Cultura Érico Veríssimo",
-      "dia": "2026-11-16",
-      "hora": "16h às 20h",
+      "nome": "Dia da Consciência Negra na Casa da Cultura",
+      "cidade": "Imbé",
+      "local": "Casa da Cultura de Imbé (Castelinho), Av. Nilza Costa Godoy, 2286, Centro",
+      "dia": "2026-11-23",
+      "hora": "a partir das 9h30",
       "marcas": [
+        "Música",
+        "Pra crianças",
         "Comunidade"
       ],
-      "desc": "Edição especial do Mentes Brilhantes Tour no Litoral Norte, com palestras.",
-      "fonte": "https://jplitoral.com.br/mentes-brilhantes-tour-2026-acontece-dia-16-de-novembro-em-capao-da-canoa/",
-      "sid": "mentesbrilhantestourrs2026capaodacanoa2026-11-16"
+      "desc": "Tarde cultural com capoeira, contação de histórias, jazz e oficina de percussão abertas ao público.",
+      "fonte": "https://www.jornaldocomercio.com/jornal-cidades/2026/11/1270834-imbe-tera-programacao-cultural-em-celebracao-a-consciencia-negra.html",
+      "sid": "diadaconsciencianegranacasadaculturaimbe20261123"
     },
     {
-      "nome": "4ª Corrida Baggio Supermercados",
-      "cidade": "Torres",
-      "local": "Baggio Supermercados – Shopping Vesta, Rua Desembargador Vieira Pires, 270",
-      "dia": "2026-11-22",
-      "hora": "7h30",
+      "nome": "11ª Feira do Livro de Cidreira",
+      "cidade": "Cidreira",
+      "local": "Salão Paroquial Comunidade Santa Luzia",
+      "dia": "2026-11-26",
+      "ate": "2026-11-28",
+      "hora": "",
       "marcas": [
-        "Esporte",
-        "Pra crianças"
+        "Feira",
+        "Pra crianças",
+        "Comunidade"
       ],
-      "desc": "Corrida de rua de 3 km e 5 km com caminhada de 3 km e provas infantis logo depois da prova adulta.",
-      "fonte": "https://haid.app/en/events/4-corrida-baggio-supermercados-147642",
-      "sid": "4corridabaggiosupermercadostorres20261122"
+      "desc": "Três dias de feira do livro com encontro com o patrono, lançamentos de autores locais, teatro e música.",
+      "fonte": "https://cidreira.rs.gov.br/eventos",
+      "sid": "11afeiradolivrodecidreiracidreira20261126"
     },
     {
       "nome": "Carreata de Natal da Havan",
@@ -98,6 +102,138 @@
       "sid": "carreatadenataldahavantorres2026-11-29"
     },
     {
+      "nome": "Megarace – 3ª Etapa",
+      "cidade": "Xangri-Lá",
+      "local": "",
+      "dia": "2026-11-29",
+      "hora": "8h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Terceira etapa do circuito de corrida de rua Megarace.",
+      "fonte": "https://corridasderuars.com.br/evento/megarace-3a-etapa/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "megarace3aetapaxangrila20261129"
+    },
+    {
+      "nome": "Summer 48K",
+      "cidade": "Capão da Canoa",
+      "local": "",
+      "dia": "2026-12-05",
+      "hora": "6h30",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Prova de corrida de longa distância no início do verão.",
+      "fonte": "https://corridasderuars.com.br/evento/summer-48k-11/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "summer48kcapaodacanoa20261205"
+    },
+    {
+      "nome": "Show Nacional com Frei Gilson",
+      "cidade": "Mostardas",
+      "local": "Parque de Evangelização Bruno Sessim, RSC-101 km 255",
+      "dia": "2026-12-06",
+      "hora": "",
+      "marcas": [
+        "Música",
+        "Comunidade"
+      ],
+      "desc": "Show católico de Frei Gilson promovido pela paróquia, com ingressos à venda.",
+      "fonte": "https://uticket.com.br/evento/ingressos-show-nacional-com-frei-gilson-mostardasrs/01LK4R0QTXCPYK",
+      "fontes": [
+        "https://leouve.com.br/eventos/mostardas-recebe-show-nacional-de-frei-gilson-em-dezembro/",
+        "https://maisnova.com.br/noticias/conta-ai/03-11-2026/show-nacional-com-frei-gilson-em-mostardasrs-todos-os-caminhos-levam-para-mostardas",
+        "https://www.aguiatrips.com.br/agenda/bate-volta/show-frei-gilson-mostardas-rs-frei-gilson-06122026"
+      ],
+      "imagem": "https://uploads.leouve.com.br/2026/09/WhatsApp-Image-2026-09-25-at-07.07.48.jpeg",
+      "sid": "shownacionalcomfreigilsonmostardas20261206"
+    },
+    {
+      "nome": "11ª Rústica dos Bancários do Litoral Norte",
+      "cidade": "Tramandaí",
+      "local": "",
+      "dia": "2026-12-06",
+      "hora": "8h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida rústica tradicional organizada pelos bancários da região.",
+      "fonte": "https://corridasderuars.com.br/evento/11a-rustica-dos-bancarios-do-litoral-norte/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "11arusticadosbancariosdolitoralnortetramandai20261206"
+    },
+    {
+      "nome": "2º Desafio Volta da Lagoa",
+      "cidade": "Torres",
+      "local": "",
+      "dia": "2026-12-12",
+      "hora": "16h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida de fim de tarde contornando a lagoa.",
+      "fonte": "https://corridasderuars.com.br/evento/2o-desafio-volta-da-lagoa/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "2odesafiovoltadalagoatorres20261212"
+    },
+    {
+      "nome": "Rústica da 4ª Semana dos Corretores de Imóveis de Imbé",
+      "cidade": "Imbé",
+      "local": "",
+      "dia": "2026-12-13",
+      "hora": "7h30",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida rústica que faz parte da semana dos corretores de imóveis.",
+      "fonte": "https://corridasderuars.com.br/evento/rustica-da-4a-semana-dos-corretores-de-imoveis-de-imbe/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "rusticada4asemanadoscorretoresdeimoveisdeimbeimbe20261213"
+    },
+    {
+      "nome": "1ª Corrida pelo Autismo",
+      "cidade": "Arroio do Sal",
+      "local": "",
+      "dia": "2026-12-19",
+      "hora": "17h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Primeira edição de corrida de conscientização sobre o autismo.",
+      "fonte": "https://corridasderuars.com.br/evento/1a-corrida-pelo-autismo-2/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "1acorridapeloautismoarroiodosal20261219"
+    },
+    {
+      "nome": "Corrida e Caminhada da Virada Atlântida Sul",
+      "cidade": "Osório",
+      "local": "",
+      "dia": "2026-12-27",
+      "hora": "7h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida e caminhada de fim de ano no balneário de Atlântida Sul.",
+      "fonte": "https://corridasderuars.com.br/evento/corrida-e-caminhada-da-virada-atlantida-sul/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "corridaecaminhadadaviradaatlantidasulosorio20261227"
+    },
+    {
       "nome": "ARTBAT no Privilège Xangri-Lá",
       "cidade": "Xangri-Lá",
       "local": "Privilège Xangri-Lá",
@@ -126,129 +262,100 @@
       "sid": "nuyreveillon2027xangrila2026-12-31"
     },
     {
-      "nome": "Abertura da Temporada de Verão 2026/27",
-      "cidade": "Arroio do Sal",
-      "local": "Rua Coberta e Praça da Emancipação",
-      "dia": "2026-11-21",
-      "ate": "2026-11-22",
+      "nome": "Desafio das Plataformas 21k Cidreira-Tramandaí",
+      "cidade": "Cidreira",
+      "local": "",
+      "dia": "2026-12-31",
+      "hora": "5h",
       "marcas": [
-        "Grátis",
-        "Comunidade",
-        "Música",
-        "Feira"
-      ],
-      "desc": "Abertura do verão com feira de artesanato, palco aberto e shows.",
-      "fonte": "https://www.instagram.com/p/Df266O7BHcH/",
-      "sid": "aberturadatemporadadeverao202627arroiodosal20261121"
-    },
-    {
-      "nome": "VI Artenorte – Feira de Artesanato",
-      "cidade": "Capão da Canoa",
-      "local": "Largo do Baronda, Av. Beira-Mar",
-      "dia": "2026-11-20",
-      "ate": "2026-11-22",
-      "hora": "Sáb 10h às 22h, dom 10h às 20h",
-      "marcas": [
-        "Grátis",
-        "Feira",
-        "Comunidade"
-      ],
-      "desc": "Feira com cerca de 140 artesãos do Litoral Norte.",
-      "fonte": "https://fgtas.rs.gov.br/vi-artenorte-ocorrera-de-20-a-22-de-novembro-em-capao-da-canoa",
-      "sid": "viartenortefeiradeartesanatocapaodacanoa20261120"
-    },
-    {
-      "nome": "5º Barra Motos",
-      "cidade": "Imbé",
-      "local": "Guia Corrente",
-      "dia": "2026-11-20",
-      "ate": "2026-11-21",
-      "marcas": [
-        "Grátis",
-        "Música",
-        "Comunidade"
-      ],
-      "desc": "Encontro de motociclistas com shows na beira da barra.",
-      "fonte": "https://www.imbe.rs.gov.br/noticia/28813",
-      "sid": "5obarramotosimbe20261120"
-    },
-    {
-      "nome": "União do Sul 2026",
-      "cidade": "Tramandaí",
-      "local": "Parque Municipal de Eventos",
-      "dia": "2026-11-21",
-      "ate": "2026-11-22",
-      "hora": "Sáb 19h à 1h, dom 8h30 às 18h",
-      "marcas": [
-        "Comunidade",
-        "Música",
-        "Comida"
-      ],
-      "desc": "Encontro com programação no sábado à noite e domingo o dia todo.",
-      "fonte": "https://www.instagram.com/p/Df7-8HOExqS/",
-      "sid": "uniaodosul2026tramandai20261121"
-    },
-    {
-      "nome": "1º American Sul Rodeio Fest",
-      "cidade": "Xangri-Lá",
-      "local": "Parque de Eventos",
-      "dia": "2026-11-19",
-      "ate": "2026-11-22",
-      "hora": "Portões 10h; montarias sáb 20h e dom 17h",
-      "marcas": [
-        "Grátis",
-        "Festa",
         "Esporte"
       ],
-      "desc": "Quatro dias de rodeio estilo americano, entrada na arena gratuita.",
-      "fonte": "https://www.instagram.com/p/Df7KjgvkTpn/",
-      "sid": "1oamericansulrodeiofestxangrila20261119"
+      "desc": "Meia maratona pela orla ligando as plataformas de Cidreira e Tramandaí no último dia do ano.",
+      "fonte": "https://corridasderuars.com.br/evento/desafio-das-plataformas-21k-cidreira-tramandai-2/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "desafiodasplataformas21kcidreiratramandaicidreira20261231"
     },
     {
-      "nome": "Festivais de Coros na Catedral",
+      "nome": "11ª Corrida Abertura de Temporada Tramandaí",
+      "cidade": "Tramandaí",
+      "local": "",
+      "dia": "2027-01-03",
+      "hora": "6h",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida de rua que marca o início da temporada de verão.",
+      "fonte": "https://corridasderuars.com.br/evento/11-corrida-abertura-de-temporada-tramandai/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "11acorridaaberturadetemporadatramandaitramandai20270103"
+    },
+    {
+      "nome": "6º Borússia Trail",
       "cidade": "Osório",
-      "local": "Catedral de Osório",
-      "dia": "2026-11-21",
-      "ate": "2026-11-22",
-      "hora": "Sáb 19h30 (coros adultos), dom 15h (infantojuvenis)",
+      "local": "",
+      "dia": "2027-01-09",
+      "hora": "7h",
       "marcas": [
-        "Grátis",
-        "Música",
-        "Pra crianças"
+        "Esporte"
       ],
-      "desc": "7º Festival Nacional e 1º Internacional de Coros no sábado e 4º Festival de Coros Infantojuvenis no domingo.",
-      "fonte": "https://www.facebook.com/PrefeituraDeOsorio/posts/-os%C3%B3rio-recebe-dois-grandes-festivais-de-coros-neste-final-de-semanaa-m%C3%BAsica-e-o/1599167875585107/",
-      "sid": "festivaisdecorosnacatedralosorio20261121"
+      "desc": "Corrida de trilha nos morros do Borússia.",
+      "fonte": "https://corridasderuars.com.br/evento/6-borussia-trail/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "6oborussiatrailosorio20270109"
     },
     {
-      "nome": "Baile no Salão Paroquial de Passinhos",
-      "cidade": "Osório",
-      "local": "Salão Paroquial de Passinhos",
-      "dia": "2026-11-21",
-      "hora": "22h às 5h",
+      "nome": "Corrida 6 Anos BY JOY",
+      "cidade": "Tramandaí",
+      "local": "",
+      "dia": "2027-01-09",
+      "hora": "19h",
       "marcas": [
-        "Festa",
-        "Música",
-        "Comunidade"
+        "Esporte"
       ],
-      "desc": "Baile da comunidade de Passinhos, ingressos na Sympla.",
-      "fonte": "https://www.sympla.com.br/evento/salao-paroquial-de-passinhos-em-osorio-rs-21-11-2026/3642861",
-      "sid": "bailenosalaoparoquialdepassinhososorio20261121"
+      "desc": "Corrida noturna comemorativa de aniversário de grupo de corrida.",
+      "fonte": "https://corridasderuars.com.br/evento/corrida-6-anos-by-joy/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "corrida6anosbyjoytramandai20270109"
     },
     {
-      "nome": "1ª Marcha para Jesus",
-      "cidade": "Santo Antônio da Patrulha",
-      "local": "Saída da Praça da Valbaru até a Praça da Boa Viagem",
-      "dia": "2026-11-21",
-      "hora": "Concentração 16h30, show 19h30",
+      "nome": "21ª TTT – Travessia Torres-Tramandaí",
+      "cidade": "Torres",
+      "local": "",
+      "dia": "2027-01-16",
+      "hora": "6h",
       "marcas": [
-        "Grátis",
-        "Comunidade",
-        "Música"
+        "Esporte"
       ],
-      "desc": "Primeira Marcha para Jesus da cidade, com show no fim do percurso.",
-      "fonte": "https://www.instagram.com/p/Df28GCiFHZL/",
-      "sid": "1amarchaparajesussantoantoniodapatrulha20261121"
+      "desc": "Tradicional travessia de corrida pela orla entre Torres e Tramandaí.",
+      "fonte": "https://corridasderuars.com.br/evento/21a-ttt-travessia-torres-tramandai/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "21attttravessiatorrestramandaitorres20270116"
+    },
+    {
+      "nome": "5º Imbé Night Run",
+      "cidade": "Imbé",
+      "local": "",
+      "dia": "2027-01-16",
+      "hora": "20h30",
+      "marcas": [
+        "Esporte"
+      ],
+      "desc": "Corrida noturna de verão em Imbé.",
+      "fonte": "https://corridasderuars.com.br/evento/5-imbe-night-run/",
+      "fontes": [
+        "https://corridasderuars.com.br/eventos/"
+      ],
+      "sid": "5oimbenightrunimbe20270116"
     }
   ]
 }
