@@ -3,6 +3,8 @@
 // Não duplica: guarda os já importados (sid) e confere nome + dia contra o que já está publicado e contra a base (acontece-dados.js).
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import decodeJpeg from "./jpeg/decoder.js";
+import encodeJpeg from "./jpeg/encoder.js";
 
 const SUG = "https://raw.githubusercontent.com/edisonncosta/kiiro-site/sugestoes/acontece.json";
 const norm = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -67,6 +69,48 @@ async function microlink(fonte, print) {
   } catch { return ""; }
 }
 
+// Sympla: quando não dá para pegar a arte pelo link, tira um print da página no tamanho de celular e recorta só o banner do evento.
+// O banner é o primeiro bloco "com imagem" logo abaixo da barra escura do topo; para antes do botão branco "Compartilhar".
+const ehSympla = (u) => /(^|\.)sympla\.com\.br\//.test(String(u).replace(/^https?:\/\//, ""));
+function recortarBanner(jpeg) {
+  let im;
+  try { im = decodeJpeg(jpeg, { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 40, maxMemoryUsageInMB: 256 }); } catch { return null; }
+  const { width: W, height: H, data: d } = im;
+  const px = (x, y, c) => d[(y * W + x) * 4 + c];
+  // linha "de imagem": muita variação de cor; linha lisa: fundo da página ou da barra
+  const variacao = (y) => {
+    let s = 0, s2 = 0, n = 0;
+    for (let x = 0; x < W; x += 4) { const v = (px(x, y, 0) + px(x, y, 1) + px(x, y, 2)) / 3; s += v; s2 += v * v; n++; }
+    const m = s / n; return Math.sqrt(Math.max(0, s2 / n - m * m));
+  };
+  // botão branco no meio (o "Compartilhar" que fica por cima do pé do banner)
+  const brancoNoMeio = (y) => { for (let x = Math.floor(W * 0.42); x < W * 0.58; x += 2) if (px(x, y, 0) < 245 || px(x, y, 1) < 245 || px(x, y, 2) < 245) return false; return true; };
+  const lim = Math.floor(H * 0.75);
+  let y0 = -1, y1 = -1;
+  for (let y = 0; y < lim; y++) {
+    const img = variacao(y) > 18;
+    if (y0 < 0) { if (img) y0 = y; continue; }
+    if (!img || brancoNoMeio(y)) { if (y - y0 >= W * 0.25) { y1 = y; break; } y0 = img ? y : -1; }
+  }
+  if (y0 < 0 || y1 < 0) return null;
+  const h = y1 - y0, out = Buffer.alloc(W * h * 4);
+  d.subarray ? out.set(d.subarray(y0 * W * 4, y1 * W * 4)) : Buffer.from(d).copy(out, 0, y0 * W * 4, y1 * W * 4);
+  try { return Buffer.from(encodeJpeg({ data: out, width: W, height: h }, 88).data); } catch { return null; }
+}
+async function printSympla(fonte) {
+  const q = "screenshot=true&meta=false&screenshot.type=jpeg&viewport.width=430&viewport.height=932&viewport.deviceScaleFactor=2&viewport.isMobile=true&viewport.hasTouch=true&waitForTimeout=2500";
+  try {
+    const r = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(fonte)}&${q}`, { signal: AbortSignal.timeout(16000) });
+    const j = r.ok ? await r.json() : null;
+    const u = j?.data?.screenshot?.url;
+    if (!u) return null;
+    const im = await fetch(u, { signal: AbortSignal.timeout(8000) });
+    const b = im.ok ? Buffer.from(await im.arrayBuffer()) : null;
+    const c = b ? recortarBanner(b) : null;
+    return c && c.length > 8000 ? c : null;
+  } catch { return null; }
+}
+
 // Ordem: 1) imagem que a busca já trouxe  2) arte do link (og:image etc.)  3) Instagram em tamanho grande
 // 4) arte lida por navegador (Microlink)  5) print da página do evento (não em Instagram/Facebook, que mostram tela de login)
 async function imagemDe(e, { print = false, limite = 0 } = {}) {
@@ -85,7 +129,9 @@ async function imagemDe(e, { print = false, limite = 0 } = {}) {
     if (post) tentar.push(async () => baixar(`https://www.instagram.com/p/${post[2]}/media/?size=l`));
   }
   for (const f of fontes) tentar.push(async () => { const u = await microlink(f, false); return u ? baixar(u) : null; });
-  if (print) for (const f of fontes.filter((u) => !ehRede(u))) tentar.push(async () => { const u = await microlink(f, true); return u ? baixar(u, 15000) : null; });
+  // Sympla sem arte no link: print do celular recortado no banner (sempre, mesmo na primeira tentativa)
+  for (const f of fontes.filter(ehSympla)) tentar.push(async () => printSympla(f));
+  if (print) for (const f of fontes.filter((u) => !ehRede(u) && !ehSympla(u))) tentar.push(async () => { const u = await microlink(f, true); return u ? baixar(u, 15000) : null; });
   for (const t of tentar) {
     if (limite && Date.now() > limite) break;
     const b = await t();
