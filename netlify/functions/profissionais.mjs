@@ -139,13 +139,32 @@ export default async (req, context) => {
       p.fotoTrocada = !!t.foto; p.trabalhosTrocados = !!(t.trabalhos && t.trabalhos.length);
     }
 
+    // só os serviços da lista oficial (servicos.js) aparecem no site: "aluguel de casa" e outros que entraram pelo antigo "Outro serviço" ficam de fora.
+    // Quem não tem nenhum serviço da lista some do site (continua no painel, marcado, para corrigir o serviço ou excluir).
+    const oficiais = await servicosOficiais(new URL(req.url).origin);
+    if (oficiais) for (const p of lista) {
+      const ok = p.categorias.map((c) => oficiais.get(norm(c))).filter(Boolean);
+      p.foraDaLista = p.categorias.filter((c) => !oficiais.has(norm(c)));
+      if (!admin) { p.categorias = [...new Set(ok)]; p.categoria = p.categorias[0] || ""; }
+    }
+
     if (admin) return json(200, lista.map((p) => ({ ...p, oculto: ocultosSet.has(p.whatsapp) })), { "Cache-Control": "no-store" });
     // instagram e collab ficam só para o painel
-    return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp)).map(({ instagram, collab, ...p }) => p), { "Cache-Control": "public, max-age=60" });
+    return json(200, lista.filter((p) => !ocultosSet.has(p.whatsapp) && p.categoria).map(({ instagram, collab, foraDaLista, ...p }) => p), { "Cache-Control": "public, max-age=60" });
   } catch (e) {
     return json(500, { erro: "Falha ao ler cadastros: " + String(e && e.message || e).slice(0, 120) });
   }
 };
+
+const norm = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// lê a lista de serviços do próprio site (servicos.js). Se não conseguir ler, não filtra (melhor mostrar a mais que sumir com todo mundo).
+async function servicosOficiais(base) {
+  try {
+    const t = await (await fetch(`${base}/servicos.js`, { signal: AbortSignal.timeout(4000) })).text();
+    const nomes = [...t.matchAll(/itens:\s*\[([\s\S]*?)\]/g)].flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
+    return nomes.length > 10 ? new Map(nomes.map((n) => [norm(n), n])) : null;
+  } catch { return null; }
+}
 
 function json(status, body, extra = {}) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", ...extra } });

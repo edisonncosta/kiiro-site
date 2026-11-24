@@ -119,7 +119,6 @@
       <p class="opc" style="margin:-.2rem 0 .6rem" id="servicos-dica">Marque até 3 serviços.</p>
       <input class="input" type="search" id="busca-servico" placeholder="Procurar serviço… ex.: piscina" style="margin-bottom:.8rem" autocomplete="off">
       <div id="servicos"></div>
-      <input class="input escondido" type="text" id="outro" placeholder="Qual é o outro serviço?">
     </div>
 
     <div class="campo">
@@ -273,11 +272,8 @@ $("servicos").innerHTML = window.KIIRO_SERVICOS.map((g, gi) => `
     <h4>${g.grupo}</h4>
     <div class="chips">${g.itens.map((v, i) => `<input type="checkbox" id="s${gi}-${i}" value="${v}"><label for="s${gi}-${i}">${v}</label>`).join("")}</div>
   </div>`).join("") + `
-  <div class="grupo-serv" data-grupo>
-    <h4>Não achou?</h4>
-    <div class="chips"><input type="checkbox" id="s-outro" value="outro"><label for="s-outro">Outro serviço</label></div>
-  </div>
-  <p id="servicos-vazio" class="escondido">Nenhum serviço com esse nome. Marque <b>Outro serviço</b> e escreva o seu.</p>`;
+  <p class="opc" style="margin-top:.4rem">Por enquanto a Kiiro aceita só os serviços desta lista.</p>
+  <p id="servicos-vazio" class="escondido">Nenhum serviço com esse nome na lista. Por enquanto a Kiiro aceita só os serviços acima.</p>`;
 $("busca-servico").addEventListener("input", () => {
   const t = semAcento($("busca-servico").value.trim());
   let algum = false;
@@ -286,12 +282,11 @@ $("busca-servico").addEventListener("input", () => {
     g.querySelectorAll("input").forEach(i => {
       const pal = ((window.KIIRO_PALAVRAS || {})[i.value] || []).map(semAcento);
       const grp = semAcento((g.querySelector(".grupo-titulo, h4, .g-nome") || {}).textContent || g.dataset.grupo || "");
-      const mostra = !t || i.value === "outro" || i.checked || semAcento(i.value).includes(t) || grp.includes(t) || pal.some(w => w.includes(t));
+      const mostra = !t || i.checked || semAcento(i.value).includes(t) || grp.includes(t) || pal.some(w => w.includes(t));
       i.nextElementSibling.style.display = mostra ? "" : "none";
-      if (mostra && i.value !== "outro") visiveis++;
+      if (mostra) visiveis++;
     });
-    const ehOutro = !!g.querySelector("#s-outro");
-    g.style.display = (visiveis || ehOutro) ? "" : "none";
+    g.style.display = visiveis ? "" : "none";
     if (visiveis) algum = true;
   });
   $("servicos-vazio").classList.toggle("escondido", algum || !t);
@@ -307,12 +302,9 @@ $("servicos").addEventListener("change", e => {
     $("servicos-dica").style.color = "var(--danger)";
   } else {
     const n = marcados.length;
-    $("servicos-dica").innerHTML = n ? `Marque até 3 serviços · <b>${n} marcado${n > 1 ? "s" : ""}:</b> ${[...marcados].map(i => i.value === "outro" ? "Outro" : i.value).join(", ")}` : "Marque até 3 serviços.";
+    $("servicos-dica").innerHTML = n ? `Marque até 3 serviços · <b>${n} marcado${n > 1 ? "s" : ""}:</b> ${[...marcados].map(i => i.value).join(", ")}` : "Marque até 3 serviços.";
     $("servicos-dica").style.color = "";
   }
-  const outro = $("s-outro").checked;
-  $("outro").classList.toggle("escondido", !outro);
-  if (outro && e.target.id === "s-outro") $("outro").focus();
 });
 
 // descrição obrigatória
@@ -431,7 +423,9 @@ $("instagram").addEventListener("input", checarInsta);
 $("instagram").addEventListener("blur", () => { if (!checarInsta()) $("instagram").value = limparInsta($("instagram").value); });
 
 $("form").addEventListener("submit", e => {
-  const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value === "outro" ? $("outro").value.trim() : i.value);
+  // só serviços da lista oficial
+  const oficiais = new Set(window.KIIRO_SERVICOS.flatMap(g => g.itens));
+  const servicos = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value).filter(v => oficiais.has(v));
   const cidades = cidadesAtende().map(([c]) => c).filter(c => !foraCid.has(c)); // a principal vem primeiro
   const whats = $("whatsapp").value.replace(/\D/g, "");
   const marcado = n => document.querySelector(`input[name=${n}]:checked`);
@@ -439,7 +433,6 @@ $("form").addEventListener("submit", e => {
   let msg = "";
   if (!$("nome").value.trim()) msg = "Informe seu nome.";
   else if (!servicos.length) msg = "Escolha o que você faz.";
-  else if (servicos.includes("")) msg = "Diga qual é o outro serviço.";
   else if (!cidades.length) msg = "Escolha sua cidade principal.";
   else if (!marcado("experiencia")) msg = "Diga há quanto tempo trabalha na área.";
   else if (!marcado("dedicacao")) msg = "Diga se é sua profissão principal ou renda extra.";
@@ -477,7 +470,7 @@ $("form").addEventListener("submit", e => {
 // patrocinador do profissional: muda conforme a cidade e os serviços escolhidos
 let ppChave = null;
 function atualizarPatro() {
-  const servs = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value).filter(v => v !== "outro");
+  const servs = [...$("servicos").querySelectorAll("input:checked")].map(i => i.value);
   const c = $("cid-base").value, k = c + "|" + servs.join(",");
   if (k === ppChave || !window.KiiroPatroPro) return; ppChave = k;
   KiiroPatroPro.mostrar($("patro-pro"), servs, c);
