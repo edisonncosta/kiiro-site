@@ -614,7 +614,7 @@ export default async (req, context) => {
         <div class="ed-l">Serviços <small class="ed-conta">marque até 3</small>
           <input type="search" class="ed-busca" placeholder="Procurar serviço… ex.: piscina" autocomplete="off">
           <div class="ed-servs" data-atual="${esc(cats.join("|"))}"></div>
-          <input name="servico_outro" class="ed-outro" placeholder="Outro serviço (se não estiver na lista)" maxlength="50">
+          <input type="hidden" name="servico_outro" class="ed-outro" value=""><small class="ed-dica">Só os serviços da lista aparecem no site.</small>
         </div>
         <div class="ed-l">Cidade principal<select name="cidade_base" class="ed-base" data-atual="${esc(p.cidadeBase || "")}"></select></div>
         <div class="ed-l">Até onde atende<div class="ed-chips ed-raio">${[["0", "Só na cidade"], ["15", "15 km"], ["30", "30 km"], ["50", "50 km"]].map(([v, t]) => `<label><input type="radio" name="raio" value="${v}"${String(p.raio || "") === v ? " checked" : ""}> ${t}</label>`).join("")}</div></div>
@@ -632,22 +632,25 @@ export default async (req, context) => {
         <button class="b zap" type="submit">Salvar alterações</button>
       </form>`;
     };
-    const visiveis = pros.filter((p) => !p.oculto).length;
+    // fora do site: oculto pelo painel OU nenhum serviço da lista oficial (ex.: "aluguel de casa")
+    const semServ = (p) => (p.foraDaLista || []).length && (p.foraDaLista || []).length >= (p.categorias || []).length;
+    const visiveis = pros.filter((p) => !p.oculto && !semServ(p)).length;
+    const nFora = pros.filter((p) => !p.oculto && semServ(p)).length;
     html = `
       ${aviso ? `<p class="aviso">${esc(aviso)}</p>` : ""}
       ${erro ? `<p class="aviso ruim">${esc(erro)}</p>` : ""}
-      <div class="topo-pro"><input id="filtro" type="search" placeholder="Procurar por nome, serviço ou cidade" aria-label="Procurar profissional"><span>${visiveis} no site · ${pros.length - visiveis} ocultos</span></div>
+      <div class="topo-pro"><input id="filtro" type="search" placeholder="Procurar por nome, serviço ou cidade" aria-label="Procurar profissional"><span>${visiveis} no site · ${pros.filter((p) => p.oculto).length} ocultos${nFora ? ` · <a href="#" onclick="document.getElementById('filtro').value='fora da lista';document.getElementById('filtro').dispatchEvent(new Event('input'));return false">${nFora} com serviço fora da lista</a>` : ""}</span></div>
       ${pros.map((p) => {
         const nome1 = String(p.nome).split(" ")[0];
         const msg = `Oi, ${nome1}! Aqui é da Kiiro 💛 Para atualizar seu perfil (foto, serviços, cidades ou fotos de trabalhos), é só preencher de novo com o mesmo WhatsApp: ${base}/cadastro . Suas avaliações continuam.`;
         const formFoto = (acao, rot, varias) => `<form class="ffoto" method="post" action="/painel" enctype="multipart/form-data"><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><label class="b">${rot}<input type="file" name="arquivo" accept="image/*" ${varias ? "multiple" : ""} hidden></label></form>`;
         const form = (acao, rot, cls, confirma) => `<form method="post" action="/painel"${confirma ? ` onsubmit="return confirm('${confirma}')"` : ""}><input type="hidden" name="chave" value="${esc(KEY)}"><input type="hidden" name="acao" value="${acao}"><input type="hidden" name="w" value="${esc(p.whatsapp)}"><input type="hidden" name="ids" value="${esc((p.ids || [p.id]).join(","))}"><button class="b ${cls}" type="submit">${rot}</button></form>`;
         return `
-        <article class="pro ${p.oculto ? "oculto" : ""}" data-editado="${p.editado ? 1 : ""}" id="${esc(p.whatsapp)}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade).toLowerCase())}">
+        <article class="pro ${p.oculto ? "oculto" : ""}" data-editado="${p.editado ? 1 : ""}" id="${esc(p.whatsapp)}" data-busca="${esc((p.nome + " " + (p.categorias || []).join(" ") + " " + p.cidade + (semServ(p) ? " fora da lista" : "")).toLowerCase())}">
           <div class="pro-l">
             ${p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy">` : `<span class="ini">${esc(String(p.nome)[0] || "?")}</span>`}
             <div>
-              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""} ${p.editado ? `<span class="st pend">Editado</span>` : ""} ${p.collab && p.instagram ? `<span class="st bom">Topa collab</span>` : ""}
+              <b>${esc(p.nome)}</b> ${p.oculto ? `<span class="st ruim">Oculto</span>` : ""} ${semServ(p) ? `<span class="st ruim" title="Não aparece no site até ter um serviço da lista">Fora do site: serviço fora da lista</span>` : (p.foraDaLista || []).length ? `<span class="st pend" title="${esc(p.foraDaLista.join(", "))}">Tem serviço fora da lista</span>` : ""} ${p.editado ? `<span class="st pend">Editado</span>` : ""} ${p.collab && p.instagram ? `<span class="st bom">Topa collab</span>` : ""}
               <p>${esc((p.categorias || []).join(" · "))}<br>${esc(p.cidade)}</p>
               ${(p.trabalhos || []).length ? `<div class="mini-trab">${p.trabalhos.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</div>` : ""}
               <p class="mini">${p.avaliacoes ? `★ ${String(p.nota).replace(".", ",")} (${p.avaliacoes})` : "Sem avaliações"} · ${conta[p.whatsapp] || 0} chamada${(conta[p.whatsapp] || 0) === 1 ? "" : "s"} · desde ${p.desde ? fmt(p.desde).slice(0, 5) : "–"}${(p.ids || []).length > 1 ? ` · ${(p.ids || []).length} cadastros` : ""}</p>
