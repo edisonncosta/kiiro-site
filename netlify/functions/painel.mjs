@@ -1544,9 +1544,16 @@ const MODELOS_PADRAO = [
   { id: "doacao", nome: "Pedir doação", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nQue bom que a Kiiro te ajudou a fechar serviço! A Kiiro é grátis para os profissionais e se mantém com doações.\n\nSe puder, apoie com qualquer valor pelo Pix, leva 1 minuto:\n👉 {link_doacao}\n\nMuito obrigado pela parceria! 🙏" },
   { id: "conta", nome: "Novidade: área do profissional", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nNovidade: agora você tem uma área só sua na Kiiro. Lá você vê quantas pessoas viram seu perfil, quem te chamou e pode anotar os serviços que fechou.\n\nÉ só criar sua conta com este mesmo WhatsApp:\n👉 {site}/conta\n\nQualquer dúvida, é só chamar!" },
 ];
+// modelo da meta dos 100 (25/11/2026): entra uma vez na lista de modelos; se apagar, não volta
+const MODELO_META100 = { id: "meta100", nome: "Meta 100: convide UMA pessoa", texto: "Oi, {nome}! Aqui é da Kiiro 💛\n\nQueria te agradecer por estar com a gente desde o começo. A Kiiro ainda está nascendo, mas vai ser grande aqui no Litoral, e tu faz parte disso.\n\nNossa meta agora é chegar a 100 profissionais. Quanto mais gente boa na plataforma, mais clientes procuram a Kiiro, e mais chamados chegam pra ti também.\n\nPor isso te peço uma coisa só: convida UMA pessoa. Só uma. Um colega, amigo ou parente que trabalhe com serviço.\n\nSe cada um trouxer alguém que faça o cadastro, a gente bate os 100 hoje 🚀\n\nO cadastro é rapidinho e a taxa é 0%: chamakiiro.com.br/cadastro\nE quem entrar agora ainda ganha o selo de Fundador 👑\n\nValeu demais pela força! 🙏" };
 async function lerModelos(admin) {
   const l = await admin.get("modelos", { type: "json" });
-  return Array.isArray(l) ? l : MODELOS_PADRAO.map((m) => ({ ...m }));
+  const lista = Array.isArray(l) ? l : MODELOS_PADRAO.map((m) => ({ ...m }));
+  if (!lista.some((m) => m.id === MODELO_META100.id) && !(await admin.get("modelo-meta100-ok"))) {
+    lista.unshift({ ...MODELO_META100 });
+    await admin.setJSON("modelos", lista); await admin.set("modelo-meta100-ok", "1");
+  }
+  return lista;
 }
 // troca {nome}, {link_avaliacao}... pelos dados de cada profissional
 function preencher(texto, p, base) {
