@@ -759,6 +759,15 @@
   .p99-img{flex:none;width:40%;max-width:170px;display:grid;place-items:center}
   .p99-img i{display:block;width:100%;aspect-ratio:1;max-height:118px;border-radius:16px;background:#fff center/contain no-repeat;box-shadow:0 4px 14px rgba(120,90,0,.18)}
   .p99-mega svg{width:76px;height:76px;color:#B98A00;transform:rotate(-12deg)}
+  /* arte preenchendo o lado direito, fundo na cor da arte */
+  .patro.p99.cheio{background:var(--p99-cor,linear-gradient(120deg,#FFF6CF,#FFE27A));padding-right:0}
+  .patro.p99.cheio .p99-tx{position:relative;z-index:1;max-width:58%}
+  .patro.p99.cheio .p99-img{position:absolute;top:0;right:0;bottom:0;width:46%;max-width:none;display:block;padding:1.6rem 1.1rem 1.1rem .6rem;box-sizing:border-box}
+  .patro.p99.cheio .p99-img i{width:100%;height:100%;max-height:none;aspect-ratio:auto;border-radius:0;box-shadow:none;background-color:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 18%);mask-image:linear-gradient(90deg,transparent 0,#000 18%)}
+  .patro.p99.escuro{color:#fff}
+  .patro.p99.escuro .p99-tx span{color:rgba(255,255,255,.85)}
+  .patro.p99.escuro .p99-tag{color:rgba(255,255,255,.75);z-index:1}
   .p99-tag{position:absolute;right:.7rem;top:.5rem;font-size:.6rem;font-weight:600;color:rgba(26,26,26,.45);letter-spacing:.03em}
   /* meta de profissionais: placar ao vivo, como contador de inscritos de live */
   .meta-pro{position:relative;margin:.2rem 0 1.2rem;background:rgba(18,18,18,.62);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);color:#fff;border-radius:22px;padding:1rem 1rem 1.1rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,200,0,.18)}
@@ -1766,7 +1775,8 @@ function cardPatroDe(pt) {
   // formato do 99: cartão largo, texto e botão à esquerda, a arte à direita; gira sozinho com os outros
   const img = pt.banner || pt.logo;
   const cor = /^#[0-9a-f]{3,8}$/i.test(pt.cor || "") && pt.cor.toLowerCase() !== "#ffffff" && pt.cor.toLowerCase() !== "#fff" ? pt.cor : "";
-  return `<a class="patro p99" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored"${cor ? ` style="background:${cor}"` : ""}>
+  // a arte ocupa o lado direito inteiro e o fundo do cartão pega a cor que mais aparece nela (pintarP99)
+  return `<a class="patro p99${img ? " cheio" : ""}${cor && corEscura(cor) ? " escuro" : ""}" data-nome="${esc(pt.nome)}" href="${esc(pt.link || "#")}" target="_blank" rel="noopener sponsored"${cor ? ` style="--p99-cor:${cor}"` : img ? ` data-cor-de="${esc(img)}"` : ""}>
     <span class="p99-tx"><b>${esc(pt.nome)}</b>${pt.texto ? `<span>${esc(pt.texto)}</span>` : ""}<em>${esc(pt.botao || "Saber mais")}</em></span>
     <span class="p99-img">${img ? `<i style="background-image:url('${esc(img)}')"></i>` : ""}</span>
     <small class="p99-tag">Patrocinado</small>
@@ -1826,6 +1836,40 @@ function pintarBanners() {
     el.classList.add("pintado");
   });
 }
+/* cor predominante da arte (inclui preto/azul-escuro: logo escuro deixa o cartão escuro) */
+const coresP99 = new Map();
+function corPredominante(src) {
+  if (coresP99.has(src)) return coresP99.get(src);
+  const pr = new Promise(ok => {
+    const im = new Image(); im.crossOrigin = "anonymous";
+    im.onload = () => {
+      try {
+        const N = 40, c = document.createElement("canvas"); c.width = c.height = N;
+        const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(im, 0, 0, N, N);
+        const px = g.getImageData(0, 0, N, N).data, caixas = new Map();
+        for (let i = 0; i < px.length; i += 4) {
+          if (px[i + 3] < 200) continue;
+          const r = px[i], gg = px[i + 1], b = px[i + 2];
+          const k = (r >> 5) + "," + (gg >> 5) + "," + (b >> 5), x = caixas.get(k) || { n: 0, r: 0, g: 0, b: 0 };
+          x.n++; x.r += r; x.g += gg; x.b += b; caixas.set(k, x);
+        }
+        const top = [...caixas.values()].sort((a, b) => b.n - a.n)[0];
+        ok(top && top.n > N * N * .08 ? [top.r / top.n, top.g / top.n, top.b / top.n].map(Math.round) : null);
+      } catch { ok(null); }
+    };
+    im.onerror = () => ok(null); im.src = src;
+  });
+  coresP99.set(src, pr); return pr;
+}
+function pintarP99() {
+  document.querySelectorAll(".patro.p99[data-cor-de]:not([data-pintado])").forEach(async el => {
+    el.dataset.pintado = "1";
+    const c = await corPredominante(el.dataset.corDe); if (!c) return;
+    el.style.setProperty("--p99-cor", rgb(c));
+    if ((0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) < 150) el.classList.add("escuro");
+  });
+}
+new MutationObserver(() => pintarP99()).observe(document.documentElement, { childList: true, subtree: true });
 const patroVistos = new Set();
 function cardPatrocinio() {
   const cidade = $("cidade").value;
